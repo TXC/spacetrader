@@ -12,6 +12,7 @@ import { runtime } from '../game/runtime.ts'
 export const WARP_START_CLICKS = 21;
 
 export class SSSTWarpViewController {
+  [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game, selectedSystem) {
     this.div = div
     this._game = game

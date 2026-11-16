@@ -8,6 +8,7 @@ import { MAUtils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
 export class SSSTPlunderViewController {
+  [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(game, opponent, plunderLabel) {
     this._game = game
     this._opponent = opponent

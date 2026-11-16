@@ -48,6 +48,7 @@ export const MERCENARY_COUNT = SSSTCrewMember.mercenaryNames().length;
 
 
 export class SSSTGame {
+  [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(difficulty, commander) {
     this._saveBlock = null
 

@@ -109,6 +109,7 @@ export function REPUTATION_STR(x) {
 
 
 export class SSSTCommander extends SSSTCrewMember {
+    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
     constructor(name, engineer = 0, pilot = 0, fighter = 0, trader = 0) {
 			super(name, engineer, pilot, fighter, trader)
 

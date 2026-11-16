@@ -17,6 +17,7 @@ export const TRAVEL_PROGRESS_DURATION = 0.2;
 export const CHANCE_OF_TRADE_IN_ORBIT = 100;
 
 export class SSSTTravelViewController {
+  [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game, origin, destination, wasVisited) {
     this.div = div
     this._game = game

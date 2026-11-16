@@ -19,6 +19,7 @@ import { runtime } from '../game/runtime.ts'
 export const systemLandingOptionsDivID = "systemLandingOptionsDiv";
 
 export class SSSTSystemLandingViewController {
+  [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div) {
     this.div = div
   }

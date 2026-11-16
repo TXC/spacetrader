@@ -24,6 +24,7 @@ export const SSSTOpponentType = {
 };
 
 export class SSSTOpponent extends SSSTCrewMember {
+    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
     constructor(type, engineer, pilot, fighter, trader, ship) {
         super("opponent", engineer, pilot, fighter, trader);
         MAUtils.ensureInteger(type)

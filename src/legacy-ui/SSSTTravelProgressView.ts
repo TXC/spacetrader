@@ -4,6 +4,7 @@ import { TRAVEL_PROGRESS_DURATION } from './SSSTTravelViewController.ts'
 import { MAUtils } from '../game/Utilities.ts'
 
 export class SSSTTravelProgressView {
+  [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game, origin, destination, wasVisited) {
     this.div = div
     this.game = game;

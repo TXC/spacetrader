@@ -50,6 +50,7 @@ export function ACCESSORY_FOR_TYPE(type) {
 
 
 export class SSSTAccessory {
+    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
     constructor(type, name, price, techLevel, occurrence) {
         this._type = type;
         this._name = name;
@@ -100,6 +101,7 @@ export class SSSTAccessory {
 
 
 export class SSSTGadget extends SSSTAccessory {
+    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
     constructor(type, name, price, techLevel, occurrence, icon) {
         super(type, name, price, techLevel, occurrence);
         this._icon = icon;
@@ -165,6 +167,7 @@ export class SSSTGadget extends SSSTAccessory {
 
 
 export class SSSTWeapon extends SSSTAccessory {
+    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
     constructor(type, name, price, techLevel, occurrence, power) {
         super(type, name, price, techLevel, occurrence);
         this._power = power;
@@ -225,6 +228,7 @@ export class SSSTWeapon extends SSSTAccessory {
 }
 
 export class SSSTShield extends SSSTAccessory {
+    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
     constructor(type, name, price, techLevel, occurrence, power) {
         super(type, name, price, techLevel, occurrence);
         this._power = power;

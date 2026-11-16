@@ -6,6 +6,7 @@ import './style.css'
 
 
 export class SpaceTraderGame {
+  [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(gameDiv, loadGame = true) {
     this.gameDiv = gameDiv
     this.loadGame = loadGame

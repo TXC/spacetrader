@@ -17,6 +17,7 @@ export function RESET_CURRENT_SPECIAL(game) {
 }
 
 export class SSSTSpecialEventSpecifier {
+    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
     static specialEventTypeToSpecifier() {
         if (!SSSTSpecialEventSpecifier.sDictionary) {
             const dict = new Map();

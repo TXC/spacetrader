@@ -173,6 +173,7 @@ export const ENCOUNTER_MODE_AUTO = (encounterMode) => [SSSTEncounterMode.AutoAtt
 
 
 export class SSSTEncounterController {
+    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
     constructor(type, game, opponent) {
         MAUtils.ensureInteger(type)
         MAUtils.ensureType(game, "object")

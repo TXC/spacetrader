@@ -8,6 +8,7 @@ import { MAUtils } from './Utilities.ts'
 import { runtime } from './runtime.ts'
 
 export class SSSTSolarSystem {
+    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
     constructor(name, x, y, difficulty) {
         if (!name) {
           return

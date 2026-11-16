@@ -3,6 +3,7 @@ import { MAUtils } from './Utilities.ts'
 import { runtime } from './runtime.ts'
 
 export class SSSTCrewMember {
+    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
     static mercenaryNames() {
         if (!this._sNames) {
             this._sNames = [

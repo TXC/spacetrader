@@ -23,6 +23,7 @@ export function END_STATUS_STR(x) {
 }
 
 export class SSSTEndGameViewController {
+  [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game, inProgress) {
     this.div = div
     this._game = game

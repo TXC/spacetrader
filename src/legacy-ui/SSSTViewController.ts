@@ -16,6 +16,7 @@ export const SSSTDivIDs = {
 
 
 export class SSSTViewController {
+    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
     constructor(gameDiv, loadGame) {
       this.gameDiv = gameDiv
       this.loadGame = loadGame

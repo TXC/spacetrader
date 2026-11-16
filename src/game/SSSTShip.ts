@@ -36,6 +36,7 @@ export const MAX_TRIBBLES = 100000;
 
 
 export class SSSTShipModel {
+    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
     constructor(type, name, cargoBays, weaponSlots, shieldSlots, gadgetSlots,
                 crewQuarters, fuelTanks, minTechLevel, costOfFuel, price,
                 bounty, frequency, hullStrength, police, pirates, traders,
@@ -138,6 +139,7 @@ SSSTShipModel.shipModelForType = function(type) {
 
 
 export class SSSTShip {
+    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
     constructor(type, difficulty) {
         if (type >= SSSTShipModelType.Count) {
           return

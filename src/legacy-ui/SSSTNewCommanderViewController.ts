@@ -5,6 +5,7 @@ import { MAUtils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
 export class SSSTNewCommanderViewController {
+  [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div) {
     this.div = div
   }

@@ -13,6 +13,7 @@ export const WormholeSystemColor = "#FFA500"
 export const SpecialSystemColor = "#66CC85"
 
 export class SSSTGalaxyView {
+  [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game, selectedSystem, selectedWormhole, zoomed, showNames) {
     this.div = div
     this.game = game;

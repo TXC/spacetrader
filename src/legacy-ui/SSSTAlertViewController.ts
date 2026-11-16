@@ -9,6 +9,7 @@ export const SSSTAlertActionType = {
 };
 
 export class SSSTAlertAction {
+  [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(title, actionType, handler) {
     this.title = title
     this.actionType = actionType
@@ -22,6 +23,7 @@ export const SSSTAlertPresentationStyle = {
 };
 
 export class SSSTAlertViewController {
+  [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(alertStr, alertID) {
     this._alertTitle = alertStr
     this._actions = []

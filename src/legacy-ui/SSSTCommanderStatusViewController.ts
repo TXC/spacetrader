@@ -8,6 +8,7 @@ import { MAUtils, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
 export class SSSTCommanderStatusViewController {
+  [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game) {
     this.div = div
     this._game = game
