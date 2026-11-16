@@ -1,9 +1,10 @@
-// @ts-nocheck
 import { SSSTCommander } from './SSSTCommander.ts'
+import type { SSSTCommanderState } from './SSSTCommander.ts'
 import { SSSTCrewMember } from './SSSTCrewMember.ts'
 import { SSSTPolitics, SSSTPoliticsType } from './SSSTPolitics.ts'
 import { MAX_TRIBBLES, SSSTShip, SSSTShipModel, SSSTShipModelType } from './SSSTShip.ts'
 import { SSSTSolarSystem } from './SSSTSolarSystem.ts'
+import type { SSSTSolarSystemState } from './SSSTSolarSystem.ts'
 import { REACTOR_BAY_COUNT, REACTOR_MAX_FUEL, SSSTDifficulty, SSSTDragonflyQuestStatus, SSSTExperimentQuestStatus, SSSTInvasionQuestStatus, SSSTJaporiQuestStatus, SSSTJarekQuestStatus, SSSTMonsterQuestStatus, SSSTReactorQuestStatus, SSSTScarabQuestStatus, SSSTSpecialEvent, SSSTWildQuestStatus } from './SSSTSolarSystem_h.ts'
 import { FABRIC_RIP_PROBABILITY_INITIAL, SSSTSpecialEventSpecifier } from './SSSTSpecialEventSpecifier.ts'
 import { SSSTTechLevel, SSSTTradeItemType } from './SSSTTradeItem_h.ts'
@@ -20,7 +21,8 @@ export const SSSTGameEndStatus = {
   Retired: 1,
   Killed: 2,
   Moon: 3,
-};
+} as const;
+export type SSSTGameEndStatus = (typeof SSSTGameEndStatus)[keyof typeof SSSTGameEndStatus];
 
 export const SSSTRareEvent = {
   MarieCeleste: 0,
@@ -31,7 +33,8 @@ export const SSSTRareEvent = {
   BottleGood: 5,
 
   Count: 6
-};
+} as const;
+export type SSSTRareEvent = (typeof SSSTRareEvent)[keyof typeof SSSTRareEvent];
 
 
 export const MIN_DISTANCE = 6;
@@ -46,10 +49,57 @@ export const WORMHOLE_COUNT = 6;
 export const MERCENARY_COUNT = SSSTCrewMember.mercenaryNames().length;
 
 
+// What serializedState() writes into a saved game.
+export type SSSTGameState = {
+  monsterStatus: number, dragonflyStatus: number, scarabStatus: number, japoriQuestStatus: number,
+  jarekStatus: number, invasionStatus: number, experimentStatus: number, fabricRipProbability: number,
+  wildStatus: number, reactorStatus: number, difficulty: number, endStatus: number,
+  monsterHull: number, score: number,
+  remindLoans: boolean, tribbleMessage: boolean, alreadyPaidForNewspaper: boolean,
+  alwaysIgnorePirates: boolean, alwaysIgnorePolice: boolean, alwaysIgnoreTraders: boolean,
+  alwaysIgnoreTradeInOrbit: boolean, autoFuel: boolean, autoRepairs: boolean, autoNews: boolean,
+  canSuperWarp: boolean,
+  breakingNews?: string[], commander: SSSTCommanderState, warpSystemName?: string,
+  trackedSystemName?: string, uniqueID: string, remainingRareEvents: number[],
+  solarSystems: SSSTSolarSystemState[], lastSave: Date | string,
+}
 
 export class SSSTGame {
-  [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
-  constructor(difficulty, commander) {
+  declare _saveBlock: ((game: SSSTGame) => void) | null
+  declare _uniqueID: string
+  declare _endStatus: number
+  declare _trackedSystem: SSSTSolarSystem | null
+  declare _breakingNews: string[] | null
+  declare canSuperWarp: boolean
+  declare autoNews: boolean
+  declare autoRepairs: boolean
+  declare autoFuel: boolean
+  declare remindLoans: boolean
+  declare tribbleMessage: boolean
+  declare alreadyPaidForNewspaper: boolean
+  declare alwaysIgnorePirates: boolean
+  declare alwaysIgnorePolice: boolean
+  declare alwaysIgnoreTraders: boolean
+  declare alwaysIgnoreTradeInOrbit: boolean
+  declare monsterStatus: number
+  declare dragonflyStatus: number
+  declare scarabStatus: number
+  declare japoriQuestStatus: number
+  declare jarekStatus: number
+  declare invasionStatus: number
+  declare experimentStatus: number
+  declare fabricRipProbability: number
+  declare wildStatus: number
+  declare reactorStatus: number
+  declare commander: SSSTCommander
+  declare difficulty: number
+  declare _monsterHull: number
+  declare _remainingRareEvents: number[]
+  declare solarSystems: SSSTSolarSystem[]
+  declare _warpSystem: SSSTSolarSystem | null
+  declare _lastSave: Date
+
+  constructor(difficulty?: number, commander?: SSSTCommander) {
     this._saveBlock = null
 
     if (commander) {
@@ -86,7 +136,7 @@ export class SSSTGame {
       this.commander = commander;
 
       MAUtils.ensureInteger(difficulty)
-      this.difficulty = difficulty;
+      this.difficulty = difficulty!;
 
       this._populateSolarSystems();
       this._setupEventsAndMercenaries();
@@ -95,7 +145,7 @@ export class SSSTGame {
     }
   }
 
-  static fromSerializedState(serializedState) {
+  static fromSerializedState(serializedState: SSSTGameState) {
     const instance = new SSSTGame();
 
     instance.monsterStatus = serializedState.monsterStatus;
@@ -188,7 +238,8 @@ export class SSSTGame {
   }
 
   serializedState() {
-    const state = {};
+    // Filled in field by field below.
+    const state = {} as SSSTGameState;
 
     MAUtils.ensureInteger(this.monsterStatus)
     state.monsterStatus = this.monsterStatus;
@@ -304,7 +355,7 @@ export class SSSTGame {
     return state;
   }
 
-  setSaveBlock(saveBlock) {
+  setSaveBlock(saveBlock: ((game: SSSTGame) => void) | null) {
     this._saveBlock = saveBlock;
   }
 
@@ -433,23 +484,23 @@ export class SSSTGame {
 
     let eventsToPlace = SSSTSpecialEventSpecifier.randomOccurrenceEventTypes();
 
-    const kravat = this._findSolarSystem('Kravat');
+    const kravat = this._findSolarSystem('Kravat')!;
     kravat.setSpecialEvent(SSSTSpecialEvent.WildGetsOut);
 
-    this._findSolarSystem('Acamar').setSpecialEvent(SSSTSpecialEvent.MonsterKilled);
-    this._findSolarSystem('Baratas').setSpecialEvent(SSSTSpecialEvent.FlyBaratas);
-    this._findSolarSystem('Melina').setSpecialEvent(SSSTSpecialEvent.FlyMelina);
-    this._findSolarSystem('Regulas').setSpecialEvent(SSSTSpecialEvent.FlyRegulas);
-    this._findSolarSystem('Zalkon').setSpecialEvent(SSSTSpecialEvent.DragonflyDestroyed);
-    this._findSolarSystem('Japori').setSpecialEvent(SSSTSpecialEvent.MedicineDelivery);
-    this._findSolarSystem('Utopia').setSpecialEvent(SSSTSpecialEvent.MoonBought);
-    this._findSolarSystem('Devidia').setSpecialEvent(SSSTSpecialEvent.JarekGetsOut);
+    this._findSolarSystem('Acamar')!.setSpecialEvent(SSSTSpecialEvent.MonsterKilled);
+    this._findSolarSystem('Baratas')!.setSpecialEvent(SSSTSpecialEvent.FlyBaratas);
+    this._findSolarSystem('Melina')!.setSpecialEvent(SSSTSpecialEvent.FlyMelina);
+    this._findSolarSystem('Regulas')!.setSpecialEvent(SSSTSpecialEvent.FlyRegulas);
+    this._findSolarSystem('Zalkon')!.setSpecialEvent(SSSTSpecialEvent.DragonflyDestroyed);
+    this._findSolarSystem('Japori')!.setSpecialEvent(SSSTSpecialEvent.MedicineDelivery);
+    this._findSolarSystem('Utopia')!.setSpecialEvent(SSSTSpecialEvent.MoonBought);
+    this._findSolarSystem('Devidia')!.setSpecialEvent(SSSTSpecialEvent.JarekGetsOut);
 
     const SPECIAL_SQR_DISTANCE = 70*70
-    const gemulon = this._findSolarSystem('Gemulon');
+    const gemulon = this._findSolarSystem('Gemulon')!;
     gemulon.setSpecialEvent(SSSTSpecialEvent.GemulonRescued);
     let bestDistance = Infinity;
-    let rescueSystem = null;
+    let rescueSystem = null as SSSTSolarSystem | null;
     // Perform search in reverse to prefer systems without wormholes
 		const solarSystemsReversed = this.solarSystems.slice().reverse()
     solarSystemsReversed.forEach((other) => {
@@ -461,12 +512,12 @@ export class SSSTGame {
         }
       }
     });
-    rescueSystem.setSpecialEvent(SSSTSpecialEvent.AlienInvasion);
+    rescueSystem!.setSpecialEvent(SSSTSpecialEvent.AlienInvasion);
 
-    const daled = this._findSolarSystem('Daled');
+    const daled = this._findSolarSystem('Daled')!;
     daled.setSpecialEvent(SSSTSpecialEvent.ExperimentStopped);
     bestDistance = Infinity;
-    let experimentSystem = null;
+    let experimentSystem = null as SSSTSolarSystem | null;
     solarSystemsReversed.forEach((other) => {
       if (other.getSpecialEvent() === SSSTSpecialEvent.None) {
         const distance = daled.squaredDistanceTo(other);
@@ -476,12 +527,12 @@ export class SSSTGame {
         }
       }
     });
-    experimentSystem.setSpecialEvent(SSSTSpecialEvent.Experiment);
+    experimentSystem!.setSpecialEvent(SSSTSpecialEvent.Experiment);
 
-    const nix = this._findSolarSystem('Nix');
+    const nix = this._findSolarSystem('Nix')!;
     nix.setSpecialEvent(SSSTSpecialEvent.ReactorDelivered);
     bestDistance = Infinity;
-    let getReactorSystem = null;
+    let getReactorSystem = null as SSSTSolarSystem | null;
     solarSystemsReversed.forEach((other) => {
       if (other.getSpecialEvent() === SSSTSpecialEvent.None) {
         const distance = nix.squaredDistanceTo(other);
@@ -491,7 +542,7 @@ export class SSSTGame {
         }
       }
     });
-    getReactorSystem.setSpecialEvent(SSSTSpecialEvent.GetReactor);
+    getReactorSystem!.setSpecialEvent(SSSTSpecialEvent.GetReactor);
 
     let wormholeSystemsSpecial = this.solarSystems.slice(0, WORMHOLE_COUNT);
     while (wormholeSystemsSpecial.length > 0) {
@@ -595,7 +646,7 @@ export class SSSTGame {
     }
   }
 
-  _findSolarSystem(name) {
+  _findSolarSystem(name: string | undefined) {
     return SSSTSolarSystem.solarSystemForName(name, this.solarSystems);
   }
 
@@ -623,7 +674,7 @@ export class SSSTGame {
     return result;
   }
 
-  systemClosestToXY(x, y) {
+  systemClosestToXY(x: number, y: number) {
     let minDistance = Infinity;
     let closest = null;
 
@@ -646,7 +697,7 @@ export class SSSTGame {
     return this._breakingNews
   }
 
-  addBreakingNewsItem(item) {
+  addBreakingNewsItem(item: string) {
     if (!MAUtils.ensureType(item, "string")) { return }
 
     if (!this._breakingNews) {
@@ -655,13 +706,13 @@ export class SSSTGame {
     this._breakingNews.push(item);
   }
 
-  replaceNewsContainingString(needle, item) {
+  replaceNewsContainingString(needle: string, item: string) {
     if (!MAUtils.ensureType(needle, "string")) { return }
     if (!MAUtils.ensureType(item, "string")) { return }
 
-    let index = this._breakingNews.findIndex((existingItem) => existingItem.includes(needle));
+    let index = this._breakingNews!.findIndex((existingItem) => existingItem.includes(needle));
     if (index !== -1) {
-      this._breakingNews.splice(index, 1);
+      this._breakingNews!.splice(index, 1);
     }
     this.addBreakingNewsItem(item);
   }
@@ -674,7 +725,7 @@ export class SSSTGame {
     return this._remainingRareEvents;
   }
 
-  addRemainingRareEvents(rareEvents) {
+  addRemainingRareEvents(rareEvents: number[]) {
     if (!MAUtils.ensureArrayOrNull(rareEvents, "number")) { return }
 
     if (!this._remainingRareEvents) {
@@ -683,7 +734,7 @@ export class SSSTGame {
     this._remainingRareEvents.push(...rareEvents);
   }
 
-  removeRemainingRareEvent(rareEvent) {
+  removeRemainingRareEvent(rareEvent: number) {
     MAUtils.ensureInteger(rareEvent)
 
     let index = this._remainingRareEvents.indexOf(rareEvent);
@@ -699,7 +750,7 @@ export class SSSTGame {
     this.alreadyPaidForNewspaper = false;
   }
 
-  timePassed(days) {
+  timePassed(days: number) {
     MAUtils.ensureInteger(days)
 
     this.commander.timePassed(days);
@@ -710,10 +761,10 @@ export class SSSTGame {
     ) {
       this.invasionStatus = Math.min(SSSTInvasionQuestStatus.ClosedTooLate, this.invasionStatus + days);
       if (this.invasionStatus === SSSTInvasionQuestStatus.ClosedTooLate) {
-        let gemulon = this._findSolarSystem('Gemulon');
+        let gemulon = this._findSolarSystem('Gemulon')!;
         gemulon.setSpecialEvent(SSSTSpecialEvent.GemulonInvaded);
         gemulon.techLevel = SSSTTechLevel.PreAgricultural
-        gemulon.politics = SSSTPolitics.politicsForType(SSSTPoliticsType.Anarchy)
+        gemulon.politics = SSSTPolitics.politicsForType(SSSTPoliticsType.Anarchy)!
         gemulon.updateInventories();
         pLog.log(134)
       }
@@ -737,7 +788,7 @@ export class SSSTGame {
       if (this.experimentStatus === SSSTExperimentQuestStatus.ClosedTooLate) {
         this.fabricRipProbability = FABRIC_RIP_PROBABILITY_INITIAL;
 
-        let daled = this._findSolarSystem('Daled');
+        let daled = this._findSolarSystem('Daled')!;
         daled.setSpecialEvent(SSSTSpecialEvent.ExperimentNotStopped);
         this.addBreakingNewsItem('Travelers Report Timespace Damage, Warp Problems!');
         pLog.log(145)
@@ -844,7 +895,7 @@ export class SSSTGame {
 			comma = '\n';
 		}
 
-		if (SSSTSolarSystem.solarSystemForName("Nix", this.solarSystems).getSpecialEvent() === SSSTSpecialEvent.GetSpecialLaser) {
+		if (SSSTSolarSystem.solarSystemForName("Nix", this.solarSystems)!.getSpecialEvent() === SSSTSpecialEvent.GetSpecialLaser) {
       pLog.log(78)
 			questList += `${comma}Get your special laser at Nix.`;
 			comma = '\n';
@@ -885,7 +936,7 @@ export class SSSTGame {
       pLog.log(82)
 			questList += `${comma}Follow the Dragonfly to ${nextSystem}.`;
 			comma = '\n';
-		} else if (SSSTSolarSystem.solarSystemForName("Zalkon", this.solarSystems).getSpecialEvent() === SSSTSpecialEvent.InstallLightningShield) {
+		} else if (SSSTSolarSystem.solarSystemForName("Zalkon", this.solarSystems)!.getSpecialEvent() === SSSTSpecialEvent.InstallLightningShield) {
       pLog.log(83)
 			questList += `${comma}Get your Lightning shield at Zalkon.`;
 			comma = '\n';
