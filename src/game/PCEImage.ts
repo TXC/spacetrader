@@ -1,11 +1,17 @@
-// @ts-nocheck
 import { MAUtils } from './Utilities.ts'
 
 
-export const sPCEImageCache = {}
+export const sPCEImageCache: Record<string, string> = {}
 
 // Pixel-Character Encoded Image
 export class PCEImage {
+  declare _imageStr: string
+  declare imageStrLines: string[]
+  declare charToColor: Record<string, string>
+  declare firstPixelLineIndex: number
+  declare width: number
+  declare height: number
+
 
   // Properties:
   // imageStrLines - string, full image: color table and pixel data, split by \n into an array
@@ -13,7 +19,7 @@ export class PCEImage {
   // firstPixelLineIndex - integer, index into imageStrLines for the first line of pixel characters
   // width - integer, width of image in pixels
   // height - integer, height of image in pixels
-  constructor(imageStr) {
+  constructor(imageStr: string) {
     this._imageStr = imageStr
     this.imageStrLines = imageStr.split("\n")
 
@@ -53,7 +59,7 @@ export class PCEImage {
     return this._imageStr
   }
 
-  imageStrLineAtPixelRow(pixelRow) {
+  imageStrLineAtPixelRow(pixelRow: number) {
     if (pixelRow >= this.height) {
       return null
     }
@@ -61,7 +67,7 @@ export class PCEImage {
     return this.imageStrLines[this.firstPixelLineIndex + pixelRow]
   }
 
-  updateImageStrLineAtPixelRow(pixelRow, newValue) {
+  updateImageStrLineAtPixelRow(pixelRow: number, newValue: string) {
     if (pixelRow >= this.height || newValue.length != this.width) {
       return
     }
@@ -97,7 +103,7 @@ export class PCEImage {
   }
 
   // colorTransformFn(hexColorStr) => transformedHexColorStr
-  drawInCanvas(canvas, scale, xOffset /* default: 0 */, yOffset /* default: 0 */, colorTransformFn /* default: null */) {
+  drawInCanvas(canvas: HTMLCanvasElement, scale: number, xOffset?: number /* default: 0 */, yOffset?: number /* default: 0 */, colorTransformFn?: ((hexColorStr: string) => string) | null /* default: null */) {
     if (!xOffset) {
       xOffset = 0
     }
@@ -105,7 +111,7 @@ export class PCEImage {
       yOffset = 0
     }
 
-    let ctx = canvas.getContext("2d")
+    let ctx = canvas.getContext("2d")!
 
     // Work around visible horizontal lines caused by a yOffset that's
     // not aligned with a whole pixel value
@@ -130,7 +136,7 @@ export class PCEImage {
   }
 
   // Returns base64 data URL
-  generatePNG(scale) {
+  generatePNG(scale: number) {
     const cacheKey = this._imageStr + "_" + scale
     const cachedImg = sPCEImageCache[cacheKey]
 
@@ -142,7 +148,7 @@ export class PCEImage {
     canvas.width = this.width * scale
     canvas.height = this.height * scale
 
-    let ctx = canvas.getContext("2d")
+    let ctx = canvas.getContext("2d")!
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     this.drawInCanvas(canvas, scale)
 
@@ -193,9 +199,9 @@ export class PCEImage {
   // - Color tables where a character is mapped to different colors in the two images
   // - blankSpaceFiller that is longer than one character
   // - separator or blankSpaceFiller which are not already in the color table of at least one of this, other
-  newPCEImageByAppendingOnRight(other, separator, blankSpaceFiller) {
+  newPCEImageByAppendingOnRight(other: PCEImage, separator: string, blankSpaceFiller: string) {
     // Union the color tables
-    let unionedCharToColor = {}
+    let unionedCharToColor: Record<string, string> = {}
 
     for (let colorChar of Object.keys(this.charToColor)) {
       let colorStr = this.charToColor[colorChar]
@@ -210,7 +216,7 @@ export class PCEImage {
     // Make the new combined string representation, making the images the same height
     let unionedHeight = Math.max(this.height, other.height)
 
-    let unionedImageStrLines = []
+    let unionedImageStrLines: string[] = []
 
     for (let i = 0; i < unionedHeight; ++i) {
       let leftLine = this.imageStrLineAtPixelRow(i)
@@ -244,7 +250,7 @@ export class PCEImage {
 
   // Replace the rectangle with top left corner (x, y)
   // and replacementImg.width, replacementImg.height
-  overwritePixelsWithPCEImage(x, y, replacementImg) {
+  overwritePixelsWithPCEImage(x: number, y: number, replacementImg: PCEImage) {
     // Example to work through the math:
     //
     //   0 1 2 3 4
@@ -272,9 +278,9 @@ export class PCEImage {
     }
 
     for (let j = 0; j < replacementImg.height; ++j) {
-      let replacementLine = replacementImg.imageStrLineAtPixelRow(j)
+      let replacementLine = replacementImg.imageStrLineAtPixelRow(j)!
 
-      let oldLine = this.imageStrLineAtPixelRow(y+j)
+      let oldLine = this.imageStrLineAtPixelRow(y+j)!
 
       let newLine = oldLine.substring(0, x) + replacementLine + oldLine.substring(x + replacementLine.length)
 
@@ -284,13 +290,17 @@ export class PCEImage {
 }
 
 export class PCEPixel {
-  constructor(str, x, y) {
+  declare str: string
+  declare x: number
+  declare y: number
+
+  constructor(str: string, x: number, y: number) {
     this.str = str
     this.x = x
     this.y = y
   }
 
-  canClumpWith(pixel) {
+  canClumpWith(pixel: PCEPixel) {
     let sameColor = this.str == pixel.str
     let adjacent = (Math.abs(this.x-pixel.x) + Math.abs(this.y-pixel.y)) <= 1
     return sameColor && adjacent
@@ -298,11 +308,13 @@ export class PCEPixel {
 }
 
 export class PCEClump {
+  declare pixels: PCEPixel[]
+
   constructor() {
     this.pixels = []
   }
 
-  canClumpWith(pixel) {
+  canClumpWith(pixel: PCEPixel) {
     if (this.pixels.length == 0) {
       return true
     }
@@ -316,7 +328,7 @@ export class PCEClump {
     return false
   }
 
-  addPixel(pixel) {
+  addPixel(pixel: PCEPixel) {
     this.pixels.push(pixel)
   }
 
@@ -330,12 +342,17 @@ export class PCEClump {
 }
 
 export class PCEWobbleImage extends PCEImage {
+  declare maxTicks: number
+  declare tickCount: number
+  declare charToCount: Record<string, number>
+  declare clumps: PCEClump[]
+
   // Properties:
   // tickCount - integer, count of animation time increments that have occurred
   // maxTicks - animation loop duration in ticks
   // clumps - array of PCEPixel
   // charToCount - map of string (pixel character) to number of pixels with that char
-  constructor(imageStr) {
+  constructor(imageStr: string) {
     super(imageStr)
 
     this.maxTicks = 4
@@ -401,7 +418,7 @@ export class PCEWobbleImage extends PCEImage {
     this.tickCount = (this.tickCount+1) % this.maxTicks
   }
 
-  drawInCanvas(canvas, scale, xOffset /* default: 0 */, yOffset /* default: 0 */) {
+  drawInCanvas(canvas: HTMLCanvasElement, scale: number, xOffset?: number /* default: 0 */, yOffset?: number /* default: 0 */) {
     if (!xOffset) {
       xOffset = 0
     }
@@ -409,7 +426,7 @@ export class PCEWobbleImage extends PCEImage {
       yOffset = 0
     }
 
-    let ctx = canvas.getContext("2d")
+    let ctx = canvas.getContext("2d")!
 
     for (let clump of this.clumps) {
       let pixelDimension = scale
@@ -446,6 +463,7 @@ export class PCEWobbleImage extends PCEImage {
         // Square pixels
         //ctx.fillRect(pixelXOffset-wobbleMagnitude, pixelYOffset-wobbleMagnitude, pixelDimension+2*wobbleMagnitude, pixelDimension+2*wobbleMagnitude)
         // Roundrect pixels
+        // @ts-expect-error old bug kept: MAUtils.roundRect does not exist; nothing draws a wobble image
         MAUtils.roundRect(ctx, xOffset+pixelXOffset-wobbleMagnitude, yOffset+pixelYOffset-wobbleMagnitude, pixelDimension+2*wobbleMagnitude, pixelDimension+2*wobbleMagnitude, 2, true, false)
       }
     }
@@ -453,7 +471,7 @@ export class PCEWobbleImage extends PCEImage {
 
   // Generates GIF synchronously - this can be slow!
   // Returns base64 data URL
-  generateGIF(scale) {
+  generateGIF(scale: number) {
     let canvas = document.createElement("canvas")
     canvas.width = this.width * scale
     canvas.height = this.height * scale
@@ -463,9 +481,10 @@ export class PCEWobbleImage extends PCEImage {
       return
     }
 
-    let ctx = canvas.getContext("2d")
+    let ctx = canvas.getContext("2d")!
 
-    // eslint-disable-next-line no-undef -- old bug kept: the GIF library was never loaded; generateGIF has no callers
+    // @ts-expect-error old bug kept: the GIF library was never loaded; generateGIF has no callers
+    // eslint-disable-next-line no-undef -- see the line above
     let encoder = new GIFEncoder()
     encoder.setRepeat(0)
     encoder.setDelay(150)
@@ -491,7 +510,8 @@ export class PCEWobbleImage extends PCEImage {
 
     let gifData = encoder.stream().getData()
 
-    // eslint-disable-next-line no-undef -- old bug kept, see GIFEncoder above
+    // @ts-expect-error old bug kept, see GIFEncoder above
+    // eslint-disable-next-line no-undef -- see the line above
     let base64GIFStr = 'data:image/gif;base64,' + encode64(gifData)
     return base64GIFStr
   }
