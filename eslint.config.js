@@ -19,4 +19,24 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    // Code carried over from old/ unchanged: keep the old style, but catch missing imports,
+    // which nothing else reports while type checking is off.
+    files: ['src/game/**', 'src/legacy-ui/**', 'src/tests/**'],
+    rules: {
+      'no-undef': 'error',
+      '@typescript-eslint/ban-ts-comment': 'off',
+      'prefer-const': 'off',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      'no-case-declarations': 'off',
+      'no-prototype-builtins': 'off',
+      '@typescript-eslint/no-this-alias': 'off',
+      '@typescript-eslint/no-unused-expressions': 'off',
+      'no-empty': 'off',
+      'no-useless-assignment': 'off',
+      'no-useless-escape': 'off',
+      'no-var': 'off',
+    },
+  },
 ])
