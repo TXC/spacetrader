@@ -217,7 +217,7 @@ export class EncounterController {
     encounterText() {
         let text = "";
 
-        let clicks = this._game.commander.travelClicksRemaining;
+        const clicks = this._game.commander.travelClicksRemaining;
         text += `At ${clicks} click${clicks === 1 ? "" : "s"} from ${this._game.commander.currentSystem.name} you encounter`;
 
         if (ENCOUNTER(this._type, "Police")) {
@@ -289,7 +289,7 @@ export class EncounterController {
     }
 
     encounterButtons() {
-        let buttons = [];
+        const buttons = [];
 
         Utils.ensureInteger(this._encounterMode)
 
@@ -424,7 +424,7 @@ export class EncounterController {
                     if (this._game.commander.policeRecordScore > PoliceRecordScore.Criminal) {
                       const alertString = "Are you sure you wish to attack the police? This will turn you into a criminal!";
 
-                      let aC = new AlertViewController(alertString)
+                      const aC = new AlertViewController(alertString)
                       aC.addAction("Ok, I won't.", AlertActionType.Default, null)
 
                       aC.addAction("Attack", AlertActionType.Destructive, () => {
@@ -465,7 +465,7 @@ export class EncounterController {
 
 
 
-                            let aC = new AlertViewController(alertString)
+                            const aC = new AlertViewController(alertString)
                             aC.addAction("Ok, I won't.", AlertActionType.Default, null)
 
                             aC.addAction("Attack", AlertActionType.Destructive, () => {
@@ -496,7 +496,7 @@ export class EncounterController {
 
 
 
-                        let aC = new AlertViewController(alertString)
+                        const aC = new AlertViewController(alertString)
                         aC.addAction("Ok, I won't.", AlertActionType.Default, null)
 
                         aC.addAction("Attack", AlertActionType.Destructive, () => {
@@ -538,7 +538,7 @@ export class EncounterController {
                 this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics) <= 0) {
                 const alertString = "Are you sure you want to attack? You're not carrying illegal goods so it should be safe to submit.";
 
-                let aC = new AlertViewController(alertString)
+                const aC = new AlertViewController(alertString)
                 aC.addAction("Ok, I won't.", AlertActionType.Default, null)
 
                 aC.addAction("Attack", AlertActionType.Destructive, () => {
@@ -586,7 +586,7 @@ export class EncounterController {
             }
 
             if (alertString) {
-                let aC = new AlertViewController(alertString)
+                const aC = new AlertViewController(alertString)
                 aC.addAction("Ok, I won't.", AlertActionType.Default, null)
 
                 aC.addAction("Flee", AlertActionType.Destructive, () => {
@@ -608,7 +608,7 @@ export class EncounterController {
 
         else if (action === "Trade") {
             let itemType: number = TradeItemType.None;
-            let onlyIllegal = this._game.commander.policeRecordScore < PoliceRecordScore.Dubious;
+            const onlyIllegal = this._game.commander.policeRecordScore < PoliceRecordScore.Dubious;
             let tradePrice = 0;
             let maxUnits = 0;
             let comparisonPrice = 0;
@@ -628,7 +628,7 @@ export class EncounterController {
                         tradePrice *= runtime.gameRand.randomIntBelow(100) <= 10 ? 0.9 : 1.1;
                     }
 
-                    let tradeItem = TradeItem.tradeItemForType(itemType)!;
+                    const tradeItem = TradeItem.tradeItemForType(itemType)!;
                     itemName = tradeItem.name;
                     tradePrice = Math.floor(tradePrice / tradeItem.roundOffPrice)
                     tradePrice = (tradePrice + 1) * tradeItem.roundOffPrice
@@ -650,7 +650,7 @@ export class EncounterController {
                         tradePrice *= runtime.gameRand.randomIntBelow(100) <= 10 ? 1.1 : 0.9;
                     }
 
-                    let tradeItem = TradeItem.tradeItemForType(itemType)!;
+                    const tradeItem = TradeItem.tradeItemForType(itemType)!;
                     itemName = tradeItem.name;
                     tradePrice = Math.floor(tradePrice / tradeItem.roundOffPrice)
                     tradePrice = (tradePrice + 1) * tradeItem.roundOffPrice
@@ -668,7 +668,7 @@ export class EncounterController {
 
 
         else if (action === "Surrender" || action === "Yield") {
-            let surrenderAllowed = true;
+            let surrenderAllowed: boolean;
             let surrenderPrompt = null;
             let surrenderBlock = null;
 
@@ -682,7 +682,7 @@ export class EncounterController {
 
                         const artifactStolenString = "The aliens have taken the artifact from you. Well, it's rightfully theirs, so you probably shouldn't complain. You won't receive any reward from Professor Berger, though.";
 
-                        let aC = new AlertViewController(artifactStolenString)
+                        const aC = new AlertViewController(artifactStolenString)
                         aC.addAction("Dismiss", AlertActionType.Default, () => {
                             this.delegate!.encounterControllerEncounterContinues(this, false);
                         })
@@ -733,7 +733,7 @@ export class EncounterController {
                             }
 
 
-                            let aC = new AlertViewController(yieldAlertString)
+                            const aC = new AlertViewController(yieldAlertString)
 
                             aC.addAction("Dismiss", AlertActionType.Default, () => {
                                 this.delegate!.encounterControllerEncounterContinues(this, false);
@@ -787,7 +787,7 @@ export class EncounterController {
 
                         const alertString = `The pirates are upset that they found no cargo on your ship. To save yourself, you have no choice but to pay them 5% of your current net worth.${questString}${wildString || ""}`;
 
-                        let aC = new AlertViewController(alertString)
+                        const aC = new AlertViewController(alertString)
 
                         aC.addAction("Dismiss", AlertActionType.Default, () => {
                             this.delegate!.encounterControllerEncounterContinues(this, false);
@@ -813,7 +813,7 @@ export class EncounterController {
 
                         const alertString = `The pirates board your ship and transfer as much of your cargo to their own ship as their cargo bays can hold.${questString}${wildString || ""}`;
 
-                        let aC = new AlertViewController(alertString)
+                        const aC = new AlertViewController(alertString)
 
                         aC.addAction("Dismiss", AlertActionType.Default, () => {
                             this.delegate!.encounterControllerEncounterContinues(this, false);
@@ -828,7 +828,7 @@ export class EncounterController {
 
             if (surrenderAllowed) {
                 if (surrenderPrompt) {
-                    let aC = new AlertViewController(surrenderPrompt)
+                    const aC = new AlertViewController(surrenderPrompt)
 
                     aC.addAction("Surrender", AlertActionType.Destructive, () => {
                         if (surrenderBlock) {
@@ -845,7 +845,7 @@ export class EncounterController {
                 }
             } else {
 
-                let aC = new AlertViewController(surrenderPrompt!)
+                const aC = new AlertViewController(surrenderPrompt!)
 
                 aC.addAction("Dismiss", AlertActionType.Default, null)
 
@@ -865,7 +865,7 @@ export class EncounterController {
             }
 
             if (cantBribeAlertString) {
-                let aC = new AlertViewController(cantBribeAlertString)
+                const aC = new AlertViewController(cantBribeAlertString)
                 aC.addAction("Dismiss", AlertActionType.Default, null)
 
                 this._presentAlertController(aC);
@@ -889,14 +889,14 @@ export class EncounterController {
                 if (this._game.commander.credits < bribe) {
                     const alertString = "You don't have enough cash for a bribe.";
 
-                    let aC = new AlertViewController(alertString)
+                    const aC = new AlertViewController(alertString)
                     aC.addAction("Dismiss", AlertActionType.Default, null)
 
                     this._presentAlertController(aC);
                 } else {
                     const alertString = `These police officers are willing to forego inspection for $${bribe}.`;
 
-                    let aC = new AlertViewController(alertString)
+                    const aC = new AlertViewController(alertString)
 
                     aC.addAction("Offer bribe", AlertActionType.Default, () => {
                         this._game.commander.setCredits(this._game.commander.credits - bribe);
@@ -912,7 +912,7 @@ export class EncounterController {
             if (this._type === EncounterType.PoliceInspection && !this._game.commander.ship.hasIllegalGoods() && this._game.wildStatus !== WildQuestStatus.OnBoard) {
                 const alertString = "Are you sure you want to bribe the police? You are not carrying illegal goods, so you have nothing to fear!";
 
-                let aC = new AlertViewController(alertString)
+                const aC = new AlertViewController(alertString)
 
                 aC.addAction("Yes, I still want to", AlertActionType.Destructive, () => {
                     bribeBlock();
@@ -938,7 +938,7 @@ export class EncounterController {
                     const alertString = "The police confiscate the Ion Reactor as evidence of your dealings with unsavory characters. The bad news is that you've lost the Ion Reactor. The good news is that you no longer have to worry about managing its depleting fuel store."
 
 
-                    let aC = new AlertViewController(alertString)
+                    const aC = new AlertViewController(alertString)
 
                     aC.addAction("Dismiss", AlertActionType.Default, () => {
                         this.delegate!.encounterControllerEncounterContinues(this, false);
@@ -977,7 +977,7 @@ export class EncounterController {
 
                     const alertString = `The police discover illegal goods in your cargo holds. These goods are confiscated and you are fined $${fine}`
 
-                    let aC = new AlertViewController(alertString)
+                    const aC = new AlertViewController(alertString)
 
                     aC.addAction("Dismiss", AlertActionType.Default, () => {
                         this.delegate!.encounterControllerEncounterContinues(this, false);
@@ -991,7 +991,7 @@ export class EncounterController {
 
                     const alertString = "The police find nothing illegal in your cargo holds and apologize for the inconvenience."
 
-                    let aC = new AlertViewController(alertString)
+                    const aC = new AlertViewController(alertString)
 
                     aC.addAction("Dismiss", AlertActionType.Default, () => {
                         this.delegate!.encounterControllerEncounterContinues(this, false);
@@ -1008,7 +1008,7 @@ export class EncounterController {
                 }
 
 
-                let aC = new AlertViewController(alertString)
+                const aC = new AlertViewController(alertString)
 
                 aC.addAction("Yes, I still want to", AlertActionType.Destructive, () => {
                     submitBlock();
@@ -1037,7 +1037,7 @@ export class EncounterController {
             const alertString = "The Marie Celeste is completely abandoned and drifting through space. The ship's log is unremarkable except for a tribble infestation a few months ago shortly after visiting Lowry. The crew's quarters are in good shape, with no signs of struggle. Other than being abandoned, the ship is completely normal. By Intergalactic Salvage Law, you can claim the remaining cargo. Do you wish to?";
 
 
-            let aC = new AlertViewController(alertString)
+            const aC = new AlertViewController(alertString)
 
             aC.addAction("Yes, take cargo", AlertActionType.Default, () => {
               plunderBlock();
@@ -1064,7 +1064,7 @@ export class EncounterController {
         else if (action === "Meet") {
             const alertString = CAPTAIN_PROMPT_STR(this._type);
 
-            let aC = new AlertViewController(alertString)
+            const aC = new AlertViewController(alertString)
 
             aC.addAction("Yes, trade!", AlertActionType.Default, () => {
                 if (this._type === EncounterType.FamousCaptainAhabEncounter) {
@@ -1081,7 +1081,7 @@ export class EncounterController {
 
 
                 const trainStr = "After a few hours of training with a top expert, you feel your abilities have improved significantly."
-                let aC2 = new AlertViewController(trainStr)
+                const aC2 = new AlertViewController(trainStr)
 
                 aC2.addAction("Dismiss", AlertActionType.Default, () => {
                     this.delegate!.encounterControllerEncounterContinues(this, false);
@@ -1098,7 +1098,7 @@ export class EncounterController {
         }
 
         else if (action === "Drink") {
-            let alertString = null;
+            let alertString: string;
             let consumedString = null;
             let drinkAction = null;
 
@@ -1127,13 +1127,13 @@ export class EncounterController {
                 };
             }
 
-            let aC = new AlertViewController(alertString)
+            const aC = new AlertViewController(alertString)
 
             aC.addAction("Yes, drink it", AlertActionType.Default, () => {
                 pLog.log(108)
                 drinkAction();
 
-                let aC2 = new AlertViewController(consumedString)
+                const aC2 = new AlertViewController(consumedString)
 
                 aC2.addAction("Dismiss", AlertActionType.Default, () => {
                     this.delegate!.encounterControllerEncounterContinues(this, false);
@@ -1181,7 +1181,7 @@ export class EncounterController {
         this._autoEncounterSession++;
         this._encounterMode = EncounterMode.Manual;
         if (this.delegate) {
-          this.delegate!.encounterControllerHasUpdatedButtons(this);
+          this.delegate!.encounterControllerHasUpdatedButtons();
         }
     }
 
@@ -1198,12 +1198,12 @@ export class EncounterController {
       Utils.ensureInteger(comparisonPrice)
       Utils.ensureBool(traderSell)
 
-      let needsDismiss = false
+      let needsDismiss: boolean
       let needsAll = false
       let needsNone = false
       let needsSelected = false
 
-      let text = null;
+      let text: string;
       if (traderSell) {
         const canAfford = maxUnits > 0
         text = `The trader wants to sell ${itemName} for $${tradePrice} each. ${!canAfford ? "Unfortunately, you can't afford any." : "How many do you wish to buy?"}`;
@@ -1278,9 +1278,9 @@ export class EncounterController {
     _executeAction(commanderFlees: boolean, completionBlock: (fightContinues: boolean) => void) {
         Utils.ensureBool(commanderFlees)
 
-        let opponentHull = this._opponent.ship.hull;
+        const opponentHull = this._opponent.ship.hull;
         Utils.ensureInteger(opponentHull)
-        let commanderHull = this._game.commander.ship.hull;
+        const commanderHull = this._game.commander.ship.hull;
         Utils.ensureInteger(commanderHull)
         let commanderGotHit = false;
 
@@ -1300,10 +1300,10 @@ export class EncounterController {
                 return;
             } else {
                 const alertString = "You and your opponent have managed to destroy each other."
-                let aC = new AlertViewController(alertString)
+                const aC = new AlertViewController(alertString)
 
                 aC.addAction("Dismiss", AlertActionType.Default, () => {
-                    this.delegate!.encounterControllerDidCompleteWithDestruction(this);
+                    this.delegate!.encounterControllerDidCompleteWithDestruction();
                 })
 
                 this._presentAlertController(aC);
@@ -1327,7 +1327,7 @@ export class EncounterController {
             } else if (ENCOUNTER(this._type, "Pirate")) {
                 if (this._opponent.ship.type !== ShipModelType.Mantis) {
                     if (getBounty) {
-                        let bounty = this._opponent.ship.bountyForEnemyShipWithOpponent(this._opponent);
+                        const bounty = this._opponent.ship.bountyForEnemyShipWithOpponent(this._opponent);
                         this._game.commander.credits += bounty;
                     }
                     this._game.commander.policeRecordScore += KILL_PIRATE_SCORE;
@@ -1365,7 +1365,7 @@ export class EncounterController {
 
 
 
-            let aC = new AlertViewController(alertString)
+            const aC = new AlertViewController(alertString)
 
             aC.addAction("Dismiss", AlertActionType.Default, () => {
                 if (attemptScoop) {
@@ -1381,7 +1381,7 @@ export class EncounterController {
             return;
 
         } else if (this._game.commander.ship.hull <= 0) {
-            this.delegate!.encounterControllerHasUpdatedHP(this)
+            this.delegate!.encounterControllerHasUpdatedHP()
 
             if (this._game.commander.hasEscapePod) {
                 this._performPodEscape();
@@ -1389,11 +1389,11 @@ export class EncounterController {
             } else {
 
                 const alertString = "Your ship has been destroyed by your opponent."
-                let aC = new AlertViewController(alertString)
+                const aC = new AlertViewController(alertString)
 
                 aC.addAction("Dismiss", AlertActionType.Default, () => {
                     pLog.log(65)
-                    this.delegate!.encounterControllerDidCompleteWithDestruction(this);
+                    this.delegate!.encounterControllerDidCompleteWithDestruction();
                 })
 
                 this._presentAlertController(aC);
@@ -1420,7 +1420,7 @@ export class EncounterController {
                     pLog.log(143)
                 }
 
-                let aC = new AlertViewController(escapeString)
+                const aC = new AlertViewController(escapeString)
 
                 aC.addAction("Dismiss", AlertActionType.Default, () => {
                     completionBlock(false);
@@ -1436,7 +1436,7 @@ export class EncounterController {
 
                 const alertString = "Your opponent has managed to escape."
 
-                let aC = new AlertViewController(alertString)
+                const aC = new AlertViewController(alertString)
 
                 aC.addAction("Dismiss", AlertActionType.Default, () => {
                     completionBlock(false);
@@ -1448,7 +1448,7 @@ export class EncounterController {
             }
         }
 
-        let prevType = this._type;
+        const prevType = this._type;
 
         if (this._opponent.ship.hull < opponentHull) {
             if (ENCOUNTER(this._type, "Police")) {
@@ -1532,7 +1532,7 @@ export class EncounterController {
         }
 
         if (!commanderFlees && !opponentGotHit) {
-            let hasWeapons = (this._game.commander.ship.weapons.length > 0);
+            const hasWeapons = (this._game.commander.ship.weapons.length > 0);
             if (hasWeapons) {
                 this._encounterActionUpdate += `${delimit}You missed the ${shipString}.`;
             } else {
@@ -1548,14 +1548,13 @@ export class EncounterController {
 
         if (commanderFlees) {
             this._encounterActionUpdate += `${delimit}The ${shipString} is still following you.`;
-            delimit = "\n";
         }
 
         completionBlock(true);
     }
 
     _performPodEscape() {
-        this.delegate!.encounterControllerDidCompleteWithDestruction(this);
+        this.delegate!.encounterControllerDidCompleteWithDestruction();
     }
 
     _scoopWithCompletion(completion: () => void) {
@@ -1570,7 +1569,7 @@ export class EncounterController {
 
             const alertString = `A canister from the destroyed ship, labelled ${TradeItem.tradeItemForType(itemType)!.name}, drifts within range of your scoops.`;
 
-            let aC = new AlertViewController(alertString)
+            const aC = new AlertViewController(alertString)
 
             aC.addAction("Pick it up!", AlertActionType.Default, () => {
                 this._game.commander.ship.boughtQuantity(1, itemType, 0);
@@ -1615,7 +1614,7 @@ export class EncounterController {
         const ATTACK_SCALE = (100 + 2 * attacker.ship.crewEngineerSkillIncludingCommander(attacker)) / 100;
         Utils.ensureNumber(ATTACK_SCALE)
 
-        let damage = 0;
+        let damage: number;
         if (attacker.ship.weapons.length <= 0) {
             damage = 0;
         } else if (defender.ship.type === ShipModelType.Scarab) {
@@ -1771,10 +1770,10 @@ export class EncounterController {
         }
 
 
-        let aC = new AlertViewController(alertString)
+        const aC = new AlertViewController(alertString)
 
         aC.addAction("Dismiss", AlertActionType.Default, () => {
-            this.delegate!.encounterControllerDidCompleteWithArrest(this);
+            this.delegate!.encounterControllerDidCompleteWithArrest();
         })
 
         this._presentAlertController(aC);
@@ -1793,9 +1792,9 @@ export class EncounterController {
         Utils.ensureBool(traderSell)
 
         if (amount > 0) {
-            let credits = this._game.commander.credits;
+            const credits = this._game.commander.credits;
             if (traderSell) {
-                let actualAmount = this._game.commander.ship.boughtQuantity(
+                const actualAmount = this._game.commander.ship.boughtQuantity(
                     amount,
                     itemType,
                     tradePrice

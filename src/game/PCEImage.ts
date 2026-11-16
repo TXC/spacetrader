@@ -27,7 +27,7 @@ export class PCEImage {
     this.charToColor = {}
 
     let colorTableLineCount = 0
-    for (let line of this.imageStrLines) {
+    for (const line of this.imageStrLines) {
       colorTableLineCount++
 
       if (line == "") {
@@ -38,7 +38,7 @@ export class PCEImage {
         continue
       }
 
-      let charAndColor = line.split(":")
+      const charAndColor = line.split(":")
       if (charAndColor.length == 2) {
         this.charToColor[charAndColor[0]] = charAndColor[1]
       }
@@ -78,19 +78,19 @@ export class PCEImage {
   usesTransparency() {
     let ret = false
 
-    let imageStr = this.imageStrLines.slice(this.firstPixelLineIndex).join("")
+    const imageStr = this.imageStrLines.slice(this.firstPixelLineIndex).join("")
 
-    for (let colorChar of Object.keys(this.charToColor)) {
-      let colorStr = this.charToColor[colorChar]
+    for (const colorChar of Object.keys(this.charToColor)) {
+      const colorStr = this.charToColor[colorChar]
 
       // Don't check this color if the image contains no pixels that use it
       if (!imageStr.includes(colorChar)) {
         continue
       }
 
-      let match = colorStr.match(/^\#[0-9a-fA-F]{6}([0-9a-fA-F]{2})/)
+      const match = colorStr.match(/^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})/)
       if (match) {
-        let hasTransparency = (match[1].toUpperCase() !== "FF")
+        const hasTransparency = (match[1].toUpperCase() !== "FF")
         ret = hasTransparency
       }
 
@@ -111,7 +111,7 @@ export class PCEImage {
       yOffset = 0
     }
 
-    let ctx = canvas.getContext("2d")!
+    const ctx = canvas.getContext("2d")!
 
     // Work around visible horizontal lines caused by a yOffset that's
     // not aligned with a whole pixel value
@@ -119,11 +119,11 @@ export class PCEImage {
 
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        let pixelDimension = scale
-        let pixelXOffset = x*scale
-        let pixelYOffset = y*scale
+        const pixelDimension = scale
+        const pixelXOffset = x*scale
+        const pixelYOffset = y*scale
 
-        let character = this.imageStrLines[this.firstPixelLineIndex+y].charAt(x)
+        const character = this.imageStrLines[this.firstPixelLineIndex+y].charAt(x)
         let color = this.charToColor[character]
         if (colorTransformFn) {
           color = colorTransformFn(color)
@@ -144,11 +144,11 @@ export class PCEImage {
       return cachedImg
     }
 
-    let canvas = document.createElement("canvas")
+    const canvas = document.createElement("canvas")
     canvas.width = this.width * scale
     canvas.height = this.height * scale
 
-    let ctx = canvas.getContext("2d")!
+    const ctx = canvas.getContext("2d")!
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     this.drawInCanvas(canvas, scale)
 
@@ -201,22 +201,22 @@ export class PCEImage {
   // - separator or blankSpaceFiller which are not already in the color table of at least one of this, other
   newPCEImageByAppendingOnRight(other: PCEImage, separator: string, blankSpaceFiller: string) {
     // Union the color tables
-    let unionedCharToColor: Record<string, string> = {}
+    const unionedCharToColor: Record<string, string> = {}
 
-    for (let colorChar of Object.keys(this.charToColor)) {
-      let colorStr = this.charToColor[colorChar]
+    for (const colorChar of Object.keys(this.charToColor)) {
+      const colorStr = this.charToColor[colorChar]
       unionedCharToColor[colorChar] = colorStr
     }
 
-    for (let colorChar of Object.keys(other.charToColor)) {
-      let colorStr = other.charToColor[colorChar]
+    for (const colorChar of Object.keys(other.charToColor)) {
+      const colorStr = other.charToColor[colorChar]
       unionedCharToColor[colorChar] = colorStr
     }
 
     // Make the new combined string representation, making the images the same height
-    let unionedHeight = Math.max(this.height, other.height)
+    const unionedHeight = Math.max(this.height, other.height)
 
-    let unionedImageStrLines: string[] = []
+    const unionedImageStrLines: string[] = []
 
     for (let i = 0; i < unionedHeight; ++i) {
       let leftLine = this.imageStrLineAtPixelRow(i)
@@ -230,19 +230,19 @@ export class PCEImage {
         rightLine = blankSpaceFiller.repeat(other.width)
       }
 
-      let combinedLine = leftLine + separator + rightLine
+      const combinedLine = leftLine + separator + rightLine
 
       unionedImageStrLines.push(combinedLine)
     }
 
     // Add the color table to the beginning of unionedImageStrLines
     let colorTableStr = ""
-    for (let colorChar of Object.keys(unionedCharToColor).sort()) {
-      let colorStr = unionedCharToColor[colorChar]
+    for (const colorChar of Object.keys(unionedCharToColor).sort()) {
+      const colorStr = unionedCharToColor[colorChar]
       colorTableStr += colorChar + ":" + colorStr + "\n"
     }
 
-    let imageStr = colorTableStr + "\n" + unionedImageStrLines.join("\n")
+    const imageStr = colorTableStr + "\n" + unionedImageStrLines.join("\n")
 
     // Create the new PCEImage
     return new PCEImage(imageStr)
@@ -278,11 +278,11 @@ export class PCEImage {
     }
 
     for (let j = 0; j < replacementImg.height; ++j) {
-      let replacementLine = replacementImg.imageStrLineAtPixelRow(j)!
+      const replacementLine = replacementImg.imageStrLineAtPixelRow(j)!
 
-      let oldLine = this.imageStrLineAtPixelRow(y+j)!
+      const oldLine = this.imageStrLineAtPixelRow(y+j)!
 
-      let newLine = oldLine.substring(0, x) + replacementLine + oldLine.substring(x + replacementLine.length)
+      const newLine = oldLine.substring(0, x) + replacementLine + oldLine.substring(x + replacementLine.length)
 
       this.updateImageStrLineAtPixelRow(y+j, newLine)
     }
@@ -301,8 +301,8 @@ export class PCEPixel {
   }
 
   canClumpWith(pixel: PCEPixel) {
-    let sameColor = this.str == pixel.str
-    let adjacent = (Math.abs(this.x-pixel.x) + Math.abs(this.y-pixel.y)) <= 1
+    const sameColor = this.str == pixel.str
+    const adjacent = (Math.abs(this.x-pixel.x) + Math.abs(this.y-pixel.y)) <= 1
     return sameColor && adjacent
   }
 }
@@ -319,7 +319,7 @@ export class PCEClump {
       return true
     }
 
-    for (let cPixel of this.pixels) {
+    for (const cPixel of this.pixels) {
       if (cPixel.canClumpWith(pixel)) {
         return true
       }
@@ -364,21 +364,21 @@ export class PCEWobbleImage extends PCEImage {
   }
 
   computeClumps() {
-    let maxClumpSize = 20
+    const maxClumpSize = 20
 
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        let character = this.imageStrLines[this.firstPixelLineIndex+y].charAt(x)
+        const character = this.imageStrLines[this.firstPixelLineIndex+y].charAt(x)
 
         if (!this.charToCount[character]) {
           this.charToCount[character] = 0
         }
         this.charToCount[character]++
 
-        let pixel = new PCEPixel(character, x, y)
+        const pixel = new PCEPixel(character, x, y)
 
         let addedPixel = false
-        for (let clump of this.clumps) {
+        for (const clump of this.clumps) {
           if (clump.size() < maxClumpSize && clump.canClumpWith(pixel)) {
             clump.addPixel(pixel)
             addedPixel = true
@@ -387,7 +387,7 @@ export class PCEWobbleImage extends PCEImage {
         }
 
         if (!addedPixel) {
-          let clump = new PCEClump()
+          const clump = new PCEClump()
           clump.addPixel(pixel)
           this.clumps.push(clump)
         }
@@ -396,13 +396,13 @@ export class PCEWobbleImage extends PCEImage {
 
     // Sort by most common color (and largest clump size) to least common color (and smaller clump size)
     // This order will let us draw the "background" before finer details which makes the wobble image look less messy/glitchy
-    let charToCount = this.charToCount
+    const charToCount = this.charToCount
     this.clumps.sort(function(a, b) {
-      let charA = a.str()
-      let charB = b.str()
+      const charA = a.str()
+      const charB = b.str()
 
-      let colorCountA = charToCount[charA]
-      let colorCountB = charToCount[charB]
+      const colorCountA = charToCount[charA]
+      const colorCountB = charToCount[charB]
 
       if (colorCountA > colorCountB) {
         return -1 // sort a before b
@@ -426,19 +426,19 @@ export class PCEWobbleImage extends PCEImage {
       yOffset = 0
     }
 
-    let ctx = canvas.getContext("2d")!
+    const ctx = canvas.getContext("2d")!
 
-    for (let clump of this.clumps) {
-      let pixelDimension = scale
+    for (const clump of this.clumps) {
+      const pixelDimension = scale
 
       // Wobble
       let xWobble = 0
       let yWobble = 0
-      let offsets = [-1, 0, 1]
-      let wobbleMagnitude = Math.ceil(scale / 10)
+      const offsets = [-1, 0, 1]
+      const wobbleMagnitude = Math.ceil(scale / 10)
       // My original intent is to use tickCount to deterministically wobble
       // I haven't implemented that yet -- for now, wobble is random
-      let offset = Math.round(offsets[Math.floor(Math.random()*offsets.length)] * wobbleMagnitude)
+      const offset = Math.round(offsets[Math.floor(Math.random()*offsets.length)] * wobbleMagnitude)
 
       if (offset != 0) {
         if (Math.floor(Math.random()*2) == 0) {
@@ -448,8 +448,8 @@ export class PCEWobbleImage extends PCEImage {
         }
       }
 
-      for (let pixel of clump.pixels) {
-        let color = this.charToColor[pixel.str]
+      for (const pixel of clump.pixels) {
+        const color = this.charToColor[pixel.str]
 
         ctx.fillStyle = color
 
@@ -472,7 +472,7 @@ export class PCEWobbleImage extends PCEImage {
   // Generates GIF synchronously - this can be slow!
   // Returns base64 data URL
   generateGIF(scale: number) {
-    let canvas = document.createElement("canvas")
+    const canvas = document.createElement("canvas")
     canvas.width = this.width * scale
     canvas.height = this.height * scale
 
@@ -481,15 +481,15 @@ export class PCEWobbleImage extends PCEImage {
       return
     }
 
-    let ctx = canvas.getContext("2d")!
+    const ctx = canvas.getContext("2d")!
 
     // @ts-expect-error old bug kept: the GIF library was never loaded; generateGIF has no callers
-    // eslint-disable-next-line no-undef -- see the line above
-    let encoder = new GIFEncoder()
+     
+    const encoder = new GIFEncoder()
     encoder.setRepeat(0)
     encoder.setDelay(150)
     encoder.start()
-    let usesTransparency = this.usesTransparency()
+    const usesTransparency = this.usesTransparency()
     if (usesTransparency) {
       encoder.setTransparent(0xFFFFF1)
     }
@@ -502,17 +502,17 @@ export class PCEWobbleImage extends PCEImage {
       this.drawInCanvas(canvas, scale)
       this.tick()
 
-      let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
       encoder.addFrame(imageData, true)
     }
 
     encoder.finish()
 
-    let gifData = encoder.stream().getData()
+    const gifData = encoder.stream().getData()
 
     // @ts-expect-error old bug kept, see GIFEncoder above
-    // eslint-disable-next-line no-undef -- see the line above
-    let base64GIFStr = 'data:image/gif;base64,' + encode64(gifData)
+     
+    const base64GIFStr = 'data:image/gif;base64,' + encode64(gifData)
     return base64GIFStr
   }
 }

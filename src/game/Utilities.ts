@@ -68,7 +68,7 @@ export const Utils = {
   uuidv4: function() {
     // From https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8)
+      const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8)
       return v.toString(16)
     })
   },
@@ -117,7 +117,7 @@ export const Utils = {
       return false;
     }
 
-    for (let key of keysA) {
+    for (const key of keysA) {
       if (!keysB.includes(key)) {
         inequalityHandler!(`[${keyName}] extra key: ` + key)
         return false;
@@ -187,7 +187,7 @@ export const Utils = {
 
     let valid = Array.isArray(a)
     if (valid) {
-      for (let e of a as unknown[]) {
+      for (const e of a as unknown[]) {
         if (typeof e !== elementType) {
           valid = false
           break
@@ -240,32 +240,32 @@ export const Utils = {
   // https://easings.net/#easeInOutCubic
   // proportionOfTimeElapsed ranges from 0 to 1
   easeInOutCubic: function(proportionOfTimeElapsed: number) {
-    let x = proportionOfTimeElapsed
+    const x = proportionOfTimeElapsed
     return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2
   },
 
   // https://easings.net/#easeInQuad
   easeInQuad: function(proportionOfTimeElapsed: number) {
-    let x = proportionOfTimeElapsed
+    const x = proportionOfTimeElapsed
     return x * x
   },
 
   // https://easings.net/#easeOutQuad
   easeOutQuad: function(proportionOfTimeElapsed: number) {
-    let x = proportionOfTimeElapsed
+    const x = proportionOfTimeElapsed
     return 1 - (1 - x) * (1 - x)
   },
 
   // https://easings.net/#easeInOutQuad
   easeInOutQuad: function(proportionOfTimeElapsed: number) {
-    let x = proportionOfTimeElapsed
+    const x = proportionOfTimeElapsed
     return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2
     //return x < 0.655 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 4
   },
 
   // https://easings.net/#easeInOutSine
   easeInOutSine: function(proportionOfTimeElapsed: number) {
-    let x = proportionOfTimeElapsed
+    const x = proportionOfTimeElapsed
     return -(Math.cos(Math.PI * x) - 1) / 2;
   },
 
@@ -331,7 +331,7 @@ export const Utils = {
   },
 
   hexColorWithMaxAlpha: function(hex: string, maxAlpha: number) {
-    let rgba = this.hexAToRGBA(hex)
+    const rgba = this.hexAToRGBA(hex)
     rgba.a = Math.min(rgba.a, maxAlpha)
     return this.RGBAToHexA(rgba.r, rgba.g, rgba.b, rgba.a)
   },
@@ -359,16 +359,16 @@ export const Utils = {
     // Map " " and comma (characters which need to be %-encoded) to uncommon letters
     // " " is mapped to Q
     // "," is mapped to Y
-    let substitution = "aQYNbcCd0efBghAi1jIWX89Zk2lDmOH7nToE3pUV4qFr5sGtu6JKLvwSRxyzM, P"
+    const substitution = "aQYNbcCd0efBghAi1jIWX89Zk2lDmOH7nToE3pUV4qFr5sGtu6JKLvwSRxyzM, P"
 
     return str.split('').map(letter => {
-      let index = substitution.indexOf(letter)
+      const index = substitution.indexOf(letter)
 
       if (index < 0) {
         return letter
       }
 
-      let newIndex = substitution.length - 1 - index
+      const newIndex = substitution.length - 1 - index
       return substitution.charAt(newIndex)
     }).join('')
   },
@@ -410,7 +410,7 @@ export const Utils = {
 
     const delta = (now - timestamp) / 1000 // in seconds
 
-    let result = null
+    let result: string
 
     if (delta < 1) {
       result = 'now'
@@ -426,7 +426,7 @@ export const Utils = {
       const numDays = Math.min(Math.floor(delta / (24 * 60 * 60)), 6)
       result = `${numDays}d`
     } else {
-      let localDate = new Date()
+      const localDate = new Date()
       const dateObject = new Date(timestamp - (localDate.getTimezoneOffset() * 60 * 1000))
       const month = dateObject.getMonth() + 1
       const day = dateObject.getDate()

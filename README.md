@@ -75,7 +75,7 @@ on: renaming one breaks the recordings that use it.
 4. **Done:** the recorded tests are ordinary test files.
 5. **Done:** the debug panel.
 6. **Done:** offline use.
-7. **Next:** tidying the carried-over rules code.
+7. **Done:** the rules code follows the same lint rules as the rest.
 8. **Later:** a two-pane layout for wide screens.
 
 The designs and plans are in `docs/superpowers/`. The ones for the

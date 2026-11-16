@@ -40,7 +40,7 @@ export class Opponent extends CrewMember {
         Utils.ensureInteger(type)
         Utils.ensureType(game, "object")
 
-        let opponent = null;
+        let opponent: Opponent;
         const difficulty = game.commander.difficulty;
         Utils.ensureInteger(difficulty)
 
@@ -139,12 +139,12 @@ export class Opponent extends CrewMember {
             Utils.ensureInteger(chosenShipType)
 
             if (chosenShipType >= ShipModelType.Count) {
-                let handicap = Math.max(game.difficulty - Difficulty.Normal, 0);
+                const handicap = Math.max(game.difficulty - Difficulty.Normal, 0);
                 let totalShipOccurrence = 0;
-                let possibleShipTypes = [type === OpponentType.Trader ? ShipModelType.Flea : ShipModelType.Gnat];
+                const possibleShipTypes = [type === OpponentType.Trader ? ShipModelType.Flea : ShipModelType.Gnat];
 
                 for (let i = 0; i <= ShipModelType.Best; ++i) {
-                    let model = ShipModel.shipModelForType(i);
+                    const model = ShipModel.shipModelForType(i);
                     if (type === OpponentType.Police &&
                         (model.police < 0 || (game.commander.currentSystem.politics.occurrencePolice + handicap) < model.police)) {
                         continue;
@@ -166,8 +166,8 @@ export class Opponent extends CrewMember {
 
                 let frequencySum = 0;
                 chosenShipType = possibleShipTypes[0];
-                for (let shipType of possibleShipTypes) {
-                    let model = ShipModel.shipModelForType(shipType);
+                for (const shipType of possibleShipTypes) {
+                    const model = ShipModel.shipModelForType(shipType);
                     frequencySum += model.frequency;
                     if (frequencySum >= shipChoice) {
                         chosenShipType = shipType;

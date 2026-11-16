@@ -163,7 +163,7 @@ export class TravelProgressView {
     this.context.arc(xOrigin, yOrigin, radius, 0, Math.PI * 2);
     this.context.fill();
 
-    let nameY = yOrigin + radius + edgePadding + textHeight/2
+    const nameY = yOrigin + radius + edgePadding + textHeight/2
     let nameX = xOrigin - Math.floor(textMetrics.width/2)
     if (left) {
       nameX = Math.max(edgePadding, nameX) + textMetrics.width/2

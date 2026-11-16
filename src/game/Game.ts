@@ -14,7 +14,7 @@ import { runtime } from './runtime.ts'
 export const GALAXY_WIDTH = 150;
 export const GALAXY_HEIGHT = 110;
 
-export let STARTING_CREDITS = 1000;
+export const STARTING_CREDITS = 1000;
 
 export const GameEndStatus = {
   None: 0,
@@ -371,7 +371,7 @@ export class Game {
   }
 
   score() {
-    let score = 0;
+    let score: number;
     const worth = this.commander.netWorth();
     const MILLION = 1000000;
     const adjustedWorth = worth < MILLION ? worth : Math.floor(MILLION + (worth - MILLION) / 10);
@@ -402,13 +402,13 @@ export class Game {
     if (this.solarSystems) return;
 
     const solarSystemCount = SolarSystem.solarSystemNames().length;
-    let solarSystems = [];
-    let solarSystemNames = [...SolarSystem.solarSystemNames()];
+    const solarSystems = [];
+    const solarSystemNames = [...SolarSystem.solarSystemNames()];
 
     let i = 0;
     while (i < solarSystemCount) {
-      let x = 0;
-      let y = 0;
+      let x: number;
+      let y: number;
       const hasWormhole = i < WORMHOLE_COUNT;
 
       if (hasWormhole) {
@@ -470,8 +470,8 @@ export class Game {
     this.solarSystems = solarSystems;
 
     // Wormholes go in a loop
-    let wormholeSystems = solarSystems.slice(0, WORMHOLE_COUNT);
-    let randomWormholeSystems = [];
+    const wormholeSystems = solarSystems.slice(0, WORMHOLE_COUNT);
+    const randomWormholeSystems = [];
     while (wormholeSystems.length > 0) {
       const randomIndex = runtime.gameRand.randomIntBelow(wormholeSystems.length);
       randomWormholeSystems.push(wormholeSystems[randomIndex]);
@@ -487,7 +487,7 @@ export class Game {
   _setupEventsAndMercenaries() {
     // Setup special events and any hard-coded mercenaries
 
-    let eventsToPlace = SpecialEventSpecifier.randomOccurrenceEventTypes();
+    const eventsToPlace = SpecialEventSpecifier.randomOccurrenceEventTypes();
 
     const kravat = this._findSolarSystem('Kravat')!;
     kravat.setSpecialEvent(SpecialEvent.WildGetsOut);
@@ -549,7 +549,7 @@ export class Game {
     });
     getReactorSystem!.setSpecialEvent(SpecialEvent.GetReactor);
 
-    let wormholeSystemsSpecial = this.solarSystems.slice(0, WORMHOLE_COUNT);
+    const wormholeSystemsSpecial = this.solarSystems.slice(0, WORMHOLE_COUNT);
     while (wormholeSystemsSpecial.length > 0) {
       const randomIndex = runtime.gameRand.randomIntBelow(wormholeSystemsSpecial.length);
       if (wormholeSystemsSpecial[randomIndex].getSpecialEvent() === SpecialEvent.None) {
@@ -560,7 +560,7 @@ export class Game {
       wormholeSystemsSpecial.splice(randomIndex, 1);
     }
 
-		for (let highTech of solarSystemsReversed) {
+		for (const highTech of solarSystemsReversed) {
       if (highTech.getSpecialEvent() === SpecialEvent.None && highTech.techLevel >= TechLevel.HighTech) {
         highTech.setSpecialEvent(SpecialEvent.ArtifactDelivered);
         eventsToPlace.push(SpecialEvent.AlienArtifact);
@@ -568,7 +568,7 @@ export class Game {
       }
     }
 
-		for (let eventSystem of solarSystemsReversed) {
+		for (const eventSystem of solarSystemsReversed) {
       if (eventsToPlace.length === 0) {
 				break
 			}
@@ -597,7 +597,7 @@ export class Game {
   _setupCommander() {
     this.commander.credits = STARTING_CREDITS;
 
-    let ship = new Ship(ShipModelType.Gnat, this.difficulty);
+    const ship = new Ship(ShipModelType.Gnat, this.difficulty);
     this.commander.ship = ship;
 
     this.commander.setCurrentSystem(this.solarSystems[this.solarSystems.length - 1]);
@@ -606,7 +606,7 @@ export class Game {
     squaredFuel *= squaredFuel;
 
     for (let i = this.solarSystems.length - 1; i >= 0; i--) {
-      let startSystem = this.solarSystems[i];
+      const startSystem = this.solarSystems[i];
       if (
         startSystem.getSpecialEvent() === SpecialEvent.None &&
         startSystem.techLevel >= TechLevel.Agricultural &&
@@ -614,7 +614,7 @@ export class Game {
       ) {
         let nearbyCount = 0;
         for (let j = 0; j < this.solarSystems.length; j++) {
-          let nearbySystem = this.solarSystems[j];
+          const nearbySystem = this.solarSystems[j];
           if (startSystem.squaredDistanceTo(nearbySystem) <= squaredFuel) {
             nearbyCount++;
             if (nearbyCount >= 3) {
@@ -656,7 +656,7 @@ export class Game {
   }
 
   solarSystemsWithinRange() {
-    let result: SolarSystem[] = [];
+    const result: SolarSystem[] = [];
     let squaredFuel = this.commander.ship.fuel;
     squaredFuel *= squaredFuel;
 
@@ -665,7 +665,7 @@ export class Game {
     }
 
     for (let i = 0; i < this.solarSystems.length; i++) {
-      let nearbySystem = this.solarSystems[i];
+      const nearbySystem = this.solarSystems[i];
       if (
         this.commander.getCurrentSystem() !== nearbySystem &&
         this.commander.getCurrentSystem().squaredDistanceTo(nearbySystem) <= squaredFuel
@@ -684,8 +684,8 @@ export class Game {
     let closest = null;
 
     for (let i = 0; i < this.solarSystems.length; i++) {
-      let nearbySystem = this.solarSystems[i];
-      let distance = nearbySystem.squaredDistanceToXY(x, y);
+      const nearbySystem = this.solarSystems[i];
+      const distance = nearbySystem.squaredDistanceToXY(x, y);
       if (distance < minDistance) {
         closest = nearbySystem;
         minDistance = distance;
@@ -715,7 +715,7 @@ export class Game {
     if (!Utils.ensureType(needle, "string")) { return }
     if (!Utils.ensureType(item, "string")) { return }
 
-    let index = this._breakingNews!.findIndex((existingItem) => existingItem.includes(needle));
+    const index = this._breakingNews!.findIndex((existingItem) => existingItem.includes(needle));
     if (index !== -1) {
       this._breakingNews!.splice(index, 1);
     }
@@ -742,7 +742,7 @@ export class Game {
   removeRemainingRareEvent(rareEvent: number) {
     Utils.ensureInteger(rareEvent)
 
-    let index = this._remainingRareEvents.indexOf(rareEvent);
+    const index = this._remainingRareEvents.indexOf(rareEvent);
     if (index !== -1) {
       this._remainingRareEvents.splice(index, 1);
     }
@@ -766,7 +766,7 @@ export class Game {
     ) {
       this.invasionStatus = Math.min(InvasionQuestStatus.ClosedTooLate, this.invasionStatus + days);
       if (this.invasionStatus === InvasionQuestStatus.ClosedTooLate) {
-        let gemulon = this._findSolarSystem('Gemulon')!;
+        const gemulon = this._findSolarSystem('Gemulon')!;
         gemulon.setSpecialEvent(SpecialEvent.GemulonInvaded);
         gemulon.techLevel = TechLevel.PreAgricultural
         gemulon.politics = Politics.politicsForType(PoliticsType.Anarchy)!
@@ -778,8 +778,8 @@ export class Game {
     if (this.reactorStatus > ReactorQuestStatus.Open && this.reactorStatus < ReactorQuestStatus.ClosedTooLate) {
       this.reactorStatus = Math.min(ReactorQuestStatus.DaysRemaining._1, this.reactorStatus + days);
 
-      let currentQuantity = this.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor);
-      let desiredQuantity = REACTOR_BAY_COUNT + REACTOR_MAX_FUEL - Math.floor((this.reactorStatus - 1) / 2);
+      const currentQuantity = this.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor);
+      const desiredQuantity = REACTOR_BAY_COUNT + REACTOR_MAX_FUEL - Math.floor((this.reactorStatus - 1) / 2);
       if (desiredQuantity < currentQuantity) {
         this.commander.ship.soldQuantity(currentQuantity - desiredQuantity, TradeItemType.FakeQuestCargoReactor);
       }
@@ -793,7 +793,7 @@ export class Game {
       if (this.experimentStatus === ExperimentQuestStatus.ClosedTooLate) {
         this.fabricRipProbability = FABRIC_RIP_PROBABILITY_INITIAL;
 
-        let daled = this._findSolarSystem('Daled')!;
+        const daled = this._findSolarSystem('Daled')!;
         daled.setSpecialEvent(SpecialEvent.ExperimentNotStopped);
         this.addBreakingNewsItem('Travelers Report Timespace Damage, Warp Problems!');
         pLog.log(145)
@@ -861,7 +861,7 @@ export class Game {
 
     if (this.reactorStatus > ReactorQuestStatus.Open && this.reactorStatus < ReactorQuestStatus.ClosedTooLate) {
       cargoList += comma;
-      let numFuelBays = Math.max(0, this.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor) - REACTOR_BAY_COUNT);
+      const numFuelBays = Math.max(0, this.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor) - REACTOR_BAY_COUNT);
       cargoList += `An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up ${numFuelBays} bay${numFuelBays === 1 ? '' : 's'}.`;
       comma = '\n';
     }
@@ -873,7 +873,6 @@ export class Game {
 
     if (this.canSuperWarp) {
       cargoList += `${comma}A Portable Singularity.`;
-      comma = '\n';
     }
 
     if (cargoList.length === 0) {
@@ -932,9 +931,9 @@ export class Game {
 			comma = '\n';
 		}
 
-		let dragonflyStatus = this.dragonflyStatus;
+		const dragonflyStatus = this.dragonflyStatus;
 		if (dragonflyStatus > DragonflyQuestStatus.Open && dragonflyStatus !== DragonflyQuestStatus.ClosedDragonflyDestroyed) {
-			let nextSystem = (dragonflyStatus === DragonflyQuestStatus.GoToBaratas ? "Baratas" :
+			const nextSystem = (dragonflyStatus === DragonflyQuestStatus.GoToBaratas ? "Baratas" :
 				dragonflyStatus === DragonflyQuestStatus.GoToMelina ? "Melina" :
 				dragonflyStatus === DragonflyQuestStatus.GoToRegulas ? "Regulas" :
 				"Zalkon");
@@ -948,7 +947,7 @@ export class Game {
 		}
 
 		if (this.invasionStatus >= InvasionQuestStatus.DaysUntilInvasion._7 && this.invasionStatus <= InvasionQuestStatus.DaysUntilInvasion._1) {
-			let whenString =
+			const whenString =
 				(this.invasionStatus === InvasionQuestStatus.DaysUntilInvasion._2) ? "by end of tomorrow" :
 				(this.invasionStatus === InvasionQuestStatus.DaysUntilInvasion._1) ? "today" :
 				`within ${InvasionQuestStatus.ClosedTooLate - this.invasionStatus} days`;
@@ -963,7 +962,7 @@ export class Game {
 
 		if (this.experimentStatus >= ExperimentQuestStatus.DaysRemaining._10 && this.experimentStatus <= ExperimentQuestStatus.DaysRemaining._1) {
       pLog.log(86)
-			let whenString =
+			const whenString =
 				(this.experimentStatus === ExperimentQuestStatus.DaysRemaining._2) ? "by end of tomorrow" :
 				(this.experimentStatus === ExperimentQuestStatus.DaysRemaining._1) ? "today" :
 				`within ${ExperimentQuestStatus.ClosedTooLate - this.experimentStatus} days`;
@@ -998,7 +997,6 @@ export class Game {
 		if (this.commander.boughtMoon) {
       pLog.log(91)
 			questList += `${comma}Claim your moon in Utopia.`;
-			comma = '\n';
 		}
 
 		if (questList.length === 0) {

@@ -209,10 +209,10 @@ export class Ship {
     static bestShipWithDifficulty(difficulty: number) {
         Utils.ensureInteger(difficulty)
 
-        let ship = new Ship(ShipModelType.Best, difficulty);
+        const ship = new Ship(ShipModelType.Best, difficulty);
 
-        while (ship.addShieldOfType(AccessoryType.ShieldLastBuyable)) {}
-        while (ship.addWeaponOfType(AccessoryType.WeaponLastBuyable)) {}
+        while (ship.addShieldOfType(AccessoryType.ShieldLastBuyable)) { /* until every slot is full */ }
+        while (ship.addWeaponOfType(AccessoryType.WeaponLastBuyable)) { /* until every slot is full */ }
 
         ship.addGadgetOfType(AccessoryType.GadgetTargetingSystem);
         ship.addGadgetOfType(AccessoryType.GadgetNavigationSystem);
@@ -224,23 +224,23 @@ export class Ship {
         const ship = new Ship(type, previousShip._difficulty)
 
         if (previousShip) {
-            for (let accessory of previousShip._weapons) {
+            for (const accessory of previousShip._weapons) {
                 if (!ship.addWeaponOfType(accessory.type)) {
                     break;
                 }
             }
-            for (let accessory of previousShip._shields) {
+            for (const accessory of previousShip._shields) {
                 if (!ship.addShieldOfType(accessory.type)) {
                     break;
                 }
             }
-            for (let accessory of previousShip._gadgets) {
+            for (const accessory of previousShip._gadgets) {
                 if (!ship.addGadgetOfType(accessory.type)) {
                     break;
                 }
             }
             for (let itemType = TradeItemType.Count - 1; itemType >= 0; itemType--) {
-                let quantity = previousShip.tradeItemQuantityForType(itemType);
+                const quantity = previousShip.tradeItemQuantityForType(itemType);
                 Utils.ensureInteger(quantity)
                 if (quantity > 0) {
                     if (ship.boughtQuantity(quantity, itemType, previousShip.tradeItemAverageBuyingPriceForType(itemType)) <= 0) {
@@ -265,12 +265,12 @@ export class Ship {
 
         ship._crew = [];
         if (serializedState.crewMap) {
-            for (let crewName in serializedState.crewMap) {
-                let mercenary = Ship.crewMemberForName(crewName, solarSystems);
+            for (const crewName in serializedState.crewMap) {
+                const mercenary = Ship.crewMemberForName(crewName, solarSystems);
                 if (mercenary) {
                     ship.addCrewMember(mercenary);
                 } else {
-                    let crewMember = CrewMember.fromSerializedState(serializedState.crewMap[crewName]);
+                    const crewMember = CrewMember.fromSerializedState(serializedState.crewMap[crewName]);
                     ship.addCrewMember(crewMember);
                 }
             }
@@ -357,7 +357,7 @@ export class Ship {
     static crewMemberForName(name: string, solarSystems: SolarSystem[]) {
         if (!name) return null;
 
-        for (let solarSystem of solarSystems) {
+        for (const solarSystem of solarSystems) {
             if (solarSystem.mercenary && solarSystem.mercenary.name === name) {
                 return solarSystem.mercenary;
             }
@@ -437,7 +437,7 @@ export class Ship {
     // Private method to calculate hull strength
     _hullStrength() {
       const baseStrength = ShipModel.shipModelForType(this._type).hullStrength;
-      let result = baseStrength + (this._upgradedHull ? 50 : 0);
+      const result = baseStrength + (this._upgradedHull ? 50 : 0);
       Utils.ensureInteger(result)
       return result
     }
@@ -485,7 +485,7 @@ export class Ship {
     countGadgetOfType(gadgetType: number, limitOne: boolean) {
         let count = 0;
 
-        for (let gadget of this._gadgets) {
+        for (const gadget of this._gadgets) {
             if (gadget.type === gadgetType) {
                 count++;
                 if (limitOne) {
@@ -949,7 +949,7 @@ export class Ship {
     }
 
     mercenaryPricePerDay() {
-        return this._crew.reduce((price, crew) => price += crew.hirePrice(), 0);
+        return this._crew.reduce((price, crew) => price + crew.hirePrice(), 0);
     }
 
     costOfFuel() {

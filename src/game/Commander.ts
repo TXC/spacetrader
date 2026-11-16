@@ -85,7 +85,7 @@ export const ReputationScore = {
 } as const;
 export type ReputationScore = (typeof ReputationScore)[keyof typeof ReputationScore];
 
-export let DEFAULT_REPUTATION_SCORE = ReputationScore.Harmless;
+export const DEFAULT_REPUTATION_SCORE = ReputationScore.Harmless;
 
 
 export function REPUTATION_STR(x: number) {
@@ -454,7 +454,7 @@ export class Commander extends CrewMember {
 
     buyPriceForAccessory(accessoryType: number) {
         const accessory = ACCESSORY_FOR_TYPE(accessoryType)!;
-        let price = (accessory.techLevel > this._currentSystem.techLevel) ? 0 : Math.floor((accessory.price * (100 - this.ship.crewTraderSkillIncludingCommander(this))) / 100);
+        const price = (accessory.techLevel > this._currentSystem.techLevel) ? 0 : Math.floor((accessory.price * (100 - this.ship.crewTraderSkillIncludingCommander(this))) / 100);
 
         Utils.ensureInteger(price)
 
