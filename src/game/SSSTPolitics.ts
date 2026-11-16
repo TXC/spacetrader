@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { SSSTTechLevel, SSSTTradeItemType } from './SSSTTradeItem_h.ts'
 import { runtime } from './runtime.ts'
 
@@ -22,9 +21,10 @@ export const SSSTPoliticsType = {
     Theocracy: 16,
 
     Count: 17
-};
+} as const;
+export type SSSTPoliticsType = (typeof SSSTPoliticsType)[keyof typeof SSSTPoliticsType];
 
-export function occurrenceStr(x) {
+export function occurrenceStr(x: number) {
     switch (x) {
         case 0: return "No";
         case 1: return "Minimal";
@@ -39,7 +39,23 @@ export function occurrenceStr(x) {
 
 
 export class SSSTPolitics {
-    constructor(type, name, mastheads, headlines, reactionIllegal, occurrencePolice, occurrencePirates, occurrenceTraders, minTechLevel, maxTechLevel, bribeWillingness, drugsTradeable, firearmsTradeable, mostDesiredTradeItem) {
+    static declare sPolitics: Map<number, SSSTPolitics> | undefined
+    declare type: SSSTPoliticsType
+    declare name: string
+    declare mastheads: string[]
+    declare headlines: string[]
+    declare reactionIllegal: number
+    declare occurrencePolice: number
+    declare occurrencePirates: number
+    declare occurrenceTraders: number
+    declare minTechLevel: SSSTTechLevel
+    declare maxTechLevel: SSSTTechLevel
+    declare bribeWillingness: number
+    declare drugsTradeable: boolean
+    declare firearmsTradeable: boolean
+    declare mostDesiredTradeItem: SSSTTradeItemType
+
+    constructor(type: SSSTPoliticsType, name: string, mastheads: string[], headlines: string[], reactionIllegal: number, occurrencePolice: number, occurrencePirates: number, occurrenceTraders: number, minTechLevel: SSSTTechLevel, maxTechLevel: SSSTTechLevel, bribeWillingness: number, drugsTradeable: boolean, firearmsTradeable: boolean, mostDesiredTradeItem: SSSTTradeItemType) {
         this.type = type;
         this.name = name;
         this.mastheads = mastheads;
@@ -56,16 +72,16 @@ export class SSSTPolitics {
         this.mostDesiredTradeItem = mostDesiredTradeItem;
     }
 
-    static randomPoliticsForTechLevel(techLevel) {
+    static randomPoliticsForTechLevel(techLevel: number) {
         while (true) {
-            let politics = SSSTPolitics.politicsForType(runtime.gameRand.randomIntBelow(SSSTPoliticsType.Count));
+            let politics = SSSTPolitics.politicsForType(runtime.gameRand.randomIntBelow(SSSTPoliticsType.Count))!;
             if (politics.minTechLevel <= techLevel && politics.maxTechLevel >= techLevel) {
                 return politics;
             }
         }
     }
 
-    static politicsForType(type) {
+    static politicsForType(type: number): SSSTPolitics | undefined {
         if (!this.sPolitics) {
             this.sPolitics = new Map();
         }
