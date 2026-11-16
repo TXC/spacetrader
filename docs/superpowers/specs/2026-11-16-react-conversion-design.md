@@ -354,8 +354,9 @@ document, because every later screen opens alerts.
   crash that already exists in the old rules. The rule for that case:
   confirm the crash also happens in `old/`, fix it in its own commit
   with a test, and list it in the pull request. The owner confirmed
-  this. It is the one case where game behaviour may change. A crash that does not happen in
-  `old/` is a conversion mistake and is fixed as such.
+  this. It is the one case where game behaviour may change. A crash
+  that does not happen in `old/` is a conversion mistake and is fixed as
+  such.
 - **Size.** About 4,500 lines of screen code are replaced in one pull
   request.
 
