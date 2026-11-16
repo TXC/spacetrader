@@ -20,8 +20,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "test": "vitest run --exclude src/tests/stress.test.ts",
-    "test:stress": "vitest run src/tests/stress.test.ts",
+    "test": "vitest run --exclude src/tests/flows/stress.test.ts",
+    "test:stress": "vitest run src/tests/flows/stress.test.ts",
     "preview": "vite preview"
   },
   "dependencies": {

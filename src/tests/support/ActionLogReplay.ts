@@ -3,22 +3,22 @@
 import { GameRand } from '../../game/GameRand.ts'
 import { runtime } from '../../game/runtime.ts'
 import { Utils } from '../../game/Utilities.ts'
-import type { SpaceTraderGame } from './SpaceTraderGame.ts'
+import type { Session } from '../../game/session.ts'
 
-type HackHandler = (spaceTraderGame: SpaceTraderGame) => void
+type HackHandler = (session: Session) => void
 
 export class ActionLogReplay {
-  declare spaceTraderGame: SpaceTraderGame
+  declare session: Session
   declare _gameRandSeed: number
   declare _idLog: string[]
   declare _eventNameLog: string[]
   declare _hackHandler: HackHandler | undefined
 
   // hackHandler is an optional function that will be invoked before every
-  // replayed event, taking this.spaceTraderGame as an argument.
-  constructor(serializedString: string, spaceTraderGame: SpaceTraderGame, hackHandler?: HackHandler) {
+  // replayed event, taking the session as an argument.
+  constructor(serializedString: string, session: Session, hackHandler?: HackHandler) {
     const obj = JSON.parse(serializedString)
-    this.spaceTraderGame = spaceTraderGame
+    this.session = session
     this._gameRandSeed = obj.gameRandSeed
     this._idLog = obj.idLog
     this._eventNameLog = obj.eventNameLog
@@ -48,14 +48,14 @@ export class ActionLogReplay {
   replayEvent(elementID: string, eventName?: string) {
     eventName = eventName ? eventName : "click"
     const replayClass = this.constructor as typeof ActionLogReplay
-    replayClass.replayEvent(elementID, eventName, this.spaceTraderGame, this._hackHandler)
+    replayClass.replayEvent(elementID, eventName, this.session, this._hackHandler)
   }
 
-  static replayEvent(elementID: string, eventName: string, spaceTraderGame: SpaceTraderGame, hackHandler?: HackHandler) {
+  static replayEvent(elementID: string, eventName: string, session: Session, hackHandler?: HackHandler) {
     runtime.actionLog.replayInProgress = true // force async to happen immediately from now on
 
     if (hackHandler) {
-      hackHandler(spaceTraderGame)
+      hackHandler(session)
     }
 
     if (elementID === "namedEvent") {

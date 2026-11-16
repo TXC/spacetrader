@@ -3,10 +3,8 @@ import { createRoot } from 'react-dom/client'
 import { expect, test, vi } from 'vitest'
 import type { GalaxyView } from '../ui/canvas/GalaxyView.ts'
 import { GalaxyMap } from '../ui/GalaxyMap.tsx'
-import { registerLegacyTests } from './legacySuite.ts'
-import { UnitTests } from './UnitTests.ts'
-
-registerLegacyTests('no_recorded_tests_here')
+import './flows/setup.ts'
+import { runReplayLog } from './flows/harness.ts'
 
 const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve))
 
@@ -14,7 +12,7 @@ const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve))
 // stopped listening for window resizes.
 test('a map that leaves the page stops drawing and stops listening', async () => {
   const log = '{"idLog":["createCommander"],"eventNameLog":["click"],"gameRandSeed":1733543535142}'
-  const game = new UnitTests()._runReplayLog(log, undefined, undefined).spaceTraderGame.viewController._game
+  const game = runReplayLog(log).session.game!
   const host = document.body.appendChild(document.createElement('div'))
   const root = createRoot(host)
   let view: GalaxyView | null = null
