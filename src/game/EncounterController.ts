@@ -1357,9 +1357,7 @@ export class EncounterController {
 
                 attemptScoop = true;
             } else if (ENCOUNTER(this._type, "FamousCaptain")) {
-                // @ts-expect-error old bug kept: this name never existed (ReputationScore.Dangerous was meant), so this line throws
-                // eslint-disable-next-line no-undef -- see the line above
-                this._game.commander.reputationScore = Math.max(this._game.commander.reputationScore + 100, ReputationScoreDangerous);
+                this._game.commander.reputationScore = Math.max(this._game.commander.reputationScore + 100, ReputationScore.Dangerous);
                 this._game.replaceNewsContainingString(CAPTAIN_NAME_STR(this._type), DESTROY_CAPTAIN_NEWS(this._type));
             } else if (ENCOUNTER(this._type, "Scarab")) {
                 this._game.commander.pirateKills++;
