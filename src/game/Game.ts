@@ -65,6 +65,8 @@ export type SSSTGameState = {
 }
 
 export class SSSTGame {
+  // `new SSSTGame()` with no commander returns an empty shell that fromSerializedState() fills in.
+  // `_remainingRareEvents` is typed as always set, but is unset until the game is set up.
   declare _saveBlock: ((game: SSSTGame) => void) | null
   declare _uniqueID: string
   declare _endStatus: number
@@ -97,7 +99,10 @@ export class SSSTGame {
   declare _remainingRareEvents: number[]
   declare solarSystems: SSSTSolarSystem[]
   declare _warpSystem: SSSTSolarSystem | null
-  declare _lastSave: Date
+  declare _lastSave?: Date // unset until the first serializedState()
+  // Set by the cheats panel, read by the old screens.
+  declare forceRareEvent?: boolean
+  declare showSpecialSystems?: boolean
 
   constructor(difficulty?: number, commander?: SSSTCommander) {
     this._saveBlock = null

@@ -141,6 +141,8 @@ export class SSSTCommander extends SSSTCrewMember {
     declare _boughtMoon: boolean
     declare _hasEscapePod: boolean
     declare _hasInsurance: boolean
+    // The next five are not set by the constructor. They are unset until SSSTGame sets the
+    // commander up or a saved game is loaded; the types say 'always set' to match how the rules use them.
     declare _credits: number
     declare _difficulty: number
     declare _reserveMoney: boolean
