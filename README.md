@@ -24,6 +24,13 @@ The screen tests need a browser. Install it once with:
 pnpm exec playwright install chromium
 ```
 
+## Debug panel
+
+Add `?debug` to the address, as in `http://localhost:5173/?debug`. Below
+the game you then get the cheats, the action log of everything you have
+clicked, and a button to copy it. A copied log can be pasted into a flow
+test to replay the same game.
+
 ## Layout
 
 | Folder               | Contents                                            |
@@ -56,9 +63,9 @@ on: renaming one breaks the recordings that use it.
 3. **Done:** a layout that follows the window. One number sets the size
    of everything: the `font-size` on `html` in `src/ui/style.css`.
 4. **Done:** the recorded tests are ordinary test files.
-5. **Next:** the debug panel, offline support, and tidying the
-   carried-over rules code.
-6. **Later:** a two-pane layout for wide screens.
+5. **Done:** the debug panel.
+6. **Next:** offline support, and tidying the carried-over rules code.
+7. **Later:** a two-pane layout for wide screens.
 
 The designs and plans are in `docs/superpowers/`. The ones for the
 TypeScript step use the file names from before the `SSST` prefix was
