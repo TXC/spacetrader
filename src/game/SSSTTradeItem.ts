@@ -1,10 +1,25 @@
-// @ts-nocheck
 import { SSSTResource, SSSTStatus, SSSTTechLevel, SSSTTradeItemType } from './SSSTTradeItem_h.ts'
 
-export const sItems = {};
+export const sItems: Record<number, SSSTTradeItem> = {};
 
 export class SSSTTradeItem {
-    constructor(type, name, icon, techLevelToProduce, techLevelToUse, techLevelMaxProd, priceLowTech, priceIncreasePerTechLevel, priceVariance, minTradePrice, maxTradePrice, roundOffPrice, doublePriceStatus, cheapResource, expensiveResource) {
+    declare type: SSSTTradeItemType
+    declare name: string
+    declare icon: string
+    declare techLevelToProduce: SSSTTechLevel
+    declare techLevelToUse: SSSTTechLevel
+    declare techLevelMaxProd: SSSTTechLevel
+    declare priceLowTech: number
+    declare priceIncreasePerTechLevel: number
+    declare priceVariance: number
+    declare minTradePrice: number
+    declare maxTradePrice: number
+    declare roundOffPrice: number
+    declare doublePriceStatus: SSSTStatus
+    declare cheapResource: SSSTResource
+    declare expensiveResource: SSSTResource
+
+    constructor(type: SSSTTradeItemType, name: string, icon: string, techLevelToProduce: SSSTTechLevel, techLevelToUse: SSSTTechLevel, techLevelMaxProd: SSSTTechLevel, priceLowTech: number, priceIncreasePerTechLevel: number, priceVariance: number, minTradePrice: number, maxTradePrice: number, roundOffPrice: number, doublePriceStatus: SSSTStatus, cheapResource: SSSTResource, expensiveResource: SSSTResource) {
         this.type = type;
         this.name = name;
         this.icon = icon;
@@ -22,7 +37,7 @@ export class SSSTTradeItem {
         this.expensiveResource = expensiveResource;
     }
 
-    static tradeItemForType(tradeItemType) {
+    static tradeItemForType(tradeItemType: SSSTTradeItemType): SSSTTradeItem | null {
         if (!sItems[tradeItemType]) {
             let item;
             switch (tradeItemType) {
