@@ -14,14 +14,14 @@ function sizeBar(container: HTMLElement | null, bar: HTMLElement | null, fractio
   if (container && bar) bar.style.width = `${fraction * container.getBoundingClientRect().width}px`
 }
 
-// Fading in starts a moment after the picture is on the page.
-function useFadeIn(leaving: boolean | undefined) {
-  const [shown, setShown] = useState(false)
+// True from a moment after the picture is on the page. Fading in starts then.
+function useAppeared() {
+  const [appeared, setAppeared] = useState(false)
   useEffect(() => {
-    const timer = setTimeout(() => setShown(true), 10)
+    const timer = setTimeout(() => setAppeared(true), 10)
     return () => clearTimeout(timer)
   }, [])
-  return shown && !leaving
+  return appeared
 }
 
 // A ship's picture with its hull and shield bars.
@@ -30,13 +30,15 @@ export function ShipView({ ship, enemy, fade, leaving, animate }: Props) {
   const hullBar = useRef<HTMLDivElement>(null)
   const shield = useRef<HTMLDivElement>(null)
   const shieldBar = useRef<HTMLDivElement>(null)
-  const visible = useFadeIn(leaving)
+  const appeared = useAppeared()
   useLayoutEffect(() => {
     sizeBar(hull.current, hullBar.current, ship.hullPercentage())
     sizeBar(shield.current, shieldBar.current, ship.shieldPercentage())
   })
   const side = enemy ? 'enemy' : 'self'
-  const slide = animate ? ' bar-width-transition' : ''
+  const visible = appeared && !leaving
+  // The bars slide when the ship is hit, not when it first appears at its first widths.
+  const slide = animate && appeared ? ' bar-width-transition' : ''
   const fading = fade ? ' battle-opponent-crossfade fade-in' : ''
   return (
     <div className={'battle-opponent' + fading + (visible ? ' visible' : '')}>
