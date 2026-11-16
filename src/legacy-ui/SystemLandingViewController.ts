@@ -5,7 +5,8 @@ import { createElement } from 'react'
 import { Bank } from '../ui/Bank.tsx'
 import { mountReact } from '../ui/mountReact.ts'
 import { BuySellCargo } from '../ui/BuySellCargo.tsx'
-import { CommanderStatusViewController } from './CommanderStatusViewController.ts'
+import { CommanderStatus } from '../ui/CommanderStatus.tsx'
+import { GameEndStatus } from '../game/Game.ts'
 import { Equipment } from '../ui/Equipment.tsx'
 import { GalacticChartViewController } from './GalacticChartViewController.ts'
 import { GalaxyView } from './GalaxyView.ts'
@@ -182,9 +183,12 @@ export class SystemLandingViewController {
       this._mountReact(contentDiv, createElement(Bank, { game: this._game }))
     } else if (row === "Commander") {
       pLog.log(13)
-      const viewController = new CommanderStatusViewController(contentDiv, this._game);
-      viewController.delegate = this
-      viewController.presentView();
+      const scores = {
+        highScores: (count) => this.highScoringGamesWithinCount(count),
+        clearHighScores: () => this.clearAllHighScoringGames(),
+      }
+      const onGiveUp = () => this.gameDidEndWithStatus(GameEndStatus.Retired)
+      this._mountReact(contentDiv, createElement(CommanderStatus, { game: this._game, scores, onGiveUp }))
     } else if (row === "Special") {
       pLog.log(14)
       const specialEventTypeToSpecifier = SpecialEventSpecifier.specialEventTypeToSpecifier()
