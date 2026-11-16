@@ -267,7 +267,7 @@ export class SolarSystem {
     }
 
     hashCode() {
-      let str = this._name;
+      const str = this._name;
 
       let hash = 0, i, chr;
       if (str.length === 0) return hash;

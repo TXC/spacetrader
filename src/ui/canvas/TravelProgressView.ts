@@ -1,4 +1,4 @@
-import { DEBUG_OVERRIDE_SCALE_TO_1, UnvisitedSystemColor, VisitedSystemColor } from './GalaxyView.ts'
+import { DEBUG_OVERRIDE_SCALE_TO_1, labelSize, UnvisitedSystemColor, VisitedSystemColor } from './GalaxyView.ts'
 import type { Game } from '../../game/Game.ts'
 import type { SolarSystem } from '../../game/SolarSystem.ts'
 import { Utils } from '../../game/Utilities.ts'
@@ -135,7 +135,7 @@ export class TravelProgressView {
   }
 
   _textHeight() {
-    return 10
+    return labelSize()
   }
 
   _drawSolarSystem(s: SolarSystem, left: boolean, visited: boolean) {
@@ -163,7 +163,7 @@ export class TravelProgressView {
     this.context.arc(xOrigin, yOrigin, radius, 0, Math.PI * 2);
     this.context.fill();
 
-    let nameY = yOrigin + radius + edgePadding + textHeight/2
+    const nameY = yOrigin + radius + edgePadding + textHeight/2
     let nameX = xOrigin - Math.floor(textMetrics.width/2)
     if (left) {
       nameX = Math.max(edgePadding, nameX) + textMetrics.width/2

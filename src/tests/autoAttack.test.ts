@@ -1,10 +1,8 @@
 import { afterEach, expect, test, vi } from 'vitest'
 import { runtime } from '../game/runtime.ts'
-import { registerLegacyTests } from './legacySuite.ts'
+import './flows/setup.ts'
+import { runReplayLog } from './flows/harness.ts'
 import { textOf } from './support/page.ts'
-import { UnitTests } from './UnitTests.ts'
-
-registerLegacyTests('no_recorded_tests_here')
 
 afterEach(() => vi.useRealTimers())
 
@@ -12,7 +10,7 @@ afterEach(() => vi.useRealTimers())
 // seconds apart, from a timer and not from a click, and the screen must follow.
 test('in real play, each auto-attack round updates the screen without a click', () => {
   const log = '{"idLog":["createCommander","Warp"],"eventNameLog":["click","click"],"gameRandSeed":1734746929683}'
-  const replay = new UnitTests()._runReplayLog(log, undefined, undefined)
+  const replay = runReplayLog(log)
   replay.replayEvent('warpBlastOff')
   replay.replayEvent('ecButton_Attack')
   replay.replayEvent('alertButton_Attack')

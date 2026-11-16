@@ -20,9 +20,9 @@ export default defineConfig([
     },
   },
   {
-    // Code carried over from old/ unchanged: keep the old style, but catch missing imports,
-    // which nothing else reports while type checking is off.
-    files: ['src/game/**', 'src/tests/**', 'src/ui/canvas/**'],
+    // The flow tests were converted from the original game's test file and keep its style
+    // and loose typing. Missing imports are still caught, since type checking is off there.
+    files: ['src/tests/**'],
     rules: {
       'no-undef': 'error',
       '@typescript-eslint/ban-ts-comment': 'off',

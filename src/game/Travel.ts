@@ -75,7 +75,7 @@ export class Travel extends Store {
   }
 
   _processEncounters() {
-    let eventLoopInitialClicks = this._game.commander.travelClicksRemaining;
+    const eventLoopInitialClicks = this._game.commander.travelClicksRemaining;
     let currentClicks = eventLoopInitialClicks;
 
     currentClicks = Math.max(currentClicks - 1, 0);
@@ -91,7 +91,7 @@ export class Travel extends Store {
       this._setProgress(1 - (currentClicks * 1.0 / this._startClicksRemaining));
 
       // Automatic repairs based on engineering skill
-      let engineerSkill = this._game.commander.ship.crewEngineerSkillIncludingCommander(this._game.commander);
+      const engineerSkill = this._game.commander.ship.crewEngineerSkillIncludingCommander(this._game.commander);
       let repairAmount = runtime.gameRand.randomIntBelow(engineerSkill / 2);
 
       repairAmount = this._game.commander.ship.repairHullByAmount(repairAmount)!;
@@ -134,7 +134,7 @@ export class Travel extends Store {
         } else {
           // Welcome to Kravat, outlaw!
           if (this._game.wildStatus === WildQuestStatus.OnBoard && this._destination.name === "Kravat") {
-            let diceRoll = runtime.gameRand.randomIntBelow(100);
+            const diceRoll = runtime.gameRand.randomIntBelow(100);
             if ((this._game.difficulty <= Difficulty.Easy && diceRoll < 25) ||
               (this._game.difficulty === Difficulty.Normal && diceRoll < 33) ||
               (this._game.difficulty > Difficulty.Normal && diceRoll < 50)) {
@@ -163,7 +163,7 @@ export class Travel extends Store {
           this._needPostMarieCustomsPolice = false;
         } else {
           encounterType = EncounterType.PoliceIgnore;
-          let policeHaveWeapons = opponent.ship.weapons.length > 0;
+          const policeHaveWeapons = opponent.ship.weapons.length > 0;
 
           if (this._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(this._game.commander, opponent)) {
             encounterType = EncounterType.PoliceIgnore;
@@ -211,7 +211,7 @@ export class Travel extends Store {
             }
           }
 
-          let noConfrontation = (encounterType === EncounterType.PoliceFlee || encounterType === EncounterType.PoliceIgnore);
+          const noConfrontation = (encounterType === EncounterType.PoliceFlee || encounterType === EncounterType.PoliceIgnore);
 
           if (noConfrontation && opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, this._game.commander)) {
             encounterType = EncounterType.None;
@@ -235,7 +235,7 @@ export class Travel extends Store {
           encounterType = EncounterType.PirateFlee;
         }
 
-        let noConfrontation = (encounterType === EncounterType.PirateFlee || encounterType === EncounterType.PirateIgnore);
+        const noConfrontation = (encounterType === EncounterType.PirateFlee || encounterType === EncounterType.PirateIgnore);
 
         // If this isn't a confrontation and we can't see the pirate, skip the encounter
         if (noConfrontation && opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, this._game.commander)) {
@@ -284,7 +284,7 @@ export class Travel extends Store {
           }
         }
 
-        let noTrade =
+        const noTrade =
           encounterType === EncounterType.TraderFlee ||
           encounterType === EncounterType.TraderIgnore;
 
@@ -492,10 +492,10 @@ export class Travel extends Store {
         );
         pLog.log(154)
         break;
-      case ReactorQuestStatus.DaysRemaining._1:
+      case ReactorQuestStatus.DaysRemaining._1: {
         this._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
 
-        let alerts = [];
+        const alerts = [];
 
         alerts.push("Just as you approach the docking bay, the reactor explodes into a huge radioactive fireball!");
         if (!this._game.commander.hasEscapePod) {
@@ -513,6 +513,7 @@ export class Travel extends Store {
         });
 
         return;
+      }
 
     }
 
@@ -520,8 +521,8 @@ export class Travel extends Store {
     let currentTribbles = this._game.commander.ship.tribbles;
     Utils.ensureInteger(currentTribbles)
 
-    let previousTribbles = currentTribbles;
-    let reactorStatus = (this._game.reactorStatus > ReactorQuestStatus.Open && this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate);
+    const previousTribbles = currentTribbles;
+    const reactorStatus = (this._game.reactorStatus > ReactorQuestStatus.Open && this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate);
 
     if (currentTribbles > 0 && reactorStatus) {
       currentTribbles = Math.floor(currentTribbles / 2);
@@ -534,16 +535,16 @@ export class Travel extends Store {
       pLog.log(157)
     } else if (currentTribbles > 0 && this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics) > 0) {
       currentTribbles += 1 + runtime.gameRand.randomIntBelow(3);
-      let amountNarcotics = this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics);
-      let consumedNarcotics = Math.min(1 + runtime.gameRand.randomIntBelow(3), amountNarcotics);
+      const amountNarcotics = this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics);
+      const consumedNarcotics = Math.min(1 + runtime.gameRand.randomIntBelow(3), amountNarcotics);
       this._game.commander.ship.soldQuantity(consumedNarcotics, TradeItemType.Narcotics);
       this._game.commander.ship.boughtQuantity(consumedNarcotics, TradeItemType.Furs, 0);
       alertStrings.push("You find that, instead of narcotics, some of your cargo bays contain only dead tribbles!");
       pLog.log(158)
     } else if (currentTribbles > 0 && this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Food) > 0) {
-      let amountFood = this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Food);
+      const amountFood = this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Food);
       currentTribbles += 100 + runtime.gameRand.randomIntBelow((amountFood * 100));
-      let foodConsumed = runtime.gameRand.randomIntBelow(amountFood);
+      const foodConsumed = runtime.gameRand.randomIntBelow(amountFood);
       this._game.commander.ship.soldQuantity(foodConsumed, TradeItemType.Food);
       foodOnBoard = true;
       alertStrings.push("You find that, instead of food, some of your cargo bays contain only tribbles!");
@@ -567,8 +568,8 @@ export class Travel extends Store {
 
     this._game.tribbleMessage = false;
 
-    let engineerSkill = this._game.commander.ship.crewEngineerSkillIncludingCommander(this._game.commander);
-    let repairAmount = runtime.gameRand.randomIntBelow(engineerSkill);
+    const engineerSkill = this._game.commander.ship.crewEngineerSkillIncludingCommander(this._game.commander);
+    const repairAmount = runtime.gameRand.randomIntBelow(engineerSkill);
     this._game.commander.ship.repairHullByAmount(repairAmount);
 
     let failString = "";
@@ -593,7 +594,7 @@ export class Travel extends Store {
       this._done('arrived');
 
       if (failString.length > 0) {
-        let aC = new AlertViewController(`You don't have enough money to buy ${failString}.`)
+        const aC = new AlertViewController(`You don't have enough money to buy ${failString}.`)
 
         aC.addAction("Darn", AlertActionType.Default, null)
 
@@ -603,14 +604,14 @@ export class Travel extends Store {
   }
 
 	_promptForStrings(alertStrings: string[], completion: () => void) {
-		let firstString = alertStrings.length > 0 ? alertStrings[0] : null;
+		const firstString = alertStrings.length > 0 ? alertStrings[0] : null;
 
 		if (firstString) {
 			alertStrings.shift();  // Removes the first element from the array
 
 			console.log("Prompt with alert string: " + firstString);
 
-      let aC = new AlertViewController(firstString)
+      const aC = new AlertViewController(firstString)
       aC.addAction("Dismiss", AlertActionType.Default, () => {
 				this._promptForStrings(alertStrings, completion);
 			})
@@ -659,20 +660,20 @@ export class Travel extends Store {
     }
   }
 
-  encounterControllerHasUpdatedHP(_c: EncounterController) {
+  encounterControllerHasUpdatedHP() {
     this.changed()
   }
 
-  encounterControllerHasUpdatedButtons(_c: EncounterController) {
+  encounterControllerHasUpdatedButtons() {
     this.changed()
   }
 
-  encounterControllerDidCompleteWithArrest(_ec: EncounterController) {
+  encounterControllerDidCompleteWithArrest() {
     this.setEncounterController(null)
     this._done('arrived');
   }
 
-  encounterControllerDidCompleteWithDestruction(_ec: EncounterController) {
+  encounterControllerDidCompleteWithDestruction() {
     this.setEncounterController(null)
 
     if (this._game.commander.hasEscapePod) {
@@ -685,7 +686,7 @@ export class Travel extends Store {
   }
 
   _performPodEscape() {
-    let alerts = [];
+    const alerts = [];
 
     let reactorStr = ""
     if (this._game.reactorStatus > ReactorQuestStatus.Open && this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate) {
@@ -728,7 +729,7 @@ export class Travel extends Store {
     }
 
     if (this._game.commander.hasInsurance) {
-      let shipValue = this._game.commander.ship.shipValuationForInsurance(true);
+      const shipValue = this._game.commander.ship.shipValuationForInsurance(true);
       this._game.commander.credits = this._game.commander.credits + shipValue;
       alerts.push(`Since your ship was insured, the bank pays you $${shipValue}, the total value of the destroyed ship.`);
       pLog.log(32)
@@ -751,7 +752,7 @@ export class Travel extends Store {
 
     this._game.timePassed(3);
 
-    let ship = new Ship(ShipModelType.Flea, this._game.difficulty);
+    const ship = new Ship(ShipModelType.Flea, this._game.difficulty);
     this._game.commander.ship = ship;
 
     this._promptForStrings(alerts, () => {

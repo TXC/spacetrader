@@ -58,7 +58,7 @@ export class SpecialEventSpecifier {
         this.name = name;
         this.prompt = prompt;
         this.shouldHideBlock = shouldHideBlock || (() => false);
-        this.action = actionBlock || ((game, _viewController) => {
+        this.action = actionBlock || ((game) => {
             RESET_CURRENT_SPECIAL(game);
         });
         this.price = price;
@@ -70,7 +70,7 @@ export class SpecialEventSpecifier {
         if (!SpecialEventSpecifier.sEvents) {
             SpecialEventSpecifier.sEvents = [];
 
-            let specifier = null;
+            let specifier: SpecialEventSpecifier;
 
             specifier = new SpecialEventSpecifier(
                 SpecialEvent.DragonflyDestroyed,
@@ -82,7 +82,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.dragonflyStatus < DragonflyQuestStatus.ClosedDragonflyDestroyed;
                 },
-                (game, _viewController) => {
+                (game) => {
                     pLog.log(115)
                     game.commander.currentSystem.setSpecialEvent(SpecialEvent.InstallLightningShield);
                 }
@@ -101,7 +101,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.dragonflyStatus < DragonflyQuestStatus.GoToBaratas;
                 },
-                (game, _viewController) => {
+                (game) => {
                     pLog.log(116)
                     game.dragonflyStatus += 1;
                     RESET_CURRENT_SPECIAL(game);
@@ -121,7 +121,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.dragonflyStatus < DragonflyQuestStatus.GoToMelina;
                 },
-                (game, _viewController) => {
+                (game) => {
                     pLog.log(117)
                     game.dragonflyStatus += 1;
                     RESET_CURRENT_SPECIAL(game);
@@ -140,7 +140,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.dragonflyStatus < DragonflyQuestStatus.GoToRegulas;
                 },
-                (game, _viewController) => {
+                (game) => {
                     pLog.log(118)
                     game.dragonflyStatus += 1;
                     RESET_CURRENT_SPECIAL(game);
@@ -174,7 +174,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.japoriQuestStatus !== JaporiQuestStatus.HasMedicine;
                 },
-                (game, _viewController) => {
+                (game) => {
                     game.japoriQuestStatus = JaporiQuestStatus.Closed;
                     game.commander.ship.soldQuantity(10, TradeItemType.FakeQuestCargo);
                     game.commander.increaseSkillRandomly();
@@ -213,7 +213,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.commander.boughtMoon || game.commander.netWorth() < (MOON_PRICE * 4) / 5;
                 },
-                (game, _viewController) => {
+                (game) => {
                     game.commander.boughtMoon = true
                     AlertViewController.presentAlertWithDismiss("You bought a moon in the Utopia system. Go there to claim it.")
                     RESET_CURRENT_SPECIAL(game);
@@ -230,7 +230,7 @@ export class SpecialEventSpecifier {
                 3,
                 false,
                 null,
-                (game, _viewController) => {
+                (game) => {
                     const skill = game.commander.increaseSkillRandomly();
 
                     AlertViewController.presentAlertWithDismiss(`The alien's machine increases your ${skill} skill.`)
@@ -250,7 +250,7 @@ export class SpecialEventSpecifier {
                 1,
                 false,
                 null,
-                (game, _viewController) => {
+                (game) => {
                     game.commander.ship.tribbles = 1;
 
                     AlertViewController.presentAlertWithDismiss("You are now the proud owner of a little, cute, furry tribble.")
@@ -272,7 +272,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.commander.policeRecordScore >= PoliceRecordScore.Dubious;
                 },
-                (game, _viewController) => {
+                (game) => {
                     pLog.log(110)
                     game.commander.policeRecordScore = PoliceRecordScore.Clean;
                     AlertViewController.presentAlertWithDismiss("The hacker resets your police record to be clean.")
@@ -294,7 +294,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.commander.ship.tribbles <= 0;
                 },
-                (game, _viewController) => {
+                (game) => {
                     game.commander.credits = game.commander.credits + Math.floor(game.commander.ship.tribbles/2)
                     game.commander.ship.tribbles = 0
 
@@ -317,7 +317,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.monsterStatus !== MonsterQuestStatus.Open;
                 },
-                (game, _viewController) => {
+                (game) => {
                     game.monsterStatus = MonsterQuestStatus.MonsterExists;
                     RESET_CURRENT_SPECIAL(game);
                     pLog.log(144)
@@ -337,7 +337,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.commander.policeRecordScore < PoliceRecordScore.Dubious;
                 },
-                (game, _viewController) => {
+                (game) => {
                     game.dragonflyStatus = DragonflyQuestStatus.GoToBaratas;
                     RESET_CURRENT_SPECIAL(game);
                 }
@@ -356,7 +356,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.commander.ship.freeCargoBays() < 3;
                 },
-                (game, _viewController) => {
+                (game) => {
                     const itemType = runtime.gameRand.randomIntBelow(TradeItemType.Count);
                     game.commander.ship.boughtQuantity(3, itemType, Math.floor(1000 / 3));
 
@@ -378,7 +378,7 @@ export class SpecialEventSpecifier {
                 0,
                 false,
                 null,
-                (game, _viewController) => {
+                (game) => {
                     let alertString;
                     if (game.commander.ship.freeSlotsForAccessoryType(AccessoryType.ShieldLightning) > 0) {
                         pLog.log(119)
@@ -408,7 +408,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.commander.policeRecordScore < PoliceRecordScore.Dubious || game.japoriQuestStatus !== JaporiQuestStatus.Open;
                 },
-                (game, _viewController) => {
+                (game) => {
                     let alertString;
                     if (game.commander.ship.freeCargoBays() < 10) {
                         pLog.log(111)
@@ -452,7 +452,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return !game.commander.artifactOnBoard;
                 },
-                (game, _viewController) => {
+                (game) => {
                     game.commander.artifactOnBoard = false;
                     RESET_CURRENT_SPECIAL(game);
                     pLog.log(136)
@@ -472,7 +472,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.commander.policeRecordScore < PoliceRecordScore.Dubious;
                 },
-                (game, _viewController) => {
+                (game) => {
                     game.commander.artifactOnBoard = true;
                     RESET_CURRENT_SPECIAL(game);
                     pLog.log(135)
@@ -492,7 +492,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.commander.policeRecordScore < PoliceRecordScore.Dubious;
                 },
-                (game, _viewController) => {
+                (game) => {
                     let alertString;
                     if (game.commander.ship.crewCount() < game.commander.ship.model.mercenaryQuarters()) {
                         const jarek = new CrewMember("Ambassador Jarek");
@@ -523,7 +523,7 @@ export class SpecialEventSpecifier {
                 0,
                 true,
                 null,
-                (game, _viewController) => {
+                (game) => {
                     game.invasionStatus = InvasionQuestStatus.DaysUntilInvasion._7;
                     RESET_CURRENT_SPECIAL(game);
                 }
@@ -554,7 +554,7 @@ export class SpecialEventSpecifier {
                 0,
                 false,
                 null,
-                (game, _viewController) => {
+                (game) => {
                     let alertString;
                     if (game.commander.ship.freeSlotsForAccessoryType(AccessoryType.GadgetFuelCompactor) > 0) {
                         game.commander.ship.addAccessoryOfType(AccessoryType.GadgetFuelCompactor);
@@ -585,7 +585,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.commander.policeRecordScore < PoliceRecordScore.Dubious;
                 },
-                (game, _viewController) => {
+                (game) => {
                     game.experimentStatus = ExperimentQuestStatus.DaysRemaining._10;
                     RESET_CURRENT_SPECIAL(game);
                     pLog.log(147)
@@ -605,7 +605,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.commander.policeRecordScore >= PoliceRecordScore.Dubious;
                 },
-                (game, _viewController) => {
+                (game) => {
                     let alertString = null;
 
                     if (!alertString && game.commander.ship.crewCount() >= game.commander.ship.model.mercenaryQuarters()) {
@@ -655,7 +655,7 @@ export class SpecialEventSpecifier {
                            game.reactorStatus !== ReactorQuestStatus.Open ||
                            game.wildStatus === WildQuestStatus.OnBoard;
                 },
-                (game, _viewController) => {
+                (game) => {
                     if (game.commander.ship.freeCargoBays() < REACTOR_BAY_COUNT + REACTOR_MAX_FUEL) {
                         AlertViewController.presentAlertWithDismiss("You don't have enough empty cargo bays at the moment.")
                         pLog.log(150)
@@ -683,7 +683,7 @@ export class SpecialEventSpecifier {
                 0,
                 false,
                 null,
-                (game, _viewController) => {
+                (game) => {
                     let alertString;
 
                     if (game.commander.ship.freeSlotsForAccessoryType(AccessoryType.WeaponMorgansLaser) > 0) {
@@ -714,7 +714,7 @@ export class SpecialEventSpecifier {
                     return game.commander.reputationScore < ReputationScore.Average ||
                            game.scarabStatus !== ScarabQuestStatus.Open;
                 },
-                (game, _viewController) => {
+                (game) => {
                     game.scarabStatus = ScarabQuestStatus.ScarabExists;
                     RESET_CURRENT_SPECIAL(game);
                 }
@@ -733,7 +733,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.scarabStatus !== ScarabQuestStatus.ScarabDestroyed;
                 },
-                (game, _viewController) => {
+                (game) => {
                     game.commander.ship.setUpgradedHull(true);
                     game.scarabStatus = ScarabQuestStatus.Closed;
                     RESET_CURRENT_SPECIAL(game);
@@ -756,7 +756,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.scarabStatus !== ScarabQuestStatus.ScarabDestroyed;
                 },
-                (game, _viewController) => {
+                (game) => {
                     game.commander.currentSystem.setSpecialEvent(SpecialEvent.GetHullUpgraded);
                 }
             );
@@ -774,7 +774,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return !(game.reactorStatus > ReactorQuestStatus.Open && game.reactorStatus < ReactorQuestStatus.ClosedTooLate);
                 },
-                (game, _viewController) => {
+                (game) => {
                     game.commander.ship.soldQuantity(REACTOR_BAY_COUNT + REACTOR_MAX_FUEL, TradeItemType.FakeQuestCargoReactor);
                     game.commander.currentSystem.setSpecialEvent(SpecialEvent.GetSpecialLaser);
                     game.reactorStatus = ReactorQuestStatus.ClosedSaved;
@@ -795,7 +795,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.jarekStatus !== JarekQuestStatus.OnBoard;
                 },
-                (game, _viewController) => {
+                (game) => {
                     game.jarekStatus = JarekQuestStatus.Closed;
                     game.commander.carriesMaxTraderBoost = true;
                     game.commander.ship.removeCrewMemberWithName("Ambassador Jarek");
@@ -817,7 +817,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return !(game.invasionStatus >= InvasionQuestStatus.DaysUntilInvasion._7 && game.invasionStatus <= InvasionQuestStatus.DaysUntilInvasion._1);
                 },
-                (game, _viewController) => {
+                (game) => {
                     game.invasionStatus = InvasionQuestStatus.ClosedSaved
                     game.commander.currentSystem.setSpecialEvent(SpecialEvent.GetFuelCompactor);
                     pLog.log(133)
@@ -837,7 +837,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return !(game.experimentStatus >= ExperimentQuestStatus.DaysRemaining._10 && game.experimentStatus <= ExperimentQuestStatus.DaysRemaining._1);
                 },
-                (game, _viewController) => {
+                (game) => {
                     game.experimentStatus = ExperimentQuestStatus.ClosedSaved;
                     game.canSuperWarp = true;
                     RESET_CURRENT_SPECIAL(game);
@@ -872,7 +872,7 @@ export class SpecialEventSpecifier {
                 (game) => {
                     return game.wildStatus !== WildQuestStatus.OnBoard;
                 },
-                (game, _viewController) => {
+                (game) => {
                     game.wildStatus = WildQuestStatus.Closed;
                     game.commander.ship.removeCrewMemberWithName("Jonathan Wild");
 

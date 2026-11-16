@@ -246,7 +246,7 @@ export class News {
   	const solarSystemsWithinRange = this.game.solarSystemsWithinRange();
 
   	for (let i = 0; i < solarSystemsWithinRange.length; i++) {
-  		let solarSystem = solarSystemsWithinRange[i];
+  		const solarSystem = solarSystemsWithinRange[i];
 
   		if (solarSystem.getSpecialEvent() === SpecialEvent.MoonForSale) {
   			headlines += `${comma}Seller in ${solarSystem.getName()} System has Utopian Moon Available.`;
@@ -290,7 +290,6 @@ export class News {
   		headlines += comma;
   		const systemHeadlines = this.game.commander.getCurrentSystem().getPolitics().headlines;
   		headlines += systemHeadlines[runtime.gameRand.randomIntBelow(systemHeadlines.length)];
-  		comma = '\n';
   	}
 
   	this.cachedSystem = this.game.commander.getCurrentSystem();

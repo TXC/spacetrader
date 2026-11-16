@@ -23,6 +23,11 @@ export const UnvisitedSystemColor = "#414141"
 export const WormholeSystemColor = "#FFA500"
 export const SpecialSystemColor = "#66CC85"
 
+// The size of the labels drawn on a canvas: two thirds of the page's text size.
+export function labelSize(): number {
+  return parseFloat(getComputedStyle(document.documentElement).fontSize) * 2 / 3
+}
+
 export class GalaxyView {
   declare div: HTMLElement
   declare game: Game
@@ -181,7 +186,7 @@ export class GalaxyView {
     const planet = this.getPlanetAtPosition(pos.x, pos.y);
     if (planet) {
       let s = planet.solarSystem
-      let isWormhole = planet.isWormhole === true
+      const isWormhole = planet.isWormhole === true
       //console.log("Found planet: " + s.name + " wormhole: " + planet.isWormhole)
       if (planet.isWormhole) {
         s = this.game.solarSystems.find(x => x.wormhole === planet.solarSystem)!
@@ -215,7 +220,7 @@ export class GalaxyView {
     let closestDistance = Math.sqrt(Math.pow(this.canvas.width/this.scale, 2) + Math.pow(this.canvas.height/this.scale, 2))
     let closestPlanet: Planet | null = null
 
-    for (let planet of this.planets) {
+    for (const planet of this.planets) {
       const dist = Math.sqrt(Math.pow(planet.x - x, 2) + Math.pow(planet.y - y, 2));
 
       if (dist < closestDistance) {
@@ -297,20 +302,20 @@ export class GalaxyView {
       solarSystems.forEach(solarSystem => {
         const center = this.getPlanetPosition(solarSystem);
 
-        let planet = { x: center.x, y: center.y, radius: radius, solarSystem: solarSystem, isWormhole: false }
+        const planet = { x: center.x, y: center.y, radius: radius, solarSystem: solarSystem, isWormhole: false }
         this.planets.push(planet)
 
         if (!this.selectedWormhole && solarSystem === this.selectedSystem) {
           this.selectedPlanet = planet
         }
 
-        let wormholeCenter = { x: 0, y: 0 }
+        const wormholeCenter = { x: 0, y: 0 }
         if (solarSystem.wormhole) {
           const wormholePadding = Math.floor(radius/4)
           wormholeCenter.x = center.x + 2*radius + wormholePadding
           wormholeCenter.y = center.y
 
-          let wormholePlanet = { x: wormholeCenter.x, y: wormholeCenter.y, radius: radius, solarSystem: solarSystem.wormhole, isWormhole: true }
+          const wormholePlanet = { x: wormholeCenter.x, y: wormholeCenter.y, radius: radius, solarSystem: solarSystem.wormhole, isWormhole: true }
           this.planets.push(wormholePlanet)
 
           if (this.selectedWormhole && solarSystem === this.selectedSystem) {
@@ -351,7 +356,7 @@ export class GalaxyView {
         this.context.fillStyle = textColor;
         this.context.textAlign = 'center';
         this.context.textBaseline = 'middle';
-        this.context.font = '10px Helvetica, Arial, san-serif';
+        this.context.font = `${labelSize()}px Helvetica, Arial, san-serif`;
         if (!planet.isWormhole) {
           this.context.fillText(planet.solarSystem.name, planet.x, planet.y - planet.radius - namePadding);
         } else {
@@ -379,7 +384,7 @@ export class GalaxyView {
 
   drawTrackingRing(center: Point, color: string, elapsedTime: number) {
     const animationDurationMS = 1500
-    let animationProportion = 1
+    let animationProportion: number
     const elapsedAnimationTimeMS = elapsedTime % animationDurationMS
     if (elapsedAnimationTimeMS <= animationDurationMS/2) {
       // Grow
@@ -425,7 +430,7 @@ export class GalaxyView {
     const currentSystemCenter = this.getPlanetPosition(this.game.commander.currentSystem)
     const trackedSystemCenter = this.getPlanetPosition(this.game.trackedSystem)
 
-    let unitVector = { x: (trackedSystemCenter.x-currentSystemCenter.x), y: (trackedSystemCenter.y-currentSystemCenter.y) }
+    const unitVector = { x: (trackedSystemCenter.x-currentSystemCenter.x), y: (trackedSystemCenter.y-currentSystemCenter.y) }
     const magnitude = Math.sqrt(this.squaredDistance(currentSystemCenter, trackedSystemCenter))
     unitVector.x /= magnitude
     unitVector.y /= magnitude
@@ -474,7 +479,7 @@ export class GalaxyView {
       return this.solarSystemBounds
     }
 
-    let bounds = { xMin: GALAXY_WIDTH, xMax: 0, yMin: GALAXY_HEIGHT, yMax: 0 }
+    const bounds = { xMin: GALAXY_WIDTH, xMax: 0, yMin: GALAXY_HEIGHT, yMax: 0 }
     this.game.solarSystems.forEach(solarSystem => {
       bounds.xMin = Math.min(solarSystem.x, bounds.xMin)
       bounds.xMax = Math.max(solarSystem.x, bounds.xMax)

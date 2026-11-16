@@ -5,6 +5,7 @@ import type { ShipOffer } from '../game/ShipYard.ts'
 import { BaysCredits } from './BaysCredits.tsx'
 import { Lines } from './Lines.tsx'
 import { LoggedButton, LoggedCheckbox } from './Logged.tsx'
+import { ShipPicture } from './ShipPicture.tsx'
 import { ShipView } from './ShipView.tsx'
 import { useSession } from './useStore.ts'
 
@@ -81,7 +82,7 @@ function ShipRow({ game, offer }: GameProps & { offer: ShipOffer }) {
   const { model, priceText, canBuy } = offer
   return (
     <tr>
-      <td><img className="full-width-img" src={model.shipImage.generatePNG(3)} /><span className="centered-text">{model.name}</span></td>
+      <td><ShipPicture model={model} /><span className="centered-text">{model.name}</span></td>
       <td><Lines text={details(model)} /></td>
       <td className={priceText.includes('$') ? 'right-aligned-cell' : 'centered-cell'}>{priceText}</td>
       <td className="centered-cell"><LoggedButton id={'buyship_' + model.name} label="Buy" disabled={!canBuy} onPress={() => buyShip(game, model)} /></td>

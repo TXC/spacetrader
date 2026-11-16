@@ -31,7 +31,7 @@ function Amounts({ row, onAmount }: { row: CargoRow, onAmount: (quantity: number
       onPress={() => onAmount(quantity)}
     />
   )
-  return <td className="centered-cell">{button('1', 1)}{button('5', 5)}{button('All', row.quantity)}</td>
+  return <td className="centered-cell"><div className="button-group">{button('1', 1)}{button('5', 5)}{button('All', row.quantity)}</div></td>
 }
 
 function ItemRow({ row, onAmount }: { row: CargoRow, onAmount: (quantity: number) => void }) {

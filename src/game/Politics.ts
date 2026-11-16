@@ -74,7 +74,7 @@ export class Politics {
 
     static randomPoliticsForTechLevel(techLevel: number) {
         while (true) {
-            let politics = Politics.politicsForType(runtime.gameRand.randomIntBelow(PoliticsType.Count))!;
+            const politics = Politics.politicsForType(runtime.gameRand.randomIntBelow(PoliticsType.Count))!;
             if (politics.minTechLevel <= techLevel && politics.maxTechLevel >= techLevel) {
                 return politics;
             }

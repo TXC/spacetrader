@@ -9,7 +9,7 @@ function Amounts({ plunder, row }: RowProps) {
   const button = (amount: 1 | 5 | 'all', suffix: string, label: string) => (
     <LoggedButton key={verb + suffix} id={`cargo_${row.name}${verb} ${suffix}`} label={label} disabled={row.quantity <= 0} onPress={() => plunder.press(row.type, amount)} />
   )
-  return <td>{button(1, '1', `${verb} 1`)}{button(5, '5', '5')}{button('all', 'All', 'All')}</td>
+  return <td><div className="button-group">{button(1, '1', `${verb} 1`)}{button(5, '5', '5')}{button('all', 'All', 'All')}</div></td>
 }
 
 // The cargo table inside the plunder alert.

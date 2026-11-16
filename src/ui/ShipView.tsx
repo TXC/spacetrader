@@ -1,5 +1,6 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Ship } from '../game/Ship.ts'
+import { ShipPicture } from './ShipPicture.tsx'
 
 type Props = {
   ship: Ship
@@ -9,9 +10,10 @@ type Props = {
   animate?: boolean      // bars slide to their new width instead of jumping
 }
 
-// Sets a bar's width in pixels from its container's measured width.
-function sizeBar(container: HTMLElement | null, bar: HTMLElement | null, fraction: number) {
-  if (container && bar) bar.style.width = `${fraction * container.getBoundingClientRect().width}px`
+// A bar's width as a share of its container. A ship with no hull or no shields at all
+// has no meaningful share; its bar is hidden anyway.
+function share(fraction: number): string {
+  return `${Number.isFinite(fraction) ? fraction * 100 : 0}%`
 }
 
 // True from a moment after the picture is on the page. Fading in starts then.
@@ -26,15 +28,7 @@ function useAppeared() {
 
 // A ship's picture with its hull and shield bars.
 export function ShipView({ ship, enemy, fade, leaving, animate }: Props) {
-  const hull = useRef<HTMLDivElement>(null)
-  const hullBar = useRef<HTMLDivElement>(null)
-  const shield = useRef<HTMLDivElement>(null)
-  const shieldBar = useRef<HTMLDivElement>(null)
   const appeared = useAppeared()
-  useLayoutEffect(() => {
-    sizeBar(hull.current, hullBar.current, ship.hullPercentage())
-    sizeBar(shield.current, shieldBar.current, ship.shieldPercentage())
-  })
   const side = enemy ? 'enemy' : 'self'
   const visible = appeared && !leaving
   // The bars slide when the ship is hit, not when it first appears at its first widths.
@@ -42,12 +36,12 @@ export function ShipView({ ship, enemy, fade, leaving, animate }: Props) {
   const fading = fade ? ' battle-opponent-crossfade fade-in' : ''
   return (
     <div className={'battle-opponent' + fading + (visible ? ' visible' : '')}>
-      <img className={'full-width-img' + (enemy ? ' flipped' : '')} src={ship.model.shipImage.generatePNG(3)} />
-      <div ref={hull} className="hp-container" id={`battle-hpContainer-${side}-${ship.model.name}`} style={{ visibility: ship.model.hullStrength === 0 ? 'hidden' : 'visible' }}>
-        <div ref={hullBar} className={'hp-bar' + slide} id={`battle-hpBar-${side}`} />
+      <ShipPicture model={ship.model} flipped={enemy} />
+      <div className="hp-container" id={`battle-hpContainer-${side}-${ship.model.name}`} style={{ visibility: ship.model.hullStrength === 0 ? 'hidden' : 'visible' }}>
+        <div className={'hp-bar' + slide} id={`battle-hpBar-${side}`} style={{ width: share(ship.hullPercentage()) }} />
       </div>
-      <div ref={shield} className="shield-container" style={{ visibility: ship.hasAnyShield() ? 'visible' : 'hidden' }}>
-        <div ref={shieldBar} className={'shield-bar' + slide} />
+      <div className="shield-container" style={{ visibility: ship.hasAnyShield() ? 'visible' : 'hidden' }}>
+        <div className={'shield-bar' + slide} style={{ width: share(ship.shieldPercentage()) }} />
       </div>
     </div>
   )
