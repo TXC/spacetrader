@@ -1,9 +1,19 @@
-// @ts-nocheck
 import { MAUtils } from './Utilities.ts'
 import { runtime } from './runtime.ts'
 
+export type SSSTCrewMemberState = ReturnType<SSSTCrewMember['serializedState']>
+
 export class SSSTCrewMember {
-    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
+    static declare _sNames: string[] | undefined
+    declare name: string | null
+    declare engineer: number
+    declare pilot: number
+    declare fighter: number
+    declare trader: number
+    declare _forQuest: boolean
+    declare carriesMaxTraderBoost: boolean
+    declare freeMercenaryCost: boolean
+
     static mercenaryNames() {
         if (!this._sNames) {
             this._sNames = [
@@ -42,7 +52,7 @@ export class SSSTCrewMember {
         return this._sNames;
     }
 
-    constructor(name, engineer = 0, pilot = 0, fighter = 0, trader = 0) {
+    constructor(name: string | null, engineer: number = 0, pilot: number = 0, fighter: number = 0, trader: number = 0) {
         MAUtils.ensureType(name, "string")
         this.name = name || null;
 
@@ -57,7 +67,7 @@ export class SSSTCrewMember {
         this.freeMercenaryCost = false;
     }
 
-    updateWithSerializedState(serializedState) {
+    updateWithSerializedState(serializedState: SSSTCrewMemberState) {
         this.name = serializedState.name || null;
         this.engineer = serializedState.engineer;
         this.pilot = serializedState.pilot;
@@ -69,7 +79,7 @@ export class SSSTCrewMember {
         this.freeMercenaryCost = serializedState.freeMercenaryCost || false;
     }
 
-    static fromSerializedState(serializedState) {
+    static fromSerializedState(serializedState: SSSTCrewMemberState) {
         const crewMember = new SSSTCrewMember(serializedState.name);
         crewMember.updateWithSerializedState(serializedState);
         return crewMember;
@@ -87,7 +97,7 @@ export class SSSTCrewMember {
         return this._forQuest;
     }
 
-    set forQuest(f) {
+    set forQuest(f: boolean) {
       if (MAUtils.ensureBool(f)) {
         this._forQuest = f;
       }
