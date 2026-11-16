@@ -11,13 +11,20 @@ export function registerLegacyTests(prefix: string): string[] {
   const ut = new UnitTests() as unknown as Record<string, () => void>
   const names = Object.getOwnPropertyNames(UnitTests.prototype).filter((n) => n.startsWith(prefix))
 
+  // An error thrown inside a click handler goes to the window, not to the test that clicked.
+  // Keep it and fail that test, as old/unitTests.html did.
+  let handlerError: unknown = null
   beforeAll(() => {
     document.body.insertAdjacentHTML('beforeend', '<div id="game"></div><div id="cheats" class="hidden"></div>')
     runtime.debugMode = DebugMode.Assert
+    window.addEventListener('error', (event) => { handlerError ??= event.error ?? event.message })
   })
   afterEach(() => {
     document.getElementById('game')!.innerHTML = ''
     AlertViewController.clearAlerts()
+    const error = handlerError
+    handlerError = null
+    if (error) throw error
   })
   for (const name of names) test(name, () => ut[name]())
   return names
