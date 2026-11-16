@@ -37,7 +37,7 @@ export class SSSTTradeItem {
         this.expensiveResource = expensiveResource;
     }
 
-    static tradeItemForType(tradeItemType: SSSTTradeItemType): SSSTTradeItem | null {
+    static tradeItemForType(tradeItemType: number): SSSTTradeItem | null {
         if (!sItems[tradeItemType]) {
             let item;
             switch (tradeItemType) {
