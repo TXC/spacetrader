@@ -47,14 +47,37 @@ async function shoot(browser, url, tag) {
   return { png, problems }
 }
 
+// Counts the pixels that differ between two PNGs, by drawing both in a blank page.
+async function differingPixels(browser, first, second) {
+  const page = await browser.newPage()
+  const count = await page.evaluate(async ([a, b]) => {
+    const pixels = async (base64) => {
+      const image = await createImageBitmap(await (await fetch('data:image/png;base64,' + base64)).blob())
+      const canvas = new OffscreenCanvas(image.width, image.height)
+      canvas.getContext('2d').drawImage(image, 0, 0)
+      return canvas.getContext('2d').getImageData(0, 0, image.width, image.height)
+    }
+    const [x, y] = [await pixels(a), await pixels(b)]
+    if (x.width !== y.width || x.height !== y.height) return `sizes differ: ${x.width}x${x.height} and ${y.width}x${y.height}`
+    let different = 0
+    for (let i = 0; i < x.data.length; i += 4) {
+      if (x.data[i] !== y.data[i] || x.data[i + 1] !== y.data[i + 1] || x.data[i + 2] !== y.data[i + 2]) different++
+    }
+    return different
+  }, [first.toString('base64'), second.toString('base64')])
+  await page.close()
+  return count
+}
+
 const server = await startDevServer()
 const browser = await chromium.launch()
 try {
   const before = await shoot(browser, `file://${process.cwd()}/old/index.html`, 'old')
   const after = await shoot(browser, `http://localhost:${PORT}/`, 'new')
-  console.log(`${steps.join(' > ')}: identical: ${before.png.equals(after.png)}; page errors in new: ${after.problems.length}`)
+  const different = await differingPixels(browser, before.png, after.png)
+  console.log(`${steps.join(' > ')}: differing pixels: ${different}; page errors in new: ${after.problems.length}`)
   if (after.problems.length) console.log(after.problems.slice(0, 3).join('\n'))
-  if (!before.png.equals(after.png)) console.log(`Screenshots are in ${out}/`)
+  if (different !== 0) console.log(`Screenshots are in ${out}/`)
 } finally {
   await browser.close()
   server.kill()

@@ -11,7 +11,8 @@ import { GalacticChartViewController } from './GalacticChartViewController.ts'
 import { GalaxyView } from './GalaxyView.ts'
 import { NewsViewController } from './NewsViewController.ts'
 import { PersonnelRosterViewController } from './PersonnelRosterViewController.ts'
-import { ShipYardViewController } from './ShipYardViewController.ts'
+import { present as presentShipYard } from '../game/ShipYard.ts'
+import { ShipYard } from '../ui/ShipYard.tsx'
 import { SpecialEvent } from '../game/SolarSystem.types.ts'
 import { SpecialEventSpecifier } from '../game/SpecialEventSpecifier.ts'
 import { WarpViewController } from './WarpViewController.ts'
@@ -161,9 +162,8 @@ export class SystemLandingViewController {
       this._mountReact(contentDiv, createElement(Equipment, { game: this._game }))
     } else if (row === "Ship Yard") {
       pLog.log(9)
-      const viewController = new ShipYardViewController(contentDiv, this._game);
-			viewController.delegate = this;
-      viewController.presentView();
+      presentShipYard(this._game)
+      this._mountReact(contentDiv, createElement(ShipYard, { game: this._game }))
     } else if (row === "For Hire" || row === "Roster") {
       pLog.log(10)
       const viewController = new PersonnelRosterViewController(contentDiv, this._game);
