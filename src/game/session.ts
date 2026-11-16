@@ -23,6 +23,7 @@ const ROWS = ['Special', 'News', 'For Hire', 'Buy', 'Sell', 'Equipment', 'Warp',
 // The coverage probes the old landing screen logged for each link.
 const ROW_PROBES: Record<string, number> = { Chart: 0, Buy: 1, Sell: 2, Warp: 3, Equipment: 8, 'Ship Yard': 9, 'For Hire': 10, Roster: 10, News: 11, Bank: 12, Commander: 13 }
 
+export type NavRow = { row: string, icon: string }
 export type Skills = { engineer: number, pilot: number, fighter: number, trader: number }
 type SavedGames = Record<string, GameState>
 // The part of the map the session needs: a way to move its selection.
@@ -39,6 +40,9 @@ export class Session extends Store {
 
   // The landing screen.
   row: string | null = null          // the sub-screen that is open; none shows the welcome
+  // The navigation links as last built. Like the old screen, they are rebuilt when the
+  // landing screen is shown and when the local mercenary is fired, not on every change.
+  navRows: NavRow[] = []
   activeRow: string | null = null    // the highlighted navigation link
   opened = 0                         // goes up each time a sub-screen is opened afresh
   presented = 0                      // goes up each time the landing screen is rebuilt
@@ -166,6 +170,13 @@ export class Session extends Store {
     this.activeRow = null
     this.travel = null
     this.presented++
+    // A special event can end the game (buying the moon); then there is nothing to show.
+    if (this.game) this.buildNavRows()
+  }
+
+  private buildNavRows(): void {
+    const shipName = this.game!.commander.ship.model.name
+    this.navRows = this.rows().map((row) => ({ row, icon: row === 'Ship Yard' ? shipName : row }))
   }
 
   // The navigation links on offer in the current system.
@@ -283,7 +294,9 @@ export class Session extends Store {
 
   // Firing the local mercenary puts "For Hire" back among the links.
   rosterFired = (member: CrewMember): void => {
-    if (this.game!.commander.currentSystem.mercenary === member) pLog.log(47)
+    if (this.game!.commander.currentSystem.mercenary !== member) return
+    pLog.log(47)
+    this.buildNavRows()
   }
 
   // ---- special events ----------------------------------------------------------------

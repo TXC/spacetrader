@@ -22,10 +22,14 @@ function payingOrder(skills: Skills, changed: SkillName): SkillName[] {
   })
 }
 
-// Brings the total back within the budget after `changed` moved. `remaining` is counted
-// before a slider's minimum is applied, so, as in the old form, it can read one point
-// higher than the sliders add up to.
+// Brings the total back within the budget after `changed` moved. The old form did this
+// twice for every move, and the second pass matters: when the first holds a skill at the
+// slider minimum, the total is still one over, and the second takes that point elsewhere.
 export function spendPoints(skills: Skills, changed: SkillName): { skills: Skills, remaining: number } {
+  return onePass(onePass(skills, changed).skills, changed)
+}
+
+function onePass(skills: Skills, changed: SkillName): { skills: Skills, remaining: number } {
   const result = { ...skills }
   let total = 0
   for (const name of payingOrder(skills, changed)) {

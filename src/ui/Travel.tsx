@@ -1,4 +1,4 @@
-import { Fragment, useLayoutEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { sanitizedElementID } from '../game/elementId.ts'
 import type { Ship } from '../game/Ship.ts'
 import type { Travel } from '../game/Travel.ts'
@@ -36,27 +36,47 @@ function keyFor(ship: Ship): number {
   return shipKeys.get(ship)!
 }
 
-// Ships that were the opponent a moment ago. Each stays for two seconds, fading out,
-// while its successor fades in.
-function useLeaving(ship: Ship | null): Ship[] {
-  const [leaving, setLeaving] = useState<Ship[]>([])
-  const previous = useRef<Ship | null>(null)
-  useLayoutEffect(() => {
-    const gone = previous.current
-    previous.current = ship
-    if (!gone || gone === ship) return
-    setLeaving((ships) => [...ships, gone])
-    setTimeout(() => setLeaving((ships) => ships.filter((other) => other !== gone)), 2000)
-  }, [ship])
-  return leaving
+// The opponent, and the ships that were the opponent a moment ago. Each of those stays
+// for two seconds, fading out, while its successor fades in.
+function useOpponents(ship: Ship | null): { current: Ship | null, leaving: Ship[] } {
+  const [state, setState] = useState<{ current: Ship | null, leaving: Ship[] }>({ current: ship, leaving: [] })
+  // A new opponent: note the old one as leaving before anything is drawn, so that its
+  // picture stays where it is on the page and can fade.
+  if (state.current !== ship) {
+    setState({ current: ship, leaving: state.current ? [...state.leaving, state.current] : state.leaving })
+  }
+  useRemoval(state.leaving, (gone) => setState((now) => ({ ...now, leaving: now.leaving.filter((other) => other !== gone) })))
+  return state
 }
 
-function Opponents({ ship }: { ship: Ship | null }) {
-  const leaving = useLeaving(ship)
+// Gives each leaving ship its own two seconds, whenever it started to leave.
+function useRemoval(leaving: Ship[], remove: (ship: Ship) => void) {
+  const timers = useRef(new Map<Ship, ReturnType<typeof setTimeout>>())
+  useEffect(() => {
+    for (const gone of leaving) {
+      if (timers.current.has(gone)) continue
+      timers.current.set(gone, setTimeout(() => {
+        timers.current.delete(gone)
+        remove(gone)
+      }, 2000))
+    }
+  })
+  useEffect(() => {
+    const pending = timers.current
+    return () => {
+      pending.forEach((timer) => clearTimeout(timer))
+      pending.clear()
+    }
+  }, [])
+}
+
+// Old ones first, as the old screen left them on the page.
+export function Opponents({ ship }: { ship: Ship | null }) {
+  const { current, leaving } = useOpponents(ship)
+  const ships = current ? [...leaving, current] : leaving
   return (
     <div className="crossfade-container">
-      {leaving.map((old) => <ShipView key={keyFor(old)} ship={old} enemy fade leaving animate />)}
-      {ship && <ShipView key={keyFor(ship)} ship={ship} enemy fade animate />}
+      {ships.map((each) => <ShipView key={keyFor(each)} ship={each} enemy fade leaving={each !== current} animate />)}
     </div>
   )
 }

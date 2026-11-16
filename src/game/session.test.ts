@@ -86,3 +86,34 @@ test('ending the game moves it to the high scores, and continuing starts over', 
   session.continueAfterEnd()
   expect(session.screen).toBe('newCommander')
 })
+
+test('the navigation links are those of the last time the landing screen was shown', () => {
+  session.createCommander('Tester', 2, startingSkills())
+  const game = session.game!
+  const mercenary = new CrewMember('Hired Hand', 4, 4, 4, 4)
+  game.commander.currentSystem.setMercenary(mercenary)
+  session.start()
+  expect(session.navRows.map((link) => link.row)).toContain('For Hire')
+
+  game.commander.ship._crew.push(mercenary)
+  session.changed()
+  expect(session.navRows.map((link) => link.row)).toContain('For Hire')
+
+  session.start()
+  expect(session.navRows.map((link) => link.row)).not.toContain('For Hire')
+})
+
+test('firing the local mercenary puts "For Hire" back at once', () => {
+  session.createCommander('Tester', 2, startingSkills())
+  const game = session.game!
+  const mercenary = new CrewMember('Hired Hand', 4, 4, 4, 4)
+  game.commander.currentSystem.setMercenary(mercenary)
+  game.commander.ship._crew.push(mercenary)
+  session.start()
+  expect(session.navRows.map((link) => link.row)).not.toContain('For Hire')
+
+  game.commander.ship._crew.pop()
+  session.rosterFired(mercenary)
+
+  expect(session.navRows.map((link) => link.row)).toContain('For Hire')
+})

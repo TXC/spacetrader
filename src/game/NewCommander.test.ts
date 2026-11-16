@@ -16,8 +16,14 @@ test('raising a skill past the budget takes the points from the highest other sk
   expect(result.remaining).toBe(0)
 })
 
-test('a skill cannot drop below the slider minimum, though the count says it did', () => {
+test('when a skill is held at the slider minimum, another skill pays the last point', () => {
   const result = spendPoints({ engineer: 10, pilot: 10, fighter: 5, trader: 5 }, 'pilot')
-  expect(result.skills).toEqual({ engineer: 1, pilot: 10, fighter: 5, trader: 5 })
+  expect(result.skills).toEqual({ engineer: 1, pilot: 10, fighter: 5, trader: 4 })
+  expect(result.remaining).toBe(0)
+})
+
+test('a jump from the start to the top never leaves more than the budget spent', () => {
+  const result = spendPoints({ engineer: 10, pilot: 5, fighter: 5, trader: 5 }, 'engineer')
+  expect(result.skills).toEqual({ engineer: 10, pilot: 4, fighter: 5, trader: 1 })
   expect(result.remaining).toBe(0)
 })

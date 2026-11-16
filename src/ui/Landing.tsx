@@ -1,7 +1,7 @@
 import { Fragment } from 'react'
 import type { Game } from '../game/Game.ts'
 import { GameEndStatus } from '../game/Game.ts'
-import type { Session } from '../game/session.ts'
+import type { NavRow, Session } from '../game/session.ts'
 import { Bank } from './Bank.tsx'
 import { BuySellCargo } from './BuySellCargo.tsx'
 import { CommanderStatus } from './CommanderStatus.tsx'
@@ -20,14 +20,15 @@ import { Warp } from './Warp.tsx'
 
 type Props = { session: Session, game: Game }
 
-function NavLink({ session, game, row }: Props & { row: string }) {
+function NavLink({ session, link }: { session: Session, link: NavRow }) {
+  const { row, icon } = link
   // Opening a screen changes the page's height; keep the player where they were.
   const open = () => maintainScrollPosition(() => session.clickRow(row))
   return (
     <>
       <li className="button-item" />
       <LoggedLink id={row} className={'button-link' + (session.activeRow === row ? ' active' : '')} onPress={open}>
-        <Icon name={row === 'Ship Yard' ? game.commander.ship.model.name : row} className={row === 'Chart' ? 'button-icon-chart' : 'button-icon'} />
+        <Icon name={icon} className={row === 'Chart' ? 'button-icon-chart' : 'button-icon'} />
         <span>{row}</span>
       </LoggedLink>
     </>
@@ -40,7 +41,7 @@ function Options({ session, game }: Props) {
     <div id="systemLandingOptionsDiv">
       <GalaxyMap key={session.presented} game={game} zoomed selected={game.commander.currentSystem} wormhole={false} onSelect={session.mapSelected} viewRef={session.setMap} />
       <ul id="subVCButtonsDiv" className="systemLandingButtons">
-        {session.rows().map((row) => <NavLink key={row} session={session} game={game} row={row} />)}
+        {session.navRows.map((link) => <NavLink key={link.row} session={session} link={link} />)}
       </ul>
     </div>
   )
