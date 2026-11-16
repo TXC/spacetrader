@@ -18,7 +18,9 @@ import { present as presentShipYard } from '../game/ShipYard.ts'
 import { ShipYard } from '../ui/ShipYard.tsx'
 import { SpecialEvent } from '../game/SolarSystem.types.ts'
 import { SpecialEventSpecifier } from '../game/SpecialEventSpecifier.ts'
-import { WarpViewController } from './WarpViewController.ts'
+import { TravelViewController } from './TravelViewController.ts'
+import { systemsWithinRange, warp } from '../game/Warp.ts'
+import { Warp } from '../ui/Warp.tsx'
 import { Utils, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
@@ -138,7 +140,7 @@ export class SystemLandingViewController {
       pLog.log(3)
       if (!this._galaxyViewSystem) {
         pLog.log(4)
-        const closeSystems = WarpViewController.systemsWithinRange(this._game)
+        const closeSystems = systemsWithinRange(this._game)
         this._galaxyViewSystem = closeSystems.length > 0 ? closeSystems[0] : null
         this._galaxyViewWormhole = false
         if (this._galaxyViewSystem && this._game.commander.currentSystem.wormhole === this._galaxyViewSystem) {
@@ -157,9 +159,7 @@ export class SystemLandingViewController {
       pLog.log(7)
       const warpSystem = this._galaxyViewWormhole ? this._galaxyViewSystem.wormhole : this._galaxyViewSystem
 
-      const viewController = new WarpViewController(contentDiv, this._game, warpSystem);
-      viewController.delegate = this;
-      viewController.presentView();
+      this._mountWarp(contentDiv, warpSystem)
     } else if (row === "Equipment") {
       pLog.log(8)
       this._mountReact(contentDiv, createElement(Equipment, { game: this._game }))
@@ -349,6 +349,32 @@ export class SystemLandingViewController {
   }
 
 // WarpViewController delegate
+  _mountWarp(contentDiv, selected) {
+    this._mountReact(contentDiv, createElement(Warp, {
+      game: this._game,
+      selected,
+      mapSelection: this.warpControllerGetGalaxyViewSystem(null),
+      onSelect: (system) => this.warpControllerSelectedSystem(null, system),
+      onFuel: () => this.warpControllerDidBuyFuel(null),
+      onBlastOff: (destination) => this._beginWarp(false, destination),
+    }))
+  }
+
+  // Leaves for the destination if the rules allow it; the old travel screen then takes
+  // over the content area.
+  _beginWarp(viaSingularity, destination) {
+    warp(this._game, viaSingularity, destination, (origin, actualDestination, wasVisited) => {
+      const contentDiv = this._clearedSubContentDiv()
+      const travel = new TravelViewController(contentDiv, this._game, origin, actualDestination, wasVisited)
+      travel.delegate = {
+        travelViewControllerDidComplete: () => this.warpControllerCompletedWarp(null),
+        travelViewControllerGameDidEndWithStatus: (tvc, st) => this.warpControllerGameDidEndWithStatus(null, st),
+      }
+      this.warpControllerWillBeginWarp(null)
+      travel.presentView()
+    })
+  }
+
   warpControllerGetGalaxyViewSystem(wc) {
     return this._galaxyViewWormhole ? this._galaxyViewSystem.wormhole : this._galaxyViewSystem
   }
@@ -397,10 +423,8 @@ export class SystemLandingViewController {
   galacticChartViewControllerWarpViaSingularity(vc, solarSystem) {
     pLog.log(23)
     const contentDiv = this._clearedSubContentDiv()
-    const viewController = new WarpViewController(contentDiv, this._game)
-    viewController.delegate = this;
-    viewController.presentView();
-    WarpViewController.warpWithGame(this._game, true, solarSystem, viewController);
+    this._mountWarp(contentDiv, null)
+    this._beginWarp(true, solarSystem)
   }
 
 // CommanderStatusViewController delegate

@@ -85,6 +85,7 @@ export class GalaxyView {
   }
 
   animateGalaxy(timestamp: number) {
+    if (this.disposed) { return }
     this.drawGalaxy(timestamp)
 
     // Allow us to get garbage collected if the view is removed from the document
