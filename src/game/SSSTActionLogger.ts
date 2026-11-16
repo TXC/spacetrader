@@ -1,10 +1,23 @@
-// @ts-nocheck
 import { MAGameRand } from './GameRand.ts'
 import { MAUtils } from './Utilities.ts'
+import type { SpaceTraderGame } from '../legacy-ui/main.ts'
 import { runtime } from './runtime.ts'
 
+type NamedEventHandler = { handleNamedEvent(eventName: string, eventContext: string): void }
+type HackHandler = (spaceTraderGame: SpaceTraderGame) => void
+
 export class SSSTActionLogger {
-  constructor(gameRandSeed) {
+  declare _gameRandSeed: number
+  declare _idLog: string[]
+  declare _eventNameLog: string[]
+  declare logUpdateHandler: ((log: SSSTActionLogger) => void) | null
+  declare registerEventHandler: ((elementID: string, eventName: string) => void) | null
+  declare replayInProgress: boolean
+  declare replayInProgressQueueAsyncClosures: boolean
+  declare asyncClosureQueue: (() => void)[] | null
+  declare _namedEvents: Record<string, NamedEventHandler>
+
+  constructor(gameRandSeed: number) {
     this._gameRandSeed = gameRandSeed
     this._idLog = []
     this._eventNameLog = []
@@ -13,7 +26,8 @@ export class SSSTActionLogger {
     this.replayInProgress = false
     this.replayInProgressQueueAsyncClosures = false
     this.asyncClosureQueue = null
-    this._namedEvents = []
+    // The old code uses an array as a name-to-handler dictionary.
+    this._namedEvents = [] as unknown as Record<string, NamedEventHandler>
   }
 
   _logUpdated() {
@@ -22,13 +36,13 @@ export class SSSTActionLogger {
     }
   }
 
-  _registerEvent(elementID, eventName) {
+  _registerEvent(elementID: string, eventName: string) {
     if (this.registerEventHandler) {
       this.registerEventHandler(elementID, eventName)
     }
   }
 
-  performAsync(handler, delay) {
+  performAsync(handler: () => void, delay: number) {
     if (this.replayInProgressQueueAsyncClosures) {
       if (!this.asyncClosureQueue) {
         this.asyncClosureQueue = []
@@ -44,7 +58,7 @@ export class SSSTActionLogger {
     }
   }
 
-  registerButtonEventListener(button, eventName, handler) {
+  registerButtonEventListener(button: HTMLElement, eventName: string, handler: () => void) {
     this._registerEvent(button.id, eventName)
 
     button.addEventListener(eventName, () => {
@@ -59,7 +73,7 @@ export class SSSTActionLogger {
     })
   }
 
-  registerAEventListener(a, eventName, handler) {
+  registerAEventListener(a: HTMLElement, eventName: string, handler: (event: Event) => void) {
     this._registerEvent(a.id, eventName)
 
     a.addEventListener(eventName, (event) => {
@@ -74,7 +88,7 @@ export class SSSTActionLogger {
     })
   }
 
-  registerCheckboxEventListener(checkbox, eventName, handler) {
+  registerCheckboxEventListener(checkbox: HTMLElement, eventName: string, handler: (event: Event) => void) {
     this._registerEvent(checkbox.id, eventName)
 
     checkbox.addEventListener(eventName, (event) => {
@@ -89,7 +103,7 @@ export class SSSTActionLogger {
     })
   }
 
-  registerSliderEventListener(slider, eventName, handler) {
+  registerSliderEventListener(slider: HTMLInputElement, eventName: string, handler: () => void) {
     this._registerEvent(slider.id, "slider|" + eventName)
 
     slider.addEventListener(eventName, () => {
@@ -104,7 +118,7 @@ export class SSSTActionLogger {
     })
   }
 
-  registerSelectEventListener(select, eventName, handler) {
+  registerSelectEventListener(select: HTMLSelectElement, eventName: string, handler: () => void) {
     this._registerEvent(select.id, "select|" + eventName)
 
     select.addEventListener(eventName, () => {
@@ -119,12 +133,12 @@ export class SSSTActionLogger {
     })
   }
 
-  registerNamedEventListener(handlerObject, eventName) {
+  registerNamedEventListener(handlerObject: NamedEventHandler, eventName: string) {
     console.log("registering named event listener for: " + eventName)
     this._namedEvents[eventName] = handlerObject
   }
 
-  logNamedEvent(eventName, eventContext) {
+  logNamedEvent(eventName: string, eventContext: string | number) {
     // this._registerEvent(...) - not implemented
 
     this._idLog.push("namedEvent")
@@ -142,9 +156,15 @@ export class SSSTActionLogger {
 }
 
 export class SSSTActionLogReplay {
+  declare spaceTraderGame: SpaceTraderGame
+  declare _gameRandSeed: number
+  declare _idLog: string[]
+  declare _eventNameLog: string[]
+  declare _hackHandler: HackHandler | undefined
+
   // hackHandler is an optional function that will be invoked before every
   // replayed event, taking this.spaceTraderGame as an argument.
-  constructor(serializedString, spaceTraderGame, hackHandler /* optional */) {
+  constructor(serializedString: string, spaceTraderGame: SpaceTraderGame, hackHandler?: HackHandler) {
     const obj = JSON.parse(serializedString)
     this.spaceTraderGame = spaceTraderGame
     this._gameRandSeed = obj.gameRandSeed
@@ -173,12 +193,13 @@ export class SSSTActionLogReplay {
     runtime.actionLog.replayInProgress = false
   }
 
-  replayEvent(elementID, eventName) {
+  replayEvent(elementID: string, eventName?: string) {
     eventName = eventName ? eventName : "click"
-    this.constructor.replayEvent(elementID, eventName, this.spaceTraderGame, this._hackHandler)
+    const replayClass = this.constructor as typeof SSSTActionLogReplay
+    replayClass.replayEvent(elementID, eventName, this.spaceTraderGame, this._hackHandler)
   }
 
-  static replayEvent(elementID, eventName, spaceTraderGame, hackHandler) {
+  static replayEvent(elementID: string, eventName: string, spaceTraderGame: SpaceTraderGame, hackHandler?: HackHandler) {
     runtime.actionLog.replayInProgress = true // force async to happen immediately from now on
 
     if (hackHandler) {
@@ -194,7 +215,12 @@ export class SSSTActionLogReplay {
       handlerObj.handleNamedEvent(actualEventName, eventContext)
       runtime.actionLog.logNamedEvent(actualEventName, eventContext)
     } else {
-      const element = document.getElementById(elementID)
+      // The replayed element can be a button, link, checkbox, slider or select.
+      // The log holds strings, which the page converts when they are assigned.
+      const element = document.getElementById(elementID) as unknown as {
+        value: string, selectedIndex: string, checked: boolean,
+        click(): void, dispatchEvent(e: Event): boolean,
+      } | null
       if (!element) {
         console.log(`Did not find element for ${elementID}. EventName: ${eventName}`)
         console.log(`Current replayLog: ${runtime.actionLog.serializedString()}`)
@@ -205,22 +231,22 @@ export class SSSTActionLogReplay {
         const eventComponents = eventName.split(/\|/);
         const actualEventName = eventComponents[1]
         const sliderValue = eventComponents[2]
-        element.value = sliderValue
+        element!.value = sliderValue
         let inputEvent = new Event(actualEventName)
-        element.dispatchEvent(inputEvent)
+        element!.dispatchEvent(inputEvent)
       } else if (eventName.startsWith("select")) {
         const eventComponents = eventName.split(/\|/);
         const actualEventName = eventComponents[1]
         const selectedIndex = eventComponents[2]
-        element.selectedIndex = selectedIndex
+        element!.selectedIndex = selectedIndex
         let inputEvent = new Event(actualEventName)
-        element.dispatchEvent(inputEvent)
+        element!.dispatchEvent(inputEvent)
       } else if (eventName === "click") {
-        element.click()
+        element!.click()
       } else if (eventName === "change") {
-        element.checked = !element.checked
+        element!.checked = !element!.checked
         let changeEvent = new Event('change')
-        element.dispatchEvent(changeEvent)
+        element!.dispatchEvent(changeEvent)
       }
     }
   }
