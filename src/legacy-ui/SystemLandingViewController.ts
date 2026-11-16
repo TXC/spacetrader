@@ -18,7 +18,8 @@ import { present as presentShipYard } from '../game/ShipYard.ts'
 import { ShipYard } from '../ui/ShipYard.tsx'
 import { SpecialEvent } from '../game/SolarSystem.types.ts'
 import { SpecialEventSpecifier } from '../game/SpecialEventSpecifier.ts'
-import { TravelViewController } from './TravelViewController.ts'
+import { Travel } from '../game/Travel.ts'
+import { TravelScreen } from '../ui/Travel.tsx'
 import { systemsWithinRange, warp } from '../game/Warp.ts'
 import { Warp } from '../ui/Warp.tsx'
 import { Utils, pLog } from '../game/Utilities.ts'
@@ -360,18 +361,18 @@ export class SystemLandingViewController {
     }))
   }
 
-  // Leaves for the destination if the rules allow it; the old travel screen then takes
-  // over the content area.
+  // Leaves for the destination if the rules allow it; the travel screen then takes over
+  // the content area.
   _beginWarp(viaSingularity, destination) {
     warp(this._game, viaSingularity, destination, (origin, actualDestination, wasVisited) => {
       const contentDiv = this._clearedSubContentDiv()
-      const travel = new TravelViewController(contentDiv, this._game, origin, actualDestination, wasVisited)
-      travel.delegate = {
-        travelViewControllerDidComplete: () => this.warpControllerCompletedWarp(null),
-        travelViewControllerGameDidEndWithStatus: (tvc, st) => this.warpControllerGameDidEndWithStatus(null, st),
-      }
+      const travel = new Travel(this._game, origin, actualDestination, wasVisited, (result) => {
+        if (result === 'arrived') this.warpControllerCompletedWarp(null)
+        else this.warpControllerGameDidEndWithStatus(null, result)
+      })
       this.warpControllerWillBeginWarp(null)
-      travel.presentView()
+      this._mountReact(contentDiv, createElement(TravelScreen, { travel }))
+      travel.start()
     })
   }
 

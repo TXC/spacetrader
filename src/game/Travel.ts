@@ -1,69 +1,78 @@
-// @ts-nocheck
-import { AccessoryType } from '../game/Accessory.ts'
-import { AlertActionType, AlertViewController } from '../game/alerts.ts'
-import { CAUGHT_WITH_WILD_SCORE, MAX_SKILL_LEVEL, POLICE_RECORD_MULTIPLIER, PoliceRecordScore, ReputationScore } from '../game/Commander.ts'
-import { EncounterController, EncounterType } from '../game/EncounterController.ts'
-import { EncounterViewController } from './EncounterViewController.ts'
-import { GameEndStatus, RareEvent } from '../game/Game.ts'
-import { Opponent, OpponentType } from '../game/Opponent.ts'
-import { MAX_TRIBBLES, Ship, ShipModelType } from '../game/Ship.ts'
-import { Difficulty, DragonflyQuestStatus, InvasionQuestStatus, JaporiQuestStatus, JarekQuestStatus, MonsterQuestStatus, ReactorQuestStatus, ScarabQuestStatus, SpecialEvent, WildQuestStatus } from '../game/SolarSystem.types.ts'
-import { TradeItemType } from '../game/TradeItem.types.ts'
-import { TravelProgressView } from './TravelProgressView.ts'
-import { Utils, pLog } from '../game/Utilities.ts'
-import { runtime } from '../game/runtime.ts'
+import { AccessoryType } from './Accessory.ts'
+import { AlertActionType, AlertViewController } from './alerts.ts'
+import { CAUGHT_WITH_WILD_SCORE, MAX_SKILL_LEVEL, POLICE_RECORD_MULTIPLIER, PoliceRecordScore, ReputationScore } from './Commander.ts'
+import { EncounterController, EncounterType } from './EncounterController.ts'
+import { GameEndStatus, RareEvent } from './Game.ts'
+import { Opponent, OpponentType } from './Opponent.ts'
+import { MAX_TRIBBLES, Ship, ShipModelType } from './Ship.ts'
+import { Difficulty, DragonflyQuestStatus, InvasionQuestStatus, JaporiQuestStatus, JarekQuestStatus, MonsterQuestStatus, ReactorQuestStatus, ScarabQuestStatus, SpecialEvent, WildQuestStatus } from './SolarSystem.types.ts'
+import { TradeItemType } from './TradeItem.types.ts'
+import { Store } from './Store.ts'
+import type { SolarSystem } from './SolarSystem.ts'
+import type { Game } from './Game.ts'
+import { Utils, pLog } from './Utilities.ts'
+import { runtime } from './runtime.ts'
 
-export const TRAVEL_PROGRESS_DURATION = 0.2;
 export const CHANCE_OF_TRADE_IN_ORBIT = 100;
 
-export class TravelViewController {
-  [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
-  constructor(div, game, origin, destination, wasVisited) {
-    this.div = div
+// How a trip ended: the commander arrived, or the game is over.
+export type TravelResult = 'arrived' | GameEndStatus
+
+// One trip between two systems: what is met on the way, the fights, and the arrival.
+// The travel screen watches this and draws what it finds.
+export class Travel extends Store {
+  declare _game: Game
+  declare _origin: SolarSystem
+  declare _destination: SolarSystem
+  declare _destWasVisited: boolean
+  declare _startClicksRemaining: number
+  declare _startedEncounters: boolean
+  declare _needPostMarieCustomsPolice: boolean
+  declare _encounterController: EncounterController | null
+  declare _done: (result: TravelResult) => void
+  // How far along the trip is, from 0 to 1.
+  progress = 0
+  private onProgress: ((progress: number) => void) | null = null
+
+  constructor(game: Game, origin: SolarSystem, destination: SolarSystem, wasVisited: boolean, done: (result: TravelResult) => void) {
+    super()
     this._game = game
     this._origin = origin
     this._destination = destination
     this._destWasVisited = wasVisited
     this._startClicksRemaining = this._game.commander.travelClicksRemaining
-
     this._startedEncounters = false
     this._needPostMarieCustomsPolice = false
-
     this._encounterController = null
-    this._encounterViewController = null
+    this._done = done
   }
 
-	set delegate(d) {
-		this._delegate = d
-	}
+  get game() { return this._game }
+  get origin() { return this._origin }
+  get destination() { return this._destination }
+  get wasVisited() { return this._destWasVisited }
+  get encounter() { return this._encounterController }
 
-  presentView() {
-    const containerDiv = this.div
-    containerDiv.innerHTML = ''
-
-    const travelProgressViewDiv = document.createElement('div');
-		travelProgressViewDiv.id = 'travelProgressView'
-    containerDiv.appendChild(travelProgressViewDiv);
-    this._progressView = new TravelProgressView(travelProgressViewDiv, this._game, this._origin, this._destination, this._destWasVisited)
-
-    const encounterDiv = document.createElement('div');
-    encounterDiv.id = "encounterDiv";
-    containerDiv.appendChild(encounterDiv);
-
-    if (!this._encounterViewController) {
-      this._encounterViewController = new EncounterViewController(encounterDiv, this._game)
-      this._encounterViewController.delegate = this
+  // Lets the screen hear about each move as it happens. Returns a function that stops it.
+  watchProgress(listener: (progress: number) => void): () => void {
+    this.onProgress = listener
+    return () => {
+      if (this.onProgress === listener) this.onProgress = null
     }
+  }
 
-    this._encounterViewController.presentView()
-
-
+  // Begins the trip. Safe to call again; it only starts once.
+  start() {
     if (!this._startedEncounters) {
       this._startedEncounters = true
       this._processEncounters()
     }
   }
 
+  // The player picked one of the encounter's buttons.
+  perform(action: string) {
+    this._encounterController!.performAction(action)
+  }
 
   _processEncounters() {
     let eventLoopInitialClicks = this._game.commander.travelClicksRemaining;
@@ -72,23 +81,23 @@ export class TravelViewController {
     currentClicks = Math.max(currentClicks - 1, 0);
     if (currentClicks <= 0) {
       this._game.commander.travelClicksRemaining = currentClicks;
-      this._progressView.setProgress(1 - (currentClicks * 1.0 / this._startClicksRemaining));
+      this._setProgress(1 - (currentClicks * 1.0 / this._startClicksRemaining));
     }
 
     while (currentClicks > 0) {
       let encounterType = EncounterType.None;
 
       this._game.commander.travelClicksRemaining = currentClicks;
-      this._progressView.setProgress(1 - (currentClicks * 1.0 / this._startClicksRemaining));
+      this._setProgress(1 - (currentClicks * 1.0 / this._startClicksRemaining));
 
       // Automatic repairs based on engineering skill
       let engineerSkill = this._game.commander.ship.crewEngineerSkillIncludingCommander(this._game.commander);
       let repairAmount = runtime.gameRand.randomIntBelow(engineerSkill / 2);
 
-      repairAmount = this._game.commander.ship.repairHullByAmount(repairAmount);
+      repairAmount = this._game.commander.ship.repairHullByAmount(repairAmount)!;
       this._game.commander.ship.rechargeShieldPowerByAmount(2 * repairAmount); // Shields are easier to recharge
 
-      let opponentType = OpponentType.Count;
+      let opponentType: number = OpponentType.Count;
 
       if (currentClicks === 1 && this._needPostMarieCustomsPolice) {
         opponentType = OpponentType.Police;
@@ -438,7 +447,7 @@ export class TravelViewController {
 
     this._game.handleArrival();
 
-    this._progressView.setProgress(1);
+    this._setProgress(1);
     this.setEncounterController(null)
 
 
@@ -498,7 +507,7 @@ export class TravelViewController {
             this._performPodEscape();
             pLog.log(155)
           } else {
-            this._delegate.travelViewControllerGameDidEndWithStatus(this, GameEndStatus.Killed);
+            this._done(GameEndStatus.Killed);
             pLog.log(156)
           }
         });
@@ -581,7 +590,7 @@ export class TravelViewController {
 
 		console.log("Calling promptForStrings: " + alertStrings);
     this._promptForStrings(alertStrings, () => {
-      this._delegate.travelViewControllerDidComplete(this);
+      this._done('arrived');
 
       if (failString.length > 0) {
         let aC = new AlertViewController(`You don't have enough money to buy ${failString}.`)
@@ -593,7 +602,7 @@ export class TravelViewController {
     });
   }
 
-	_promptForStrings(alertStrings, completion) {
+	_promptForStrings(alertStrings: string[], completion: () => void) {
 		let firstString = alertStrings.length > 0 ? alertStrings[0] : null;
 
 		if (firstString) {
@@ -612,7 +621,7 @@ export class TravelViewController {
 		}
 	}
 
-  setEncounterController(eC) {
+  setEncounterController(eC: EncounterController | null) {
     if (eC !== this._encounterController) {
       if (this._encounterController) {
         this._encounterController.invalidate()
@@ -625,74 +634,45 @@ export class TravelViewController {
     }
 
 
-    this._refreshEncounterText()
-    this._refreshEncounterButtons()
-    if (this._encounterViewController) {
-      this._encounterViewController.updateAnimated(false)
-    }
+    this.changed()
   }
 
-  _refreshEncounterText() {
-    if (this._encounterViewController) {
-      const newText = this._encounterController ? this._encounterController.encounterText() : null
-      this._encounterViewController.setText(newText)
-    }
+  _setProgress(progress: number) {
+    this.progress = progress
+    this.onProgress?.(progress)
   }
-
-  _refreshEncounterButtons() {
-    if (this._encounterViewController) {
-      const newButtons = this._encounterController ? this._encounterController.encounterButtons() : null
-      this._encounterViewController.setButtonTitles(newButtons)
-    }
-  }
-
-// EncounterViewController delegate
-  encounterViewControllerOpponent(encounterVC) {
-    if (this._encounterController) {
-      return this._encounterController.opponent
-    }
-
-    return null
-  }
-
-  encounterViewControllerDidSelectAction(eVC, action) {
-    this._encounterController.performAction(action)
-  }
-
 
 // EncounterController delegate
 
-  encounterControllerDidPlunder(controller, didPlunder) {
+  encounterControllerDidPlunder(controller: EncounterController, didPlunder: boolean) {
     if (controller.type === EncounterType.MarieCelesteEncounter && didPlunder) {
       this._needPostMarieCustomsPolice = true
     }
   }
 
-  encounterControllerEncounterContinues(controller, encounterContinues) {
+  encounterControllerEncounterContinues(_controller: EncounterController, encounterContinues: boolean) {
     if (encounterContinues) {
-      this._encounterViewController.updateHPViewsAnimated(true)
-      this._refreshEncounterText()
-      this._refreshEncounterButtons()
+      this.changed()
     } else {
       this.setEncounterController(null)
       this._processEncounters()
     }
   }
 
-  encounterControllerHasUpdatedHP(c) {
-    this._encounterViewController.updateHPViewsAnimated(true)
+  encounterControllerHasUpdatedHP(_c: EncounterController) {
+    this.changed()
   }
 
-  encounterControllerHasUpdatedButtons(c) {
-    this._refreshEncounterButtons()
+  encounterControllerHasUpdatedButtons(_c: EncounterController) {
+    this.changed()
   }
 
-  encounterControllerDidCompleteWithArrest(ec) {
+  encounterControllerDidCompleteWithArrest(_ec: EncounterController) {
     this.setEncounterController(null)
-    this._delegate.travelViewControllerDidComplete(this);
+    this._done('arrived');
   }
 
-  encounterControllerDidCompleteWithDestruction(ec) {
+  encounterControllerDidCompleteWithDestruction(_ec: EncounterController) {
     this.setEncounterController(null)
 
     if (this._game.commander.hasEscapePod) {
@@ -700,7 +680,7 @@ export class TravelViewController {
       this._performPodEscape();
     } else {
       pLog.log(30)
-      this._delegate.travelViewControllerGameDidEndWithStatus(this, GameEndStatus.Killed);
+      this._done(GameEndStatus.Killed);
     }
   }
 
@@ -775,7 +755,7 @@ export class TravelViewController {
     this._game.commander.ship = ship;
 
     this._promptForStrings(alerts, () => {
-      this._delegate.travelViewControllerDidComplete(this);
+      this._done('arrived');
     });
   }
 

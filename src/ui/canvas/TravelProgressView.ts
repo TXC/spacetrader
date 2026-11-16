@@ -1,17 +1,43 @@
-// @ts-nocheck
-import { DEBUG_OVERRIDE_SCALE_TO_1, UnvisitedSystemColor, VisitedSystemColor } from '../ui/canvas/GalaxyView.ts'
-import { TRAVEL_PROGRESS_DURATION } from './TravelViewController.ts'
-import { Utils } from '../game/Utilities.ts'
+import { DEBUG_OVERRIDE_SCALE_TO_1, UnvisitedSystemColor, VisitedSystemColor } from './GalaxyView.ts'
+import type { Game } from '../../game/Game.ts'
+import type { SolarSystem } from '../../game/SolarSystem.ts'
+import { Utils } from '../../game/Utilities.ts'
+
+// Seconds the ship takes to slide to a new position.
+export const TRAVEL_PROGRESS_DURATION = 0.2
 
 export class TravelProgressView {
-  [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
-  constructor(div, game, origin, destination, wasVisited) {
+  declare div: HTMLElement
+  declare game: Game
+  declare origin: SolarSystem
+  declare destination: SolarSystem
+  declare wasVisited: boolean
+  declare canvasContainer: HTMLDivElement
+  declare canvas: HTMLCanvasElement
+  declare context: CanvasRenderingContext2D
+  declare scale: number
+  declare cachedBoundingRect: DOMRect
+  declare shipProgress: number
+  declare shipTargetProgress: number
+  declare progressAnimationStartTime: number
+  declare animationStartTime: number
+  declare lastInvalidationCheckTimestamp?: number
+  declare lastDrawTimestamp: number
+  private disposed = false
+  private onResize = () => this.resizeCanvasIfNeeded()
+
+  // Stops the drawing loop and stops listening. Call when the view leaves the page.
+  dispose() {
+    this.disposed = true
+    window.removeEventListener('resize', this.onResize)
+  }
+
+  constructor(div: HTMLElement, game: Game, origin: SolarSystem, destination: SolarSystem, wasVisited: boolean) {
     this.div = div
     this.game = game;
     this.origin = origin;
     this.destination = destination;
     this.wasVisited = wasVisited;
-    this.planets = [];
 
     this.canvasContainer = document.createElement('div');
     this.canvasContainer.id = "travelProgressViewCanvasContainer"
@@ -19,7 +45,7 @@ export class TravelProgressView {
 
     this.canvas = document.createElement('canvas');
     this.canvas.id = "travelProgressViewCanvas"
-    this.context = this.canvas.getContext('2d');
+    this.context = this.canvas.getContext('2d')!;
     this.canvasContainer.appendChild(this.canvas);
     this.initCanvas();
     this.initEvents();
@@ -39,7 +65,8 @@ export class TravelProgressView {
     })
   }
 
-  animateView(timestamp) {
+  animateView(timestamp: number) {
+    if (this.disposed) { return }
     this.drawView(timestamp)
 
     // Allow us to get garbage collected if the view is removed from the document
@@ -87,7 +114,7 @@ export class TravelProgressView {
   }
 
   initEvents() {
-    window.addEventListener('resize', this.resizeCanvasIfNeeded.bind(this));
+    window.addEventListener('resize', this.onResize);
   }
 
   planetRadius() {
@@ -96,7 +123,7 @@ export class TravelProgressView {
   }
 
   // Returns the x-coordinate of the center of the solar system
-  _solarSystemXOrigin(left) {
+  _solarSystemXOrigin(left: boolean) {
     const radius = this.planetRadius()
 
     const edgePadding = 2
@@ -111,7 +138,7 @@ export class TravelProgressView {
     return 10
   }
 
-  _drawSolarSystem(s, left, visited) {
+  _drawSolarSystem(s: SolarSystem, left: boolean, visited: boolean) {
     this.context.textAlign = 'center';
     this.context.textBaseline = 'middle';
     const textHeight = this._textHeight()
@@ -148,7 +175,7 @@ export class TravelProgressView {
     this.context.fillText(sname, nameX, nameY);
   }
 
-  drawView(timestamp) {
+  drawView(timestamp: number) {
     this.lastDrawTimestamp = timestamp
 
     if (this.shipTargetProgress > this.shipProgress && !this.progressAnimationStartTime) {
@@ -208,7 +235,7 @@ export class TravelProgressView {
     shipPCEImage.drawInCanvas(this.canvas, shipScale, shipX, shipY)
   }
 
-  setProgress(p) {
+  setProgress(p: number) {
     this.shipTargetProgress = p
     this.progressAnimationStartTime = this.lastDrawTimestamp
   }

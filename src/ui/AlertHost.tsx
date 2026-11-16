@@ -1,17 +1,17 @@
 // Draws every open alert on top of the page.
-import { useLayoutEffect, useRef } from 'react'
 import type { ChangeEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { AlertActionType, AlertPresentationStyle, alertStore } from '../game/alerts.ts'
-import type { AlertAction, AlertContent, AlertViewController } from '../game/alerts.ts'
+import type { AlertAction, AlertViewController, SliderContent } from '../game/alerts.ts'
 import { Lines } from './Lines.tsx'
 import { LoggedButton } from './Logged.tsx'
+import { PlunderTable } from './PlunderTable.tsx'
 import { useLogged } from './useLogged.ts'
 import { useStore } from './useStore.ts'
 
 type AlertProps = { alert: AlertViewController }
 
-function Slider({ alert, content }: AlertProps & { content: AlertContent }) {
+function Slider({ alert, content }: AlertProps & { content: SliderContent }) {
   const onChange = useLogged(
     content.id,
     'slider|input',
@@ -26,17 +26,11 @@ function Slider({ alert, content }: AlertProps & { content: AlertContent }) {
   )
 }
 
-// An old screen fills this area by hand. Goes away with the old plunder screen.
-function HandFilled({ alert }: AlertProps) {
-  const div = useRef<HTMLDivElement>(null)
-  useLayoutEffect(() => alert.customViewHandler!(div.current!), [alert])
-  return <div id={alert.elementId('alertvc-customView')} ref={div} />
-}
-
 function Content({ alert }: AlertProps) {
-  if (alert.content) return <Slider alert={alert} content={alert.content} />
-  if (alert.customViewHandler) return <HandFilled alert={alert} />
-  return null
+  const { content } = alert
+  if (content?.kind === 'slider') return <Slider alert={alert} content={content} />
+  if (content?.kind !== 'plunder') return null
+  return <div id={alert.elementId('alertvc-customView')} className="centered-div"><PlunderTable plunder={content.plunder} /></div>
 }
 
 function ActionButton({ alert, action }: AlertProps & { action: AlertAction }) {

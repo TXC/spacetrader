@@ -1,6 +1,7 @@
 // Alerts as data. The rules open alerts and their buttons carry the game forward; the
 // page only draws what is in alertStore.open.
 import { sanitizedElementID } from './elementId.ts'
+import type { Plunder } from './Plunder.ts'
 import { Store } from './Store.ts'
 
 export const AlertActionType = {
@@ -19,7 +20,8 @@ export type AlertPresentationStyle = (typeof AlertPresentationStyle)[keyof typeo
 type Handler = (() => void) | null
 
 // Extra content between the title and the buttons.
-export type AlertContent = { kind: 'slider', id: string, min: number, max: number, value: number }
+export type SliderContent = { kind: 'slider', id: string, min: number, max: number, value: number }
+export type AlertContent = SliderContent | { kind: 'plunder', plunder: Plunder }
 
 export class AlertAction {
   declare title: string
@@ -63,8 +65,6 @@ export class AlertViewController {
   completionHandler: Handler = null
   presentationStyle: AlertPresentationStyle = AlertPresentationStyle.Default
   content: AlertContent | null = null
-  // Still used by the old plunder screen to fill the content area by hand.
-  customViewHandler: ((div: HTMLElement) => void) | null = null
   title: string
   private suffix: string
 
@@ -105,7 +105,7 @@ export class AlertViewController {
   }
 
   setSliderValue(value: number) {
-    if (this.content) this.content.value = value
+    if (this.content?.kind === 'slider') this.content.value = value
     alertStore.changed()
   }
 

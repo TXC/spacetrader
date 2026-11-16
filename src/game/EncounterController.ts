@@ -1,8 +1,9 @@
 import { AccessoryType } from './Accessory.ts'
 import { AlertActionType, AlertViewController } from './alerts.ts'
+import type { SliderContent } from './alerts.ts'
 import { ATTACK_POLICE_SCORE, ATTACK_TRADER_SCORE, FLEE_FROM_INSPECTION_SCORE, KILL_PIRATE_SCORE, KILL_POLICE_SCORE, KILL_TRADER_SCORE, MAX_SKILL_LEVEL, PLUNDER_PIRATE_SCORE, PLUNDER_TRADER_SCORE, PoliceRecordScore, ReputationScore, TRAFFICKING_SCORE } from './Commander.ts'
 import { OpponentType } from './Opponent.ts'
-import { PlunderViewController } from '../legacy-ui/PlunderViewController.ts'
+import { Plunder } from './Plunder.ts'
 import { Ship, ShipModelType } from './Ship.ts'
 import { REACTOR_BAY_COUNT, REACTOR_MAX_FUEL, Difficulty, DragonflyQuestStatus, JaporiQuestStatus, JarekQuestStatus, MonsterQuestStatus, ReactorQuestStatus, ScarabQuestStatus, WildQuestStatus } from './SolarSystem.types.ts'
 import { TradeItem } from './TradeItem.ts'
@@ -11,7 +12,7 @@ import { Utils, pLog } from './Utilities.ts'
 import type { Game } from './Game.ts'
 import type { Commander } from './Commander.ts'
 import type { Opponent } from './Opponent.ts'
-import type { TravelViewController } from '../legacy-ui/TravelViewController.ts'
+import type { Travel } from './Travel.ts'
 import { runtime } from './runtime.ts'
 
 export const EncounterType = {
@@ -188,7 +189,7 @@ export class EncounterController {
     declare _actionTaken: boolean
     declare _encounterMode: number
     declare _autoEncounterSession: number
-    declare delegate: TravelViewController | null
+    declare delegate: Travel | null
 
     constructor(type: number, game: Game, opponent: Opponent) {
         Utils.ensureInteger(type)
@@ -1027,7 +1028,7 @@ export class EncounterController {
           const plunderBlock = () => {
             const plunderLabel = (this._type === EncounterType.MarieCelesteEncounter) ? "Take" : "Plunder";
 
-            const plunderVC = new PlunderViewController(this._game, this._opponent, plunderLabel)
+            const plunderVC = new Plunder(this._game, this._opponent, plunderLabel)
             plunderVC.delegate = this
             plunderVC.presentView()
           };
@@ -1242,7 +1243,7 @@ export class EncounterController {
 
       if (needsSelected) {
         aC.addAction("Selected", AlertActionType.Default, () => {
-          const amount = aC.content!.value
+          const amount = (aC.content as SliderContent).value
           if (amount > 0) {
             aC.completionHandler = () => {
               this._presentThanksForTheTrade(() => {
@@ -1267,7 +1268,8 @@ export class EncounterController {
       }
 
       if (needsSelected) {
-        aC.content = { kind: 'slider', id: 'tradeslider', min: 0, max: maxUnits, value: Math.floor(maxUnits/2) }
+        const slider: SliderContent = { kind: 'slider', id: 'tradeslider', min: 0, max: maxUnits, value: Math.floor(maxUnits/2) }
+        aC.content = slider
       }
 
       aC.presentView()
@@ -1810,7 +1812,7 @@ export class EncounterController {
 
 // #pragma mark - PlunderViewControllerDelegate
 
-    plunderViewControllerDidFinishPlundering(controller: PlunderViewController) {
+    plunderViewControllerDidFinishPlundering(controller: Plunder) {
       Utils.ensureBool(controller.plundered)
 
       if (controller.plundered) {
