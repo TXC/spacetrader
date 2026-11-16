@@ -1,5 +1,3 @@
-// @ts-nocheck
-import { sItems } from './SSSTTradeItem.ts'
 import { SSSTTechLevel } from './SSSTTradeItem_h.ts'
 
 export const SSSTAccessoryType = {
@@ -35,14 +33,15 @@ export const SSSTAccessoryType = {
     ShieldLast: 12,
 
     None: 13
-};
+} as const;
+export type SSSTAccessoryType = (typeof SSSTAccessoryType)[keyof typeof SSSTAccessoryType];
 
 export const COUNT_BUYABLE_ACCESSORIES =
     (SSSTAccessoryType.GadgetLastBuyable - SSSTAccessoryType.GadgetFirst + 1) +
     (SSSTAccessoryType.WeaponLastBuyable - SSSTAccessoryType.WeaponFirst + 1) +
     (SSSTAccessoryType.ShieldLastBuyable - SSSTAccessoryType.ShieldFirst + 1);
 
-export function ACCESSORY_FOR_TYPE(type) {
+export function ACCESSORY_FOR_TYPE(type: number) {
     return SSSTGadget.gadgetForType(type) ||
            SSSTWeapon.weaponForType(type) ||
            SSSTShield.shieldForType(type);
@@ -50,8 +49,13 @@ export function ACCESSORY_FOR_TYPE(type) {
 
 
 export class SSSTAccessory {
-    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
-    constructor(type, name, price, techLevel, occurrence) {
+    declare _type: number
+    declare _name: string
+    declare _price: number
+    declare _techLevel: SSSTTechLevel
+    declare _occurrence: number
+
+    constructor(type: number, name: string, price: number, techLevel: SSSTTechLevel, occurrence: number) {
         this._type = type;
         this._name = name;
         this._price = price;
@@ -79,7 +83,7 @@ export class SSSTAccessory {
         return this._occurrence;
     }
 
-    icon() {
+    icon(): string | null {
         return null;
     }
 
@@ -87,7 +91,7 @@ export class SSSTAccessory {
         return "accessory";
     }
 
-    isEqual(object) {
+    isEqual(object: unknown) {
         if (object instanceof SSSTAccessory) {
             return this._type === object.type;
         }
@@ -101,8 +105,10 @@ export class SSSTAccessory {
 
 
 export class SSSTGadget extends SSSTAccessory {
-    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
-    constructor(type, name, price, techLevel, occurrence, icon) {
+    static declare sItems: Map<number, SSSTGadget> | undefined
+    declare _icon: string
+
+    constructor(type: number, name: string, price: number, techLevel: SSSTTechLevel, occurrence: number, icon: string) {
         super(type, name, price, techLevel, occurrence);
         this._icon = icon;
     }
@@ -111,7 +117,7 @@ export class SSSTGadget extends SSSTAccessory {
         return "gadget";
     }
 
-    static gadgetForType(type) {
+    static gadgetForType(type: number) {
         if (!this.sItems) {
             this.sItems = new Map();
         }
@@ -167,8 +173,10 @@ export class SSSTGadget extends SSSTAccessory {
 
 
 export class SSSTWeapon extends SSSTAccessory {
-    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
-    constructor(type, name, price, techLevel, occurrence, power) {
+    static declare sItems: Map<number, SSSTWeapon> | undefined
+    declare _power: number
+
+    constructor(type: number, name: string, price: number, techLevel: SSSTTechLevel, occurrence: number, power: number) {
         super(type, name, price, techLevel, occurrence);
         this._power = power;
     }
@@ -181,7 +189,7 @@ export class SSSTWeapon extends SSSTAccessory {
         return "weapon";
     }
 
-    static weaponForType(type) {
+    static weaponForType(type: number) {
         if (!this.sItems) {
             this.sItems = new Map();
         }
@@ -228,8 +236,10 @@ export class SSSTWeapon extends SSSTAccessory {
 }
 
 export class SSSTShield extends SSSTAccessory {
-    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
-    constructor(type, name, price, techLevel, occurrence, power) {
+    static declare sItems: Map<number, SSSTShield> | undefined
+    declare _power: number
+
+    constructor(type: number, name: string, price: number, techLevel: SSSTTechLevel, occurrence: number, power: number) {
         super(type, name, price, techLevel, occurrence);
         this._power = power;
     }
@@ -242,7 +252,7 @@ export class SSSTShield extends SSSTAccessory {
         return "shield";
     }
 
-    static shieldForType(type) {
+    static shieldForType(type: number) {
         if (!this.sItems) {
             this.sItems = new Map();
         }
