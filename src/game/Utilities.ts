@@ -1,23 +1,27 @@
-// @ts-nocheck
 import { SSSTAlertViewController } from '../legacy-ui/SSSTAlertViewController.ts'
 import { SSSTReputationScore } from './SSSTCommander.ts'
 import { SSSTRareEvent } from './SSSTGame.ts'
+import type { SSSTGame } from './SSSTGame.ts'
+import type { SpaceTraderGame } from '../legacy-ui/main.ts'
 import { runtime } from './runtime.ts'
 
 export const MADebugMode = {
   Disabled: 0,
   Alert: 1,
   Assert: 2,
-};
+} as const;
+export type MADebugMode = (typeof MADebugMode)[keyof typeof MADebugMode];
 
 // Measure code coverage of unit tests by sprinkling probes
 export const MA_PROBE_NEXT = 172 // Next unused probe value. `grep pLog . -r | sort -t '(' -k2,2n`
 export class MAProbeLog {
+  declare probeLog: Set<number>
+
   constructor() {
     this.probeLog = new Set()
   }
 
-  log(probeNumber) {
+  log(probeNumber: number) {
     this.probeLog.add(probeNumber)
   }
 
@@ -45,11 +49,13 @@ export const pLog = new MAProbeLog()
 
 
 export class SSSTMockLocalStorage {
+  declare dict: Record<string, string>
+
   constructor() {
     this.dict = {}
   }
 
-  getItem(k) {
+  getItem(k: string) {
     if (this.dict[k]) {
       return this.dict[k]
     }
@@ -57,7 +63,7 @@ export class SSSTMockLocalStorage {
     return null
   }
 
-  setItem(k, v) {
+  setItem(k: string, v: string) {
     this.dict[k] = v
   }
 }
@@ -72,7 +78,7 @@ export const MAUtils = {
     })
   },
 
-  symmetricDifference: function(arr1, arr2) {
+  symmetricDifference: function<T>(arr1: T[], arr2: T[]) {
     const set1 = new Set(arr1);
     const set2 = new Set(arr2);
 
@@ -86,7 +92,9 @@ export const MAUtils = {
     return [...diff1, ...diff2];
   },
 
-  isEqualDeep: function(objA, objB, inequalityHandler /* optional */, keyName /* optional */) {
+  // any: compares arbitrary values, walking whatever keys they have
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  isEqualDeep: function(objA: any, objB: any, inequalityHandler?: (s: string) => void, keyName?: string): boolean {
 
     const MAX_DEPTH = 30 // avoid infinite loop due to circular references
 
@@ -103,20 +111,20 @@ export const MAUtils = {
 
     if (objA === objB) return true; // Same reference or both null or same primitive value
     if (typeof objA !== 'object' || objA === null || typeof objB !== 'object' || objB === null) {
-      inequalityHandler(`[${keyName}] basic equality ${objA} ; ${objB}`)
+      inequalityHandler!(`[${keyName}] basic equality ${objA} ; ${objB}`)
       return false;
     }
     const keysA = Object.keys(objA);
     const keysB = Object.keys(objB);
     if (keysA.length !== keysB.length) {
       const differentKeys = MAUtils.symmetricDifference(keysA, keysB)
-      inequalityHandler(`[${keyName}] keys length equality objA ${keysA.length} keys ; objB ${keysB.length} keys ; differing keys: ${differentKeys.join(',')}`)
+      inequalityHandler!(`[${keyName}] keys length equality objA ${keysA.length} keys ; objB ${keysB.length} keys ; differing keys: ${differentKeys.join(',')}`)
       return false;
     }
 
     for (let key of keysA) {
       if (!keysB.includes(key)) {
-        inequalityHandler(`[${keyName}] extra key: ` + key)
+        inequalityHandler!(`[${keyName}] extra key: ` + key)
         return false;
       }
 
@@ -128,7 +136,7 @@ export const MAUtils = {
   },
 
   // Returns a sanitized id string
-  sanitizedElementID: function(str) {
+  sanitizedElementID: function(str: string) {
     const buttonTitleSanitized = str.replace(/[^a-zA-Z0-9]/g, "_")
     return buttonTitleSanitized
   },
@@ -139,11 +147,11 @@ export const MAUtils = {
     return stackTrace
   },
 
-  throwError: function(str) {
+  throwError: function(str: string) {
     throw "Throw error: " + str + "\n" + (new Error()).stack
   },
 
-  handleFatalError: function(str) {
+  handleFatalError: function(str: string) {
     const stackTrace = MAUtils.logStackTrace()
     if (runtime.debugMode === MADebugMode.Alert) {
       SSSTAlertViewController.presentAlertWithDismiss("DEBUG: " + str + stackTrace)
@@ -152,7 +160,7 @@ export const MAUtils = {
     }
   },
 
-  ensureInteger: function(n) {
+  ensureInteger: function(n: unknown) {
     if (!Number.isInteger(n)) {
       MAUtils.handleFatalError("ensureInteger failed")
       return false
@@ -160,15 +168,15 @@ export const MAUtils = {
     return true
   },
 
-  ensureNumber: function(n) {
-    if (isNaN(n)) {
+  ensureNumber: function(n: unknown) {
+    if (isNaN(n as number)) {
       MAUtils.handleFatalError("ensureNumber failed")
       return false
     }
     return true
   },
 
-  ensureType: function(b, typeStr) {
+  ensureType: function(b: unknown, typeStr: string) {
     if (b === null || (typeof b) !== typeStr) {
       MAUtils.handleFatalError(`ensureType ${typeStr} failed. Got this instead: ${b}`)
       return false
@@ -176,18 +184,18 @@ export const MAUtils = {
     return true
   },
 
-  ensureBool: function(b) {
+  ensureBool: function(b: unknown) {
     return MAUtils.ensureType(b, `boolean`)
   },
 
-  ensureArrayOrNull: function(a, elementType) {
+  ensureArrayOrNull: function(a: unknown, elementType: string) {
     if (a === null) {
       return true
     }
 
     let valid = Array.isArray(a)
     if (valid) {
-      for (let e of a) {
+      for (let e of a as unknown[]) {
         if (typeof e !== elementType) {
           valid = false
           break
@@ -203,12 +211,13 @@ export const MAUtils = {
     return true
   },
 
-  ensureMapOrNull: function(a) {
+  ensureMapOrNull: function(a: unknown) {
     if (a === null) {
       return true
     }
 
-    if (typeof (a.set) === "function" && typeof (a.get) === "function") {
+    const m = a as { set?: unknown, get?: unknown }
+    if (typeof (m.set) === "function" && typeof (m.get) === "function") {
       return true
     }
 
@@ -216,7 +225,7 @@ export const MAUtils = {
     return false
   },
 
-  ensureObjectOrNull: function(o) {
+  ensureObjectOrNull: function(o: unknown) {
     if (o === null) {
       return true
     }
@@ -224,7 +233,7 @@ export const MAUtils = {
   },
 
   // Treat an array like an ordered set
-  addToOrderedSet: function(arr, item) {
+  addToOrderedSet: function<T>(arr: T[], item: T) {
     if (!arr.includes(item)) {
       arr.push(item);
     }
@@ -238,32 +247,32 @@ export const MAUtils = {
 
   // https://easings.net/#easeInOutCubic
   // proportionOfTimeElapsed ranges from 0 to 1
-  easeInOutCubic: function(proportionOfTimeElapsed) {
+  easeInOutCubic: function(proportionOfTimeElapsed: number) {
     let x = proportionOfTimeElapsed
     return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2
   },
 
   // https://easings.net/#easeInQuad
-  easeInQuad: function(proportionOfTimeElapsed) {
+  easeInQuad: function(proportionOfTimeElapsed: number) {
     let x = proportionOfTimeElapsed
     return x * x
   },
 
   // https://easings.net/#easeOutQuad
-  easeOutQuad: function(proportionOfTimeElapsed) {
+  easeOutQuad: function(proportionOfTimeElapsed: number) {
     let x = proportionOfTimeElapsed
     return 1 - (1 - x) * (1 - x)
   },
 
   // https://easings.net/#easeInOutQuad
-  easeInOutQuad: function(proportionOfTimeElapsed) {
+  easeInOutQuad: function(proportionOfTimeElapsed: number) {
     let x = proportionOfTimeElapsed
     return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2
     //return x < 0.655 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 4
   },
 
   // https://easings.net/#easeInOutSine
-  easeInOutSine: function(proportionOfTimeElapsed) {
+  easeInOutSine: function(proportionOfTimeElapsed: number) {
     let x = proportionOfTimeElapsed
     return -(Math.cos(Math.PI * x) - 1) / 2;
   },
@@ -272,7 +281,9 @@ export const MAUtils = {
   // Color utilities
 
   // Convert RGBA to HexA
-  RGBAToHexA: function (r, g, b, a) {
+  // any: the old code reuses these variables, first as numbers and then as hex strings
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  RGBAToHexA: function (r: any, g: any, b: any, a: any): string {
     r = r.toString(16);
     g = g.toString(16);
     b = b.toString(16);
@@ -291,14 +302,17 @@ export const MAUtils = {
   },
 
   // Convert HexA to RGBA
-  hexAToRGBA: function (h) {
+  hexAToRGBA: function (h: string): { r: number, g: number, b: number, a: number } {
     if (h.length == 7) h += 'ff';
     else if (h.length == 4) h += h.substring(1, 4) + 'ff';
 
-    let r = 0,
-      g = 0,
-      b = 0,
-      a = 1;
+    // any: the old code reuses these variables as numbers, hex strings, then numbers again
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    let r: any = 0,
+      g: any = 0,
+      b: any = 0,
+      a: any = 1;
+    /* eslint-enable @typescript-eslint/no-explicit-any */
 
     if (h.length == 5) {
       r = '0x' + h[1] + h[1];
@@ -325,7 +339,7 @@ export const MAUtils = {
     };
   },
 
-  hexColorWithMaxAlpha: function(hex, maxAlpha) {
+  hexColorWithMaxAlpha: function(hex: string, maxAlpha: number) {
     let rgba = this.hexAToRGBA(hex)
     rgba.a = Math.min(rgba.a, maxAlpha)
     return this.RGBAToHexA(rgba.r, rgba.g, rgba.b, rgba.a)
@@ -333,23 +347,23 @@ export const MAUtils = {
 
 
   // Base64
-  isValidBase64(str) {
+  isValidBase64(str: string) {
     const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/
     return base64Regex.test(str)
   },
 
-  removeBase64Padding(base64Str) {
+  removeBase64Padding(base64Str: string) {
     return base64Str.replace(/={1,2}$/, '')
   },
 
-  addBase64Padding(base64Str) {
+  addBase64Padding(base64Str: string) {
     const missingPadding = (4 - (base64Str.length % 4)) % 4
     return base64Str + '='.repeat(missingPadding)
   },
 
 
   // Simple symmetric string obfuscation inspired by rot13
-  obfuscateString(str) {
+  obfuscateString(str: string) {
     // Length = 26 + 26 + 1 (space) + 1 (comma) + 10 (digits) = 64
     //
     // Doing something special for CaveRibbon to make my URI encoding more efficient:
@@ -370,11 +384,11 @@ export const MAUtils = {
     }).join('')
   },
 
-  isScoreEligibleForObfuscation(score) {
+  isScoreEligibleForObfuscation(score: number) {
     return (score >= 700) && (score <= 1200)
   },
 
-  obfuscateScore(score) {
+  obfuscateScore(score: number) {
     // Prepend 0 to make it four characters long if necessary
     let result = String(score).padStart(4, '0')
 
@@ -382,7 +396,7 @@ export const MAUtils = {
     const lastChar = result.slice(-1)
     result = lastChar + result.slice(0, -1)
 
-    const substitutionMap = {
+    const substitutionMap: Record<string, string> = {
         '0': '8',
         '1': '1',
         '2': 'I',
@@ -400,16 +414,17 @@ export const MAUtils = {
     return result
   },
 
-  eventIsForRegularUserInput(e) {
+  eventIsForRegularUserInput(e: Event) {
     // Ignore DIVs because Safari tries to go into text selection mode when
     // repeatedly tapping on them which makes game input unreliable.
-    return e.target.id.endsWith("_input") || e.target.tagName === "A" || e.target.tagName === "DIV"
+    const target = e.target as HTMLElement
+    return target.id.endsWith("_input") || target.tagName === "A" || target.tagName === "DIV"
   },
 
-  createElement(type, attributes, parent) {
+  createElement(type: string, attributes: Record<string, unknown>, parent?: Node) {
     const element = document.createElement(type)
     for (const key in attributes) {
-      element[key] = attributes[key]
+      (element as unknown as Record<string, unknown>)[key] = attributes[key]
     }
     if (parent) {
       parent.appendChild(element)
@@ -417,7 +432,7 @@ export const MAUtils = {
     return element
   },
 
-  createBaysCreditsElement(game) {
+  createBaysCreditsElement(game: SSSTGame) {
     const container = document.createElement('div')
     container.classList.add('bays-credits')
 
@@ -434,7 +449,7 @@ export const MAUtils = {
     return container
   },
 
-  installCheats(div, sTG) {
+  installCheats(div: HTMLElement, sTG: SpaceTraderGame) {
     div.innerHTML = ''
 
     const moneyButton = document.createElement('button');
@@ -526,7 +541,7 @@ export const MAUtils = {
     }
   },
 
-  prettyTimeStringForTimestamp(timestamp, now) {
+  prettyTimeStringForTimestamp(timestamp: number, now: number) {
     if (!timestamp || !now) {
       return null
     }
@@ -560,7 +575,7 @@ export const MAUtils = {
     return result
   },
 
-  prettyTimeAgoStringForTimestamp(timestamp, now) {
+  prettyTimeAgoStringForTimestamp(timestamp: number, now: number) {
     let str = MAUtils.prettyTimeStringForTimestamp(timestamp, now)
 
     if (!str) {
@@ -574,7 +589,7 @@ export const MAUtils = {
     return str
   },
 
-  maintainScrollPosition(block) {
+  maintainScrollPosition(block: () => void) {
     const scrollX = window.scrollX
     const scrollY = window.scrollY
     ma_maintainScrollPositionLevel++
