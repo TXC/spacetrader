@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 export const SSSTTechLevel = {
     PreAgricultural: 0,
     Agricultural: 1,
@@ -10,9 +8,10 @@ export const SSSTTechLevel = {
     PostIndustrial: 6,
     HighTech: 7,
     Count: 8,
-};
+} as const;
+export type SSSTTechLevel = (typeof SSSTTechLevel)[keyof typeof SSSTTechLevel];
 
-export const TECH_LEVEL_STR = (x) => {
+export const TECH_LEVEL_STR = (x: number) => {
     switch (x) {
         case SSSTTechLevel.PreAgricultural: return "Pre-agricultural";
         case SSSTTechLevel.Agricultural: return "Agricultural";
@@ -36,9 +35,10 @@ export const SSSTStatus = {
     CropFailure: 6,
     LackWorkers: 7,
     Count: 8,
-};
+} as const;
+export type SSSTStatus = (typeof SSSTStatus)[keyof typeof SSSTStatus];
 
-export const STATUS_STR = (x) => {
+export const STATUS_STR = (x: number) => {
     switch (x) {
         case SSSTStatus.Uneventful: return "under no particular pressure";
         case SSSTStatus.AtWar: return "at war";
@@ -67,9 +67,10 @@ export const SSSTResource = {
     Artistic: 11,
     Warlike: 12,
     Count: 13,
-};
+} as const;
+export type SSSTResource = (typeof SSSTResource)[keyof typeof SSSTResource];
 
-export const RESOURCES_STR = (x) => {
+export const RESOURCES_STR = (x: number) => {
     switch (x) {
         case SSSTResource.None: return "Nothing special";
         case SSSTResource.MineralRich: return "Mineral rich";
@@ -104,8 +105,9 @@ export const SSSTTradeItemType = {
     FakeQuestCargoStart: 11,
     FakeQuestCargo: 11,
     FakeQuestCargoReactor: 12,
-};
+} as const;
+export type SSSTTradeItemType = (typeof SSSTTradeItemType)[keyof typeof SSSTTradeItemType];
 
-export const TRADE_ITEM_IS_ILLEGAL = (x) => {
+export const TRADE_ITEM_IS_ILLEGAL = (x: number) => {
     return x === SSSTTradeItemType.Firearms || x === SSSTTradeItemType.Narcotics;
 };
