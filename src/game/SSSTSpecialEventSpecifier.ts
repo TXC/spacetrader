@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { SSSTAccessoryType } from './SSSTAccessory.ts'
 import { SSSTAlertViewController } from '../legacy-ui/SSSTAlertViewController.ts'
 import { SSSTPoliceRecordScore, SSSTReputationScore } from './SSSTCommander.ts'
@@ -8,16 +7,31 @@ import { MOON_PRICE, REACTOR_BAY_COUNT, REACTOR_MAX_FUEL, SSSTDragonflyQuestStat
 import { SSSTTradeItem } from './SSSTTradeItem.ts'
 import { SSSTTradeItemType } from './SSSTTradeItem_h.ts'
 import { pLog } from './Utilities.ts'
+import type { SSSTGame } from './SSSTGame.ts'
+import type { SSSTSystemLandingViewController } from '../legacy-ui/SSSTSystemLandingViewController.ts'
 import { runtime } from './runtime.ts'
+
+type ShouldHideBlock = (game: SSSTGame) => boolean
+type ActionBlock = (game: SSSTGame, viewController: SSSTSystemLandingViewController) => void
 
 export const FABRIC_RIP_PROBABILITY_INITIAL = 25;
 
-export function RESET_CURRENT_SPECIAL(game) {
+export function RESET_CURRENT_SPECIAL(game: SSSTGame) {
     game.commander.currentSystem.setSpecialEvent(SSSTSpecialEvent.None);
 }
 
 export class SSSTSpecialEventSpecifier {
-    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
+    static declare sDictionary: Map<number, SSSTSpecialEventSpecifier> | undefined
+    static declare sEvents: SSSTSpecialEventSpecifier[] | undefined
+    declare type: number
+    declare name: string
+    declare prompt: string
+    declare shouldHideBlock: ShouldHideBlock
+    declare action: ActionBlock
+    declare price: number
+    declare randomOccurrence: number
+    declare messageOnly: boolean
+
     static specialEventTypeToSpecifier() {
         if (!SSSTSpecialEventSpecifier.sDictionary) {
             const dict = new Map();
@@ -39,12 +53,12 @@ export class SSSTSpecialEventSpecifier {
         return result;
     }
 
-    constructor(type, name, prompt, price, randomOccurrence, messageOnly, shouldHideBlock = null, actionBlock = null) {
+    constructor(type: number, name: string, prompt: string, price: number, randomOccurrence: number, messageOnly: boolean, shouldHideBlock: ShouldHideBlock | null = null, actionBlock: ActionBlock | null = null) {
         this.type = type;
         this.name = name;
         this.prompt = prompt;
         this.shouldHideBlock = shouldHideBlock || (() => false);
-        this.action = actionBlock || ((game, viewController) => {
+        this.action = actionBlock || ((game, _viewController) => {
             RESET_CURRENT_SPECIAL(game);
         });
         this.price = price;
@@ -68,7 +82,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.dragonflyStatus < SSSTDragonflyQuestStatus.ClosedDragonflyDestroyed;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     pLog.log(115)
                     game.commander.currentSystem.setSpecialEvent(SSSTSpecialEvent.InstallLightningShield);
                 }
@@ -87,7 +101,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.dragonflyStatus < SSSTDragonflyQuestStatus.GoToBaratas;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     pLog.log(116)
                     game.dragonflyStatus += 1;
                     RESET_CURRENT_SPECIAL(game);
@@ -107,7 +121,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.dragonflyStatus < SSSTDragonflyQuestStatus.GoToMelina;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     pLog.log(117)
                     game.dragonflyStatus += 1;
                     RESET_CURRENT_SPECIAL(game);
@@ -126,7 +140,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.dragonflyStatus < SSSTDragonflyQuestStatus.GoToRegulas;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     pLog.log(118)
                     game.dragonflyStatus += 1;
                     RESET_CURRENT_SPECIAL(game);
@@ -160,7 +174,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.japoriQuestStatus !== SSSTJaporiQuestStatus.HasMedicine;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.japoriQuestStatus = SSSTJaporiQuestStatus.Closed;
                     game.commander.ship.soldQuantity(10, SSSTTradeItemType.FakeQuestCargo);
                     game.commander.increaseSkillRandomly();
@@ -181,7 +195,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return !game.commander.boughtMoon;
                 },
-                (game, viewController) => {
+                (_game, viewController) => {
                     pLog.log(63)
                     viewController.gameDidEndWithStatus(SSSTGameEndStatus.Moon);
                 }
@@ -199,7 +213,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.commander.boughtMoon || game.commander.netWorth() < (MOON_PRICE * 4) / 5;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.commander.boughtMoon = true
                     SSSTAlertViewController.presentAlertWithDismiss("You bought a moon in the Utopia system. Go there to claim it.")
                     RESET_CURRENT_SPECIAL(game);
@@ -216,7 +230,7 @@ export class SSSTSpecialEventSpecifier {
                 3,
                 false,
                 null,
-                (game, viewController) => {
+                (game, _viewController) => {
                     const skill = game.commander.increaseSkillRandomly();
 
                     SSSTAlertViewController.presentAlertWithDismiss(`The alien's machine increases your ${skill} skill.`)
@@ -236,7 +250,7 @@ export class SSSTSpecialEventSpecifier {
                 1,
                 false,
                 null,
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.commander.ship.tribbles = 1;
 
                     SSSTAlertViewController.presentAlertWithDismiss("You are now the proud owner of a little, cute, furry tribble.")
@@ -258,7 +272,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.commander.policeRecordScore >= SSSTPoliceRecordScore.Dubious;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     pLog.log(110)
                     game.commander.policeRecordScore = SSSTPoliceRecordScore.Clean;
                     SSSTAlertViewController.presentAlertWithDismiss("The hacker resets your police record to be clean.")
@@ -280,7 +294,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.commander.ship.tribbles <= 0;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.commander.credits = game.commander.credits + Math.floor(game.commander.ship.tribbles/2)
                     game.commander.ship.tribbles = 0
 
@@ -303,7 +317,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.monsterStatus !== SSSTMonsterQuestStatus.Open;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.monsterStatus = SSSTMonsterQuestStatus.MonsterExists;
                     RESET_CURRENT_SPECIAL(game);
                     pLog.log(144)
@@ -323,7 +337,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.commander.policeRecordScore < SSSTPoliceRecordScore.Dubious;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.dragonflyStatus = SSSTDragonflyQuestStatus.GoToBaratas;
                     RESET_CURRENT_SPECIAL(game);
                 }
@@ -342,11 +356,11 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.commander.ship.freeCargoBays() < 3;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     const itemType = runtime.gameRand.randomIntBelow(SSSTTradeItemType.Count);
                     game.commander.ship.boughtQuantity(3, itemType, Math.floor(1000 / 3));
 
-                    SSSTAlertViewController.presentAlertWithDismiss(`The canisters contain ${SSSTTradeItem.tradeItemForType(itemType).name.toLowerCase()}.`)
+                    SSSTAlertViewController.presentAlertWithDismiss(`The canisters contain ${SSSTTradeItem.tradeItemForType(itemType)!.name.toLowerCase()}.`)
 
                     RESET_CURRENT_SPECIAL(game);
                     pLog.log(130)
@@ -364,7 +378,7 @@ export class SSSTSpecialEventSpecifier {
                 0,
                 false,
                 null,
-                (game, viewController) => {
+                (game, _viewController) => {
                     let alertString;
                     if (game.commander.ship.freeSlotsForAccessoryType(SSSTAccessoryType.ShieldLightning) > 0) {
                         pLog.log(119)
@@ -394,7 +408,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.commander.policeRecordScore < SSSTPoliceRecordScore.Dubious || game.japoriQuestStatus !== SSSTJaporiQuestStatus.Open;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     let alertString;
                     if (game.commander.ship.freeCargoBays() < 10) {
                         pLog.log(111)
@@ -438,7 +452,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return !game.commander.artifactOnBoard;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.commander.artifactOnBoard = false;
                     RESET_CURRENT_SPECIAL(game);
                     pLog.log(136)
@@ -458,7 +472,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.commander.policeRecordScore < SSSTPoliceRecordScore.Dubious;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.commander.artifactOnBoard = true;
                     RESET_CURRENT_SPECIAL(game);
                     pLog.log(135)
@@ -478,7 +492,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.commander.policeRecordScore < SSSTPoliceRecordScore.Dubious;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     let alertString;
                     if (game.commander.ship.crewCount() < game.commander.ship.model.mercenaryQuarters()) {
                         const jarek = new SSSTCrewMember("Ambassador Jarek");
@@ -509,7 +523,7 @@ export class SSSTSpecialEventSpecifier {
                 0,
                 true,
                 null,
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.invasionStatus = SSSTInvasionQuestStatus.DaysUntilInvasion._7;
                     RESET_CURRENT_SPECIAL(game);
                 }
@@ -540,7 +554,7 @@ export class SSSTSpecialEventSpecifier {
                 0,
                 false,
                 null,
-                (game, viewController) => {
+                (game, _viewController) => {
                     let alertString;
                     if (game.commander.ship.freeSlotsForAccessoryType(SSSTAccessoryType.GadgetFuelCompactor) > 0) {
                         game.commander.ship.addAccessoryOfType(SSSTAccessoryType.GadgetFuelCompactor);
@@ -571,7 +585,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.commander.policeRecordScore < SSSTPoliceRecordScore.Dubious;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.experimentStatus = SSSTExperimentQuestStatus.DaysRemaining._10;
                     RESET_CURRENT_SPECIAL(game);
                     pLog.log(147)
@@ -591,7 +605,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.commander.policeRecordScore >= SSSTPoliceRecordScore.Dubious;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     let alertString = null;
 
                     if (!alertString && game.commander.ship.crewCount() >= game.commander.ship.model.mercenaryQuarters()) {
@@ -641,7 +655,7 @@ export class SSSTSpecialEventSpecifier {
                            game.reactorStatus !== SSSTReactorQuestStatus.Open ||
                            game.wildStatus === SSSTWildQuestStatus.OnBoard;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     if (game.commander.ship.freeCargoBays() < REACTOR_BAY_COUNT + REACTOR_MAX_FUEL) {
                         SSSTAlertViewController.presentAlertWithDismiss("You don't have enough empty cargo bays at the moment.")
                         pLog.log(150)
@@ -669,7 +683,7 @@ export class SSSTSpecialEventSpecifier {
                 0,
                 false,
                 null,
-                (game, viewController) => {
+                (game, _viewController) => {
                     let alertString;
 
                     if (game.commander.ship.freeSlotsForAccessoryType(SSSTAccessoryType.WeaponMorgansLaser) > 0) {
@@ -700,7 +714,7 @@ export class SSSTSpecialEventSpecifier {
                     return game.commander.reputationScore < SSSTReputationScore.Average ||
                            game.scarabStatus !== SSSTScarabQuestStatus.Open;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.scarabStatus = SSSTScarabQuestStatus.ScarabExists;
                     RESET_CURRENT_SPECIAL(game);
                 }
@@ -719,7 +733,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.scarabStatus !== SSSTScarabQuestStatus.ScarabDestroyed;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.commander.ship.setUpgradedHull(true);
                     game.scarabStatus = SSSTScarabQuestStatus.Closed;
                     RESET_CURRENT_SPECIAL(game);
@@ -742,7 +756,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.scarabStatus !== SSSTScarabQuestStatus.ScarabDestroyed;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.commander.currentSystem.setSpecialEvent(SSSTSpecialEvent.GetHullUpgraded);
                 }
             );
@@ -760,7 +774,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return !(game.reactorStatus > SSSTReactorQuestStatus.Open && game.reactorStatus < SSSTReactorQuestStatus.ClosedTooLate);
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.commander.ship.soldQuantity(REACTOR_BAY_COUNT + REACTOR_MAX_FUEL, SSSTTradeItemType.FakeQuestCargoReactor);
                     game.commander.currentSystem.setSpecialEvent(SSSTSpecialEvent.GetSpecialLaser);
                     game.reactorStatus = SSSTReactorQuestStatus.ClosedSaved;
@@ -781,7 +795,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.jarekStatus !== SSSTJarekQuestStatus.OnBoard;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.jarekStatus = SSSTJarekQuestStatus.Closed;
                     game.commander.carriesMaxTraderBoost = true;
                     game.commander.ship.removeCrewMemberWithName("Ambassador Jarek");
@@ -803,7 +817,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return !(game.invasionStatus >= SSSTInvasionQuestStatus.DaysUntilInvasion._7 && game.invasionStatus <= SSSTInvasionQuestStatus.DaysUntilInvasion._1);
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.invasionStatus = SSSTInvasionQuestStatus.ClosedSaved
                     game.commander.currentSystem.setSpecialEvent(SSSTSpecialEvent.GetFuelCompactor);
                     pLog.log(133)
@@ -823,7 +837,7 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return !(game.experimentStatus >= SSSTExperimentQuestStatus.DaysRemaining._10 && game.experimentStatus <= SSSTExperimentQuestStatus.DaysRemaining._1);
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.experimentStatus = SSSTExperimentQuestStatus.ClosedSaved;
                     game.canSuperWarp = true;
                     RESET_CURRENT_SPECIAL(game);
@@ -858,12 +872,12 @@ export class SSSTSpecialEventSpecifier {
                 (game) => {
                     return game.wildStatus !== SSSTWildQuestStatus.OnBoard;
                 },
-                (game, viewController) => {
+                (game, _viewController) => {
                     game.wildStatus = SSSTWildQuestStatus.Closed;
                     game.commander.ship.removeCrewMemberWithName("Jonathan Wild");
 
                     // Zeethibal has a 10 in the player's biggest weakness, 8 in the second biggest weakness, 5 for the others
-                    const ZEETH_SKILL = (index) => (index === 0 ? 10 : index === 1 ? 8 : 5);
+                    const ZEETH_SKILL = (index: number) => (index === 0 ? 10 : index === 1 ? 8 : 5);
                     const zeeth = new SSSTCrewMember(
                         "Zeethibal",
                         ZEETH_SKILL(game.commander.engineerSkillIndex()),
