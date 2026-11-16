@@ -11,6 +11,7 @@ import { FABRIC_RIP_PROBABILITY_INITIAL } from '../game/SpecialEventSpecifier.ts
 import { TechLevel, TradeItemType } from '../game/TradeItem.types.ts'
 import { Utils, MockLocalStorage, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
+import { cellAfter, hasText, rowAfterHeading, textOf } from './support/page.ts'
 import { AlertViewController } from '../legacy-ui/AlertViewController.ts'
 import { ViewController } from '../legacy-ui/ViewController.ts'
 import { SpaceTraderGame } from '../legacy-ui/main.ts'
@@ -177,13 +178,13 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.<br><br>It appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.\n\nIt appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
 
     replay.replayEvent("ecButton_Ignore", "click")
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 18 clicks from Tantalos you encounter a police Gnat.<br><br>It ignores you.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 18 clicks from Tantalos you encounter a police Gnat.\n\nIt ignores you.")
 
     assertEqual(game.commander.pilot, 5)
     assertEqual(game.commander.trader, 5)
@@ -208,8 +209,8 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.<br><br>It appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.\n\nIt appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
 
     replay.replayEvent("ecButton_Drink", "click")
 
@@ -218,8 +219,8 @@ export class UnitTests {
     replay.replayEvent("alertButton_I_ll_pass", "click")
 
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 18 clicks from Tantalos you encounter a police Gnat.<br><br>It ignores you.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 18 clicks from Tantalos you encounter a police Gnat.\n\nIt ignores you.")
 
     assertEqual(game.commander.pilot, 5)
     assertEqual(game.commander.trader, 5)
@@ -244,8 +245,8 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.<br><br>It appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.\n\nIt appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
 
     assertEqual(document.getElementById(`battle-hpContainer-self-Gnat`).style.visibility, "visible")
     assertEqual(document.getElementById(`battle-hpContainer-enemy-Bottle`).style.visibility, "hidden")
@@ -261,8 +262,8 @@ export class UnitTests {
     replay.replayEvent("alertButton_Dismiss", "click")
 
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 19 clicks from Tantalos you encounter a police Gnat.<br><br>It ignores you.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 19 clicks from Tantalos you encounter a police Gnat.\n\nIt ignores you.")
 
     assertEqual(document.getElementById(`battle-hpContainer-self-Gnat`).style.visibility, "visible")
     assertEqual(document.getElementById(`battle-hpContainer-enemy-Gnat`).style.visibility, "visible")
@@ -290,13 +291,13 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.<br><br>It appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.\n\nIt appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
 
     replay.replayEvent("ecButton_Ignore", "click")
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 18 clicks from Tantalos you encounter a police Gnat.<br><br>It ignores you.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 18 clicks from Tantalos you encounter a police Gnat.\n\nIt ignores you.")
 
     assertEqual(game.commander.pilot, 5)
     assertEqual(game.commander.trader, 5)
@@ -321,8 +322,8 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.<br><br>It appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.\n\nIt appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
 
     replay.replayEvent("ecButton_Drink", "click")
 
@@ -331,8 +332,8 @@ export class UnitTests {
     replay.replayEvent("alertButton_I_ll_pass", "click")
 
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 18 clicks from Tantalos you encounter a police Gnat.<br><br>It ignores you.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 18 clicks from Tantalos you encounter a police Gnat.\n\nIt ignores you.")
 
     assertEqual(game.commander.pilot, 5)
     assertEqual(game.commander.trader, 5)
@@ -357,8 +358,8 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.<br><br>It appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.\n\nIt appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
 
     assertEqual(document.getElementById(`battle-hpContainer-self-Gnat`).style.visibility, "visible")
     assertEqual(document.getElementById(`battle-hpContainer-enemy-Bottle`).style.visibility, "hidden")
@@ -374,8 +375,8 @@ export class UnitTests {
     replay.replayEvent("alertButton_Dismiss", "click")
 
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 19 clicks from Tantalos you encounter a police Gnat.<br><br>It ignores you.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 19 clicks from Tantalos you encounter a police Gnat.\n\nIt ignores you.")
 
     assertEqual(document.getElementById(`battle-hpContainer-self-Gnat`).style.visibility, "visible")
     assertEqual(document.getElementById(`battle-hpContainer-enemy-Gnat`).style.visibility, "visible")
@@ -403,8 +404,8 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 15 clicks from Japori you encounter a police Firefly.<br><br>It ignores you.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 15 clicks from Japori you encounter a police Firefly.\n\nIt ignores you.")
 
     assertEqualArrays(game._remainingRareEvents, [RareEvent.CaptainAhab])
     const game2 = this._serializeAndDeserialize(game)
@@ -420,8 +421,8 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Ahab.<br><br>The captain requests a brief meeting with you.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Ahab.\n\nThe captain requests a brief meeting with you.")
 
     replay.replayEvent("ecButton_Meet", "click")
 
@@ -458,8 +459,8 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Ahab.<br><br>The captain requests a brief meeting with you.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Ahab.\n\nThe captain requests a brief meeting with you.")
 
     replay.replayEvent("ecButton_Meet", "click")
 
@@ -470,8 +471,8 @@ export class UnitTests {
 
     replay.replayEvent("alertButton_No_thanks_", "click")
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.<br><br>It ignores you.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.")
 
     const pilotAfter = game.commander.pilot
     assertEqual(pilotAfter, pilotBefore)
@@ -495,16 +496,16 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Ahab.<br><br>The captain requests a brief meeting with you.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Ahab.\n\nThe captain requests a brief meeting with you.")
 
     const pilotBefore = game.commander.pilot
     assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true)
 
     replay.replayEvent("ecButton_Ignore", "click")
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.<br><br>It ignores you.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.")
 
     const pilotAfter = game.commander.pilot
     assertEqual(pilotAfter, pilotBefore)
@@ -528,8 +529,8 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Ahab.<br><br>The captain requests a brief meeting with you.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Ahab.\n\nThe captain requests a brief meeting with you.")
 
     const pilotBefore = game.commander.pilot
     assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true)
@@ -591,7 +592,8 @@ export class UnitTests {
 
 
     const newsStrDiv = document.getElementById('newsStrDiv')
-    assertEqual(newsStrDiv.innerHTML, "<h4>The Command</h4><br>Thug Assaults Captain Ahab!<br><br>Notorious Criminal Jean-Luc Sighted in Yew!<br><br>Insurrection Crushed: Rebels Executed!")
+    assertTrue(hasText(newsStrDiv, "h4", "The Command"), "masthead is a heading")
+    assertEqual(textOf(newsStrDiv), "The Command\nThug Assaults Captain Ahab!\n\nNotorious Criminal Jean-Luc Sighted in Yew!\n\nInsurrection Crushed: Rebels Executed!")
 
     assertEqual(game._breakingNews, null)
 
@@ -620,8 +622,8 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 15 clicks from Japori you encounter a police Firefly.<br><br>It ignores you.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 15 clicks from Japori you encounter a police Firefly.\n\nIt ignores you.")
 
     assertEqualArrays(game._remainingRareEvents, [RareEvent.CaptainConrad])
     const game2 = this._serializeAndDeserialize(game)
@@ -637,8 +639,8 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Conrad.<br><br>The captain requests a brief meeting with you.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Conrad.\n\nThe captain requests a brief meeting with you.")
 
     replay.replayEvent("ecButton_Meet", "click")
 
@@ -676,8 +678,8 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Conrad.<br><br>The captain requests a brief meeting with you.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Conrad.\n\nThe captain requests a brief meeting with you.")
 
     replay.replayEvent("ecButton_Meet", "click")
 
@@ -688,8 +690,8 @@ export class UnitTests {
 
     replay.replayEvent("alertButton_No_thanks_", "click")
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.<br><br>It ignores you.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.")
 
     const engAfter = game.commander.engineer
     assertEqual(engAfter, engBefore)
@@ -713,16 +715,16 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Conrad.<br><br>The captain requests a brief meeting with you.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Conrad.\n\nThe captain requests a brief meeting with you.")
 
     const engBefore = game.commander.engineer
     assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
     replay.replayEvent("ecButton_Ignore", "click")
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.<br><br>It ignores you.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.")
 
     const engAfter = game.commander.engineer
     assertEqual(engAfter, engBefore)
@@ -746,8 +748,8 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Conrad.<br><br>The captain requests a brief meeting with you.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Conrad.\n\nThe captain requests a brief meeting with you.")
 
     const engBefore = game.commander.engineer
     assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
@@ -809,7 +811,8 @@ export class UnitTests {
 
 
     const newsStrDiv = document.getElementById('newsStrDiv')
-    assertEqual(newsStrDiv.innerHTML, "<h4>The Command</h4><br>Captain Conrad Comes Under Attack By Criminal!<br><br>Notorious Criminal Jean-Luc Sighted in Yew!<br><br>Insurrection Crushed: Rebels Executed!")
+    assertTrue(hasText(newsStrDiv, "h4", "The Command"), "masthead is a heading")
+    assertEqual(textOf(newsStrDiv), "The Command\nCaptain Conrad Comes Under Attack By Criminal!\n\nNotorious Criminal Jean-Luc Sighted in Yew!\n\nInsurrection Crushed: Rebels Executed!")
 
     assertEqual(game._breakingNews, null)
 
@@ -838,8 +841,8 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 15 clicks from Japori you encounter a police Firefly.<br><br>It ignores you.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 15 clicks from Japori you encounter a police Firefly.\n\nIt ignores you.")
 
     assertEqualArrays(game._remainingRareEvents, [RareEvent.CaptainHuie])
     const game2 = this._serializeAndDeserialize(game)
@@ -855,8 +858,8 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Huie.<br><br>The captain requests a brief meeting with you.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Huie.\n\nThe captain requests a brief meeting with you.")
 
     replay.replayEvent("ecButton_Meet", "click")
 
@@ -894,8 +897,8 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Huie.<br><br>The captain requests a brief meeting with you.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Huie.\n\nThe captain requests a brief meeting with you.")
 
     replay.replayEvent("ecButton_Meet", "click")
 
@@ -906,8 +909,8 @@ export class UnitTests {
 
     replay.replayEvent("alertButton_No_thanks_", "click")
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.<br><br>It ignores you.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.")
 
     const tradAfter = game.commander.trader
     assertEqual(tradAfter, tradBefore)
@@ -931,16 +934,16 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Huie.<br><br>The captain requests a brief meeting with you.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Huie.\n\nThe captain requests a brief meeting with you.")
 
     const tradBefore = game.commander.trader
     assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
     replay.replayEvent("ecButton_Ignore", "click")
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.<br><br>It ignores you.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.")
 
     const tradAfter = game.commander.trader
     assertEqual(tradAfter, tradBefore)
@@ -964,8 +967,8 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Huie.<br><br>The captain requests a brief meeting with you.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Huie.\n\nThe captain requests a brief meeting with you.")
 
     const tradBefore = game.commander.trader
     assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
@@ -1027,7 +1030,8 @@ export class UnitTests {
 
 
     const newsStrDiv = document.getElementById('newsStrDiv')
-    assertEqual(newsStrDiv.innerHTML, "<h4>The Command</h4><br>Famed Captain Huie Attacked by Brigand!<br><br>Notorious Criminal Jean-Luc Sighted in Yew!<br><br>Insurrection Crushed: Rebels Executed!")
+    assertTrue(hasText(newsStrDiv, "h4", "The Command"), "masthead is a heading")
+    assertEqual(textOf(newsStrDiv), "The Command\nFamed Captain Huie Attacked by Brigand!\n\nNotorious Criminal Jean-Luc Sighted in Yew!\n\nInsurrection Crushed: Rebels Executed!")
 
     assertEqual(game._breakingNews, null)
 
@@ -1425,8 +1429,8 @@ export class UnitTests {
     replay.replayEvent("Warp", "click")
     replay.replayEvent("warpBlastOff", "click")
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Khefka you encounter a stolen Scarab.<br><br>Your opponent attacks.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Khefka you encounter a stolen Scarab.\n\nYour opponent attacks.")
 
     replay.replayEvent("cheat_fighter15", "click") // need more skill to win
     replay.replayEvent("ecButton_Auto_Attack", "click")
@@ -1439,7 +1443,8 @@ export class UnitTests {
     replay.replayEvent("purchaseNews", "click")
 
     const newsStrDiv = document.getElementById('newsStrDiv')
-    assertEqual(newsStrDiv.innerHTML, "<h4>The Daily Worker</h4><br>Wormhole Traffic Delayed as Stolen Craft Destroyed.<br><br>Plague Spreads! Outlook Grim.<br><br>Party: Bold New Future Predicted!")
+    assertTrue(hasText(newsStrDiv, "h4", "The Daily Worker"), "masthead is a heading")
+    assertEqual(textOf(newsStrDiv), "The Daily Worker\nWormhole Traffic Delayed as Stolen Craft Destroyed.\n\nPlague Spreads! Outlook Grim.\n\nParty: Bold New Future Predicted!")
 
     replay.replayEvent("Special", "click")
 
@@ -1474,8 +1479,10 @@ export class UnitTests {
 
     replay.replayEvent("Ship Yard", "click")
     const repairEl = document.getElementById("repairDiv")
-    // eslint-disable-next-line no-undef -- the browser exposes the element with id repairDiv as a global
-    assertEqual(repairDiv.innerHTML, `Your hull strength is at 100%.<br>Your ship has an upgraded hull.<br><input type="checkbox" id="autoRepairCheckbox"><label for="autoRepairCheckbox">Automatically buy repairs upon arrival</label><br><br><button id="buy_escape_pod">Buy an escape pod for $2000</button>`)
+    assertEqual(textOf(repairEl), "Your hull strength is at 100%.\nYour ship has an upgraded hull.\nAutomatically buy repairs upon arrival\n\nBuy an escape pod for $2000")
+    assertTrue(repairEl.querySelector('input#autoRepairCheckbox[type="checkbox"]') !== null, "auto-repair checkbox shown")
+    assertTrue(hasText(repairEl, 'label[for="autoRepairCheckbox"]', "Automatically buy repairs upon arrival"), "checkbox has its label")
+    assertTrue(hasText(repairEl, "button#buy_escape_pod", "Buy an escape pod for $2000"), "escape pod button shown")
 
 
     assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
@@ -1568,38 +1575,38 @@ export class UnitTests {
     replay.replayEvent("Warp", "click")
     replay.replayEvent("warpBlastOff", "click")
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Khefka you encounter a stolen Scarab.<br><br>Your opponent attacks.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Khefka you encounter a stolen Scarab.\n\nYour opponent attacks.")
 
     replay.replayEvent("ecButton_Attack", "click")
-    encounterText = document.getElementById('eVC_dialog').innerHTML
+    encounterText = textOf('eVC_dialog')
     assertEqual(encounterText.includes("You missed the Scarab."), true)
     replay.replayEvent("ecButton_Attack", "click")
-    encounterText = document.getElementById('eVC_dialog').innerHTML
+    encounterText = textOf('eVC_dialog')
     assertEqual(encounterText.includes("You missed the Scarab."), true)
     replay.replayEvent("ecButton_Attack", "click")
-    encounterText = document.getElementById('eVC_dialog').innerHTML
+    encounterText = textOf('eVC_dialog')
     assertEqual(encounterText.includes("You missed the Scarab."), true)
     replay.replayEvent("ecButton_Attack", "click")
-    encounterText = document.getElementById('eVC_dialog').innerHTML
+    encounterText = textOf('eVC_dialog')
     assertEqual(encounterText.includes("You missed the Scarab."), true)
     replay.replayEvent("ecButton_Attack", "click")
-    encounterText = document.getElementById('eVC_dialog').innerHTML
+    encounterText = textOf('eVC_dialog')
     assertEqual(encounterText.includes("You missed the Scarab."), true)
     replay.replayEvent("ecButton_Attack", "click")
-    encounterText = document.getElementById('eVC_dialog').innerHTML
+    encounterText = textOf('eVC_dialog')
     assertEqual(encounterText.includes("You missed the Scarab."), true)
     replay.replayEvent("ecButton_Attack", "click")
-    encounterText = document.getElementById('eVC_dialog').innerHTML
+    encounterText = textOf('eVC_dialog')
     assertEqual(encounterText.includes("You missed the Scarab."), true)
     replay.replayEvent("ecButton_Attack", "click")
-    encounterText = document.getElementById('eVC_dialog').innerHTML
+    encounterText = textOf('eVC_dialog')
     assertEqual(encounterText.includes("You missed the Scarab."), true)
     replay.replayEvent("ecButton_Attack", "click")
-    encounterText = document.getElementById('eVC_dialog').innerHTML
+    encounterText = textOf('eVC_dialog')
     assertEqual(encounterText.includes("You missed the Scarab."), true)
     replay.replayEvent("ecButton_Attack", "click")
-    encounterText = document.getElementById('eVC_dialog').innerHTML
+    encounterText = textOf('eVC_dialog')
     assertEqual(encounterText.includes("You missed the Scarab."), true)
   }
 
@@ -2045,7 +2052,7 @@ export class UnitTests {
 
     const breakConditionFn = () => {
       const encounterTextEl = document.getElementById('eVC_dialog')
-      return encounterTextEl && encounterTextEl.innerHTML.includes("you encounter a police")
+      return encounterTextEl && textOf(encounterTextEl).includes("you encounter a police")
     }
 
     replay.replayEvent("Warp", "click")
@@ -2054,7 +2061,7 @@ export class UnitTests {
     this._replaySkipEncounters(replay, breakConditionFn)
 
     let encounterTextEl = document.getElementById('eVC_dialog')
-    assertEqual(encounterTextEl.innerHTML.includes("you encounter a police"), true)
+    assertEqual(textOf(encounterTextEl).includes("you encounter a police"), true)
 
     replay.replayEvent("ecButton_Surrender", "click")
 
@@ -2068,7 +2075,7 @@ export class UnitTests {
     this._replaySkipEncounters(replay, breakConditionFn)
 
     encounterTextEl = document.getElementById('eVC_dialog')
-    assertEqual(encounterTextEl.innerHTML.includes("you encounter a police"), true)
+    assertEqual(textOf(encounterTextEl).includes("you encounter a police"), true)
 
 
 
@@ -2107,8 +2114,8 @@ export class UnitTests {
 
 
 
-    assertEqual(document.getElementById("cargoListDiv").innerHTML, "1 cute, furry tribble.<br>An unstable reactor taking up 5 bays.<br>Enriched reactor fuel taking up 10 bays.")
-    assertEqual(document.getElementById("questListDiv").innerHTML, "Get rid of those pesky tribbles.<br>Deliver the unstable reactor to Nix for Henry Morgan.")
+    assertEqual(textOf("cargoListDiv"), "1 cute, furry tribble.\nAn unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
+    assertEqual(textOf("questListDiv"), "Get rid of those pesky tribbles.\nDeliver the unstable reactor to Nix for Henry Morgan.")
     assertEqual(game.specialCargoDescription(), "1 cute, furry tribble.\nAn unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game.questListDescription(), "Get rid of those pesky tribbles.\nDeliver the unstable reactor to Nix for Henry Morgan.")
     assertEqual(game.commander.ship.tribbles, 1)
@@ -3089,14 +3096,14 @@ export class UnitTests {
     replay.replayEvent("alertButton_Warp_", "click")
 
     const breakConditionFn = () => {
-      const encounterText = document.getElementById('eVC_dialog').innerHTML
-      return encounterText === "At 1 click from Acamar you encounter the terrifying Space Monster.<br><br>Your opponent attacks."
+      const encounterText = textOf('eVC_dialog')
+      return encounterText === "At 1 click from Acamar you encounter the terrifying Space Monster.\n\nYour opponent attacks."
     }
 
     this._replaySkipEncounters(replay, breakConditionFn)
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 1 click from Acamar you encounter the terrifying Space Monster.<br><br>Your opponent attacks.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 1 click from Acamar you encounter the terrifying Space Monster.\n\nYour opponent attacks.")
 
     replay.replayEvent("ecButton_Attack", "click")
     replay.replayEvent("ecButton_Attack", "click")
@@ -3134,8 +3141,8 @@ export class UnitTests {
     this._replaySkipEncounters(replay, breakConditionFn)
 
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 1 click from Acamar you encounter the terrifying Space Monster.<br><br>Your opponent attacks.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 1 click from Acamar you encounter the terrifying Space Monster.\n\nYour opponent attacks.")
 
     replay.replayEvent("ecButton_Attack", "click")
     replay.replayEvent("ecButton_Attack", "click")
@@ -3174,8 +3181,8 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay, breakConditionFn)
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 1 click from Acamar you encounter the terrifying Space Monster.<br><br>Your opponent attacks.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 1 click from Acamar you encounter the terrifying Space Monster.\n\nYour opponent attacks.")
     assertEqual(game.monsterHull, 215)
 
     replay.replayEvent("ecButton_Auto_Attack", "click")
@@ -3259,8 +3266,9 @@ export class UnitTests {
 
     // He shows up with no cost, no skills
     const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
-    const rowHTML = personnelRow.innerHTML.replace(/ src="data:image\/png[^"]+"/, "") // remove the base64 icon to simplify our string comparison
-    assertEqual(rowHTML, `<td><div><img class="roster-icon">Ambassador Jarek</div></td><td class="centered-cell"></td>`)
+    assertEqual(textOf(personnelRow.cells[0]), "Ambassador Jarek")
+    assertTrue(personnelRow.querySelector("img.roster-icon") !== null, "roster icon shown")
+    assertEqual(personnelRow.querySelectorAll("button").length, 0)
 
     replay.replayEvent("cheat_freeSingularity", "click")
     replay.replayEvent("Chart", "click")
@@ -3353,8 +3361,9 @@ export class UnitTests {
 
     // He shows up with no cost, no skills
     const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
-    const rowHTML = personnelRow.innerHTML.replace(/ src="data:image\/png[^"]+"/, "") // remove the base64 icon to simplify our string comparison
-    assertEqual(rowHTML, `<td><div><img class="roster-icon">Ambassador Jarek</div></td><td class="centered-cell"></td>`)
+    assertEqual(textOf(personnelRow.cells[0]), "Ambassador Jarek")
+    assertTrue(personnelRow.querySelector("img.roster-icon") !== null, "roster icon shown")
+    assertEqual(personnelRow.querySelectorAll("button").length, 0)
 
     // Get arrested
 
@@ -3446,8 +3455,8 @@ export class UnitTests {
     replay.replayEvent("galacticChart_useSingularity_121_Krios", "click")
     replay.replayEvent("alertButton_Warp_", "click")
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 16 clicks from Krios you encounter an alien Mantis.<br><br>Your opponent attacks.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 16 clicks from Krios you encounter an alien Mantis.\n\nYour opponent attacks.")
 
     this._replaySkipEncounters(replay)
 
@@ -3507,8 +3516,8 @@ export class UnitTests {
     replay.replayEvent("galacticChart_useSingularity_121_Krios", "click")
     replay.replayEvent("alertButton_Warp_", "click")
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 16 clicks from Krios you encounter an alien Mantis.<br><br>Your opponent attacks.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 16 clicks from Krios you encounter an alien Mantis.\n\nYour opponent attacks.")
 
     replay.replayEvent("ecButton_Surrender")
 
@@ -3666,8 +3675,8 @@ export class UnitTests {
     replay.replayEvent("namedEvent", "selectPlanetZoomed|Gemulon")
     replay.replayEvent("warpBlastOff", "click")
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 20 clicks from Gemulon you encounter an alien Mantis.<br><br>Your opponent attacks.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 20 clicks from Gemulon you encounter an alien Mantis.\n\nYour opponent attacks.")
 
     this._replaySkipEncounters(replay)
 
@@ -4353,8 +4362,8 @@ export class UnitTests {
 
     replay.replayEvent("alertButton_Offer_bribe", "click")
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 19 clicks from Courteney you encounter a pirate Bumblebee.<br><br>Your opponent attacks.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 19 clicks from Courteney you encounter a pirate Bumblebee.\n\nYour opponent attacks.")
   }
 
   test_wild_noSlots() {
@@ -4439,8 +4448,9 @@ export class UnitTests {
 
     // He shows up with no cost, no skills
     const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
-    const rowHTML = personnelRow.innerHTML.replace(/ src="data:image\/png[^"]+"/, "") // remove the base64 icon to simplify our string comparison
-    assertEqual(rowHTML, `<td><div><img class="roster-icon">Jonathan Wild</div></td><td class="centered-cell"></td>`)
+    assertEqual(textOf(personnelRow.cells[0]), "Jonathan Wild")
+    assertTrue(personnelRow.querySelector("img.roster-icon") !== null, "roster icon shown")
+    assertEqual(personnelRow.querySelectorAll("button").length, 0)
 
     // I need the extra pilot skill to survive the journey to Kravat
     replay.replayEvent("hireFire_Mercedez", "click")
@@ -4561,8 +4571,9 @@ export class UnitTests {
 
     // He shows up with no cost, no skills
     const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
-    const rowHTML = personnelRow.innerHTML.replace(/ src="data:image\/png[^"]+"/, "") // remove the base64 icon to simplify our string comparison
-    assertEqual(rowHTML, `<td><div><img class="roster-icon">Jonathan Wild</div></td><td class="centered-cell"></td>`)
+    assertEqual(textOf(personnelRow.cells[0]), "Jonathan Wild")
+    assertTrue(personnelRow.querySelector("img.roster-icon") !== null, "roster icon shown")
+    assertEqual(personnelRow.querySelectorAll("button").length, 0)
 
     replay.replayEvent("Warp", "click")
     replay.replayEvent("warpBlastOff", "click")
@@ -4627,8 +4638,9 @@ export class UnitTests {
 
     // He shows up with no cost, no skills
     const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
-    const rowHTML = personnelRow.innerHTML.replace(/ src="data:image\/png[^"]+"/, "") // remove the base64 icon to simplify our string comparison
-    assertEqual(rowHTML, `<td><div><img class="roster-icon">Jonathan Wild</div></td><td class="centered-cell"></td>`)
+    assertEqual(textOf(personnelRow.cells[0]), "Jonathan Wild")
+    assertTrue(personnelRow.querySelector("img.roster-icon") !== null, "roster icon shown")
+    assertEqual(personnelRow.querySelectorAll("button").length, 0)
 
     replay.replayEvent("Warp", "click")
     replay.replayEvent("warpBlastOff", "click")
@@ -4728,8 +4740,9 @@ export class UnitTests {
 
     // He shows up with no cost, no skills
     const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
-    const rowHTML = personnelRow.innerHTML.replace(/ src="data:image\/png[^"]+"/, "") // remove the base64 icon to simplify our string comparison
-    assertEqual(rowHTML, `<td><div><img class="roster-icon">Jonathan Wild</div></td><td class="centered-cell"></td>`)
+    assertEqual(textOf(personnelRow.cells[0]), "Jonathan Wild")
+    assertTrue(personnelRow.querySelector("img.roster-icon") !== null, "roster icon shown")
+    assertEqual(personnelRow.querySelectorAll("button").length, 0)
 
 
     replay.replayEvent("Equipment", "click")
@@ -4747,8 +4760,8 @@ export class UnitTests {
     replay.replayEvent("alertButton_He_can_stay_", "click")
 
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 18 clicks from Malcoria you encounter a police Firefly.<br><br>Your opponent attacks.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 18 clicks from Malcoria you encounter a police Firefly.\n\nYour opponent attacks.")
 
     assertEqual(game.wildStatus, WildQuestStatus.Closed)
     assertEqual(game.commander.ship.crew.length, 0)
@@ -4828,8 +4841,8 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    const encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 1 click from Zalkon you encounter a stolen Dragonfly.<br><br>Your opponent attacks.")
+    const encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 1 click from Zalkon you encounter a stolen Dragonfly.\n\nYour opponent attacks.")
   }
 
   test_dragonfly() {
@@ -4853,8 +4866,8 @@ export class UnitTests {
     replay.replayEvent("galacticChart_useSingularity_121_Zalkon", "click")
     replay.replayEvent("alertButton_Warp_", "click")
 
-    const encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 1 click from Zalkon you encounter a stolen Dragonfly.<br><br>Your opponent attacks.")
+    const encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 1 click from Zalkon you encounter a stolen Dragonfly.\n\nYour opponent attacks.")
 
     replay.replayEvent("ecButton_Auto_Attack", "click")
     assertEqual(AlertViewController.currentAlertTitle(), "You have destroyed your opponent.")
@@ -4926,7 +4939,8 @@ export class UnitTests {
     replay.replayEvent("purchaseNews", "click")
 
     const newsStrDiv = document.getElementById('newsStrDiv')
-    assertEqual(newsStrDiv.innerHTML, "<h4>The Daily Planet</h4><br>Travelers Claim Sighting of Ship Materializing in Orbit!<br><br>Collector in Styris System Seeks to Purchase Tribbles.<br><br>New Rumors of Severe Drought in the Vandor System.")
+    assertTrue(hasText(newsStrDiv, "h4", "The Daily Planet"), "masthead is a heading")
+    assertEqual(textOf(newsStrDiv), "The Daily Planet\nTravelers Claim Sighting of Ship Materializing in Orbit!\n\nCollector in Styris System Seeks to Purchase Tribbles.\n\nNew Rumors of Severe Drought in the Vandor System.")
   }
 
   test_japori_noCargoSpace() {
@@ -4941,7 +4955,8 @@ export class UnitTests {
     replay.replayEvent("purchaseNews", "click")
 
     let newsStrDiv = document.getElementById('newsStrDiv')
-    assertEqual(newsStrDiv.innerHTML, "<h4>The Loyal Subject</h4><br>Travelers Claim Sighting of Ship Materializing in Orbit!<br><br>Editorial: We Must Help Japori!<br><br>Notice: Cold Weather in the Ligon System.")
+    assertTrue(hasText(newsStrDiv, "h4", "The Loyal Subject"), "masthead is a heading")
+    assertEqual(textOf(newsStrDiv), "The Loyal Subject\nTravelers Claim Sighting of Ship Materializing in Orbit!\n\nEditorial: We Must Help Japori!\n\nNotice: Cold Weather in the Ligon System.")
 
     replay.replayEvent("Warp", "click")
     replay.replayEvent("cargo_WaterBuy_All", "click")
@@ -4954,7 +4969,7 @@ export class UnitTests {
     replay.replayEvent("alertButton_Dismiss", "click")
 
     replay.replayEvent("Commander", "click")
-    assertEqual(document.getElementById("cargoListDiv").innerHTML, "A Portable Singularity.")
+    assertEqual(textOf("cargoListDiv"), "A Portable Singularity.")
     assertEqual(game.specialCargoDescription(), "A Portable Singularity.")
     assertEqual(game.questListDescription(), "No open quests.")
 
@@ -4974,7 +4989,8 @@ export class UnitTests {
     replay.replayEvent("purchaseNews", "click")
 
     let newsStrDiv = document.getElementById('newsStrDiv')
-    assertEqual(newsStrDiv.innerHTML, "<h4>The Loyal Subject</h4><br>Travelers Claim Sighting of Ship Materializing in Orbit!<br><br>Editorial: We Must Help Japori!<br><br>Notice: Cold Weather in the Ligon System.")
+    assertTrue(hasText(newsStrDiv, "h4", "The Loyal Subject"), "masthead is a heading")
+    assertEqual(textOf(newsStrDiv), "The Loyal Subject\nTravelers Claim Sighting of Ship Materializing in Orbit!\n\nEditorial: We Must Help Japori!\n\nNotice: Cold Weather in the Ligon System.")
 
     replay.replayEvent("Special", "click")
     assertEqual(AlertViewController.currentAlertTitle(), "A strange disease has invaded the Japori system. We would like you to deliver these ten canisters of special antidote to Japori. Note that, if you accept, ten of your cargo bays will remain in use on your way to Japori. Do you accept this mission?")
@@ -4983,7 +4999,7 @@ export class UnitTests {
     replay.replayEvent("alertButton_Dismiss", "click")
 
     replay.replayEvent("Commander", "click")
-    assertEqual(document.getElementById("cargoListDiv").innerHTML, "10 bays of antidote.<br>A Portable Singularity.")
+    assertEqual(textOf("cargoListDiv"), "10 bays of antidote.\nA Portable Singularity.")
     assertEqual(game.specialCargoDescription(), "10 bays of antidote.\nA Portable Singularity.")
     assertEqual(game.questListDescription(), "Deliver antidote to Japori.")
 
@@ -5030,7 +5046,8 @@ export class UnitTests {
     replay.replayEvent("purchaseNews", "click")
 
     newsStrDiv = document.getElementById('newsStrDiv')
-    assertEqual(newsStrDiv.innerHTML, "<h4>General Report</h4><br>Travelers Claim Sighting of Ship Materializing in Orbit!<br><br>Disease Antidotes Arrive! Health Officials Optimistic.<br><br>Collector in Titan System Seeks to Purchase Tribbles.<br><br>Weapons Research Increases Kill-Ratio!")
+    assertTrue(hasText(newsStrDiv, "h4", "General Report"), "masthead is a heading")
+    assertEqual(textOf(newsStrDiv), "General Report\nTravelers Claim Sighting of Ship Materializing in Orbit!\n\nDisease Antidotes Arrive! Health Officials Optimistic.\n\nCollector in Titan System Seeks to Purchase Tribbles.\n\nWeapons Research Increases Kill-Ratio!")
 
     replay.replayEvent("Special", "click")
 
@@ -5488,15 +5505,15 @@ export class UnitTests {
     const replay = this._runReplayLog(replayLog)
     const stG = replay.spaceTraderGame
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 10 clicks from Tantalos you encounter a pirate Gnat.<br><br>Your opponent attacks.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 10 clicks from Tantalos you encounter a pirate Gnat.\n\nYour opponent attacks.")
 
     const hpBarWidthBefore = document.getElementById(`battle-hpBar-self`).style.width
 
     replay.replayEvent("ecButton_Flee", "click")
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 10 clicks from Tantalos you encounter a pirate Gnat.<br><br>Your opponent attacks.<br>The pirate ship missed you.<br>The pirate ship is still following you.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 10 clicks from Tantalos you encounter a pirate Gnat.\n\nYour opponent attacks.\nThe pirate ship missed you.\nThe pirate ship is still following you.")
 
     const hpBarWidthAfter = document.getElementById(`battle-hpBar-self`).style.width
 
@@ -5555,7 +5572,7 @@ export class UnitTests {
     highScoringGames = JSON.parse(runtime.stLocalStorage.getItem('highScoringGames')) || {}
     assertEqual(Object.keys(highScoringGames).length, 1)
 
-    assertEqual(document.getElementById("highscores").innerHTML, "Jean-Luc was killed after 1 day, worth $8382 on Normal level. Score: 0.9%.")
+    assertEqual(textOf("highscores"), "Jean-Luc was killed after 1 day, worth $8382 on Normal level. Score: 0.9%.")
 
     replay.replayEvent("clearall", "click")
     replay.replayEvent("alertButton_Clear_all", "click")
@@ -5563,7 +5580,7 @@ export class UnitTests {
     highScoringGames = JSON.parse(runtime.stLocalStorage.getItem('highScoringGames')) || {}
     assertEqual(Object.keys(highScoringGames).length, 0)
 
-    assertEqual(document.getElementById("highscores").innerHTML, "None on record")
+    assertEqual(textOf("highscores"), "None on record")
   }
 
   test_autoRepairs_autoFuel() {
@@ -5650,15 +5667,15 @@ export class UnitTests {
     assertEqual(commander.credits, 1000)
 
     let newsStrDiv = document.getElementById('newsStrDiv')
-    const expectedNews = "<h4>The People's Voice</h4><br>Collector in Aldea System Seeks to Purchase Tribbles.<br><br>Evidence Suggests Severe Drought in the Rubicum System."
-    assertTrue(newsStrDiv.innerHTML !== expectedNews, "news not visible yet")
+    const expectedNews = "The People's Voice\nCollector in Aldea System Seeks to Purchase Tribbles.\n\nEvidence Suggests Severe Drought in the Rubicum System."
+    assertTrue(textOf(newsStrDiv) !== expectedNews, "news not visible yet")
 
     replay.replayEvent("purchaseNews", "click")
 
     assertEqual(commander.credits, 997)
 
     newsStrDiv = document.getElementById('newsStrDiv')
-    assertEqual(newsStrDiv.innerHTML, expectedNews)
+    assertEqual(textOf(newsStrDiv), expectedNews)
 
     replay.replayEvent("Warp", "click")
 
@@ -5670,7 +5687,7 @@ export class UnitTests {
     assertEqual(commander.credits, 997)
 
     newsStrDiv = document.getElementById('newsStrDiv')
-    assertEqual(newsStrDiv.innerHTML, expectedNews)
+    assertEqual(textOf(newsStrDiv), expectedNews)
   }
 
   test_autoNews() {
@@ -5688,7 +5705,8 @@ export class UnitTests {
     assertEqual(commander.credits, 997)
 
     let newsStrDiv = document.getElementById('newsStrDiv')
-    assertEqual(newsStrDiv.innerHTML, "<h4>The People's Voice</h4><br>Collector in Aldea System Seeks to Purchase Tribbles.<br><br>Evidence Suggests Severe Drought in the Rubicum System.")
+    assertTrue(hasText(newsStrDiv, "h4", "The People's Voice"), "masthead is a heading")
+    assertEqual(textOf(newsStrDiv), "The People's Voice\nCollector in Aldea System Seeks to Purchase Tribbles.\n\nEvidence Suggests Severe Drought in the Rubicum System.")
 
     replay.replayEvent("Warp", "click")
 
@@ -5700,7 +5718,8 @@ export class UnitTests {
     assertEqual(commander.credits, 997)
 
     newsStrDiv = document.getElementById('newsStrDiv')
-    assertEqual(newsStrDiv.innerHTML, "<h4>The People's Voice</h4><br>Collector in Aldea System Seeks to Purchase Tribbles.<br><br>Evidence Suggests Severe Drought in the Rubicum System.")
+    assertTrue(hasText(newsStrDiv, "h4", "The People's Voice"), "masthead is a heading")
+    assertEqual(textOf(newsStrDiv), "The People's Voice\nCollector in Aldea System Seeks to Purchase Tribbles.\n\nEvidence Suggests Severe Drought in the Rubicum System.")
   }
 
   test_buyShip_debt_upgrade() {
@@ -5768,8 +5787,8 @@ export class UnitTests {
 
     const commander = stG.viewController._game.commander
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 13 clicks from Guinifer you encounter a police Hornet.<br><br>It ignores you.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 13 clicks from Guinifer you encounter a police Hornet.\n\nIt ignores you.")
 
     this._replaySkipEncounters(replay)
 
@@ -5787,8 +5806,8 @@ export class UnitTests {
 
     const commander = stG.viewController._game.commander
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 8 clicks from Kaylon you encounter a trader Bumblebee.<br><br>It ignores you.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 8 clicks from Kaylon you encounter a trader Bumblebee.\n\nIt ignores you.")
 
     this._replaySkipEncounters(replay)
 
@@ -5809,8 +5828,8 @@ export class UnitTests {
     replay.replayEvent("ecButton_Ignore", "click")
 
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 17 clicks from Capelle you encounter a police Mosquito.<br><br>The police summon you to submit to an inspection.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 17 clicks from Capelle you encounter a police Mosquito.\n\nThe police summon you to submit to an inspection.")
 
     replay.replayEvent("ecButton_Auto_Attack", "click")
     replay.replayEvent("alertButton_Attack", "click")
@@ -5819,21 +5838,21 @@ export class UnitTests {
     assertEqual(AlertViewController.currentAlertTitle(), "You have destroyed your opponent.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 14 clicks from Capelle you encounter a pirate Hornet.<br><br>Your opponent attacks.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 14 clicks from Capelle you encounter a pirate Hornet.\n\nYour opponent attacks.")
 
     replay.replayEvent("ecButton_Auto_Flee", "click")
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 6 clicks from Capelle you encounter a trader Firefly.<br><br>It ignores you.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 6 clicks from Capelle you encounter a trader Firefly.\n\nIt ignores you.")
 
     replay.replayEvent("ecButton_Auto_Attack", "click")
     // Opponent escapes
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 1 click from Capelle you encounter a trader Gnat.<br><br>It ignores you.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 1 click from Capelle you encounter a trader Gnat.\n\nIt ignores you.")
 
     replay.replayEvent("ecButton_Auto_Attack", "click")
     // They surrender and offer to let me plunder
@@ -6198,8 +6217,8 @@ export class UnitTests {
     const policeRecordBefore = commander.policeRecordScore
     const reputationBefore = commander.reputationScore
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 12 clicks from Capelle you encounter a pirate Hornet.<br><br>Your opponent attacks.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 12 clicks from Capelle you encounter a pirate Hornet.\n\nYour opponent attacks.")
 
     replay.replayEvent("ecButton_Auto_Attack", "click")
     // Offer to plunder
@@ -6210,8 +6229,8 @@ export class UnitTests {
 
     assertEqual(commander.policeRecordScore, policeRecordBefore+KILL_PIRATE_SCORE)
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 8 clicks from Capelle you encounter a pirate Bumblebee.<br><br>Your opponent attacks.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 8 clicks from Capelle you encounter a pirate Bumblebee.\n\nYour opponent attacks.")
 
 
     replay.replayEvent("ecButton_Auto_Attack", "click")
@@ -6264,8 +6283,8 @@ export class UnitTests {
     const policeRecordBefore = commander.policeRecordScore
     const reputationBefore = commander.reputationScore
 
-    let encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 12 clicks from Capelle you encounter a pirate Hornet.<br><br>Your opponent attacks.")
+    let encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 12 clicks from Capelle you encounter a pirate Hornet.\n\nYour opponent attacks.")
 
     replay.replayEvent("ecButton_Auto_Attack", "click")
     // Offer to plunder
@@ -6276,8 +6295,8 @@ export class UnitTests {
 
     assertEqual(commander.policeRecordScore, policeRecordBefore+KILL_PIRATE_SCORE)
 
-    encounterText = document.getElementById('eVC_dialog').innerHTML
-    assertEqual(encounterText, "At 8 clicks from Capelle you encounter a pirate Bumblebee.<br><br>Your opponent attacks.")
+    encounterText = textOf('eVC_dialog')
+    assertEqual(encounterText, "At 8 clicks from Capelle you encounter a pirate Bumblebee.\n\nYour opponent attacks.")
 
 
     replay.replayEvent("ecButton_Auto_Attack", "click")
@@ -6352,12 +6371,12 @@ export class UnitTests {
     game.commander.policeRecordScore = PoliceRecordScore.Clean;
 
     let customViewEl = document.getElementById("alertvc-customView-Plunder_plunder")
-    assertTrue(customViewEl.innerHTML.includes(`Furs</span></td><td class="right-aligned-cell">5</td>`), "HTML shows 5 furs")
+    assertEqual(cellAfter(customViewEl, "Furs"), "5")
 
     replay.replayEvent("cargo_FursPlunder_1", "click")
 
     customViewEl = document.getElementById("alertvc-customView-Plunder_plunder")
-    assertTrue(customViewEl.innerHTML.includes(`Furs</span></td><td class="right-aligned-cell">4</td>`), "HTML shows 4 furs")
+    assertEqual(cellAfter(customViewEl, "Furs"), "4")
 
     assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 1)
 
@@ -6378,7 +6397,7 @@ export class UnitTests {
 
 
     customViewEl = document.getElementById("alertvc-customView-Plunder_dump")
-    assertTrue(customViewEl.innerHTML.includes(`Furs</span></td><td class="right-aligned-cell">0</td>`), "HTML updated to show 0 furs")
+    assertEqual(cellAfter(customViewEl, "Furs"), "0")
 
 
     replay.replayEvent("alertButton__Plunder_dumpResume_plundering", "click")
@@ -6405,12 +6424,12 @@ export class UnitTests {
     game.commander.policeRecordScore = PoliceRecordScore.Clean;
 
     let customViewEl = document.getElementById("alertvc-customView-Plunder_plunder")
-    assertTrue(customViewEl.innerHTML.includes(`Furs</span></td><td class="right-aligned-cell">5</td>`), "HTML shows 5 furs")
+    assertEqual(cellAfter(customViewEl, "Furs"), "5")
 
     replay.replayEvent("cargo_FursPlunder_1", "click")
 
     customViewEl = document.getElementById("alertvc-customView-Plunder_plunder")
-    assertTrue(customViewEl.innerHTML.includes(`Furs</span></td><td class="right-aligned-cell">4</td>`), "HTML shows 4 furs")
+    assertEqual(cellAfter(customViewEl, "Furs"), "4")
 
     assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 1)
 
@@ -7080,7 +7099,7 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const slvc = stG.viewController._systemLandingViewController
 
-    assertTrue(document.documentElement.outerHTML.includes(`Selected System</th></tr><tr><td><b>Yojimbo`), "Yojimbo is selected")
+    assertTrue(hasText(rowAfterHeading("Selected System"), "b", "Yojimbo"), "Yojimbo is selected")
 
     assertTrue(document.getElementById("Chart").classList.contains("active"), "chart is active")
     assertTrue(!document.getElementById("Warp").classList.contains("active"), "warp is not active")
@@ -7105,7 +7124,7 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const slvc = stG.viewController._systemLandingViewController
 
-    assertTrue(document.documentElement.outerHTML.includes(`Selected System</th></tr><tr><td><b>Pollux`), "Pollux is selected")
+    assertTrue(hasText(rowAfterHeading("Selected System"), "b", "Pollux"), "Pollux is selected")
 
     assertTrue(document.getElementById("Chart").classList.contains("active"), "chart is active")
     assertTrue(!document.getElementById("Warp").classList.contains("active"), "warp is not active")
