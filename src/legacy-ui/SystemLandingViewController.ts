@@ -1,7 +1,9 @@
 // @ts-nocheck
 import { PCEImageLibrary } from '../game/Images.ts'
 import { AlertActionType, AlertViewController } from './AlertViewController.ts'
-import { BankViewController } from './BankViewController.ts'
+import { createElement } from 'react'
+import { Bank } from '../ui/Bank.tsx'
+import { mountReact } from '../ui/mountReact.ts'
 import { BuySellCargoViewController } from './BuySellCargoViewController.ts'
 import { CommanderStatusViewController } from './CommanderStatusViewController.ts'
 import { EquipmentViewController } from './EquipmentViewController.ts'
@@ -87,9 +89,18 @@ export class SystemLandingViewController {
       this.div.appendChild(contentDiv);
     }
 
+    if (this._unmountReact) {
+      this._unmountReact()
+      this._unmountReact = null
+    }
     contentDiv.innerHTML = '';
 
     return contentDiv
+  }
+
+  // A sub-screen that is already React is mounted here until this screen is React too.
+  _mountReact(contentDiv, element) {
+    this._unmountReact = mountReact(contentDiv, element)
   }
 
   handleRowClick(row) {
@@ -166,8 +177,7 @@ export class SystemLandingViewController {
       this._newsViewController.presentView();
     } else if (row === "Bank") {
       pLog.log(12)
-      const viewController = new BankViewController(contentDiv, this._game);
-      viewController.presentView();
+      this._mountReact(contentDiv, createElement(Bank, { game: this._game }))
     } else if (row === "Commander") {
       pLog.log(13)
       const viewController = new CommanderStatusViewController(contentDiv, this._game);

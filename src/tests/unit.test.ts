@@ -83,3 +83,15 @@ test('cellAfter and rowAfterHeading find neighbouring table content', () => {
   expect(textOf(rowAfterHeading('Picked')!)).toBe('Furs4')
   div.remove()
 })
+
+test('a replayed checkbox change reaches a React screen', () => {
+  const log = '{"idLog":["createCommander","Bank"],"eventNameLog":["click","click"],"gameRandSeed":1733543535142}'
+  const replay = new UnitTests()._runReplayLog(log, undefined, undefined)
+  const game = replay.spaceTraderGame.viewController._game
+  const before = game.remindLoans
+
+  replay.replayEvent('remindLoansCheckbox', 'change')
+
+  expect(game.remindLoans).toBe(!before)
+  expect((document.getElementById('remindLoansCheckbox') as HTMLInputElement).checked).toBe(!before)
+})

@@ -6,14 +6,28 @@ import { playwright } from '@vitest/browser-playwright'
 export default defineConfig({
   plugins: [react()],
   test: {
-    // The old suite drives the real page and checks canvas pixels, so it needs a real browser.
-    browser: {
-      enabled: true,
-      headless: true,
-      provider: playwright(),
-      instances: [{ browser: 'chromium' }],
-    },
     testTimeout: 120_000,
     restoreMocks: true,
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'browser',
+          include: ['src/tests/**/*.test.{ts,tsx}'],
+          // The recorded suite drives the real page and checks canvas pixels, so it needs a real browser.
+          browser: {
+            enabled: true,
+            headless: true,
+            provider: playwright(),
+            instances: [{ browser: 'chromium' }],
+          },
+        },
+      },
+      {
+        extends: true,
+        // Plain tests of the game rules; no page needed.
+        test: { name: 'rules', include: ['src/game/**/*.test.ts'], environment: 'node' },
+      },
+    ],
   },
 })

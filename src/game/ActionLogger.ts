@@ -36,6 +36,18 @@ export class ActionLogger {
     }
   }
 
+  // Records one step the player took.
+  record(elementID: string, eventName: string) {
+    this._idLog.push(elementID)
+    this._eventNameLog.push(eventName)
+    this._logUpdated()
+  }
+
+  // Announces an element the player can use; the stress tests pick their next step from these.
+  register(elementID: string, eventName: string) {
+    this._registerEvent(elementID, eventName)
+  }
+
   _registerEvent(elementID: string, eventName: string) {
     if (this.registerEventHandler) {
       this.registerEventHandler(elementID, eventName)
@@ -66,9 +78,7 @@ export class ActionLogger {
       if (!button.id) {
         throw "ActionLogger requires button to have unique id"
       }
-      this._idLog.push(button.id)
-      this._eventNameLog.push(eventName)
-      this._logUpdated()
+      this.record(button.id, eventName)
       handler()
     })
   }
@@ -81,9 +91,7 @@ export class ActionLogger {
       if (!a.id) {
         throw "ActionLogger requires a element to have unique id"
       }
-      this._idLog.push(a.id)
-      this._eventNameLog.push(eventName)
-      this._logUpdated()
+      this.record(a.id, eventName)
       handler(event)
     })
   }
@@ -96,9 +104,7 @@ export class ActionLogger {
       if (!checkbox.id) {
         throw "ActionLogger requires checkbox element to have unique id"
       }
-      this._idLog.push(checkbox.id)
-      this._eventNameLog.push(eventName)
-      this._logUpdated()
+      this.record(checkbox.id, eventName)
       handler(event)
     })
   }
@@ -111,9 +117,7 @@ export class ActionLogger {
       if (!slider.id) {
         throw "ActionLogger requires slider element to have unique id"
       }
-      this._idLog.push(slider.id)
-      this._eventNameLog.push("slider|" + eventName + "|" + slider.value)
-      this._logUpdated()
+      this.record(slider.id, "slider|" + eventName + "|" + slider.value)
       handler()
     })
   }
@@ -126,9 +130,7 @@ export class ActionLogger {
       if (!select.id) {
         throw "ActionLogger requires select element to have unique id"
       }
-      this._idLog.push(select.id)
-      this._eventNameLog.push("select|" + eventName + "|" + select.selectedIndex)
-      this._logUpdated()
+      this.record(select.id, "select|" + eventName + "|" + select.selectedIndex)
       handler()
     })
   }
@@ -244,9 +246,8 @@ export class ActionLogReplay {
       } else if (eventName === "click") {
         element!.click()
       } else if (eventName === "change") {
-        element!.checked = !element!.checked
-        let changeEvent = new Event('change')
-        element!.dispatchEvent(changeEvent)
+        // A real click toggles the box and fires its change event, for old screens and React alike.
+        element!.click()
       }
     }
   }
