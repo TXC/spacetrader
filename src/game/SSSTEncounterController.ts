@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { SSSTAccessoryType } from './SSSTAccessory.ts'
 import { SSSTAlertActionType, SSSTAlertViewController } from '../legacy-ui/SSSTAlertViewController.ts'
 import { ATTACK_POLICE_SCORE, ATTACK_TRADER_SCORE, FLEE_FROM_INSPECTION_SCORE, KILL_PIRATE_SCORE, KILL_POLICE_SCORE, KILL_TRADER_SCORE, MAX_SKILL_LEVEL, PLUNDER_PIRATE_SCORE, PLUNDER_TRADER_SCORE, SSSTPoliceRecordScore, SSSTReputationScore, TRAFFICKING_SCORE } from './SSSTCommander.ts'
@@ -9,6 +8,10 @@ import { REACTOR_BAY_COUNT, REACTOR_MAX_FUEL, SSSTDifficulty, SSSTDragonflyQuest
 import { SSSTTradeItem } from './SSSTTradeItem.ts'
 import { SSSTTradeItemType } from './SSSTTradeItem_h.ts'
 import { MAUtils, pLog } from './Utilities.ts'
+import type { SSSTGame } from './SSSTGame.ts'
+import type { SSSTCommander } from './SSSTCommander.ts'
+import type { SSSTOpponent } from './SSSTOpponent.ts'
+import type { SSSTTravelViewController } from '../legacy-ui/SSSTTravelViewController.ts'
 import { runtime } from './runtime.ts'
 
 export const SSSTEncounterType = {
@@ -75,8 +78,9 @@ export const SSSTEncounterType = {
     DragonflyStart: 30,
     DragonflyEnd: 31,
 };
+export type SSSTEncounterType = number;
 
-export const CAPTAIN_NAME_STR = (x) => {
+export const CAPTAIN_NAME_STR = (x: number) => {
     switch (x) {
         case SSSTEncounterType.FamousCaptainAhabEncounter:
         case SSSTEncounterType.FamousCaptainAhabAttack:
@@ -89,7 +93,7 @@ export const CAPTAIN_NAME_STR = (x) => {
     }
 };
 
-export const ATTACK_CAPTAIN_NEWS = (x) => {
+export const ATTACK_CAPTAIN_NEWS = (x: number) => {
     switch (x) {
         case SSSTEncounterType.FamousCaptainAhabEncounter:
         case SSSTEncounterType.FamousCaptainAhabAttack:
@@ -102,7 +106,7 @@ export const ATTACK_CAPTAIN_NEWS = (x) => {
     }
 };
 
-export const DESTROY_CAPTAIN_NEWS = (x) => {
+export const DESTROY_CAPTAIN_NEWS = (x: number) => {
     switch (x) {
         case SSSTEncounterType.FamousCaptainAhabEncounter:
         case SSSTEncounterType.FamousCaptainAhabAttack:
@@ -115,7 +119,7 @@ export const DESTROY_CAPTAIN_NEWS = (x) => {
     }
 };
 
-export const CAPTAIN_PROMPT_STR = (x) => {
+export const CAPTAIN_PROMPT_STR = (x: number) => {
     switch (x) {
         case SSSTEncounterType.FamousCaptainAhabEncounter:
         case SSSTEncounterType.FamousCaptainAhabAttack:
@@ -128,14 +132,17 @@ export const CAPTAIN_PROMPT_STR = (x) => {
     }
 };
 
-export const ENCOUNTERT = (T, TYPE) => T >= SSSTEncounterType[`${TYPE}Start`] && T <= SSSTEncounterType[`${TYPE}End`];
-export const ENCOUNTER = (type, TYPE) => ENCOUNTERT(type, TYPE);
+export const ENCOUNTERT = (T: number, TYPE: string) => {
+    const ranges: Record<string, number> = SSSTEncounterType;
+    return T >= ranges[`${TYPE}Start`] && T <= ranges[`${TYPE}End`];
+};
+export const ENCOUNTER = (type: number, TYPE: string) => ENCOUNTERT(type, TYPE);
 
 // Update these with the other attack/ignore/flee types when they're added:
-export const ENCOUNTERT_FLEE = (T) => [SSSTEncounterType.PoliceFlee, SSSTEncounterType.PirateFlee, SSSTEncounterType.TraderFlee].includes(T);
-export const ENCOUNTER_FLEE = (type) => ENCOUNTERT_FLEE(type);
+export const ENCOUNTERT_FLEE = (T: number) => [SSSTEncounterType.PoliceFlee, SSSTEncounterType.PirateFlee, SSSTEncounterType.TraderFlee].includes(T);
+export const ENCOUNTER_FLEE = (type: number) => ENCOUNTERT_FLEE(type);
 
-export const ENCOUNTER_ATTACK = (type) => [
+export const ENCOUNTER_ATTACK = (type: number) => [
     SSSTEncounterType.PoliceAttack,
     SSSTEncounterType.PirateAttack,
     SSSTEncounterType.TraderAttack,
@@ -147,7 +154,7 @@ export const ENCOUNTER_ATTACK = (type) => [
     SSSTEncounterType.DragonflyAttack
 ].includes(type);
 
-export const ENCOUNTER_IGNORE = (type) => [
+export const ENCOUNTER_IGNORE = (type: number) => [
     SSSTEncounterType.PoliceIgnore,
     SSSTEncounterType.PirateIgnore,
     SSSTEncounterType.TraderIgnore,
@@ -156,25 +163,34 @@ export const ENCOUNTER_IGNORE = (type) => [
     SSSTEncounterType.DragonflyIgnore
 ].includes(type);
 
-export const ENCOUNTER_SURRENDER = (type) => [
+export const ENCOUNTER_SURRENDER = (type: number) => [
     SSSTEncounterType.PirateSurrender,
     SSSTEncounterType.TraderSurrender
 ].includes(type);
 
-export const FAMOUS_ATTACK_TYPE = (type) => ENCOUNTER_ATTACK(type) ? type : type + 1;
+export const FAMOUS_ATTACK_TYPE = (type: number) => ENCOUNTER_ATTACK(type) ? type : type + 1;
 
 export const SSSTEncounterMode = {
     Manual: 0,
     AutoAttack: 1,
     AutoFlee: 2,
 };
+export type SSSTEncounterMode = number;
 
-export const ENCOUNTER_MODE_AUTO = (encounterMode) => [SSSTEncounterMode.AutoAttack, SSSTEncounterMode.AutoFlee].includes(encounterMode);
+export const ENCOUNTER_MODE_AUTO = (encounterMode: number) => [SSSTEncounterMode.AutoAttack, SSSTEncounterMode.AutoFlee].includes(encounterMode);
 
 
 export class SSSTEncounterController {
-    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
-    constructor(type, game, opponent) {
+    declare _type: number
+    declare _game: SSSTGame
+    declare _opponent: SSSTOpponent
+    declare _encounterActionUpdate: string | null
+    declare _actionTaken: boolean
+    declare _encounterMode: number
+    declare _autoEncounterSession: number
+    declare delegate: SSSTTravelViewController | null
+
+    constructor(type: number, game: SSSTGame, opponent: SSSTOpponent) {
         MAUtils.ensureInteger(type)
         MAUtils.ensureType(game, "object")
         MAUtils.ensureType(opponent, "object")
@@ -304,10 +320,11 @@ export class SSSTEncounterController {
             buttons.push("Drink", "Ignore");
         }
 
-        this.constructor._addAutoFor("Attack", buttons);
-        this.constructor._addAutoFor("Flee", buttons);
+        const encounterClass = this.constructor as typeof SSSTEncounterController;
+        encounterClass._addAutoFor("Attack", buttons);
+        encounterClass._addAutoFor("Flee", buttons);
 
-        this.constructor._pruneActionsFor(
+        encounterClass._pruneActionsFor(
             this._encounterMode === SSSTEncounterMode.AutoFlee ? "Flee" :
             this._encounterMode === SSSTEncounterMode.AutoAttack ? "Attack" : null,
             buttons
@@ -316,12 +333,12 @@ export class SSSTEncounterController {
         return buttons;
     }
 
-    static _pruneActionsFor(toPrune, buttons) {
+    static _pruneActionsFor(toPrune: string | null, buttons: string[]) {
         if (!toPrune) {
             return;
         }
 
-        const toRemoveIndexes = [];
+        const toRemoveIndexes: number[] = [];
         buttons.forEach((label, idx) => {
             if (label.endsWith(toPrune)) {
                 toRemoveIndexes.push(idx);
@@ -333,7 +350,7 @@ export class SSSTEncounterController {
         }
     }
 
-    static _addAutoFor(label, buttons) {
+    static _addAutoFor(label: string, buttons: string[]) {
         let addIndex = -1;
         buttons.forEach((buttonLabel, idx) => {
             if (buttonLabel === label) {
@@ -351,7 +368,7 @@ export class SSSTEncounterController {
         this._endAutoEncounters();
     }
 
-    performAction(action) {
+    performAction(action: string) {
         MAUtils.ensureType(action, "string")
         MAUtils.ensureInteger(this._encounterMode)
 
@@ -384,7 +401,7 @@ export class SSSTEncounterController {
                     this._executeAction(false, (fightContinues) => {
                         MAUtils.ensureBool(fightContinues)
                         fightContinues = fightContinues && (this._game.commander.ship.hull > 0);
-                        this.delegate.encounterControllerEncounterContinues(this, fightContinues);
+                        this.delegate!.encounterControllerEncounterContinues(this, fightContinues);
                     });
                 };
 
@@ -552,7 +569,7 @@ export class SSSTEncounterController {
 
                 this._executeAction(true, (fightContinues) => {
                     fightContinues = fightContinues && (this._game.commander.ship.hull > 0);
-                    this.delegate.encounterControllerEncounterContinues(this, fightContinues);
+                    this.delegate!.encounterControllerEncounterContinues(this, fightContinues);
                 });
             };
 
@@ -584,12 +601,12 @@ export class SSSTEncounterController {
 
 
         else if (action === "Ignore") {
-            this.delegate.encounterControllerEncounterContinues(this, false);
+            this.delegate!.encounterControllerEncounterContinues(this, false);
         }
 
 
         else if (action === "Trade") {
-            let itemType = SSSTTradeItemType.None;
+            let itemType: number = SSSTTradeItemType.None;
             let onlyIllegal = this._game.commander.policeRecordScore < SSSTPoliceRecordScore.Dubious;
             let tradePrice = 0;
             let maxUnits = 0;
@@ -610,7 +627,7 @@ export class SSSTEncounterController {
                         tradePrice *= runtime.gameRand.randomIntBelow(100) <= 10 ? 0.9 : 1.1;
                     }
 
-                    let tradeItem = SSSTTradeItem.tradeItemForType(itemType);
+                    let tradeItem = SSSTTradeItem.tradeItemForType(itemType)!;
                     itemName = tradeItem.name;
                     tradePrice = Math.floor(tradePrice / tradeItem.roundOffPrice)
                     tradePrice = (tradePrice + 1) * tradeItem.roundOffPrice
@@ -632,7 +649,7 @@ export class SSSTEncounterController {
                         tradePrice *= runtime.gameRand.randomIntBelow(100) <= 10 ? 1.1 : 0.9;
                     }
 
-                    let tradeItem = SSSTTradeItem.tradeItemForType(itemType);
+                    let tradeItem = SSSTTradeItem.tradeItemForType(itemType)!;
                     itemName = tradeItem.name;
                     tradePrice = Math.floor(tradePrice / tradeItem.roundOffPrice)
                     tradePrice = (tradePrice + 1) * tradeItem.roundOffPrice
@@ -666,7 +683,7 @@ export class SSSTEncounterController {
 
                         let aC = new SSSTAlertViewController(artifactStolenString)
                         aC.addAction("Dismiss", SSSTAlertActionType.Default, () => {
-                            this.delegate.encounterControllerEncounterContinues(this, false);
+                            this.delegate!.encounterControllerEncounterContinues(this, false);
                         })
 
                         this._presentAlertController(aC);
@@ -718,7 +735,7 @@ export class SSSTEncounterController {
                             let aC = new SSSTAlertViewController(yieldAlertString)
 
                             aC.addAction("Dismiss", SSSTAlertActionType.Default, () => {
-                                this.delegate.encounterControllerEncounterContinues(this, false);
+                                this.delegate!.encounterControllerEncounterContinues(this, false);
                             })
 
                             this._presentAlertController(aC);
@@ -772,7 +789,7 @@ export class SSSTEncounterController {
                         let aC = new SSSTAlertViewController(alertString)
 
                         aC.addAction("Dismiss", SSSTAlertActionType.Default, () => {
-                            this.delegate.encounterControllerEncounterContinues(this, false);
+                            this.delegate!.encounterControllerEncounterContinues(this, false);
                         })
 
                         this._presentAlertController(aC);
@@ -798,7 +815,7 @@ export class SSSTEncounterController {
                         let aC = new SSSTAlertViewController(alertString)
 
                         aC.addAction("Dismiss", SSSTAlertActionType.Default, () => {
-                            this.delegate.encounterControllerEncounterContinues(this, false);
+                            this.delegate!.encounterControllerEncounterContinues(this, false);
                         })
 
                         this._presentAlertController(aC);
@@ -882,7 +899,7 @@ export class SSSTEncounterController {
 
                     aC.addAction("Offer bribe", SSSTAlertActionType.Default, () => {
                         this._game.commander.setCredits(this._game.commander.credits - bribe);
-                        this.delegate.encounterControllerEncounterContinues(this, false);
+                        this.delegate!.encounterControllerEncounterContinues(this, false);
                     })
 
                     aC.addAction("Forget it", SSSTAlertActionType.Cancel, null)
@@ -923,7 +940,7 @@ export class SSSTEncounterController {
                     let aC = new SSSTAlertViewController(alertString)
 
                     aC.addAction("Dismiss", SSSTAlertActionType.Default, () => {
-                        this.delegate.encounterControllerEncounterContinues(this, false);
+                        this.delegate!.encounterControllerEncounterContinues(this, false);
                     })
 
                     this._presentAlertController(aC);
@@ -962,7 +979,7 @@ export class SSSTEncounterController {
                     let aC = new SSSTAlertViewController(alertString)
 
                     aC.addAction("Dismiss", SSSTAlertActionType.Default, () => {
-                        this.delegate.encounterControllerEncounterContinues(this, false);
+                        this.delegate!.encounterControllerEncounterContinues(this, false);
                     })
 
                     this._presentAlertController(aC);
@@ -976,7 +993,7 @@ export class SSSTEncounterController {
                     let aC = new SSSTAlertViewController(alertString)
 
                     aC.addAction("Dismiss", SSSTAlertActionType.Default, () => {
-                        this.delegate.encounterControllerEncounterContinues(this, false);
+                        this.delegate!.encounterControllerEncounterContinues(this, false);
                     })
 
                     this._presentAlertController(aC);
@@ -1026,7 +1043,7 @@ export class SSSTEncounterController {
             })
 
             aC.addAction("Leave it", SSSTAlertActionType.Cancel, () => {
-              this.delegate.encounterControllerEncounterContinues(this, false);
+              this.delegate!.encounterControllerEncounterContinues(this, false);
             })
 
             this._presentAlertController(aC);
@@ -1066,14 +1083,14 @@ export class SSSTEncounterController {
                 let aC2 = new SSSTAlertViewController(trainStr)
 
                 aC2.addAction("Dismiss", SSSTAlertActionType.Default, () => {
-                    this.delegate.encounterControllerEncounterContinues(this, false);
+                    this.delegate!.encounterControllerEncounterContinues(this, false);
                 })
 
                 this._presentAlertController(aC2);
             })
 
             aC.addAction("No thanks!", SSSTAlertActionType.Cancel, () => {
-                this.delegate.encounterControllerEncounterContinues(this, false);
+                this.delegate!.encounterControllerEncounterContinues(this, false);
             })
 
             this._presentAlertController(aC);
@@ -1118,7 +1135,7 @@ export class SSSTEncounterController {
                 let aC2 = new SSSTAlertViewController(consumedString)
 
                 aC2.addAction("Dismiss", SSSTAlertActionType.Default, () => {
-                    this.delegate.encounterControllerEncounterContinues(this, false);
+                    this.delegate!.encounterControllerEncounterContinues(this, false);
                 })
 
                 this._presentAlertController(aC2);
@@ -1126,7 +1143,7 @@ export class SSSTEncounterController {
 
             aC.addAction("I'll pass", SSSTAlertActionType.Cancel, () => {
                 pLog.log(107)
-                this.delegate.encounterControllerEncounterContinues(this, false);
+                this.delegate!.encounterControllerEncounterContinues(this, false);
             })
 
             this._presentAlertController(aC);
@@ -1136,7 +1153,7 @@ export class SSSTEncounterController {
         else if (action === "Interrupt") {
             pLog.log(52)
             this._endAutoEncounters();
-            this.delegate.encounterControllerEncounterContinues(this, true);
+            this.delegate!.encounterControllerEncounterContinues(this, true);
         }
 
 
@@ -1163,16 +1180,16 @@ export class SSSTEncounterController {
         this._autoEncounterSession++;
         this._encounterMode = SSSTEncounterMode.Manual;
         if (this.delegate) {
-          this.delegate.encounterControllerHasUpdatedButtons(this);
+          this.delegate!.encounterControllerHasUpdatedButtons(this);
         }
     }
 
-    _presentAlertController(alertController) {
+    _presentAlertController(alertController: SSSTAlertViewController) {
         this._endAutoEncounters();
         alertController.presentView();
     }
 
-    _presentTradeAlert(itemName, itemType, tradePrice, maxUnits, comparisonPrice, traderSell) {
+    _presentTradeAlert(itemName: string | null, itemType: number, tradePrice: number, maxUnits: number, comparisonPrice: number, traderSell: boolean) {
       MAUtils.ensureType(itemName, "string")
       MAUtils.ensureInteger(itemType)
       MAUtils.ensureInteger(tradePrice)
@@ -1225,7 +1242,7 @@ export class SSSTEncounterController {
 
       if (needsSelected) {
         aC.addAction("Selected", SSSTAlertActionType.Default, () => {
-          const slider = document.getElementById("tradeslider")
+          const slider = document.getElementById("tradeslider") as HTMLInputElement
           const amount = parseInt(slider.value, 10)
           if (amount > 0) {
             aC.completionHandler = () => {
@@ -1251,7 +1268,7 @@ export class SSSTEncounterController {
       }
 
       if (needsSelected) {
-        aC.customViewHandler = (customViewDiv) => {
+        aC.customViewHandler = (customViewDiv: HTMLElement) => {
           const slider = document.createElement('input');
           slider.id = "tradeslider"
           slider.type = 'range';
@@ -1274,7 +1291,7 @@ export class SSSTEncounterController {
       aC.presentView()
     }
 
-    _executeAction(commanderFlees, completionBlock) {
+    _executeAction(commanderFlees: boolean, completionBlock: (fightContinues: boolean) => void) {
         MAUtils.ensureBool(commanderFlees)
 
         let opponentHull = this._opponent.ship.hull;
@@ -1302,7 +1319,7 @@ export class SSSTEncounterController {
                 let aC = new SSSTAlertViewController(alertString)
 
                 aC.addAction("Dismiss", SSSTAlertActionType.Default, () => {
-                    this.delegate.encounterControllerDidCompleteWithDestruction(this);
+                    this.delegate!.encounterControllerDidCompleteWithDestruction(this);
                 })
 
                 this._presentAlertController(aC);
@@ -1340,7 +1357,8 @@ export class SSSTEncounterController {
 
                 attemptScoop = true;
             } else if (ENCOUNTER(this._type, "FamousCaptain")) {
-                // eslint-disable-next-line no-undef -- old bug kept: this name never existed (SSSTReputationScore.Dangerous was meant), so this line throws
+                // @ts-expect-error old bug kept: this name never existed (SSSTReputationScore.Dangerous was meant), so this line throws
+                // eslint-disable-next-line no-undef -- see the line above
                 this._game.commander.reputationScore = Math.max(this._game.commander.reputationScore + 100, SSSTReputationScoreDangerous);
                 this._game.replaceNewsContainingString(CAPTAIN_NAME_STR(this._type), DESTROY_CAPTAIN_NEWS(this._type));
             } else if (ENCOUNTER(this._type, "Scarab")) {
@@ -1381,7 +1399,7 @@ export class SSSTEncounterController {
             return;
 
         } else if (this._game.commander.ship.hull <= 0) {
-            this.delegate.encounterControllerHasUpdatedHP(this)
+            this.delegate!.encounterControllerHasUpdatedHP(this)
 
             if (this._game.commander.hasEscapePod) {
                 this._performPodEscape();
@@ -1393,7 +1411,7 @@ export class SSSTEncounterController {
 
                 aC.addAction("Dismiss", SSSTAlertActionType.Default, () => {
                     pLog.log(65)
-                    this.delegate.encounterControllerDidCompleteWithDestruction(this);
+                    this.delegate!.encounterControllerDidCompleteWithDestruction(this);
                 })
 
                 this._presentAlertController(aC);
@@ -1555,10 +1573,10 @@ export class SSSTEncounterController {
     }
 
     _performPodEscape() {
-        this.delegate.encounterControllerDidCompleteWithDestruction(this);
+        this.delegate!.encounterControllerDidCompleteWithDestruction(this);
     }
 
-    _scoopWithCompletion(completion) {
+    _scoopWithCompletion(completion: () => void) {
         let canScoop = (this._game.commander.ship.freeCargoBays() > 0);
         canScoop = canScoop && (this._game.difficulty < SSSTDifficulty.Normal || runtime.gameRand.randomIntBelow(this._game.difficulty) === 1);
 
@@ -1568,7 +1586,7 @@ export class SSSTEncounterController {
                 itemType = runtime.gameRand.randomIntBelow(SSSTTradeItemType.Count);
             }
 
-            const alertString = `A canister from the destroyed ship, labelled ${SSSTTradeItem.tradeItemForType(itemType).name}, drifts within range of your scoops.`;
+            const alertString = `A canister from the destroyed ship, labelled ${SSSTTradeItem.tradeItemForType(itemType)!.name}, drifts within range of your scoops.`;
 
             let aC = new SSSTAlertViewController(alertString)
 
@@ -1590,7 +1608,7 @@ export class SSSTEncounterController {
     }
 
 
-    _executeAttackWithAttacker(attacker, defender, defenderIsFleeing) {
+    _executeAttackWithAttacker(attacker: SSSTCommander | SSSTOpponent, defender: SSSTCommander | SSSTOpponent, defenderIsFleeing: boolean) {
         MAUtils.ensureType(attacker, "object")
         MAUtils.ensureType(defender, "object")
         MAUtils.ensureBool(defenderIsFleeing)
@@ -1650,7 +1668,7 @@ export class SSSTEncounterController {
         }
 
         MAUtils.ensureInteger(damage)
-        damage = defender.ship.damageShieldsByAmount(damage);
+        damage = defender.ship.damageShieldsByAmount(damage)!;
         MAUtils.ensureInteger(damage)
 
         if (damage > 0) {
@@ -1774,19 +1792,19 @@ export class SSSTEncounterController {
         let aC = new SSSTAlertViewController(alertString)
 
         aC.addAction("Dismiss", SSSTAlertActionType.Default, () => {
-            this.delegate.encounterControllerDidCompleteWithArrest(this);
+            this.delegate!.encounterControllerDidCompleteWithArrest(this);
         })
 
         this._presentAlertController(aC);
     }
 
-    _presentThanksForTheTrade(completion) {
+    _presentThanksForTheTrade(completion: () => void) {
       const aC = new SSSTAlertViewController("Thanks for the trade!")
       aC.addAction("Dismiss", SSSTAlertActionType.Default, completion)
       aC.presentView()
     }
 
-    _performTradeWithAmount(amount, itemType, tradePrice, traderSell) {
+    _performTradeWithAmount(amount: number, itemType: number, tradePrice: number, traderSell: boolean) {
         MAUtils.ensureInteger(amount)
         MAUtils.ensureInteger(itemType)
         MAUtils.ensureInteger(tradePrice)
@@ -1807,19 +1825,19 @@ export class SSSTEncounterController {
             }
         }
 
-        this.delegate.encounterControllerEncounterContinues(this, false);
+        this.delegate!.encounterControllerEncounterContinues(this, false);
     }
 
 // #pragma mark - SSSTPlunderViewControllerDelegate
 
-    plunderViewControllerDidFinishPlundering(controller) {
+    plunderViewControllerDidFinishPlundering(controller: SSSTPlunderViewController) {
       MAUtils.ensureBool(controller.plundered)
 
       if (controller.plundered) {
-        this.delegate.encounterControllerDidPlunder(this, controller.plundered);
+        this.delegate!.encounterControllerDidPlunder(this, controller.plundered);
       }
 
-      this.delegate.encounterControllerEncounterContinues(this, false);
+      this.delegate!.encounterControllerEncounterContinues(this, false);
     }
 
 }
