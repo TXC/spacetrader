@@ -2,7 +2,7 @@ import { afterEach, expect, test, vi } from 'vitest'
 import { runtime } from '../game/runtime.ts'
 import './flows/setup.ts'
 import { runReplayLog } from './flows/harness.ts'
-import { textOf } from './support/page.ts'
+import { button, encounterBox, textOf } from './support/page.ts'
 
 afterEach(() => vi.useRealTimers())
 
@@ -18,12 +18,12 @@ test('in real play, each auto-attack round updates the screen without a click', 
   runtime.actionLog.replayInProgress = false
 
   document.getElementById('ecButton_Auto_Attack')!.click()
-  const afterFirstRound = textOf('eVC_dialog')
+  const afterFirstRound = textOf(encounterBox())
   const draws = runtime.gameRand._numInvocations
-  expect(document.getElementById('ecButton_Interrupt')).not.toBeNull()
+  expect(button("Interrupt")).not.toBeNull()
 
   vi.advanceTimersByTime(1500)
 
   expect(runtime.gameRand._numInvocations).toBeGreaterThan(draws)
-  expect(textOf('eVC_dialog')).not.toBe(afterFirstRound)
+  expect(textOf(encounterBox())).not.toBe(afterFirstRound)
 })

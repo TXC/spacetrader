@@ -1,44 +1,34 @@
-// @ts-nocheck
 // Flow tests: each replays a recorded play session by clicking the recorded elements, then
 // checks what the player sees and what the game holds. Converted from the original
 // project's UnitTests.js; the recordings and expected values are unchanged.
 import { test } from 'vitest'
-import { GameRand } from '../../game/GameRand.ts'
-import { AccessoryType } from '../../game/Accessory.ts'
-import { ActionLogger } from '../../game/ActionLogger.ts'
-import { ATTACK_POLICE_SCORE, ATTACK_TRADER_SCORE, KILL_PIRATE_SCORE, PoliceRecordScore } from '../../game/Commander.ts'
-import { Game, GameEndStatus, RareEvent } from '../../game/Game.ts'
-import { PoliticsType } from '../../game/Politics.ts'
+import { KILL_PIRATE_SCORE, PoliceRecordScore } from '../../game/Commander.ts'
 import { ShipModel, ShipModelType } from '../../game/Ship.ts'
-import { Difficulty, ExperimentQuestStatus, InvasionQuestStatus, JaporiQuestStatus, JarekQuestStatus, MonsterQuestStatus, ReactorQuestStatus, ScarabQuestStatus, SpecialEvent, WildQuestStatus } from '../../game/SolarSystem.types.ts'
-import { FABRIC_RIP_PROBABILITY_INITIAL } from '../../game/SpecialEventSpecifier.ts'
-import { TechLevel, TradeItemType } from '../../game/TradeItem.types.ts'
-import { Utils, MockLocalStorage, pLog } from '../../game/Utilities.ts'
+import { TradeItemType } from '../../game/TradeItem.types.ts'
 import { runtime } from '../../game/runtime.ts'
 import { AlertViewController } from '../../game/alerts.ts'
-import { Session } from '../../game/session.ts'
+import type { GalaxyView } from '../../ui/canvas/GalaxyView.ts'
 import './setup.ts'
-import { ActionLogReplay, assertEqual, assertEqualArrays, assertEqualDeep, assertEqualFloats, assertEqualGames, assertPixelColor, assertTrue, performStressTest, replaySkipEncounters, runReplayLog, serializeAndDeserialize, show } from './harness.ts'
-import { cellAfter, hasText, rowAfterHeading, textOf } from '../support/page.ts'
+import { assertEqual, assertEqualGames, assertTrue, mapOf, replaySkipEncounters, runReplayLog, serializeAndDeserialize } from './harness.ts'
+import { alertBox, alertTitle, button, cellAfter, difficulty, encounterBox, hasText, highScores, hullBar, mapInfo, news, rowAfterHeading, scoreMessage, systemInfo, textOf, warpMessage, welcome } from '../support/page.ts'
 
 
 test('HPView_updates', () => {
   const replayLog = `{"idLog":["createCommander","Commander","ignorePolice","ignorePirates","ignoreTraders","ignoreTradeInOrbit","Bank","borrow__500","Warp","warpNext","warpNext","warpNext","warpNext","warpNext","warpNext","warpNext","warpNext","namedEvent","warpBlastOff","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Submit","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","alertButton_Dismiss","alertButton_Dismiss","Special","alertButton_No","Ship Yard","fulltank","Warp","warpNext","warpNext","warpNext","cargo_OreBuy_All","cargo_FursBuy_All","cargo_FoodBuy_All","cargo_WaterBuy_All","warpBlastOff","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Attack","alertButton_Ok__I_won_t_","ecButton_Submit","alertButton_Dismiss","alertButton_Dismiss","Sell","cargo_WaterSell_All","cargo_FoodSell_All","cargo_OreSell_All","Ship Yard","fulltank","Full_repair","Warp","warpNext","togglePrices_Show_Absolute","togglePrices_Show_Relative","togglePrices_Show_Absolute","togglePrices_Show_Relative","warpNext","warpNext","cargo_FirearmsBuy_All","cargo_MedicineBuy_All","warpBlastOff","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","alertButton_Dismiss","Sell","cargo_FirearmsSell_All","Warp","fulltank","Ship Yard","Full_repair","Special","alertButton_No","Sell","Warp","warpNext","Bank","Warp","warpNext","warpNext","cargo_OreBuy_All","cargo_FursBuy_All","cargo_FoodBuy_All","cargo_WaterBuy_All","warpBlastOff","ecButton_Submit","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","alertButton_Dismiss","Sell","cargo_OreSell_All","Warp","fulltank","Ship Yard","Full_repair","Bank","borrow__409","Warp","warpNext","warpNext","warpNext","togglePrices_Show_Absolute","togglePrices_Show_Relative","cargo_FirearmsBuy_All","cargo_MedicineBuy_All","warpBlastOff","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","alertButton_Dismiss","alertButton_Dismiss","Sell","cargo_FirearmsSell_All","Ship Yard","fulltank","Full_repair","autoFuelCheckbox","autoRepairCheckbox","Warp","warpNext","warpNext","warpNext","cargo_OreBuy_All","Bank","pay__1000","Sell","Warp","warpBlastOff","ecButton_Flee","alertButton_Dismiss","alertButton_Dismiss","Sell","cargo_OreSell_All","Ship Yard","Warp","warpNext","cargo_FirearmsBuy_All","cargo_NarcoticsBuy_All","cargo_MedicineBuy_All","warpBlastOff","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","alertButton_Dismiss","Sell","cargo_FirearmsSell_All","cargo_NarcoticsSell_All","cargo_MedicineSell_All","Warp","warpNext","warpNext","warpNext","cargo_OreBuy_All","cargo_FoodBuy_All","warpBlastOff","ecButton_Flee","alertButton_Dismiss","ecButton_Submit","alertButton_Dismiss","alertButton_Dismiss","Sell","cargo_FoodSell_All","cargo_OreSell_All","Warp","warpNext","warpNext","warpNext","cargo_FirearmsBuy_All","cargo_NarcoticsBuy_All","cargo_MedicineBuy_All","warpBlastOff","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","alertButton_Dismiss"],"eventNameLog":["click","click","change","change","change","change","click","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Tantalos","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","change","change","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1732919193563}`
 
   const replay = runReplayLog(replayLog)
-  const session = replay.session
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 10 clicks from Tantalos you encounter a pirate Gnat.\n\nYour opponent attacks.")
 
-  const hpBarWidthBefore = document.getElementById(`battle-hpBar-self`).style.width
+  const hpBarWidthBefore = hullBar("self")!.style.width
 
   replay.replayEvent("ecButton_Flee", "click")
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 10 clicks from Tantalos you encounter a pirate Gnat.\n\nYour opponent attacks.\nThe pirate ship missed you.\nThe pirate ship is still following you.")
 
-  const hpBarWidthAfter = document.getElementById(`battle-hpBar-self`).style.width
+  const hpBarWidthAfter = hullBar("self")!.style.width
 
   assertEqual(hpBarWidthBefore, hpBarWidthAfter)
 })
@@ -49,18 +39,18 @@ test('giveUp', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const endMessage = document.getElementById('end-message').innerText
+  const endMessage = textOf(scoreMessage())
   assertEqual(endMessage.startsWith("You achieved a score"), true)
-  assertTrue(document.getElementById('endgame') !== null, "end game button shows")
+  assertTrue(button("End Game and Start Over") !== null, "end game button shows")
 
   replay.replayEvent("endgame", "click")
   replay.replayEvent("trader", "slider|input|6")
   replay.replayEvent("createCommander", "click")
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Rutia")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Rutia")
 
-  const commander = session.game.commander
+  const commander = session.game!.commander
   assertEqual(commander.trader, 6)
 })
 
@@ -70,21 +60,21 @@ test('dieStartOver', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const endMessage = document.getElementById('end-message').innerText
+  const endMessage = textOf(scoreMessage())
   assertEqual(endMessage.startsWith("You achieved a score"), true)
-  assertTrue(document.getElementById('endgame') !== null, "end game button shows")
+  assertTrue(button("End Game and Start Over") !== null, "end game button shows")
 
   replay.replayEvent("endgame", "click")
   replay.replayEvent("trader", "slider|input|6")
   replay.replayEvent("createCommander", "click")
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Tantalos")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Tantalos")
 
-  const commander = session.game.commander
+  const commander = session.game!.commander
   assertEqual(commander.trader, 6)
 
-  let highScoringGames = JSON.parse(runtime.stLocalStorage.getItem('highScoringGames')) || {}
+  let highScoringGames = JSON.parse(runtime.stLocalStorage.getItem('highScoringGames') ?? 'null') || {}
   assertEqual(Object.keys(highScoringGames).length, 1)
 
   replay.replayEvent("Commander", "click")
@@ -92,18 +82,18 @@ test('dieStartOver', () => {
   replay.replayEvent("clearall", "click")
   replay.replayEvent("alertButton_Cancel", "click")
 
-  highScoringGames = JSON.parse(runtime.stLocalStorage.getItem('highScoringGames')) || {}
+  highScoringGames = JSON.parse(runtime.stLocalStorage.getItem('highScoringGames') ?? 'null') || {}
   assertEqual(Object.keys(highScoringGames).length, 1)
 
-  assertEqual(textOf("highscores"), "Jean-Luc was killed after 1 day, worth $8382 on Normal level. Score: 0.9%.")
+  assertEqual(textOf(highScores()), "Jean-Luc was killed after 1 day, worth $8382 on Normal level. Score: 0.9%.")
 
   replay.replayEvent("clearall", "click")
   replay.replayEvent("alertButton_Clear_all", "click")
 
-  highScoringGames = JSON.parse(runtime.stLocalStorage.getItem('highScoringGames')) || {}
+  highScoringGames = JSON.parse(runtime.stLocalStorage.getItem('highScoringGames') ?? 'null') || {}
   assertEqual(Object.keys(highScoringGames).length, 0)
 
-  assertEqual(textOf("highscores"), "None on record")
+  assertEqual(textOf(highScores()), "None on record")
 })
 
 test('autoRepairs_autoFuel', () => {
@@ -112,7 +102,7 @@ test('autoRepairs_autoFuel', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   assertEqual(commander.credits, 999867)
   assertEqual(commander.ship.hullPercentage(), 1)
@@ -125,7 +115,7 @@ test('manualRepairs', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   assertEqual(commander.credits, 1000)
 
@@ -153,7 +143,7 @@ test('manualFuel', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   assertEqual(commander.credits, 1000000)
 
@@ -181,7 +171,7 @@ test('manualNews', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   assertEqual(commander.credits, 1000)
 
@@ -189,7 +179,7 @@ test('manualNews', () => {
 
   assertEqual(commander.credits, 1000)
 
-  let newsStrDiv = document.getElementById('newsStrDiv')
+  let newsStrDiv = news()
   const expectedNews = "The People's Voice\nCollector in Aldea System Seeks to Purchase Tribbles.\n\nEvidence Suggests Severe Drought in the Rubicum System."
   assertTrue(textOf(newsStrDiv) !== expectedNews, "news not visible yet")
 
@@ -197,19 +187,19 @@ test('manualNews', () => {
 
   assertEqual(commander.credits, 997)
 
-  newsStrDiv = document.getElementById('newsStrDiv')
+  newsStrDiv = news()
   assertEqual(textOf(newsStrDiv), expectedNews)
 
   replay.replayEvent("Warp", "click")
 
-  newsStrDiv = document.getElementById('newsStrDiv')
+  newsStrDiv = news()
   assertEqual(newsStrDiv, null)
 
   replay.replayEvent("News", "click")
 
   assertEqual(commander.credits, 997)
 
-  newsStrDiv = document.getElementById('newsStrDiv')
+  newsStrDiv = news()
   assertEqual(textOf(newsStrDiv), expectedNews)
 })
 
@@ -219,7 +209,7 @@ test('autoNews', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   assertEqual(commander.credits, 1000)
 
@@ -227,20 +217,20 @@ test('autoNews', () => {
 
   assertEqual(commander.credits, 997)
 
-  let newsStrDiv = document.getElementById('newsStrDiv')
+  let newsStrDiv = news()
   assertTrue(hasText(newsStrDiv, "h4", "The People's Voice"), "masthead is a heading")
   assertEqual(textOf(newsStrDiv), "The People's Voice\nCollector in Aldea System Seeks to Purchase Tribbles.\n\nEvidence Suggests Severe Drought in the Rubicum System.")
 
   replay.replayEvent("Warp", "click")
 
-  newsStrDiv = document.getElementById('newsStrDiv')
+  newsStrDiv = news()
   assertEqual(newsStrDiv, null)
 
   replay.replayEvent("News", "click")
 
   assertEqual(commander.credits, 997)
 
-  newsStrDiv = document.getElementById('newsStrDiv')
+  newsStrDiv = news()
   assertTrue(hasText(newsStrDiv, "h4", "The People's Voice"), "masthead is a heading")
   assertEqual(textOf(newsStrDiv), "The People's Voice\nCollector in Aldea System Seeks to Purchase Tribbles.\n\nEvidence Suggests Severe Drought in the Rubicum System.")
 })
@@ -251,7 +241,7 @@ test('buyShip_debt_upgrade', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   assertEqual(commander.credits, 6057)
   assertEqual(ShipModel.shipModelForType(commander.ship.type).name, "Flea")
@@ -280,7 +270,7 @@ test('buyShip_debt_downgrade', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   assertEqual(commander.credits, 6057)
   assertEqual(ShipModel.shipModelForType(commander.ship.type).name, "Flea")
@@ -292,7 +282,7 @@ test('escapePod', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   assertEqual(commander.credits, 997500)
   assertEqual(commander.currentSystem.name, "Lowry")
@@ -305,17 +295,15 @@ test('autoFlee_withImmediate', () => {
   // This auto-flee was immediate ^
 
   const replay = runReplayLog(replayLog)
-  const session = replay.session
 
-  const commander = session.game.commander
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 13 clicks from Guinifer you encounter a police Hornet.\n\nIt ignores you.")
 
   replaySkipEncounters(replay)
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Guinifer")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Guinifer")
 })
 
 test('autoFlee_noImmediates', () => {
@@ -324,17 +312,15 @@ test('autoFlee_noImmediates', () => {
   // ^ this was not immediate
 
   const replay = runReplayLog(replayLog)
-  const session = replay.session
 
-  const commander = session.game.commander
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 8 clicks from Kaylon you encounter a trader Bumblebee.\n\nIt ignores you.")
 
   replaySkipEncounters(replay)
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Kaylon")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Kaylon")
 })
 
 test('autoAttack', () => {
@@ -343,14 +329,14 @@ test('autoAttack', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   replay.replayEvent("Warp", "click")
   replay.replayEvent("warpBlastOff", "click")
   replay.replayEvent("ecButton_Ignore", "click")
 
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 17 clicks from Capelle you encounter a police Mosquito.\n\nThe police summon you to submit to an inspection.")
 
   replay.replayEvent("ecButton_Auto_Attack", "click")
@@ -360,20 +346,20 @@ test('autoAttack', () => {
   assertEqual(AlertViewController.currentAlertTitle(), "You have destroyed your opponent.")
   replay.replayEvent("alertButton_Dismiss", "click")
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 14 clicks from Capelle you encounter a pirate Hornet.\n\nYour opponent attacks.")
 
   replay.replayEvent("ecButton_Auto_Flee", "click")
   replay.replayEvent("alertButton_Dismiss", "click")
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 6 clicks from Capelle you encounter a trader Firefly.\n\nIt ignores you.")
 
   replay.replayEvent("ecButton_Auto_Attack", "click")
   // Opponent escapes
   replay.replayEvent("alertButton_Dismiss", "click")
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 1 click from Capelle you encounter a trader Gnat.\n\nIt ignores you.")
 
   replay.replayEvent("ecButton_Auto_Attack", "click")
@@ -387,8 +373,8 @@ test('autoAttack', () => {
 
   replay.replayEvent("alertButton_Dismiss", "click")
 
-  let systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Capelle")
+  let systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Capelle")
 
   replay.replayEvent("Ship Yard", "click")
   replay.replayEvent("fulltank", "click")
@@ -425,8 +411,8 @@ test('autoAttack', () => {
   // Arrived at destination
   replay.replayEvent("alertButton_Dismiss", "click")
 
-  systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Gemulon")
+  systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Gemulon")
 
   assertEqual(commander.policeKills, 1)
   assertEqual(commander.pirateKills, 0)
@@ -439,7 +425,7 @@ test('hireMercenary_fireMercenary', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   const creditsBefore = commander.credits
   assertEqual(creditsBefore, 950389)
@@ -478,16 +464,16 @@ test('hireMercenary_fireMercenary', () => {
 
   replaySkipEncounters(replay)
 
-  assertEqual(document.getElementById("For Hire"), null)
+  assertEqual(button("For Hire"), null)
 
   // Go to roster, fire him
   replay.replayEvent("Roster", "click")
   replay.replayEvent("hireFire_Milete", "click")
 
   // for hire button should appear
-  assertTrue(document.getElementById("For Hire") !== null, "For hire button reappears")
-  const roster = document.getElementById("Roster")
-  assertEqual(roster.classList.contains('active'), true)
+  assertTrue(button("For Hire") !== null, "For hire button reappears")
+  const roster = button("Roster")
+  assertEqual(roster!.classList.contains('active'), true)
 })
 
 test('mercenary_arrest', () => {
@@ -496,8 +482,8 @@ test('mercenary_arrest', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const game = session.game
-  const commander = session.game.commander
+  const game = session.game!
+  const commander = session.game!.commander
 
   const creditsBefore = commander.credits
   assertEqual(creditsBefore, 950389)
@@ -509,8 +495,6 @@ test('mercenary_arrest', () => {
 
   replay.replayEvent("For Hire", "click")
   replay.replayEvent("hireFire_Milete", "click")
-  const sysName = commander.currentSystem.name
-  const mercenaryPrice = 69
 
   assertEqual(commander.ship.crew.length, 1)
 
@@ -543,17 +527,17 @@ test('tradeInOrbit_buy_selectedValue', () => {
 
   const replay = runReplayLog(replayLog)
   const session = replay.session
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   const creditsBeforeTrade = commander.credits
 
-  const alertTitleEl = document.getElementById("alertvc-title")
-  assertEqual(alertTitleEl.innerText, "Thanks for the trade!")
+  const alertTitleEl = alertTitle()
+  assertEqual(textOf(alertTitleEl), "Thanks for the trade!")
 
   // Disable automatically purchasing fuel since there's no opportunity
   // to check credits after trade but before arrival in this situation
-  session.game.autoFuel = false
-  session.game.autoRepairs = false
+  session.game!.autoFuel = false
+  session.game!.autoRepairs = false
 
   replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -569,17 +553,17 @@ test('tradeInOrbit_buy_all', () => {
 
   const replay = runReplayLog(replayLog)
   const session = replay.session
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   const creditsBeforeTrade = commander.credits
 
-  const alertTitleEl = document.getElementById("alertvc-title")
-  assertEqual(alertTitleEl.innerText, "Thanks for the trade!")
+  const alertTitleEl = alertTitle()
+  assertEqual(textOf(alertTitleEl), "Thanks for the trade!")
 
   // Disable automatically purchasing fuel since there's no opportunity
   // to check credits after trade but before arrival in this situation
-  session.game.autoFuel = false
-  session.game.autoRepairs = false
+  session.game!.autoFuel = false
+  session.game!.autoRepairs = false
 
   replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -595,11 +579,11 @@ test('tradeInOrbit_buy_none', () => {
 
   const replay = runReplayLog(replayLog)
   const session = replay.session
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   const creditsBeforeTrade = commander.credits
 
-  const alertTitleEl = document.getElementById("alertvc-title")
+  const alertTitleEl = alertTitle()
   assertTrue(!alertTitleEl, "no alert showing")
 
   const tradeQuantity = 0
@@ -614,17 +598,17 @@ test('tradeInOrbit_sell_selectedValue', () => {
 
   const replay = runReplayLog(replayLog)
   const session = replay.session
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   const creditsBeforeTrade = commander.credits
 
-  const alertTitleEl = document.getElementById("alertvc-title")
-  assertEqual(alertTitleEl.innerText, "Thanks for the trade!")
+  const alertTitleEl = alertTitle()
+  assertEqual(textOf(alertTitleEl), "Thanks for the trade!")
 
   // Disable automatically purchasing fuel since there's no opportunity
   // to check credits after trade but before arrival in this situation
-  session.game.autoFuel = false
-  session.game.autoRepairs = false
+  session.game!.autoFuel = false
+  session.game!.autoRepairs = false
 
   replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -639,16 +623,16 @@ test('tradeInOrbit_actionLogCanUpdateSlider', () => {
 
   const replay = runReplayLog(replayLog)
   const session = replay.session
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   const creditsBeforeTrade = commander.credits
 
-  const alertTitleEl = document.getElementById("alertvc-title")
-  assertEqual(alertTitleEl.innerText, "Thanks for the trade!")
+  const alertTitleEl = alertTitle()
+  assertEqual(textOf(alertTitleEl), "Thanks for the trade!")
 
   // Disable automatically purchasing fuel since there's no opportunity
   // to check credits after trade but before arrival in this situation
-  session.game.autoFuel = false
+  session.game!.autoFuel = false
 
   replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -663,16 +647,16 @@ test('tradeInOrbit_sell_all', () => {
 
   const replay = runReplayLog(replayLog)
   const session = replay.session
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   const creditsBeforeTrade = commander.credits
 
-  const alertTitleEl = document.getElementById("alertvc-title")
-  assertEqual(alertTitleEl.innerText, "Thanks for the trade!")
+  const alertTitleEl = alertTitle()
+  assertEqual(textOf(alertTitleEl), "Thanks for the trade!")
 
   // Disable automatically purchasing fuel since there's no opportunity
   // to check credits after trade but before arrival in this situation
-  session.game.autoFuel = false
+  session.game!.autoFuel = false
 
   replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -687,30 +671,28 @@ test('tradeInOrbit_sell_none', () => {
 
   const replay = runReplayLog(replayLog)
   const session = replay.session
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   const creditsBeforeTrade = commander.credits
 
   // Disable automatically purchasing fuel since there's no opportunity
   // to check credits after trade but before arrival in this situation
-  session.game.autoFuel = false
-  session.game.autoRepairs = false
+  session.game!.autoFuel = false
+  session.game!.autoRepairs = false
 
   const tradeQuantity = 0
   assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 3-tradeQuantity)
 
   assertEqual(commander.credits, creditsBeforeTrade)
-  const alertTitleEl = document.getElementById("alertvc-title")
+  const alertTitleEl = alertTitle()
   assertTrue(!alertTitleEl, "no alert showing")
 })
 
 test('destroy_pirate_bounty_bug', () => {
   const replayLog = `{"idLog":["createCommander","namedEvent","cheat_freeMoney","warpBlastOff","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Navigation_system","alertButton_Yes","buy_Targeting_system","alertButton_Yes","Commander","ignoreTradeInOrbit","ignoreTraders","ignorePolice","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","buy_escape_pod","alertButton_Yes","namedEvent","warpBlastOff","alertButton_Dismiss","Warp","warpBlastOff","ecButton_Attack","ecButton_Auto_Attack","ecButton_Auto_Attack","alertButton_Dismiss","ecButton_Attack","ecButton_Auto_Attack","ecButton_Plunder","cargo_WaterPlunder_1","alertButton__Plunder_plunderDone","ecButton_Auto_Attack","alertButton_Dismiss","alertButton_Dismiss","namedEvent","namedEvent","warpBlastOff","ecButton_Auto_Attack","alertButton_Dismiss","ecButton_Auto_Attack","alertButton_Dismiss","ecButton_Auto_Attack","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Attack","ecButton_Auto_Attack","alertButton_Dismiss","alertButton_Dismiss","namedEvent","warpBlastOff","alertButton_Dismiss","namedEvent","warpBlastOff","ecButton_Auto_Attack"],"eventNameLog":["click","selectPlanetZoomed|Vadera","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","change","change","change","click","change","change","click","click","selectPlanetZoomed|Courteney","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Exo","selectPlanetZoomed|Penthara","click","click","click","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Zalkon","click","click","selectPlanetZoomed|Odet","click","click"],"gameRandSeed":1733023531445}`
 
-  const replay = runReplayLog(replayLog)
-  const session = replay.session
+  runReplayLog(replayLog)
 
-  const commander = session.game.commander
 
   assertEqual(AlertViewController.currentAlertTitle(), "You earned a bounty of $350.")
 })
@@ -721,7 +703,7 @@ test('destroy_pirate_pick_up_canister', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   assertEqual(commander.pirateKills, 0)
 
@@ -739,7 +721,7 @@ test('destroy_pirate_pick_up_canister', () => {
   const policeRecordBefore = commander.policeRecordScore
   const reputationBefore = commander.reputationScore
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 12 clicks from Capelle you encounter a pirate Hornet.\n\nYour opponent attacks.")
 
   replay.replayEvent("ecButton_Auto_Attack", "click")
@@ -751,7 +733,7 @@ test('destroy_pirate_pick_up_canister', () => {
 
   assertEqual(commander.policeRecordScore, policeRecordBefore+KILL_PIRATE_SCORE)
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 8 clicks from Capelle you encounter a pirate Bumblebee.\n\nYour opponent attacks.")
 
 
@@ -763,8 +745,8 @@ test('destroy_pirate_pick_up_canister', () => {
   replay.replayEvent("alertButton_Dismiss", "click")
 
   const before = commander.ship.tradeItemQuantityForType(TradeItemType.Furs)
-  let alertTitleEl = document.getElementById("alertvc-title")
-  assertEqual(alertTitleEl.innerText, "A canister from the destroyed ship, labelled Furs, drifts within range of your scoops.")
+  let alertTitleEl = alertTitle()
+  assertEqual(textOf(alertTitleEl), "A canister from the destroyed ship, labelled Furs, drifts within range of your scoops.")
 
   replay.replayEvent("alertButton_Pick_it_up_", "click")
 
@@ -777,8 +759,8 @@ test('destroy_pirate_pick_up_canister', () => {
 
   replay.replayEvent("alertButton_Dismiss", "click")
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Capelle")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Capelle")
 })
 
 test('destroy_pirate_let_go_canister', () => {
@@ -787,7 +769,7 @@ test('destroy_pirate_let_go_canister', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   assertEqual(commander.pirateKills, 0)
 
@@ -805,7 +787,7 @@ test('destroy_pirate_let_go_canister', () => {
   const policeRecordBefore = commander.policeRecordScore
   const reputationBefore = commander.reputationScore
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 12 clicks from Capelle you encounter a pirate Hornet.\n\nYour opponent attacks.")
 
   replay.replayEvent("ecButton_Auto_Attack", "click")
@@ -817,7 +799,7 @@ test('destroy_pirate_let_go_canister', () => {
 
   assertEqual(commander.policeRecordScore, policeRecordBefore+KILL_PIRATE_SCORE)
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 8 clicks from Capelle you encounter a pirate Bumblebee.\n\nYour opponent attacks.")
 
 
@@ -829,8 +811,8 @@ test('destroy_pirate_let_go_canister', () => {
   replay.replayEvent("alertButton_Dismiss", "click")
 
   const before = commander.ship.tradeItemQuantityForType(TradeItemType.Furs)
-  let alertTitleEl = document.getElementById("alertvc-title")
-  assertEqual(alertTitleEl.innerText, "A canister from the destroyed ship, labelled Furs, drifts within range of your scoops.")
+  let alertTitleEl = alertTitle()
+  assertEqual(textOf(alertTitleEl), "A canister from the destroyed ship, labelled Furs, drifts within range of your scoops.")
 
   replay.replayEvent("alertButton_Let_it_go", "click")
 
@@ -843,8 +825,8 @@ test('destroy_pirate_let_go_canister', () => {
 
   replay.replayEvent("alertButton_Dismiss", "click")
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Capelle")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Capelle")
 })
 
 test('plunder_dump_litter_nevermind', () => {
@@ -853,7 +835,7 @@ test('plunder_dump_litter_nevermind', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const game = session.game
+  const game = session.game!
 
   assertEqual(game.commander.litterWarning, false)
   replay.replayEvent("ecButton_Plunder", "click")
@@ -865,8 +847,8 @@ test('plunder_dump_litter_nevermind', () => {
   replay.replayEvent("alertButton__Plunder_plunderDump_some_cargo", "click")
   replay.replayEvent("cargo_FursDump_1", "click")
 
-  let alertTitleEl = document.getElementById("alertvc-title")
-  assertEqual(alertTitleEl.innerText, "Dumping cargo in space is considered littering. If the police track your dumped goods to you it will be reflected on your criminal record. Do you really wish to dump?")
+  let alertTitleEl = alertTitle()
+  assertEqual(textOf(alertTitleEl), "Dumping cargo in space is considered littering. If the police track your dumped goods to you it will be reflected on your criminal record. Do you really wish to dump?")
 
   assertEqual(game.commander.litterWarning, true)
 
@@ -884,7 +866,7 @@ test('plunder_dump_litter_yes', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const game = session.game
+  const game = session.game!
   const commander = game.commander
 
   replay.replayEvent("ecButton_Plunder", "click")
@@ -892,12 +874,12 @@ test('plunder_dump_litter_yes', () => {
   // Erase police record so we get warned about littering
   game.commander.policeRecordScore = PoliceRecordScore.Clean;
 
-  let customViewEl = document.getElementById("alertvc-customView-Plunder_plunder")
+  let customViewEl = alertBox()
   assertEqual(cellAfter(customViewEl, "Furs"), "5")
 
   replay.replayEvent("cargo_FursPlunder_1", "click")
 
-  customViewEl = document.getElementById("alertvc-customView-Plunder_plunder")
+  customViewEl = alertBox()
   assertEqual(cellAfter(customViewEl, "Furs"), "4")
 
   assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 1)
@@ -910,15 +892,15 @@ test('plunder_dump_litter_yes', () => {
 
   replay.replayEvent("cargo_FursDump_1", "click")
 
-  let alertTitleEl = document.getElementById("alertvc-title")
-  assertEqual(alertTitleEl.innerText, "Dumping cargo in space is considered littering. If the police track your dumped goods to you it will be reflected on your criminal record. Do you really wish to dump?")
+  let alertTitleEl = alertTitle()
+  assertEqual(textOf(alertTitleEl), "Dumping cargo in space is considered littering. If the police track your dumped goods to you it will be reflected on your criminal record. Do you really wish to dump?")
 
   assertEqual(commander.litterWarning, true)
 
   replay.replayEvent("alertButton_Yes__I_still_want_to", "click")
 
 
-  customViewEl = document.getElementById("alertvc-customView-Plunder_dump")
+  customViewEl = alertBox()
   assertEqual(cellAfter(customViewEl, "Furs"), "0")
 
 
@@ -928,7 +910,7 @@ test('plunder_dump_litter_yes', () => {
 
   assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 0)
 
-  assertEqual(game.breakingNews[0], `Police Trace Orbiting Space Litter to ${commander.name}.`)
+  assertEqual(game.breakingNews![0], `Police Trace Orbiting Space Litter to ${commander.name}.`)
 })
 
 test('plunder_keep', () => {
@@ -937,7 +919,7 @@ test('plunder_keep', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const game = session.game
+  const game = session.game!
   const commander = game.commander
 
   replay.replayEvent("ecButton_Plunder", "click")
@@ -945,12 +927,12 @@ test('plunder_keep', () => {
   // Erase police record so we get warned about littering
   game.commander.policeRecordScore = PoliceRecordScore.Clean;
 
-  let customViewEl = document.getElementById("alertvc-customView-Plunder_plunder")
+  let customViewEl = alertBox()
   assertEqual(cellAfter(customViewEl, "Furs"), "5")
 
   replay.replayEvent("cargo_FursPlunder_1", "click")
 
-  customViewEl = document.getElementById("alertvc-customView-Plunder_plunder")
+  customViewEl = alertBox()
   assertEqual(cellAfter(customViewEl, "Furs"), "4")
 
   assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 1)
@@ -966,7 +948,7 @@ test('surrender_pirate_noCargo', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   const netWorthBefore = commander.netWorth()
   replay.replayEvent("ecButton_Surrender", "click")
@@ -984,7 +966,7 @@ test('surrender_pirate_cargo', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   const creditsBefore = commander.credits
   replay.replayEvent("ecButton_Surrender", "click")
@@ -1006,7 +988,7 @@ test('surrender_police', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   assertEqual(game.commander.hasInsurance, true)
 
@@ -1030,8 +1012,8 @@ test('surrender_police', () => {
   assertEqual(game2.commander.credits, creditsBefore-332000)
   assertEqual(game2.commander.hasInsurance, false)
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Rutia")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Rutia")
 })
 
 test('surrender_police_cantAffordFine', () => {
@@ -1040,12 +1022,11 @@ test('surrender_police_cantAffordFine', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   // Make it so we can't afford fine
   commander.credits = 100
 
-  const creditsBefore = commander.credits
   replay.replayEvent("ecButton_Surrender", "click")
   replay.replayEvent("alertButton_Surrender", "click")
 
@@ -1062,8 +1043,8 @@ test('surrender_police_cantAffordFine', () => {
 
   assertEqual(commander.ship.gadgets.length, 0)
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Rutia")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Rutia")
 })
 
 test('insurance', () => {
@@ -1072,7 +1053,7 @@ test('insurance', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   assertEqual(AlertViewController.currentAlertTitle(), `Since your ship was insured, the bank pays you $7374, the total value of the destroyed ship.`);
 
@@ -1089,7 +1070,7 @@ test('escapePod_debt', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   game.commander.credits = 5
 
@@ -1131,19 +1112,19 @@ test('systemLanding_hideForHire', () => {
 test('galaxyView_selectWarpTarget', () => {
   const replayLog = `{"idLog":["createCommander","Chart","namedEvent","Warp","namedEvent"],"eventNameLog":["click","click","selectPlanet|Mintaka","click","selectPlanetZoomed|Deneb"],"gameRandSeed":1729657624152}`
 
-  const replay = runReplayLog(replayLog)
+  runReplayLog(replayLog)
 
-  let warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Deneb")
+  let warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Deneb")
 })
 
 test('galaxyView_selectWarpTarget_multipleTimes', () => {
   const replayLog = `{"idLog":["createCommander","Chart","namedEvent","Warp","namedEvent","namedEvent","namedEvent","namedEvent"],"eventNameLog":["click","click","selectPlanetZoomed|Mintaka","click","selectPlanetZoomed|Deneb","selectPlanetZoomed|Campor","selectPlanetZoomed|Thera","selectPlanetZoomed|Penthara"],"gameRandSeed":1729657624152}`
 
-  const replay = runReplayLog(replayLog)
+  runReplayLog(replayLog)
 
-  let warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Penthara")
+  let warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Penthara")
 })
 
 test('galaxyView_systemLanding_selectWarpTarget', () => {
@@ -1151,113 +1132,110 @@ test('galaxyView_systemLanding_selectWarpTarget', () => {
 
   const replay = runReplayLog(replayLog)
 
-  let warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Acamar")
+  let warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Acamar")
 
   const session = replay.session
-  assertEqual(session.selection.system.name, "Acamar")
-  assertEqual(session.map.selectedSystem.name, "Acamar")
-  assertTrue(document.getElementById("Warp").classList.contains("active"))
+  assertEqual(session.selection.system!.name, "Acamar")
+  assertEqual(mapOf(session).selectedSystem!.name, "Acamar")
+  assertTrue(button("Warp")!.classList.contains("active"))
 })
 
 test('galaxyView_systemLanding_showsSystemInfo', () => {
   const replayLog = `{"idLog":["createCommander","Warp","warpBlastOff","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss"],"eventNameLog":["click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734670179065}`
 
   const replay = runReplayLog(replayLog)
-  const session = replay.session
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Helena")
-  let systemInfoEl = document.getElementById('system-info-text')
-  assertEqual(systemInfoEl.innerText, "small post-industrial dictatorship\nravaged by a plague\nnothing special, moderate police, many pirates")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Helena")
+  let systemInfoEl = systemInfo()
+  assertEqual(textOf(systemInfoEl), "small post-industrial dictatorship\nravaged by a plague\nnothing special, moderate police, many pirates")
 
-  let galaxyInfoEl = document.getElementById('gv-system-info')
+  let galaxyInfoEl = mapInfo()
   assertTrue(!galaxyInfoEl, "no galaxy info")
 
 
   replay.replayEvent("namedEvent", "selectPlanetZoomed|Xerxes")
 
-  systemInfoEl = document.getElementById('system-info-text')
+  systemInfoEl = systemInfo()
   assertTrue(!systemInfoEl, "system info el disappeared")
 
-  galaxyInfoEl = document.getElementById('gv-system-info')
-  assertEqual(galaxyInfoEl.innerText, "small early industrial confederacy\nunder no particular pressure\nspecial herbs, moderate police, some pirates")
+  galaxyInfoEl = mapInfo()
+  assertEqual(textOf(galaxyInfoEl), "small early industrial confederacy\nunder no particular pressure\nspecial herbs, moderate police, some pirates")
 
 
   replay.replayEvent("namedEvent", "selectPlanetZoomed|Ligon")
-  galaxyInfoEl = document.getElementById('gv-system-info')
-  assertEqual(galaxyInfoEl.innerText, "system details unknown")
+  galaxyInfoEl = mapInfo()
+  assertEqual(textOf(galaxyInfoEl), "system details unknown")
 })
 
 test('galaxyView_systemLanding_showsSystemInfo_warpTab', () => {
   const replayLog = `{"idLog":["difficultySelect","createCommander","Warp","namedEvent","warpBlastOff","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard","fulltank"],"eventNameLog":["select|change|1","click","click","selectPlanetZoomed|Castor","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734668502562}`
 
   const replay = runReplayLog(replayLog)
-  const session = replay.session
 
-  let galaxyInfoEl = document.getElementById('gv-system-info')
+  let galaxyInfoEl = mapInfo()
   assertTrue(!galaxyInfoEl, "no galaxy info")
 
-  const systemInfoEl = document.getElementById('system-info-text')
+  const systemInfoEl = systemInfo()
   assertTrue(!systemInfoEl, "system info el disappeared")
 
   replay.replayEvent("Warp", "click")
 
-  galaxyInfoEl = document.getElementById('gv-system-info')
-  assertEqual(galaxyInfoEl.innerText, "system details unknown")
+  galaxyInfoEl = mapInfo()
+  assertEqual(textOf(galaxyInfoEl), "system details unknown")
 
   replay.replayEvent("warpPrev", "click")
 
-  galaxyInfoEl = document.getElementById('gv-system-info')
-  assertEqual(galaxyInfoEl.innerText, "system details unknown")
+  galaxyInfoEl = mapInfo()
+  assertEqual(textOf(galaxyInfoEl), "system details unknown")
 
 
   replay.replayEvent("warpPrev", "click")
 
-  galaxyInfoEl = document.getElementById('gv-system-info')
-  assertEqual(galaxyInfoEl.innerText, "small renaissance feudal state\nunder no particular pressure\nwarlike populace, minimal police, abundant pirates")
+  galaxyInfoEl = mapInfo()
+  assertEqual(textOf(galaxyInfoEl), "small renaissance feudal state\nunder no particular pressure\nwarlike populace, minimal police, abundant pirates")
 })
 
 test('galaxyView_systemLanding_showsSystemInfo_warpTab_lowFuel', () => {
   const replayLog = `{"idLog":["difficultySelect","createCommander","Warp","namedEvent","warpBlastOff","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss"],"eventNameLog":["select|change|1","click","click","selectPlanetZoomed|Castor","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734668502562}`
 
   const replay = runReplayLog(replayLog)
-  const session = replay.session
 
   replay.replayEvent("Warp", "click")
 
-  let galaxyInfoEl = document.getElementById('gv-system-info')
+  let galaxyInfoEl = mapInfo()
   assertTrue(!galaxyInfoEl, "no galaxy info")
 
-  const systemInfoEl = document.getElementById('system-info-text')
+  const systemInfoEl = systemInfo()
   assertTrue(!systemInfoEl, "system info el disappeared")
 
   replay.replayEvent("fulltank", "click")
 
-  galaxyInfoEl = document.getElementById('gv-system-info')
-  assertEqual(galaxyInfoEl.innerText, "system details unknown")
+  galaxyInfoEl = mapInfo()
+  assertEqual(textOf(galaxyInfoEl), "system details unknown")
 
   replay.replayEvent("warpNext", "click")
 
-  galaxyInfoEl = document.getElementById('gv-system-info')
-  assertEqual(galaxyInfoEl.innerText, "small renaissance feudal state\nunder no particular pressure\nwarlike populace, minimal police, abundant pirates")
+  galaxyInfoEl = mapInfo()
+  assertEqual(textOf(galaxyInfoEl), "small renaissance feudal state\nunder no particular pressure\nwarlike populace, minimal police, abundant pirates")
 
   replay.replayEvent("warpNext", "click")
 
-  galaxyInfoEl = document.getElementById('gv-system-info')
-  assertEqual(galaxyInfoEl.innerText, "system details unknown")
-
-
-  replay.replayEvent("warpNext", "click")
-
-  galaxyInfoEl = document.getElementById('gv-system-info')
-  assertEqual(galaxyInfoEl.innerText, "system details unknown")
+  galaxyInfoEl = mapInfo()
+  assertEqual(textOf(galaxyInfoEl), "system details unknown")
 
 
   replay.replayEvent("warpNext", "click")
 
-  galaxyInfoEl = document.getElementById('gv-system-info')
-  assertEqual(galaxyInfoEl.innerText, "small renaissance feudal state\nunder no particular pressure\nwarlike populace, minimal police, abundant pirates")
+  galaxyInfoEl = mapInfo()
+  assertEqual(textOf(galaxyInfoEl), "system details unknown")
+
+
+  replay.replayEvent("warpNext", "click")
+
+  galaxyInfoEl = mapInfo()
+  assertEqual(textOf(galaxyInfoEl), "small renaissance feudal state\nunder no particular pressure\nwarlike populace, minimal police, abundant pirates")
 })
 
 test('galaxyView_systemLanding_showsSystemInfo_warpTab_lowFuel_buyFromShipYard', () => {
@@ -1268,13 +1246,13 @@ test('galaxyView_systemLanding_showsSystemInfo_warpTab_lowFuel_buyFromShipYard',
 
   replay.replayEvent("Warp", "click")
 
-  let galaxyInfoEl = document.getElementById('gv-system-info')
+  let galaxyInfoEl = mapInfo()
   assertTrue(!galaxyInfoEl, "no galaxy info")
 
-  const systemInfoEl = document.getElementById('system-info-text')
+  const systemInfoEl = systemInfo()
   assertTrue(!systemInfoEl, "system info el disappeared")
 
-  assertEqual(session.map.selectedSystem.name, "Castor")
+  assertEqual(mapOf(session).selectedSystem!.name, "Castor")
 
   replay.replayEvent("Ship Yard", "click")
 
@@ -1282,7 +1260,7 @@ test('galaxyView_systemLanding_showsSystemInfo_warpTab_lowFuel_buyFromShipYard',
 
   replay.replayEvent("Warp", "click")
 
-  assertEqual(session.map.selectedSystem.name, "Cestus")
+  assertEqual(mapOf(session).selectedSystem!.name, "Cestus")
 })
 
 test('galaxyView_systemLanding_selectSecondWarpTarget', () => {
@@ -1290,13 +1268,13 @@ test('galaxyView_systemLanding_selectSecondWarpTarget', () => {
 
   const replay = runReplayLog(replayLog)
 
-  let warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Acamar")
+  let warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Acamar")
 
   const session = replay.session
-  assertEqual(session.selection.system.name, "Acamar")
-  assertEqual(session.map.selectedSystem.name, "Acamar")
-  assertTrue(document.getElementById("Warp").classList.contains("active"))
+  assertEqual(session.selection.system!.name, "Acamar")
+  assertEqual(mapOf(session).selectedSystem!.name, "Acamar")
+  assertTrue(button("Warp")!.classList.contains("active"))
 })
 
 test('galaxyView_systemLanding_cycleAllWarpSystems_includingWormhole_next', () => {
@@ -1306,114 +1284,114 @@ test('galaxyView_systemLanding_cycleAllWarpSystems_includingWormhole_next', () =
 
   const session = replay.session
 
-  let warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Mordan")
-  assertEqual(session.selection.system.name, "Styris")
+  let warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Mordan")
+  assertEqual(session.selection.system!.name, "Styris")
   assertEqual(session.selection.wormhole, true)
-  assertEqual(session.map.selectedSystem.name, "Styris")
-  assertEqual(session.map.selectedWormhole, true)
+  assertEqual(mapOf(session).selectedSystem!.name, "Styris")
+  assertEqual(mapOf(session).selectedWormhole, true)
   // Force initialization of all the planets
-  session.map.drawGalaxy(0)
-  assertEqual(session.map.selectedPlanet.solarSystem.name, "Mordan")
-  assertEqual(session.map.selectedPlanet.isWormhole, true)
+  mapOf(session).drawGalaxy(0)
+  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, "Mordan")
+  assertEqual(mapOf(session).selectedPlanet!.isWormhole, true)
 
 
   replay.replayEvent("warpNext", "click")
 
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Campor")
-  assertEqual(session.selection.system.name, "Campor")
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Campor")
+  assertEqual(session.selection.system!.name, "Campor")
   assertEqual(session.selection.wormhole, false)
-  assertEqual(session.map.selectedSystem.name, "Campor")
-  assertEqual(session.map.selectedWormhole, false)
+  assertEqual(mapOf(session).selectedSystem!.name, "Campor")
+  assertEqual(mapOf(session).selectedWormhole, false)
   // Force initialization of all the planets
-  session.map.drawGalaxy(0)
-  assertEqual(session.map.selectedPlanet.solarSystem.name, "Campor")
-  assertEqual(session.map.selectedPlanet.isWormhole, false)
+  mapOf(session).drawGalaxy(0)
+  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, "Campor")
+  assertEqual(mapOf(session).selectedPlanet!.isWormhole, false)
 
 
   replay.replayEvent("warpNext", "click")
 
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Hulst")
-  assertEqual(session.selection.system.name, "Hulst")
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Hulst")
+  assertEqual(session.selection.system!.name, "Hulst")
   assertEqual(session.selection.wormhole, false)
-  assertEqual(session.map.selectedSystem.name, "Hulst")
-  assertEqual(session.map.selectedWormhole, false)
+  assertEqual(mapOf(session).selectedSystem!.name, "Hulst")
+  assertEqual(mapOf(session).selectedWormhole, false)
   // Force initialization of all the planets
-  session.map.drawGalaxy(0)
-  assertEqual(session.map.selectedPlanet.solarSystem.name, "Hulst")
-  assertEqual(session.map.selectedPlanet.isWormhole, false)
+  mapOf(session).drawGalaxy(0)
+  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, "Hulst")
+  assertEqual(mapOf(session).selectedPlanet!.isWormhole, false)
 
 
   replay.replayEvent("warpNext", "click")
 
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Melina")
-  assertEqual(session.selection.system.name, "Melina")
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Melina")
+  assertEqual(session.selection.system!.name, "Melina")
   assertEqual(session.selection.wormhole, false)
-  assertEqual(session.map.selectedSystem.name, "Melina")
-  assertEqual(session.map.selectedWormhole, false)
+  assertEqual(mapOf(session).selectedSystem!.name, "Melina")
+  assertEqual(mapOf(session).selectedWormhole, false)
   // Force initialization of all the planets
-  session.map.drawGalaxy(0)
-  assertEqual(session.map.selectedPlanet.solarSystem.name, "Melina")
-  assertEqual(session.map.selectedPlanet.isWormhole, false)
+  mapOf(session).drawGalaxy(0)
+  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, "Melina")
+  assertEqual(mapOf(session).selectedPlanet!.isWormhole, false)
 
 
   replay.replayEvent("warpNext", "click")
 
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Rhymus")
-  assertEqual(session.selection.system.name, "Rhymus")
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Rhymus")
+  assertEqual(session.selection.system!.name, "Rhymus")
   assertEqual(session.selection.wormhole, false)
-  assertEqual(session.map.selectedSystem.name, "Rhymus")
-  assertEqual(session.map.selectedWormhole, false)
+  assertEqual(mapOf(session).selectedSystem!.name, "Rhymus")
+  assertEqual(mapOf(session).selectedWormhole, false)
   // Force initialization of all the planets
-  session.map.drawGalaxy(0)
-  assertEqual(session.map.selectedPlanet.solarSystem.name, "Rhymus")
-  assertEqual(session.map.selectedPlanet.isWormhole, false)
+  mapOf(session).drawGalaxy(0)
+  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, "Rhymus")
+  assertEqual(mapOf(session).selectedPlanet!.isWormhole, false)
 
 
   replay.replayEvent("warpNext", "click")
 
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Sigma")
-  assertEqual(session.selection.system.name, "Sigma")
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Sigma")
+  assertEqual(session.selection.system!.name, "Sigma")
   assertEqual(session.selection.wormhole, false)
-  assertEqual(session.map.selectedSystem.name, "Sigma")
-  assertEqual(session.map.selectedWormhole, false)
+  assertEqual(mapOf(session).selectedSystem!.name, "Sigma")
+  assertEqual(mapOf(session).selectedWormhole, false)
   // Force initialization of all the planets
-  session.map.drawGalaxy(0)
-  assertEqual(session.map.selectedPlanet.solarSystem.name, "Sigma")
-  assertEqual(session.map.selectedPlanet.isWormhole, false)
+  mapOf(session).drawGalaxy(0)
+  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, "Sigma")
+  assertEqual(mapOf(session).selectedPlanet!.isWormhole, false)
 
 
   replay.replayEvent("warpNext", "click")
 
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Thera")
-  assertEqual(session.selection.system.name, "Thera")
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Thera")
+  assertEqual(session.selection.system!.name, "Thera")
   assertEqual(session.selection.wormhole, false)
-  assertEqual(session.map.selectedSystem.name, "Thera")
-  assertEqual(session.map.selectedWormhole, false)
+  assertEqual(mapOf(session).selectedSystem!.name, "Thera")
+  assertEqual(mapOf(session).selectedWormhole, false)
   // Force initialization of all the planets
-  session.map.drawGalaxy(0)
-  assertEqual(session.map.selectedPlanet.solarSystem.name, "Thera")
-  assertEqual(session.map.selectedPlanet.isWormhole, false)
+  mapOf(session).drawGalaxy(0)
+  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, "Thera")
+  assertEqual(mapOf(session).selectedPlanet!.isWormhole, false)
 
 
   replay.replayEvent("warpNext", "click")
 
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Mordan")
-  assertEqual(session.selection.system.name, "Styris")
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Mordan")
+  assertEqual(session.selection.system!.name, "Styris")
   assertEqual(session.selection.wormhole, true)
-  assertEqual(session.map.selectedSystem.name, "Styris")
-  assertEqual(session.map.selectedWormhole, true)
+  assertEqual(mapOf(session).selectedSystem!.name, "Styris")
+  assertEqual(mapOf(session).selectedWormhole, true)
   // Force initialization of all the planets
-  session.map.drawGalaxy(0)
-  assertEqual(session.map.selectedPlanet.solarSystem.name, "Mordan")
-  assertEqual(session.map.selectedPlanet.isWormhole, true)
+  mapOf(session).drawGalaxy(0)
+  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, "Mordan")
+  assertEqual(mapOf(session).selectedPlanet!.isWormhole, true)
 })
 
 test('galaxyView_systemLanding_cycleAllWarpSystems_next', () => {
@@ -1423,46 +1401,46 @@ test('galaxyView_systemLanding_cycleAllWarpSystems_next', () => {
 
   const session = replay.session
 
-  let warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Vadera")
+  let warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Vadera")
 
-  assertEqual(session.selection.system.name, "Vadera")
-  assertEqual(session.map.selectedSystem.name, "Vadera")
-
-  replay.replayEvent("warpNext", "click")
-
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Courteney")
-  assertEqual(session.selection.system.name, "Courteney")
-  assertEqual(session.map.selectedSystem.name, "Courteney")
+  assertEqual(session.selection.system!.name, "Vadera")
+  assertEqual(mapOf(session).selectedSystem!.name, "Vadera")
 
   replay.replayEvent("warpNext", "click")
 
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Hulst")
-  assertEqual(session.selection.system.name, "Hulst")
-  assertEqual(session.map.selectedSystem.name, "Hulst")
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Courteney")
+  assertEqual(session.selection.system!.name, "Courteney")
+  assertEqual(mapOf(session).selectedSystem!.name, "Courteney")
 
   replay.replayEvent("warpNext", "click")
 
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Vadera")
-  assertEqual(session.selection.system.name, "Vadera")
-  assertEqual(session.map.selectedSystem.name, "Vadera")
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Hulst")
+  assertEqual(session.selection.system!.name, "Hulst")
+  assertEqual(mapOf(session).selectedSystem!.name, "Hulst")
 
   replay.replayEvent("warpNext", "click")
 
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Courteney")
-  assertEqual(session.selection.system.name, "Courteney")
-  assertEqual(session.map.selectedSystem.name, "Courteney")
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Vadera")
+  assertEqual(session.selection.system!.name, "Vadera")
+  assertEqual(mapOf(session).selectedSystem!.name, "Vadera")
+
+  replay.replayEvent("warpNext", "click")
+
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Courteney")
+  assertEqual(session.selection.system!.name, "Courteney")
+  assertEqual(mapOf(session).selectedSystem!.name, "Courteney")
 
   replay.replayEvent("warpPrev", "click")
 
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Vadera")
-  assertEqual(session.selection.system.name, "Vadera")
-  assertEqual(session.map.selectedSystem.name, "Vadera")
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Vadera")
+  assertEqual(session.selection.system!.name, "Vadera")
+  assertEqual(mapOf(session).selectedSystem!.name, "Vadera")
 })
 
 test('galaxyView_systemLanding_cycleAllWarpSystems_prev', () => {
@@ -1472,46 +1450,46 @@ test('galaxyView_systemLanding_cycleAllWarpSystems_prev', () => {
 
   const session = replay.session
 
-  let warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Vadera")
+  let warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Vadera")
 
-  assertEqual(session.selection.system.name, "Vadera")
-  assertEqual(session.map.selectedSystem.name, "Vadera")
-
-  replay.replayEvent("warpPrev", "click")
-
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Hulst")
-  assertEqual(session.selection.system.name, "Hulst")
-  assertEqual(session.map.selectedSystem.name, "Hulst")
+  assertEqual(session.selection.system!.name, "Vadera")
+  assertEqual(mapOf(session).selectedSystem!.name, "Vadera")
 
   replay.replayEvent("warpPrev", "click")
 
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Courteney")
-  assertEqual(session.selection.system.name, "Courteney")
-  assertEqual(session.map.selectedSystem.name, "Courteney")
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Hulst")
+  assertEqual(session.selection.system!.name, "Hulst")
+  assertEqual(mapOf(session).selectedSystem!.name, "Hulst")
 
   replay.replayEvent("warpPrev", "click")
 
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Vadera")
-  assertEqual(session.selection.system.name, "Vadera")
-  assertEqual(session.map.selectedSystem.name, "Vadera")
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Courteney")
+  assertEqual(session.selection.system!.name, "Courteney")
+  assertEqual(mapOf(session).selectedSystem!.name, "Courteney")
 
   replay.replayEvent("warpPrev", "click")
 
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Hulst")
-  assertEqual(session.selection.system.name, "Hulst")
-  assertEqual(session.map.selectedSystem.name, "Hulst")
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Vadera")
+  assertEqual(session.selection.system!.name, "Vadera")
+  assertEqual(mapOf(session).selectedSystem!.name, "Vadera")
+
+  replay.replayEvent("warpPrev", "click")
+
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Hulst")
+  assertEqual(session.selection.system!.name, "Hulst")
+  assertEqual(mapOf(session).selectedSystem!.name, "Hulst")
 
   replay.replayEvent("warpNext", "click")
 
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Vadera")
-  assertEqual(session.selection.system.name, "Vadera")
-  assertEqual(session.map.selectedSystem.name, "Vadera")
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Vadera")
+  assertEqual(session.selection.system!.name, "Vadera")
+  assertEqual(mapOf(session).selectedSystem!.name, "Vadera")
 })
 
 test('galaxyView_systemLanding_selectWarpTarget_outOfRange', () => {
@@ -1519,14 +1497,14 @@ test('galaxyView_systemLanding_selectWarpTarget_outOfRange', () => {
 
   const replay = runReplayLog(replayLog)
 
-  let warpButton = document.getElementById("warpBlastOff")
+  let warpButton = button(/^Blast Off to /)
   assertEqual(warpButton, null)
 
   const session = replay.session
-  assertEqual(session.selection.system.name, "Tantalos")
-  assertEqual(session.map.selectedSystem.name, "Tantalos")
-  assertTrue(document.getElementById("Warp").classList.contains("active"), "warp is active")
-  assertEqual(document.getElementById("warpMessage").textContent, "Out of range.")
+  assertEqual(session.selection.system!.name, "Tantalos")
+  assertEqual(mapOf(session).selectedSystem!.name, "Tantalos")
+  assertTrue(button("Warp")!.classList.contains("active"), "warp is active")
+  assertEqual(textOf(warpMessage()), "Out of range.")
 })
 
 test('galaxyView_systemLanding_selectWarpTarget_wormhole_outOfRange', () => {
@@ -1534,41 +1512,41 @@ test('galaxyView_systemLanding_selectWarpTarget_wormhole_outOfRange', () => {
 
   const replay = runReplayLog(replayLog)
 
-  let warpButton = document.getElementById("warpBlastOff")
+  let warpButton = button(/^Blast Off to /)
   assertEqual(warpButton, null)
 
   const session = replay.session
-  assertEqual(session.selection.system.name, "Styris")
+  assertEqual(session.selection.system!.name, "Styris")
   assertEqual(session.selection.wormhole, true)
-  assertEqual(session.map.selectedSystem.name, "Styris")
-  assertEqual(session.map.selectedWormhole, true)
-  assertTrue(document.getElementById("Warp").classList.contains("active"), "warp is active")
-  assertEqual(document.getElementById("warpMessage").textContent, "Out of range.")
+  assertEqual(mapOf(session).selectedSystem!.name, "Styris")
+  assertEqual(mapOf(session).selectedWormhole, true)
+  assertTrue(button("Warp")!.classList.contains("active"), "warp is active")
+  assertEqual(textOf(warpMessage()), "Out of range.")
 
   // Force initialization of all the planets
-  session.map.drawGalaxy(0)
-  assertEqual(session.map.selectedPlanet.solarSystem.name, "Mordan")
-  assertEqual(session.map.selectedPlanet.isWormhole, true)
+  mapOf(session).drawGalaxy(0)
+  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, "Mordan")
+  assertEqual(mapOf(session).selectedPlanet!.isWormhole, true)
 })
 
 test('galaxyView_systemLanding_selectWarpTarget_wormholeParent_inRange', () => {
   const replayLog = `{"idLog":["createCommander","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","Chart","cheat_freeSingularity","Ship Yard","Chart","namedEvent","galacticChart_useSingularity_1_Campor","alertButton_Warp_","ecButton_Ignore","alertButton_Dismiss","namedEvent"],"eventNameLog":["click","click","change","change","click","click","click","click","selectPlanet|Campor","click","click","click","click","selectPlanetZoomed|Styris"],"gameRandSeed":1734686840048}`
   const replay = runReplayLog(replayLog)
 
-  let warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Styris")
+  let warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Styris")
 
   const session = replay.session
-  assertEqual(session.selection.system.name, "Styris")
+  assertEqual(session.selection.system!.name, "Styris")
   assertEqual(session.selection.wormhole, false)
-  assertEqual(session.map.selectedSystem.name, "Styris")
-  assertEqual(session.map.selectedWormhole, false)
-  assertTrue(document.getElementById("Warp").classList.contains("active"), "warp is active")
+  assertEqual(mapOf(session).selectedSystem!.name, "Styris")
+  assertEqual(mapOf(session).selectedWormhole, false)
+  assertTrue(button("Warp")!.classList.contains("active"), "warp is active")
 
   // Force initialization of all the planets
-  session.map.drawGalaxy(0)
-  assertEqual(session.map.selectedPlanet.solarSystem.name, "Styris")
-  assertEqual(session.map.selectedPlanet.isWormhole, false)
+  mapOf(session).drawGalaxy(0)
+  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, "Styris")
+  assertEqual(mapOf(session).selectedPlanet!.isWormhole, false)
 })
 
 test('galaxyView_systemLanding_selectWarpTarget_noSystemsInRange_buyFuel', () => {
@@ -1578,24 +1556,24 @@ test('galaxyView_systemLanding_selectWarpTarget_noSystemsInRange_buyFuel', () =>
 
   replay.replayEvent("Warp", "click")
 
-  let warpButton = document.getElementById("warpBlastOff")
+  let warpButton = button(/^Blast Off to /)
   assertEqual(warpButton, null)
 
   const session = replay.session
   assertEqual(session.selection.system, null)
-  assertEqual(session.map.selectedSystem.name, "Castor")
-  assertTrue(document.getElementById("Warp").classList.contains("active"), "warp is active")
-  assertEqual(document.getElementById("warpMessage").textContent, "No systems within range Fill tank for $14")
+  assertEqual(mapOf(session).selectedSystem!.name, "Castor")
+  assertTrue(button("Warp")!.classList.contains("active"), "warp is active")
+  assertEqual(textOf(warpMessage()), "No systems within range Fill tank for $14")
 
   replay.replayEvent("fulltank", "click")
 
-  assertTrue(document.getElementById("Warp").classList.contains("active"), "warp is active")
+  assertTrue(button("Warp")!.classList.contains("active"), "warp is active")
 
-  warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Cestus")
+  warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Cestus")
 
-  assertEqual(session.selection.system.name, "Cestus")
-  assertEqual(session.map.selectedSystem.name, "Cestus")
+  assertEqual(session.selection.system!.name, "Cestus")
+  assertEqual(mapOf(session).selectedSystem!.name, "Cestus")
 })
 
 test('galaxyView_systemLanding_chart_selectingInEitherWorks', () => {
@@ -1607,38 +1585,37 @@ test('galaxyView_systemLanding_chart_selectingInEitherWorks', () => {
 
   assertTrue(hasText(rowAfterHeading("Selected System"), "b", "Yojimbo"), "Yojimbo is selected")
 
-  assertTrue(document.getElementById("Chart").classList.contains("active"), "chart is active")
-  assertTrue(!document.getElementById("Warp").classList.contains("active"), "warp is not active")
+  assertTrue(button("Chart")!.classList.contains("active"), "chart is active")
+  assertTrue(!button("Warp")!.classList.contains("active"), "warp is not active")
 
   replay.replayEvent("namedEvent", "selectPlanetZoomed|Kira")
 
-  assertTrue(!document.getElementById("Chart").classList.contains("active"), "chart is not active")
-  assertTrue(document.getElementById("Warp").classList.contains("active"), "warp is active")
+  assertTrue(!button("Chart")!.classList.contains("active"), "chart is not active")
+  assertTrue(button("Warp")!.classList.contains("active"), "warp is active")
 
-  let warpButton = document.getElementById("warpBlastOff")
-  assertEqual(warpButton.innerText, "Blast Off to Kira")
+  let warpButton = button(/^Blast Off to /)
+  assertEqual(textOf(warpButton), "Blast Off to Kira")
 
-  assertEqual(session.selection.system.name, "Kira")
-  assertEqual(session.map.selectedSystem.name, "Kira")
+  assertEqual(session.selection.system!.name, "Kira")
+  assertEqual(mapOf(session).selectedSystem!.name, "Kira")
 })
 
 test('galaxyView_systemLanding_chart_selectingWormhole', () => {
   const replayLog = `{"idLog":["createCommander","Chart","namedEvent"],"eventNameLog":["click","click","selectPlanet|Utopia~wormhole"],"gameRandSeed":1734687673579}`
 
-  const replay = runReplayLog(replayLog)
+  runReplayLog(replayLog)
 
-  const session = replay.session
 
   assertTrue(hasText(rowAfterHeading("Selected System"), "b", "Pollux"), "Pollux is selected")
 
-  assertTrue(document.getElementById("Chart").classList.contains("active"), "chart is active")
-  assertTrue(!document.getElementById("Warp").classList.contains("active"), "warp is not active")
+  assertTrue(button("Chart")!.classList.contains("active"), "chart is active")
+  assertTrue(!button("Warp")!.classList.contains("active"), "warp is not active")
 
-  const chartGalaxyView = runtime.actionLog._namedEvents["selectPlanet"]
+  const chartGalaxyView = runtime.actionLog._namedEvents["selectPlanet"] as unknown as GalaxyView
   // Force initialization of all the planets
   chartGalaxyView.drawGalaxy(0)
-  assertEqual(chartGalaxyView.selectedPlanet.solarSystem.name, "Pollux")
-  assertEqual(chartGalaxyView.selectedPlanet.isWormhole, true)
+  assertEqual(chartGalaxyView.selectedPlanet!.solarSystem.name, "Pollux")
+  assertEqual(chartGalaxyView.selectedPlanet!.isWormhole, true)
 })
 
 test('galaxyView_systemLanding_nonwormhole', () => {
@@ -1649,15 +1626,15 @@ test('galaxyView_systemLanding_nonwormhole', () => {
   const session = replay.session
 
 
-  assertEqual(session.selection.system.name, "Kira")
+  assertEqual(session.selection.system!.name, "Kira")
   assertEqual(session.selection.wormhole, false)
-  assertEqual(session.map.selectedSystem.name, "Kira")
-  assertEqual(session.map.selectedWormhole, false)
+  assertEqual(mapOf(session).selectedSystem!.name, "Kira")
+  assertEqual(mapOf(session).selectedWormhole, false)
 
   // Force initialization of all the planets
-  session.map.drawGalaxy(0)
-  assertEqual(session.map.selectedPlanet.solarSystem.name, "Kira")
-  assertEqual(session.map.selectedPlanet.isWormhole, false)
+  mapOf(session).drawGalaxy(0)
+  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, "Kira")
+  assertEqual(mapOf(session).selectedPlanet!.isWormhole, false)
 })
 
 test('galaxyView_systemLanding_wormhole_kira', () => {
@@ -1667,15 +1644,15 @@ test('galaxyView_systemLanding_wormhole_kira', () => {
 
   const session = replay.session
 
-  assertEqual(session.selection.system.name, "Yew")
+  assertEqual(session.selection.system!.name, "Yew")
   assertEqual(session.selection.wormhole, true)
-  assertEqual(session.map.selectedSystem.name, "Yew")
-  assertEqual(session.map.selectedWormhole, true)
+  assertEqual(mapOf(session).selectedSystem!.name, "Yew")
+  assertEqual(mapOf(session).selectedWormhole, true)
 
   // Force initialization of all the planets
-  session.map.drawGalaxy(0)
-  assertEqual(session.map.selectedPlanet.solarSystem.name, "Kira")
-  assertEqual(session.map.selectedPlanet.isWormhole, true)
+  mapOf(session).drawGalaxy(0)
+  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, "Kira")
+  assertEqual(mapOf(session).selectedPlanet!.isWormhole, true)
 })
 
 test('galaxyView_systemLanding_wormhole', () => {
@@ -1685,15 +1662,15 @@ test('galaxyView_systemLanding_wormhole', () => {
 
   const session = replay.session
 
-  assertEqual(session.selection.system.name, "Kira")
+  assertEqual(session.selection.system!.name, "Kira")
   assertEqual(session.selection.wormhole, true)
-  assertEqual(session.map.selectedSystem.name, "Kira")
-  assertEqual(session.map.selectedWormhole, true)
+  assertEqual(mapOf(session).selectedSystem!.name, "Kira")
+  assertEqual(mapOf(session).selectedWormhole, true)
 
   // Force initialization of all the planets
-  session.map.drawGalaxy(0)
-  assertEqual(session.map.selectedPlanet.solarSystem.name, "Lave")
-  assertEqual(session.map.selectedPlanet.isWormhole, true)
+  mapOf(session).drawGalaxy(0)
+  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, "Lave")
+  assertEqual(mapOf(session).selectedPlanet!.isWormhole, true)
 })
 
 test('useSingularity', () => {
@@ -1702,12 +1679,12 @@ test('useSingularity', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   assertEqual(game.canSuperWarp, false)
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Othello")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Othello")
 })
 
 test('policeSummon_nothingIllegal_submit', () => {
@@ -1716,11 +1693,11 @@ test('policeSummon_nothingIllegal_submit', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
 
-  const alertTitleEl = document.getElementById("alertvc-title")
-  assertEqual(alertTitleEl.innerText, "The police find nothing illegal in your cargo holds and apologize for the inconvenience.")
+  const alertTitleEl = alertTitle()
+  assertEqual(textOf(alertTitleEl), "The police find nothing illegal in your cargo holds and apologize for the inconvenience.")
 
 
   const origCredits = commander.credits
@@ -1736,7 +1713,7 @@ test('policeSummon_bribe', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const commander = session.game.commander
+  const commander = session.game!.commander
 
   const origCredits = commander.credits
 
@@ -1752,9 +1729,9 @@ test('difficultySelect_replay', () => {
 
   const replay = runReplayLog(replayLog)
 
-  assertEqual(document.getElementById("difficultySelect").value, "Easy")
+  assertEqual(difficulty()!.value, "Easy")
 
   replay.replayEvent("difficultySelect", "select|change|3")
 
-  assertEqual(document.getElementById("difficultySelect").value, "Hard")
+  assertEqual(difficulty()!.value, "Hard")
 })

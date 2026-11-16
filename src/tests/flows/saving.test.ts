@@ -1,29 +1,22 @@
-// @ts-nocheck
 // Flow tests: each replays a recorded play session by clicking the recorded elements, then
 // checks what the player sees and what the game holds. Converted from the original
 // project's UnitTests.js; the recordings and expected values are unchanged.
 import { test } from 'vitest'
 import { GameRand } from '../../game/GameRand.ts'
-import { AccessoryType } from '../../game/Accessory.ts'
 import { ActionLogger } from '../../game/ActionLogger.ts'
-import { ATTACK_POLICE_SCORE, ATTACK_TRADER_SCORE, KILL_PIRATE_SCORE, PoliceRecordScore } from '../../game/Commander.ts'
-import { Game, GameEndStatus, RareEvent } from '../../game/Game.ts'
-import { PoliticsType } from '../../game/Politics.ts'
-import { ShipModel, ShipModelType } from '../../game/Ship.ts'
-import { Difficulty, ExperimentQuestStatus, InvasionQuestStatus, JaporiQuestStatus, JarekQuestStatus, MonsterQuestStatus, ReactorQuestStatus, ScarabQuestStatus, SpecialEvent, WildQuestStatus } from '../../game/SolarSystem.types.ts'
-import { FABRIC_RIP_PROBABILITY_INITIAL } from '../../game/SpecialEventSpecifier.ts'
-import { TechLevel, TradeItemType } from '../../game/TradeItem.types.ts'
-import { Utils, MockLocalStorage, pLog } from '../../game/Utilities.ts'
+import { Game, GameEndStatus } from '../../game/Game.ts'
+import { Difficulty, JarekQuestStatus, WildQuestStatus } from '../../game/SolarSystem.types.ts'
+import { TradeItemType } from '../../game/TradeItem.types.ts'
+import { MockLocalStorage, Utils } from '../../game/Utilities.ts'
 import { runtime } from '../../game/runtime.ts'
 import { AlertViewController } from '../../game/alerts.ts'
 import { Session } from '../../game/session.ts'
 import './setup.ts'
-import { ActionLogReplay, assertEqual, assertEqualArrays, assertEqualDeep, assertEqualFloats, assertEqualGames, assertPixelColor, assertTrue, performStressTest, replaySkipEncounters, runReplayLog, serializeAndDeserialize, show } from './harness.ts'
-import { cellAfter, hasText, rowAfterHeading, textOf } from '../support/page.ts'
+import { ActionLogReplay, assertEqual, assertEqualGames, runReplayLog, serializeAndDeserialize, show } from './harness.ts'
+import { button } from '../support/page.ts'
 
 
 test('saveLoad', () => {
-  const gameDiv = document.getElementById("game")
   let vc = new Session()
 
   const randSeed = Date.now()
@@ -39,10 +32,10 @@ test('saveLoad', () => {
   assertEqual(mockLS.getItem('games'), null)
   assertEqual(mockLS.getItem('highScoringGames'), null)
 
-  ActionLogReplay.replayEvent("createCommander", "click")
+  ActionLogReplay.replayEvent("createCommander", "click", vc)
 
   // After creating a game, one is saved. No high scoring games are saved.
-  let saveGames = JSON.parse(mockLS.getItem('games')) || {}
+  let saveGames = JSON.parse(mockLS.getItem('games') ?? 'null') || {}
   assertEqual(Object.keys(saveGames).length, 1)
   assertEqual(mockLS.getItem('highScoringGames'), null)
 
@@ -55,8 +48,7 @@ test('saveLoad', () => {
   assertEqual(sg.endStatus, GameEndStatus.None)
 
   // Clear out the old instance
-  vc = null
-  gameDiv.innerHTML = ''
+  document.getElementById('game')!.innerHTML = ''
 
   // Create a new VC and see that it loads the game
   vc = new Session()
@@ -64,18 +56,18 @@ test('saveLoad', () => {
 
   show(vc)
 
-  assertEqual(vc.game.uniqueID, gameUniqueID)
-  assertEqual(vc.game.commander.name, "Jean-Luc")
+  assertEqual(vc.game!.uniqueID, gameUniqueID)
+  assertEqual(vc.game!.commander.name, "Jean-Luc")
 
   // End the game, check that the game moves to the high scoring list and no longer appears in the in progress list
-  ActionLogReplay.replayEvent("Commander", "click")
-  ActionLogReplay.replayEvent("giveup", "click")
-  ActionLogReplay.replayEvent("alertButton_Abandon_game", "click")
+  ActionLogReplay.replayEvent("Commander", "click", vc)
+  ActionLogReplay.replayEvent("giveup", "click", vc)
+  ActionLogReplay.replayEvent("alertButton_Abandon_game", "click", vc)
 
-  saveGames = JSON.parse(mockLS.getItem('games')) || {}
+  saveGames = JSON.parse(mockLS.getItem('games') ?? 'null') || {}
   assertEqual(Object.keys(saveGames).length, 0)
 
-  let highScoreGames = JSON.parse(mockLS.getItem('highScoringGames')) || {}
+  let highScoreGames = JSON.parse(mockLS.getItem('highScoringGames') ?? 'null') || {}
   assertEqual(Object.keys(highScoreGames).length, 1)
 
   // Check that the saved high score game looks valid
@@ -90,7 +82,7 @@ test('serializationDeserialization_newGame', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const game = session.game
+  const game = session.game!
 
   let game2 = serializeAndDeserialize(game)
 
@@ -106,8 +98,8 @@ test('serializationDeserialization_newGame', () => {
 
 
   // Mercenary
-  const kira2 = game2.solarSystems.find(x => x.name === "Kira")
-  const crystal2 = kira2.mercenary
+  const kira2 = game2.solarSystems.find(x => x.name === "Kira")!
+  const crystal2 = kira2.mercenary!
   assertEqual(crystal2.name, "Crystal")
   assertEqual(crystal2.pilot, 5)
   assertEqual(crystal2.fighter, 4)
@@ -115,16 +107,16 @@ test('serializationDeserialization_newGame', () => {
   assertEqual(crystal2.engineer, 3)
 
 
-  const kira = game.solarSystems.find(x => x.name === "Kira")
-  const crystal = kira.mercenary
+  const kira = game.solarSystems.find(x => x.name === "Kira")!
+  const crystal = kira.mercenary!
   game.commander.ship.addCrewMember(crystal)
 
   game2 = serializeAndDeserialize(game)
 
   assertEqualGames(game, game2)
 
-  const kira2b = game2.solarSystems.find(x => x.name === "Kira")
-  const crystal2b = kira2b.mercenary
+  const kira2b = game2.solarSystems.find(x => x.name === "Kira")!
+  const crystal2b = kira2b.mercenary!
   assertEqual(crystal2b.name, "Crystal")
   assertEqual(crystal2b.pilot, 5)
   assertEqual(crystal2b.fighter, 4)
@@ -164,7 +156,7 @@ test('serializationDeserialization', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const game = session.game
+  const game = session.game!
 
   let game2 = serializeAndDeserialize(game)
 
@@ -186,8 +178,8 @@ test('serializationDeserialization', () => {
 
 
   // Mercenary
-  const klaatu2 = game2.solarSystems.find(x => x.name === "Klaatu")
-  const draco2 = klaatu2.mercenary
+  const klaatu2 = game2.solarSystems.find(x => x.name === "Klaatu")!
+  const draco2 = klaatu2.mercenary!
   assertEqual(draco2.name, "Draco")
   assertEqual(draco2.pilot, 5)
   assertEqual(draco2.fighter, 8)
@@ -195,16 +187,16 @@ test('serializationDeserialization', () => {
   assertEqual(draco2.engineer, 7)
 
 
-  const klaatu = game.solarSystems.find(x => x.name === "Klaatu")
-  const draco = klaatu.mercenary
+  const klaatu = game.solarSystems.find(x => x.name === "Klaatu")!
+  const draco = klaatu.mercenary!
   game.commander.ship.addCrewMember(draco)
 
   game2 = serializeAndDeserialize(game)
 
   assertEqualGames(game, game2)
 
-  const klaatu2b = game2.solarSystems.find(x => x.name === "Klaatu")
-  const draco2b = klaatu2b.mercenary
+  const klaatu2b = game2.solarSystems.find(x => x.name === "Klaatu")!
+  const draco2b = klaatu2b.mercenary!
   assertEqual(draco2b.name, "Draco")
   assertEqual(draco2b.pilot, 5)
   assertEqual(draco2b.fighter, 8)
@@ -245,8 +237,6 @@ test('auto_attack_interrupt', () => {
 
   const replay = runReplayLog(replayLog)
 
-  const session = replay.session
-  const game = session.game
 
   runtime.actionLog.replayInProgressQueueAsyncClosures = true
 
@@ -255,17 +245,17 @@ test('auto_attack_interrupt', () => {
   replay.replayEvent("alertButton_Attack")
 
   replay.replayEvent("ecButton_Auto_Attack")
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 1)
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 1)
 
   replay.replayEvent("ecButton_Interrupt")
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 1)
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 1)
 
-  let closure = runtime.actionLog.asyncClosureQueue.shift()
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 0)
-  closure()
+  let closure = runtime.actionLog.asyncClosureQueue!.shift()
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 0)
+  closure!()
 
-  assertEqual(document.getElementById("ecButton_Interrupt"), null)
-  assertEqual(document.getElementById("ecButton_Attack") !== null, true)
+  assertEqual(button("Interrupt"), null)
+  assertEqual(button("Attack") !== null, true)
 })
 
 test('auto_attack_flee', () => {
@@ -273,8 +263,6 @@ test('auto_attack_flee', () => {
 
   const replay = runReplayLog(replayLog)
 
-  const session = replay.session
-  const game = session.game
 
   runtime.actionLog.replayInProgressQueueAsyncClosures = true
 
@@ -283,17 +271,17 @@ test('auto_attack_flee', () => {
   replay.replayEvent("alertButton_Attack")
 
   replay.replayEvent("ecButton_Auto_Attack")
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 1)
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 1)
 
   replay.replayEvent("ecButton_Flee")
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 1)
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 1)
 
-  let closure = runtime.actionLog.asyncClosureQueue.shift()
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 0)
-  closure()
+  let closure = runtime.actionLog.asyncClosureQueue!.shift()
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 0)
+  closure!()
 
-  assertEqual(document.getElementById("ecButton_Interrupt"), null)
-  assertEqual(document.getElementById("ecButton_Attack") !== null, true)
+  assertEqual(button("Interrupt"), null)
+  assertEqual(button("Attack") !== null, true)
 })
 
 test('auto_attack_surrender', () => {
@@ -301,8 +289,6 @@ test('auto_attack_surrender', () => {
 
   const replay = runReplayLog(replayLog)
 
-  const session = replay.session
-  const game = session.game
 
   runtime.actionLog.replayInProgressQueueAsyncClosures = true
 
@@ -311,17 +297,17 @@ test('auto_attack_surrender', () => {
   replay.replayEvent("alertButton_Attack")
 
   replay.replayEvent("ecButton_Auto_Attack")
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 1)
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 1)
 
   replay.replayEvent("ecButton_Surrender")
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 1)
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 1)
 
-  let closure = runtime.actionLog.asyncClosureQueue.shift()
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 0)
-  closure()
+  let closure = runtime.actionLog.asyncClosureQueue!.shift()
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 0)
+  closure!()
 
-  assertEqual(document.getElementById("ecButton_Interrupt"), null)
-  assertEqual(document.getElementById("ecButton_Attack") !== null, true)
+  assertEqual(button("Interrupt"), null)
+  assertEqual(button("Attack") !== null, true)
 })
 
 test('auto_attack_auto_flee', () => {
@@ -329,8 +315,6 @@ test('auto_attack_auto_flee', () => {
 
   const replay = runReplayLog(replayLog)
 
-  const session = replay.session
-  const game = session.game
 
   runtime.actionLog.replayInProgressQueueAsyncClosures = true
 
@@ -339,21 +323,21 @@ test('auto_attack_auto_flee', () => {
   replay.replayEvent("alertButton_Attack")
 
   replay.replayEvent("ecButton_Auto_Attack")
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 1)
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 1)
 
   replay.replayEvent("ecButton_Auto_Flee")
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 2)
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 2)
 
-  let closure = runtime.actionLog.asyncClosureQueue.shift()
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 1)
-  closure()
+  let closure = runtime.actionLog.asyncClosureQueue!.shift()
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 1)
+  closure!()
 
-  assertEqual(document.getElementById("ecButton_Interrupt") !== null, true)
-  assertEqual(document.getElementById("ecButton_Attack") !== null, true)
+  assertEqual(button("Interrupt") !== null, true)
+  assertEqual(button("Attack") !== null, true)
 
-  closure = runtime.actionLog.asyncClosureQueue.shift()
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 0)
-  closure()
+  closure = runtime.actionLog.asyncClosureQueue!.shift()
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 0)
+  closure!()
 
   assertEqual(AlertViewController.currentAlertTitle(), "You've managed to escape your opponent.")
 })
@@ -363,8 +347,6 @@ test('auto_flee_interrupt', () => {
 
   const replay = runReplayLog(replayLog)
 
-  const session = replay.session
-  const game = session.game
 
   runtime.actionLog.replayInProgressQueueAsyncClosures = true
 
@@ -373,28 +355,28 @@ test('auto_flee_interrupt', () => {
   replay.replayEvent("alertButton_Attack")
 
   replay.replayEvent("ecButton_Auto_Attack")
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 1)
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 1)
 
   replay.replayEvent("ecButton_Auto_Flee")
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 2)
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 2)
 
-  let closure = runtime.actionLog.asyncClosureQueue.shift()
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 1)
-  closure()
+  let closure = runtime.actionLog.asyncClosureQueue!.shift()
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 1)
+  closure!()
 
-  assertEqual(document.getElementById("ecButton_Interrupt") !== null, true)
-  assertEqual(document.getElementById("ecButton_Attack") !== null, true)
+  assertEqual(button("Interrupt") !== null, true)
+  assertEqual(button("Attack") !== null, true)
 
   replay.replayEvent("ecButton_Interrupt")
 
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 1)
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 1)
 
-  closure = runtime.actionLog.asyncClosureQueue.shift()
-  assertEqual(runtime.actionLog.asyncClosureQueue.length, 0)
-  closure()
+  closure = runtime.actionLog.asyncClosureQueue!.shift()
+  assertEqual(runtime.actionLog.asyncClosureQueue!.length, 0)
+  closure!()
 
-  assertEqual(document.getElementById("ecButton_Interrupt"), null)
-  assertEqual(document.getElementById("ecButton_Flee") !== null, true)
+  assertEqual(button("Interrupt"), null)
+  assertEqual(button("Flee") !== null, true)
 
   replay.replayEvent("ecButton_Auto_Flee")
   assertEqual(AlertViewController.currentAlertTitle(), "You've managed to escape your opponent.")
