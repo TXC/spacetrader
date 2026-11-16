@@ -1,75 +1,49 @@
-# React + TypeScript + Vite
+# Space Trader
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A trading game in space: trade goods, hunt bounties, amass a fortune, buy
+a moon and retire.
 
-Currently, two official plugins are available:
+This project moves an existing plain-JavaScript version of the game (kept
+unchanged in `old/` for reference) into TypeScript and React.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Commands
 
-## React Compiler
+| Command            | What it does                                     |
+|--------------------|--------------------------------------------------|
+| `pnpm install`     | Install dependencies                             |
+| `pnpm dev`         | Run the game locally with live reload            |
+| `pnpm test`        | Run the test suite in headless Chromium          |
+| `pnpm test:stress` | Run the slower stress tests                      |
+| `pnpm lint`        | Check the code style                             |
+| `pnpm build`       | Type-check and build the production version      |
+| `pnpm preview`     | Serve the production build locally               |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The tests need a browser. Install it once with:
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```sh
+pnpm exec playwright install chromium
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+## Layout
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Folder           | Contents                                              |
+|------------------|-------------------------------------------------------|
+| `src/game/`      | Game rules, images and utilities. Strictly typed.     |
+| `src/legacy-ui/` | The old screens, carried over with type checking off. |
+| `src/tests/`     | The old test suite, run through Vitest.               |
+| `old/`           | The original JavaScript game. Do not edit.            |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+`src/App.tsx` hosts the game in a single `<div>`. The old screens draw
+into it themselves; React does not render them yet.
 
-```
+## Roadmap
+
+1. **Step 1 (done):** the same game in TypeScript, proven by the existing
+   tests.
+2. **Step 1.5:** separate the game rules from the old alerts, then rewrite
+   the tests to drive the rules directly, without a page.
+3. **Step 2:** rebuild the screens in React, with larger graphics and a
+   roomier layout. The debug panel returns here as a React component.
+
+The design and the plan for step 1 are in `docs/superpowers/`. They use
+the file names from before the `SSST` prefix was dropped.
