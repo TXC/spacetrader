@@ -9,7 +9,8 @@ import { CommanderStatusViewController } from './CommanderStatusViewController.t
 import { Equipment } from '../ui/Equipment.tsx'
 import { GalacticChartViewController } from './GalacticChartViewController.ts'
 import { GalaxyView } from './GalaxyView.ts'
-import { NewsViewController } from './NewsViewController.ts'
+import { News } from '../game/News.ts'
+import { News as NewsScreen } from '../ui/News.tsx'
 import { Roster } from '../ui/Roster.tsx'
 import { present as presentShipYard } from '../game/ShipYard.ts'
 import { ShipYard } from '../ui/ShipYard.tsx'
@@ -171,11 +172,11 @@ export class SystemLandingViewController {
     } else if (row === "News") {
       pLog.log(11)
       // To avoid the news changing between viewings, use one instance
-      if (!this._newsViewController) {
-        this._newsViewController = new NewsViewController(contentDiv, this._game);
+      if (!this._news) {
+        this._news = new News(this._game);
       }
-      this._newsViewController.div = contentDiv; // changes after a warp
-      this._newsViewController.presentView();
+      this._news.present()
+      this._mountReact(contentDiv, createElement(NewsScreen, { game: this._game, news: this._news }))
     } else if (row === "Bank") {
       pLog.log(12)
       this._mountReact(contentDiv, createElement(Bank, { game: this._game }))

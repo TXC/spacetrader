@@ -656,12 +656,12 @@ export class Game {
   }
 
   solarSystemsWithinRange() {
-    let result = [];
+    let result: SolarSystem[] = [];
     let squaredFuel = this.commander.ship.fuel;
     squaredFuel *= squaredFuel;
 
     if (this.commander.getCurrentSystem().wormhole) {
-      result.push(this.commander.getCurrentSystem().wormhole);
+      result.push(this.commander.getCurrentSystem().wormhole!);
     }
 
     for (let i = 0; i < this.solarSystems.length; i++) {
