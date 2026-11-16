@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { AccessoryType } from '../game/Accessory.ts'
-import { AlertActionType, AlertViewController } from './AlertViewController.ts'
+import { AlertActionType, AlertViewController } from '../game/alerts.ts'
 import { CAUGHT_WITH_WILD_SCORE, MAX_SKILL_LEVEL, POLICE_RECORD_MULTIPLIER, PoliceRecordScore, ReputationScore } from '../game/Commander.ts'
 import { EncounterController, EncounterType } from '../game/EncounterController.ts'
 import { EncounterViewController } from './EncounterViewController.ts'

@@ -1,5 +1,5 @@
 import { AccessoryType } from './Accessory.ts'
-import { AlertActionType, AlertViewController } from '../legacy-ui/AlertViewController.ts'
+import { AlertActionType, AlertViewController } from './alerts.ts'
 import { ATTACK_POLICE_SCORE, ATTACK_TRADER_SCORE, FLEE_FROM_INSPECTION_SCORE, KILL_PIRATE_SCORE, KILL_POLICE_SCORE, KILL_TRADER_SCORE, MAX_SKILL_LEVEL, PLUNDER_PIRATE_SCORE, PLUNDER_TRADER_SCORE, PoliceRecordScore, ReputationScore, TRAFFICKING_SCORE } from './Commander.ts'
 import { OpponentType } from './Opponent.ts'
 import { PlunderViewController } from '../legacy-ui/PlunderViewController.ts'
@@ -844,7 +844,7 @@ export class EncounterController {
                 }
             } else {
 
-                let aC = new AlertViewController(surrenderPrompt)
+                let aC = new AlertViewController(surrenderPrompt!)
 
                 aC.addAction("Dismiss", AlertActionType.Default, null)
 
@@ -1242,8 +1242,7 @@ export class EncounterController {
 
       if (needsSelected) {
         aC.addAction("Selected", AlertActionType.Default, () => {
-          const slider = document.getElementById("tradeslider") as HTMLInputElement
-          const amount = parseInt(slider.value, 10)
+          const amount = aC.content!.value
           if (amount > 0) {
             aC.completionHandler = () => {
               this._presentThanksForTheTrade(() => {
@@ -1268,24 +1267,7 @@ export class EncounterController {
       }
 
       if (needsSelected) {
-        aC.customViewHandler = (customViewDiv: HTMLElement) => {
-          const slider = document.createElement('input');
-          slider.id = "tradeslider"
-          slider.type = 'range';
-          slider.min = '0';
-          slider.max = `${maxUnits}`;
-          slider.value = `${Math.floor(maxUnits/2)}`;  // default value
-          slider.step = '1';   // step ensures only integer values
-          customViewDiv.appendChild(slider)
-
-          const selectedValueDiv = document.createElement('div');
-          customViewDiv.appendChild(selectedValueDiv)
-          selectedValueDiv.innerText = slider.value
-
-          runtime.actionLog.registerSliderEventListener(slider, 'input', () => {
-            selectedValueDiv.innerText = slider.value
-          });
-        }
+        aC.content = { kind: 'slider', id: 'tradeslider', min: 0, max: maxUnits, value: Math.floor(maxUnits/2) }
       }
 
       aC.presentView()

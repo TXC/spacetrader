@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { AlertActionType, AlertViewController } from './AlertViewController.ts'
+import { AlertActionType, AlertViewController } from '../game/alerts.ts'
 import { Game, GameEndStatus } from '../game/Game.ts'
 import { DIFFICULTY_STR } from '../game/SolarSystem.types.ts'
 import { Utils, pLog } from '../game/Utilities.ts'

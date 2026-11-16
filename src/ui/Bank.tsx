@@ -2,7 +2,7 @@ import { borrow, borrowable, payBack, setRemindLoans, steps, toggleInsurance } f
 import { MAX_SAFE_PILOT_INSURANCE_DISCOUNT } from '../game/Commander.ts'
 import type { Game } from '../game/Game.ts'
 import { session } from '../game/session.ts'
-import { AlertViewController } from '../legacy-ui/AlertViewController.ts'
+import { AlertViewController } from '../game/alerts.ts'
 import { BaysCredits } from './BaysCredits.tsx'
 import { LoggedButton, LoggedCheckbox } from './Logged.tsx'
 import { useSession } from './useStore.ts'

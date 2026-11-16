@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { installCheats } from './cheats.ts'
 import { ViewController } from './ViewController.ts'
 import { Utils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
@@ -19,7 +20,7 @@ export class SpaceTraderGame {
     this.viewController.presentView()
 
     if (runtime.debugMode) {
-      Utils.installCheats(document.getElementById('cheats'), this)
+      installCheats(document.getElementById('cheats'), this)
     }
   }
 }

@@ -1,7 +1,7 @@
 import { afterEach, beforeAll, test } from 'vitest'
 import { runtime } from '../game/runtime.ts'
 import { DebugMode } from '../game/Utilities.ts'
-import { AlertViewController } from '../legacy-ui/AlertViewController.ts'
+import { AlertViewController } from '../game/alerts.ts'
 import '../legacy-ui/style.css'
 import { UnitTests } from './UnitTests.ts'
 

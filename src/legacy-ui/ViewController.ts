@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { mountAlertHost } from '../ui/mountAlertHost.tsx'
 import { Commander } from '../game/Commander.ts'
 import { EndGameViewController } from './EndGameViewController.ts'
 import { Game, GameEndStatus } from '../game/Game.ts'
@@ -18,6 +19,7 @@ export const DivIDs = {
 export class ViewController {
     [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
     constructor(gameDiv, loadGame) {
+      mountAlertHost()
       this.gameDiv = gameDiv
       this.loadGame = loadGame
     }

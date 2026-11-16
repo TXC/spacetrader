@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { PCEImageLibrary } from '../game/Images.ts'
-import { AlertActionType, AlertViewController } from './AlertViewController.ts'
+import { AlertActionType, AlertViewController } from '../game/alerts.ts'
 import { createElement } from 'react'
 import { Bank } from '../ui/Bank.tsx'
 import { mountReact } from '../ui/mountReact.ts'

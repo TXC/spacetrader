@@ -233,8 +233,11 @@ export class ActionLogReplay {
         const eventComponents = eventName.split(/\|/);
         const actualEventName = eventComponents[1]
         const sliderValue = eventComponents[2]
-        element!.value = sliderValue
-        let inputEvent = new Event(actualEventName)
+        // React watches the value property, so set it through the browser's own setter,
+        // and send an event that bubbles up to where React listens.
+        const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!
+        setValue.call(element, sliderValue)
+        let inputEvent = new Event(actualEventName, { bubbles: true })
         element!.dispatchEvent(inputEvent)
       } else if (eventName.startsWith("select")) {
         const eventComponents = eventName.split(/\|/);

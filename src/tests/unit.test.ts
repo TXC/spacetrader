@@ -3,6 +3,7 @@ import { ATTACK_CAPTAIN_NEWS, DESTROY_CAPTAIN_NEWS, EncounterController, Encount
 import { GameRand } from '../game/GameRand.ts'
 import { Opponent, OpponentType } from '../game/Opponent.ts'
 import { ReputationScore } from '../game/Commander.ts'
+import { AlertActionType, alertStore, AlertViewController } from '../game/alerts.ts'
 import { runtime } from '../game/runtime.ts'
 import { MockLocalStorage } from '../game/Utilities.ts'
 import { SpaceTraderGame } from '../legacy-ui/main.ts'
@@ -94,4 +95,20 @@ test('a replayed checkbox change reaches a React screen', () => {
 
   expect(game.remindLoans).toBe(!before)
   expect((document.getElementById('remindLoansCheckbox') as HTMLInputElement).checked).toBe(!before)
+})
+
+test('with two alerts sharing a button id, a click reaches the older one', () => {
+  const pressed: string[] = []
+  for (const name of ['older', 'newer']) {
+    const alert = new AlertViewController(name)
+    alert.addAction('Dismiss', AlertActionType.Default, () => pressed.push(name))
+    alert.presentView()
+  }
+
+  document.getElementById('alertButton_Dismiss')!.click()
+
+  expect(pressed).toEqual(['older'])
+  expect(alertStore.open.map((alert) => alert.title)).toEqual(['newer'])
+  expect(document.querySelectorAll('.alert-backdrop').length).toBe(1)
+  AlertViewController.clearAlerts()
 })

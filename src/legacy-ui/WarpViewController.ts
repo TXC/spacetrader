@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { AccessoryType } from '../game/Accessory.ts'
-import { AlertActionType, AlertViewController } from './AlertViewController.ts'
+import { AlertActionType, AlertViewController } from '../game/alerts.ts'
 import { BuySellCargoViewController } from './BuySellCargoViewController.ts'
 import { ExperimentQuestStatus, WildQuestStatus } from '../game/SolarSystem.types.ts'
 import { FABRIC_RIP_PROBABILITY_INITIAL } from '../game/SpecialEventSpecifier.ts'

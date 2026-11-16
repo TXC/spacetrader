@@ -12,7 +12,7 @@ import { TechLevel, TradeItemType } from '../game/TradeItem.types.ts'
 import { Utils, MockLocalStorage, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 import { cellAfter, hasText, rowAfterHeading, textOf } from './support/page.ts'
-import { AlertViewController } from '../legacy-ui/AlertViewController.ts'
+import { AlertViewController } from '../game/alerts.ts'
 import { ViewController } from '../legacy-ui/ViewController.ts'
 import { SpaceTraderGame } from '../legacy-ui/main.ts'
 

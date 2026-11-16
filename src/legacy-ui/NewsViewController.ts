@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { PCEImageLibrary } from '../game/Images.ts'
-import { AlertViewController } from './AlertViewController.ts'
+import { AlertViewController } from '../game/alerts.ts'
 import { PoliceRecordScore } from '../game/Commander.ts'
 import { DragonflyQuestStatus, ExperimentQuestStatus, InvasionQuestStatus, JaporiQuestStatus, JarekQuestStatus, MonsterQuestStatus, ScarabQuestStatus, SpecialEvent, WildQuestStatus } from '../game/SolarSystem.types.ts'
 import { Status, TechLevel } from '../game/TradeItem.types.ts'

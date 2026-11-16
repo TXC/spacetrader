@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { PCEImageLibrary } from '../game/Images.ts'
-import { AlertViewController } from './AlertViewController.ts'
+import { AlertViewController } from '../game/alerts.ts'
 import { TradeItem } from '../game/TradeItem.ts'
 import { TradeItemType } from '../game/TradeItem.types.ts'
 import { Utils } from '../game/Utilities.ts'

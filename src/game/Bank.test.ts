@@ -1,9 +1,7 @@
 import { beforeEach, expect, test } from 'vitest'
-// Game.ts must load first: Utilities.ts imports it for the cheats, which makes an import
-// cycle that only resolves in this order. The cycle goes away when the cheats move out.
-import { Game } from './Game.ts'
 import { borrow, borrowable, payBack, steps, toggleInsurance } from './Bank.ts'
 import { Commander } from './Commander.ts'
+import { Game } from './Game.ts'
 import { GameRand } from './GameRand.ts'
 import { runtime } from './runtime.ts'
 import { DebugMode } from './Utilities.ts'

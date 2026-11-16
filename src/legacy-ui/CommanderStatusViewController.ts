@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { AlertActionType, AlertViewController } from './AlertViewController.ts'
+import { AlertActionType, AlertViewController } from '../game/alerts.ts'
 import { POLICE_RECORD_STR, REPUTATION_STR } from '../game/Commander.ts'
 import { EndGameViewController } from './EndGameViewController.ts'
 import { GameEndStatus } from '../game/Game.ts'

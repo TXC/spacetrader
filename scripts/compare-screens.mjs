@@ -1,6 +1,6 @@
 // Development check: does a screen look the same as in old/?
 //
-//   node scripts/compare-screens.mjs <row-id> [step-id ...]
+//   node scripts/compare-screens.mjs [--alert] <row-id> [step-id ...]
 //
 // Loads the saved game from the test fixtures into old/index.html and into the dev
 // server (started here), clicks the landing row with the given id and then any further
@@ -10,7 +10,9 @@ import { mkdirSync, readFileSync } from 'node:fs'
 import { chromium } from 'playwright'
 
 const PORT = 5199
-const steps = process.argv.slice(2)
+// --alert compares the open alert instead; alerts sit on top of the page.
+const alertOnly = process.argv.includes('--alert')
+const steps = process.argv.slice(2).filter((arg) => arg !== '--alert')
 if (steps.length === 0) throw new Error('Give the id of a landing row, for example: Bank')
 const out = 'node_modules/.tmp/compare-screens'
 mkdirSync(out, { recursive: true })
@@ -40,7 +42,8 @@ async function shoot(browser, url, tag) {
   await page.waitForSelector('#systemLandingDiv')
   for (const id of steps) await page.locator(`[id="${id}"]`).first().click()
   await page.waitForTimeout(300)
-  const png = await page.locator('#systemLandingSubContentDiv').screenshot({ path: `${out}/${tag}-${steps.join('_')}.png` })
+  const target = page.locator(alertOnly ? '.alert-box' : '#systemLandingSubContentDiv').first()
+  const png = await target.screenshot({ path: `${out}/${tag}-${steps.join('_')}.png` })
   return { png, problems }
 }
 

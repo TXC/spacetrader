@@ -1,5 +1,5 @@
 import { AccessoryType } from './Accessory.ts'
-import { AlertViewController } from '../legacy-ui/AlertViewController.ts'
+import { AlertViewController } from './alerts.ts'
 import { PoliceRecordScore, ReputationScore } from './Commander.ts'
 import { CrewMember } from './CrewMember.ts'
 import { GameEndStatus } from './Game.ts'

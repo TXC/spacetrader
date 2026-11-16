@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { PCEImageLibrary } from '../game/Images.ts'
 import { ACCESSORY_FOR_TYPE, AccessoryType, Gadget } from '../game/Accessory.ts'
-import { AlertActionType, AlertViewController } from './AlertViewController.ts'
+import { AlertActionType, AlertViewController } from '../game/alerts.ts'
 import { Utils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 

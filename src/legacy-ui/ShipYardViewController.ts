@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { ACCESSORY_FOR_TYPE, AccessoryType } from '../game/Accessory.ts'
-import { AlertActionType, AlertViewController } from './AlertViewController.ts'
+import { AlertActionType, AlertViewController } from '../game/alerts.ts'
 import { BattleOpponentView } from './BattleOpponentView.ts'
 import { Ship, ShipModel, ShipModelType } from '../game/Ship.ts'
 import { TradeItemType } from '../game/TradeItem.types.ts'

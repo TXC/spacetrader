@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { AlertActionType, AlertViewController } from './AlertViewController.ts'
+import { AlertActionType, AlertViewController } from '../game/alerts.ts'
 import { GalaxyView } from './GalaxyView.ts'
 import { SpecialEvent, SYSTEM_SIZE_STR } from '../game/SolarSystem.types.ts'
 import { SpecialEventSpecifier } from '../game/SpecialEventSpecifier.ts'
