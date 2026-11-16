@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { SSSTAccessoryType, SSSTGadget, SSSTShield, SSSTWeapon } from './SSSTAccessory.ts'
 import { MAX_SKILL_LEVEL, SSSTPoliceRecordScore } from './SSSTCommander.ts'
 import { SSSTCrewMember } from './SSSTCrewMember.ts'
@@ -6,6 +5,7 @@ import { SSSTShip, SSSTShipModel, SSSTShipModelType } from './SSSTShip.ts'
 import { SSSTDifficulty, SSSTWildQuestStatus } from './SSSTSolarSystem_h.ts'
 import { SSSTTradeItemType } from './SSSTTradeItem_h.ts'
 import { MAUtils } from './Utilities.ts'
+import type { SSSTGame } from './SSSTGame.ts'
 import { runtime } from './runtime.ts'
 
 export const SSSTOpponentType = {
@@ -21,11 +21,14 @@ export const SSSTOpponentType = {
     Mantis: 9,
 
     Count: 10
-};
+} as const;
+export type SSSTOpponentType = (typeof SSSTOpponentType)[keyof typeof SSSTOpponentType];
 
 export class SSSTOpponent extends SSSTCrewMember {
-    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
-    constructor(type, engineer, pilot, fighter, trader, ship) {
+    declare type: number
+    declare ship: SSSTShip
+
+    constructor(type: number, engineer: number, pilot: number, fighter: number, trader: number, ship: SSSTShip) {
         super("opponent", engineer, pilot, fighter, trader);
         MAUtils.ensureInteger(type)
         this.type = type;
@@ -33,7 +36,7 @@ export class SSSTOpponent extends SSSTCrewMember {
         this.ship = ship;
     }
 
-    static generateOpponentWithType(type, game) {
+    static generateOpponentWithType(type: number, game: SSSTGame) {
         MAUtils.ensureInteger(type)
         MAUtils.ensureType(game, "object")
 
@@ -113,7 +116,7 @@ export class SSSTOpponent extends SSSTCrewMember {
             }
 
             let tries = 1; // We'll roll a die `tries` times and pick the best roll
-            let chosenShipType = SSSTShipModelType.Count;
+            let chosenShipType: number = SSSTShipModelType.Count;
 
             // Police are more likely to be stronger against worse police records
             if (type === SSSTOpponentType.Police) {
@@ -213,7 +216,7 @@ export class SSSTOpponent extends SSSTCrewMember {
                 let gadgetFreqSum = 0;
                 let addedGadget = false;
                 for (let gadgetType = SSSTAccessoryType.GadgetFirst; gadgetType <= SSSTAccessoryType.GadgetLastBuyable; ++gadgetType) {
-                    const gadget = SSSTGadget.gadgetForType(gadgetType);
+                    const gadget = SSSTGadget.gadgetForType(gadgetType)!;
                     gadgetFreqSum += gadget.occurrence;
                     MAUtils.ensureInteger(gadgetFreqSum)
                     if (gadgetFreqSum >= gadgetRoll) {
@@ -285,7 +288,7 @@ export class SSSTOpponent extends SSSTCrewMember {
 
                 let weaponFreqSum = 0;
                 for (let weaponType = SSSTAccessoryType.WeaponFirst; weaponType <= SSSTAccessoryType.WeaponLastBuyable; ++weaponType) {
-                    const weapon = SSSTWeapon.weaponForType(weaponType);
+                    const weapon = SSSTWeapon.weaponForType(weaponType)!;
                     weaponFreqSum += weapon.occurrence;
                     MAUtils.ensureInteger(weaponFreqSum)
                     if (weaponFreqSum >= weaponRoll) {
@@ -317,7 +320,7 @@ export class SSSTOpponent extends SSSTCrewMember {
 
                 let shieldFreqSum = 0;
                 for (let shieldType = SSSTAccessoryType.ShieldFirst; shieldType <= SSSTAccessoryType.ShieldLastBuyable; ++shieldType) {
-                    const shield = SSSTShield.shieldForType(shieldType);
+                    const shield = SSSTShield.shieldForType(shieldType)!;
                     shieldFreqSum += shield.occurrence;
                     if (shieldFreqSum >= shieldRoll) {
                         ship.addShieldOfType(shieldType);
@@ -378,7 +381,7 @@ export class SSSTOpponent extends SSSTCrewMember {
 }
 
 // Utility function to replicate BEST_ROLL macro
-export function BEST_ROLL(roll, tries, max) {
+export function BEST_ROLL(roll: number, tries: number, max: number) {
     for (let i = 0; i < tries; ++i) {
         roll = Math.max(roll, runtime.gameRand.randomIntBelow(max));
     }
