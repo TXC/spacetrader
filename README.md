@@ -14,6 +14,7 @@ unchanged in `old/` for reference) into TypeScript and React.
 | `pnpm dev`         | Run the game locally with live reload            |
 | `pnpm test`        | Run the tests: rules in Node, screens in Chromium |
 | `pnpm test:stress` | Run the slower stress tests                      |
+| `pnpm test:offline`| Build, then check the game works with no network  |
 | `pnpm lint`        | Check the code style                             |
 | `pnpm build`       | Type-check and build the production version      |
 | `pnpm preview`     | Serve the production build locally               |
@@ -23,6 +24,15 @@ The screen tests need a browser. Install it once with:
 ```sh
 pnpm exec playwright install chromium
 ```
+
+## Offline use
+
+The built game keeps a copy of everything it loads, so after one visit
+it starts and plays without a connection, and it can be installed as an
+app from the browser. This is done by a small service worker,
+`public/sw.js`, which keeps files as they are used; there is no list of
+files to maintain. It is only active in the built game, not in
+`pnpm dev`.
 
 ## Debug panel
 
@@ -64,8 +74,9 @@ on: renaming one breaks the recordings that use it.
    of everything: the `font-size` on `html` in `src/ui/style.css`.
 4. **Done:** the recorded tests are ordinary test files.
 5. **Done:** the debug panel.
-6. **Next:** offline support, and tidying the carried-over rules code.
-7. **Later:** a two-pane layout for wide screens.
+6. **Done:** offline use.
+7. **Next:** tidying the carried-over rules code.
+8. **Later:** a two-pane layout for wide screens.
 
 The designs and plans are in `docs/superpowers/`. The ones for the
 TypeScript step use the file names from before the `SSST` prefix was

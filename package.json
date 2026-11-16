@@ -22,6 +22,7 @@
     "lint": "eslint .",
     "test": "vitest run --exclude src/tests/flows/stress.test.ts",
     "test:stress": "vitest run src/tests/flows/stress.test.ts",
+    "test:offline": "pnpm build && node scripts/check-offline.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
