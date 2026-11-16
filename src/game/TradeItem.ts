@@ -1,25 +1,25 @@
-import { SSSTResource, SSSTStatus, SSSTTechLevel, SSSTTradeItemType } from './TradeItem.types.ts'
+import { Resource, Status, TechLevel, TradeItemType } from './TradeItem.types.ts'
 
-export const sItems: Record<number, SSSTTradeItem> = {};
+export const sItems: Record<number, TradeItem> = {};
 
-export class SSSTTradeItem {
-    declare type: SSSTTradeItemType
+export class TradeItem {
+    declare type: TradeItemType
     declare name: string
     declare icon: string
-    declare techLevelToProduce: SSSTTechLevel
-    declare techLevelToUse: SSSTTechLevel
-    declare techLevelMaxProd: SSSTTechLevel
+    declare techLevelToProduce: TechLevel
+    declare techLevelToUse: TechLevel
+    declare techLevelMaxProd: TechLevel
     declare priceLowTech: number
     declare priceIncreasePerTechLevel: number
     declare priceVariance: number
     declare minTradePrice: number
     declare maxTradePrice: number
     declare roundOffPrice: number
-    declare doublePriceStatus: SSSTStatus
-    declare cheapResource: SSSTResource
-    declare expensiveResource: SSSTResource
+    declare doublePriceStatus: Status
+    declare cheapResource: Resource
+    declare expensiveResource: Resource
 
-    constructor(type: SSSTTradeItemType, name: string, icon: string, techLevelToProduce: SSSTTechLevel, techLevelToUse: SSSTTechLevel, techLevelMaxProd: SSSTTechLevel, priceLowTech: number, priceIncreasePerTechLevel: number, priceVariance: number, minTradePrice: number, maxTradePrice: number, roundOffPrice: number, doublePriceStatus: SSSTStatus, cheapResource: SSSTResource, expensiveResource: SSSTResource) {
+    constructor(type: TradeItemType, name: string, icon: string, techLevelToProduce: TechLevel, techLevelToUse: TechLevel, techLevelMaxProd: TechLevel, priceLowTech: number, priceIncreasePerTechLevel: number, priceVariance: number, minTradePrice: number, maxTradePrice: number, roundOffPrice: number, doublePriceStatus: Status, cheapResource: Resource, expensiveResource: Resource) {
         this.type = type;
         this.name = name;
         this.icon = icon;
@@ -37,39 +37,39 @@ export class SSSTTradeItem {
         this.expensiveResource = expensiveResource;
     }
 
-    static tradeItemForType(tradeItemType: number): SSSTTradeItem | null {
+    static tradeItemForType(tradeItemType: number): TradeItem | null {
         if (!sItems[tradeItemType]) {
             let item;
             switch (tradeItemType) {
-                case SSSTTradeItemType.Water:
-                    item = new SSSTTradeItem(tradeItemType, "Water", "", SSSTTechLevel.PreAgricultural, SSSTTechLevel.PreAgricultural, SSSTTechLevel.Medieval, 30, 3, 4, 30, 50, 1, SSSTStatus.Drought, SSSTResource.SweetwaterOceans, SSSTResource.Desert);
+                case TradeItemType.Water:
+                    item = new TradeItem(tradeItemType, "Water", "", TechLevel.PreAgricultural, TechLevel.PreAgricultural, TechLevel.Medieval, 30, 3, 4, 30, 50, 1, Status.Drought, Resource.SweetwaterOceans, Resource.Desert);
                     break;
-                case SSSTTradeItemType.Furs:
-                    item = new SSSTTradeItem(tradeItemType, "Furs", "", SSSTTechLevel.PreAgricultural, SSSTTechLevel.PreAgricultural, SSSTTechLevel.PreAgricultural, 250, 10, 10, 230, 280, 5, SSSTStatus.ColdSpell, SSSTResource.RichFauna, SSSTResource.Lifeless);
+                case TradeItemType.Furs:
+                    item = new TradeItem(tradeItemType, "Furs", "", TechLevel.PreAgricultural, TechLevel.PreAgricultural, TechLevel.PreAgricultural, 250, 10, 10, 230, 280, 5, Status.ColdSpell, Resource.RichFauna, Resource.Lifeless);
                     break;
-                case SSSTTradeItemType.Food:
-                    item = new SSSTTradeItem(tradeItemType, "Food", "", SSSTTechLevel.Agricultural, SSSTTechLevel.PreAgricultural, SSSTTechLevel.Agricultural, 100, 5, 5, 90, 160, 5, SSSTStatus.CropFailure, SSSTResource.RichSoil, SSSTResource.PoorSoil);
+                case TradeItemType.Food:
+                    item = new TradeItem(tradeItemType, "Food", "", TechLevel.Agricultural, TechLevel.PreAgricultural, TechLevel.Agricultural, 100, 5, 5, 90, 160, 5, Status.CropFailure, Resource.RichSoil, Resource.PoorSoil);
                     break;
-                case SSSTTradeItemType.Ore:
-                    item = new SSSTTradeItem(tradeItemType, "Ore", "", SSSTTechLevel.Medieval, SSSTTechLevel.Medieval, SSSTTechLevel.Renaissance, 350, 20, 10, 350, 420, 10, SSSTStatus.AtWar, SSSTResource.MineralRich, SSSTResource.MineralPoor);
+                case TradeItemType.Ore:
+                    item = new TradeItem(tradeItemType, "Ore", "", TechLevel.Medieval, TechLevel.Medieval, TechLevel.Renaissance, 350, 20, 10, 350, 420, 10, Status.AtWar, Resource.MineralRich, Resource.MineralPoor);
                     break;
-                case SSSTTradeItemType.Games:
-                    item = new SSSTTradeItem(tradeItemType, "Games", "", SSSTTechLevel.Renaissance, SSSTTechLevel.Agricultural, SSSTTechLevel.PostIndustrial, 250, -10, 5, 160, 270, 5, SSSTStatus.Boredom, SSSTResource.Artistic, SSSTResource.None);
+                case TradeItemType.Games:
+                    item = new TradeItem(tradeItemType, "Games", "", TechLevel.Renaissance, TechLevel.Agricultural, TechLevel.PostIndustrial, 250, -10, 5, 160, 270, 5, Status.Boredom, Resource.Artistic, Resource.None);
                     break;
-                case SSSTTradeItemType.Firearms:
-                    item = new SSSTTradeItem(tradeItemType, "Firearms", "", SSSTTechLevel.Renaissance, SSSTTechLevel.Agricultural, SSSTTechLevel.Industrial, 1250, -75, 100, 600, 1100, 25, SSSTStatus.AtWar, SSSTResource.Warlike, SSSTResource.None);
+                case TradeItemType.Firearms:
+                    item = new TradeItem(tradeItemType, "Firearms", "", TechLevel.Renaissance, TechLevel.Agricultural, TechLevel.Industrial, 1250, -75, 100, 600, 1100, 25, Status.AtWar, Resource.Warlike, Resource.None);
                     break;
-                case SSSTTradeItemType.Medicine:
-                    item = new SSSTTradeItem(tradeItemType, "Medicine", "", SSSTTechLevel.EarlyIndustrial, SSSTTechLevel.Agricultural, SSSTTechLevel.PostIndustrial, 650, -20, 10, 400, 700, 25, SSSTStatus.Plague, SSSTResource.SpecialHerbs, SSSTResource.None);
+                case TradeItemType.Medicine:
+                    item = new TradeItem(tradeItemType, "Medicine", "", TechLevel.EarlyIndustrial, TechLevel.Agricultural, TechLevel.PostIndustrial, 650, -20, 10, 400, 700, 25, Status.Plague, Resource.SpecialHerbs, Resource.None);
                     break;
-                case SSSTTradeItemType.Machines:
-                    item = new SSSTTradeItem(tradeItemType, "Machines", "", SSSTTechLevel.EarlyIndustrial, SSSTTechLevel.Renaissance, SSSTTechLevel.Industrial, 900, -30, 5, 600, 800, 25, SSSTStatus.LackWorkers, SSSTResource.None, SSSTResource.None);
+                case TradeItemType.Machines:
+                    item = new TradeItem(tradeItemType, "Machines", "", TechLevel.EarlyIndustrial, TechLevel.Renaissance, TechLevel.Industrial, 900, -30, 5, 600, 800, 25, Status.LackWorkers, Resource.None, Resource.None);
                     break;
-                case SSSTTradeItemType.Narcotics:
-                    item = new SSSTTradeItem(tradeItemType, "Narcotics", "", SSSTTechLevel.Industrial, SSSTTechLevel.PreAgricultural, SSSTTechLevel.Industrial, 3500, -125, 150, 2000, 3000, 50, SSSTStatus.Boredom, SSSTResource.WeirdMushrooms, SSSTResource.None);
+                case TradeItemType.Narcotics:
+                    item = new TradeItem(tradeItemType, "Narcotics", "", TechLevel.Industrial, TechLevel.PreAgricultural, TechLevel.Industrial, 3500, -125, 150, 2000, 3000, 50, Status.Boredom, Resource.WeirdMushrooms, Resource.None);
                     break;
-                case SSSTTradeItemType.Robots:
-                    item = new SSSTTradeItem(tradeItemType, "Robots", "", SSSTTechLevel.PostIndustrial, SSSTTechLevel.EarlyIndustrial, SSSTTechLevel.HighTech, 5000, -150, 100, 3500, 5000, 100, SSSTStatus.LackWorkers, SSSTResource.None, SSSTResource.None);
+                case TradeItemType.Robots:
+                    item = new TradeItem(tradeItemType, "Robots", "", TechLevel.PostIndustrial, TechLevel.EarlyIndustrial, TechLevel.HighTech, 5000, -150, 100, 3500, 5000, 100, Status.LackWorkers, Resource.None, Resource.None);
                     break;
                 default:
                     return null;

@@ -1,16 +1,16 @@
 import { useEffect, useRef } from 'react'
-import { MAGameRand } from './game/GameRand.ts'
+import { GameRand } from './game/GameRand.ts'
 import { runtime } from './game/runtime.ts'
-import { SSSTActionLogger } from './game/ActionLogger.ts'
-import { MADebugMode } from './game/Utilities.ts'
+import { ActionLogger } from './game/ActionLogger.ts'
+import { DebugMode } from './game/Utilities.ts'
 import { SpaceTraderGame } from './legacy-ui/main.ts'
 
 // Does what the inline script in old/index.html did.
 function startGame(gameDiv: HTMLDivElement) {
   const randSeed = Date.now()
-  runtime.debugMode = MADebugMode.Disabled
-  runtime.gameRand = new MAGameRand(randSeed)
-  runtime.actionLog = new SSSTActionLogger(randSeed)
+  runtime.debugMode = DebugMode.Disabled
+  runtime.gameRand = new GameRand(randSeed)
+  runtime.actionLog = new ActionLogger(randSeed)
   runtime.stLocalStorage = localStorage
   new SpaceTraderGame(gameDiv, true).main()
 }

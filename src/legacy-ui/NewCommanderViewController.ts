@@ -1,10 +1,10 @@
 // @ts-nocheck
 import { MAX_SKILL_LEVEL } from '../game/Commander.ts'
-import { DIFFICULTY_STR, SSSTDifficulty } from '../game/SolarSystem.types.ts'
-import { MAUtils } from '../game/Utilities.ts'
+import { DIFFICULTY_STR, Difficulty } from '../game/SolarSystem.types.ts'
+import { Utils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
-export class SSSTNewCommanderViewController {
+export class NewCommanderViewController {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div) {
     this.div = div
@@ -37,16 +37,16 @@ export class SSSTNewCommanderViewController {
     icon.src = './spacetrader-1000.png'
     containerDiv.appendChild(icon)
 
-    const mainTitle = MAUtils.createElement('h1', { textContent: 'Space Trader' }, containerDiv);
+    const mainTitle = Utils.createElement('h1', { textContent: 'Space Trader' }, containerDiv);
     mainTitle.classList.add('centered-div')
     mainTitle.classList.add('main-title')
 
-    const newCommanderTitle = MAUtils.createElement('h1', { textContent: 'New Commander' }, containerDiv);
+    const newCommanderTitle = Utils.createElement('h1', { textContent: 'New Commander' }, containerDiv);
     newCommanderTitle.classList.add("new-commander-title")
 
     // Create and append the name entry field
-    MAUtils.createElement('label', { textContent: 'Name: ' }, containerDiv);
-    const nameInput = MAUtils.createElement('input', { type: 'text', id: 'nameInput', value: 'Jean-Luc' }, containerDiv);
+    Utils.createElement('label', { textContent: 'Name: ' }, containerDiv);
+    const nameInput = Utils.createElement('input', { type: 'text', id: 'nameInput', value: 'Jean-Luc' }, containerDiv);
     containerDiv.appendChild(document.createElement('br'));
 
     // Create and append the difficulty drop-down
@@ -55,15 +55,15 @@ export class SSSTNewCommanderViewController {
     difficultyContainer.classList.add('difficulty')
     containerDiv.appendChild(difficultyContainer)
 
-    MAUtils.createElement('label', { textContent: 'Difficulty: ' }, difficultyContainer);
-    const difficultySelect = MAUtils.createElement('select', { id: 'difficultySelect' }, difficultyContainer);
+    Utils.createElement('label', { textContent: 'Difficulty: ' }, difficultyContainer);
+    const difficultySelect = Utils.createElement('select', { id: 'difficultySelect' }, difficultyContainer);
     runtime.actionLog.registerSelectEventListener(difficultySelect, 'change', () => {
     });
 
-    for (let i = 0; i < SSSTDifficulty.Count; i++) {
+    for (let i = 0; i < Difficulty.Count; i++) {
       const difficultyStr = DIFFICULTY_STR(i)
-      const option = MAUtils.createElement('option', { value: difficultyStr, textContent: difficultyStr }, difficultySelect);
-      if (i === SSSTDifficulty.Normal) {
+      const option = Utils.createElement('option', { value: difficultyStr, textContent: difficultyStr }, difficultySelect);
+      if (i === Difficulty.Normal) {
         option.selected = true;
       }
     }
@@ -133,7 +133,7 @@ export class SSSTNewCommanderViewController {
 
 
     // Create and append the "create" button
-    const createButton = MAUtils.createElement('button', { textContent: 'Begin Adventure', id: "createCommander"}, containerDiv);
+    const createButton = Utils.createElement('button', { textContent: 'Begin Adventure', id: "createCommander"}, containerDiv);
     runtime.actionLog.registerButtonEventListener(createButton, 'click', () => {
       const name = nameInput.value;
       const difficulty = difficultySelect.selectedIndex;

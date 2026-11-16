@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { GALAXY_HEIGHT, GALAXY_WIDTH } from '../game/Game.ts'
-import { SSSTSpecialEvent } from '../game/SolarSystem.types.ts'
-import { MAUtils } from '../game/Utilities.ts'
+import { SpecialEvent } from '../game/SolarSystem.types.ts'
+import { Utils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
 export const GalaxyViewEdgeBuffer = 23
@@ -12,7 +12,7 @@ export const UnvisitedSystemColor = "#414141"
 export const WormholeSystemColor = "#FFA500"
 export const SpecialSystemColor = "#66CC85"
 
-export class SSSTGalaxyView {
+export class GalaxyView {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game, selectedSystem, selectedWormhole, zoomed, showNames) {
     this.div = div
@@ -291,7 +291,7 @@ export class SSSTGalaxyView {
       let color = planet.isWormhole ? WormholeSystemColor : (planet.solarSystem.visited ? VisitedSystemColor : UnvisitedSystemColor)
 
       // If showSpecialSystems cheat is enabled
-      if (this.game.showSpecialSystems && planet.solarSystem.specialEvent !== SSSTSpecialEvent.None) {
+      if (this.game.showSpecialSystems && planet.solarSystem.specialEvent !== SpecialEvent.None) {
         color = SpecialSystemColor
       }
 
@@ -349,7 +349,7 @@ export class SSSTGalaxyView {
       animationProportion = 1 - ((elapsedAnimationTimeMS - animationDurationMS/2) /(animationDurationMS/2))
     }
 
-    const radiusGrowth = 0.2 * MAUtils.easeInOutSine(animationProportion)
+    const radiusGrowth = 0.2 * Utils.easeInOutSine(animationProportion)
 
     const radius = this.planetRadius()*(1.05+radiusGrowth)
 

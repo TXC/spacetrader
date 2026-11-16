@@ -1,11 +1,11 @@
 // @ts-nocheck
 import { PCEImageLibrary } from '../game/Images.ts'
-import { ACCESSORY_FOR_TYPE, SSSTAccessoryType, SSSTGadget } from '../game/Accessory.ts'
-import { SSSTAlertActionType, SSSTAlertViewController } from './AlertViewController.ts'
-import { MAUtils } from '../game/Utilities.ts'
+import { ACCESSORY_FOR_TYPE, AccessoryType, Gadget } from '../game/Accessory.ts'
+import { AlertActionType, AlertViewController } from './AlertViewController.ts'
+import { Utils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
-export class SSSTEquipmentViewController {
+export class EquipmentViewController {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game) {
     this.div = div
@@ -18,13 +18,13 @@ export class SSSTEquipmentViewController {
 
     containerDiv.innerHTML = ''
 
-    MAUtils.createElement('h4', { textContent: 'Ship Equipment Slots'}, containerDiv);
+    Utils.createElement('h4', { textContent: 'Ship Equipment Slots'}, containerDiv);
 
 		this._presentSellTable()
 
     containerDiv.appendChild(document.createElement('br'));
 
-    MAUtils.createElement('h4', { textContent: 'Buy Equipment'}, containerDiv);
+    Utils.createElement('h4', { textContent: 'Buy Equipment'}, containerDiv);
 		this._presentBuyTable()
 	}
 
@@ -39,14 +39,14 @@ export class SSSTEquipmentViewController {
     const headers = ['Name', 'Cost', ''];
 
     // Create rows for each accessory type
-    for (let accessoryType = 0; accessoryType < SSSTAccessoryType.None; accessoryType++) {
+    for (let accessoryType = 0; accessoryType < AccessoryType.None; accessoryType++) {
       const validAccessory = ACCESSORY_FOR_TYPE(accessoryType);
       if (!validAccessory || !validAccessory.isBuyable) { continue; }
 
       let forceDisable = false;
       if (this._buyMode &&
-          (validAccessory instanceof SSSTGadget) &&
-          accessoryType !== SSSTAccessoryType.GadgetFiveExtraCargoBays) {
+          (validAccessory instanceof Gadget) &&
+          accessoryType !== AccessoryType.GadgetFiveExtraCargoBays) {
         forceDisable = this._game.commander.ship.hasGadgetOfType(accessoryType)
       }
 
@@ -100,7 +100,7 @@ export class SSSTEquipmentViewController {
       if (!hideButton) {
         const buyButton = document.createElement('button');
         buyButton.innerText = buttonName;
-        buyButton.id = MAUtils.sanitizedElementID("buy_" + itemName)
+        buyButton.id = Utils.sanitizedElementID("buy_" + itemName)
         runtime.actionLog.registerButtonEventListener(buyButton, 'click', () => {
           this._buyPressed(accessoryType, price);
         });
@@ -178,7 +178,7 @@ export class SSSTEquipmentViewController {
         if (!hideButton) {
           sellButton = document.createElement('button');
           sellButton.innerText = `Sell for $${value}`;
-          sellButton.id = MAUtils.sanitizedElementID("sell_" + name)
+          sellButton.id = Utils.sanitizedElementID("sell_" + name)
           runtime.actionLog.registerButtonEventListener(sellButton, 'click', () => {
             this._sellPressed(accessory.type, value);
           });
@@ -225,7 +225,7 @@ export class SSSTEquipmentViewController {
     // Append the table to the container div
     containerDiv.appendChild(table);
 
-    const baysCreditsEl = MAUtils.createBaysCreditsElement(this._game)
+    const baysCreditsEl = Utils.createBaysCreditsElement(this._game)
     containerDiv.appendChild(baysCreditsEl)
   }
 
@@ -244,20 +244,20 @@ export class SSSTEquipmentViewController {
     }
 
     if (alertString) {
-      SSSTAlertViewController.presentAlertWithDismiss(alertString)
+      AlertViewController.presentAlertWithDismiss(alertString)
       return;
     }
 
     alertString = `Do you want to install ${accessory.name} for $${price}?`;
 
-    let aC = new SSSTAlertViewController(alertString)
-    aC.addAction("Yes", SSSTAlertActionType.Default, () => {
+    let aC = new AlertViewController(alertString)
+    aC.addAction("Yes", AlertActionType.Default, () => {
         this._game.commander.ship.addAccessoryOfType(accessoryType);
         this._game.commander.setCredits(this._game.commander.credits - price);
         this._didBuyOrSell();
     })
 
-    aC.addAction("No", SSSTAlertActionType.Cancel, null)
+    aC.addAction("No", AlertActionType.Cancel, null)
 
     aC.presentView()
   }
@@ -267,21 +267,21 @@ export class SSSTEquipmentViewController {
 
     const accessory = ACCESSORY_FOR_TYPE(accessoryType)
 
-    if (accessoryType === SSSTAccessoryType.GadgetFiveExtraCargoBays && this._game.commander.ship.freeCargoBays() < 5) {
-      SSSTAlertViewController.presentAlertWithDismiss("The extra cargo bays are still filled with goods. You can only sell them when they're empty.")
+    if (accessoryType === AccessoryType.GadgetFiveExtraCargoBays && this._game.commander.ship.freeCargoBays() < 5) {
+      AlertViewController.presentAlertWithDismiss("The extra cargo bays are still filled with goods. You can only sell them when they're empty.")
       return;
     }
 
     const alertString = `Are you sure you want to sell your ${accessory.name} for $${price}?`;
 
-    let aC = new SSSTAlertViewController(alertString)
-    aC.addAction("Yes", SSSTAlertActionType.Default, () => {
+    let aC = new AlertViewController(alertString)
+    aC.addAction("Yes", AlertActionType.Default, () => {
         this._game.commander.ship.removeAccessoryOfType(accessoryType);
         this._game.commander.setCredits(this._game.commander.credits + price);
         this._didBuyOrSell()
     })
 
-    aC.addAction("No", SSSTAlertActionType.Cancel, null)
+    aC.addAction("No", AlertActionType.Cancel, null)
 
     aC.presentView()
   }

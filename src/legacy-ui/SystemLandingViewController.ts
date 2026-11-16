@@ -1,24 +1,24 @@
 // @ts-nocheck
 import { PCEImageLibrary } from '../game/Images.ts'
-import { SSSTAlertActionType, SSSTAlertViewController } from './AlertViewController.ts'
-import { SSSTBankViewController } from './BankViewController.ts'
-import { SSSTBuySellCargoViewController } from './BuySellCargoViewController.ts'
-import { SSSTCommanderStatusViewController } from './CommanderStatusViewController.ts'
-import { SSSTEquipmentViewController } from './EquipmentViewController.ts'
-import { SSSTGalacticChartViewController } from './GalacticChartViewController.ts'
-import { SSSTGalaxyView } from './GalaxyView.ts'
-import { SSSTNewsViewController } from './NewsViewController.ts'
-import { SSSTPersonnelRosterViewController } from './PersonnelRosterViewController.ts'
-import { SSSTShipYardViewController } from './ShipYardViewController.ts'
-import { SSSTSpecialEvent } from '../game/SolarSystem.types.ts'
-import { SSSTSpecialEventSpecifier } from '../game/SpecialEventSpecifier.ts'
-import { SSSTWarpViewController } from './WarpViewController.ts'
-import { MAUtils, pLog } from '../game/Utilities.ts'
+import { AlertActionType, AlertViewController } from './AlertViewController.ts'
+import { BankViewController } from './BankViewController.ts'
+import { BuySellCargoViewController } from './BuySellCargoViewController.ts'
+import { CommanderStatusViewController } from './CommanderStatusViewController.ts'
+import { EquipmentViewController } from './EquipmentViewController.ts'
+import { GalacticChartViewController } from './GalacticChartViewController.ts'
+import { GalaxyView } from './GalaxyView.ts'
+import { NewsViewController } from './NewsViewController.ts'
+import { PersonnelRosterViewController } from './PersonnelRosterViewController.ts'
+import { ShipYardViewController } from './ShipYardViewController.ts'
+import { SpecialEvent } from '../game/SolarSystem.types.ts'
+import { SpecialEventSpecifier } from '../game/SpecialEventSpecifier.ts'
+import { WarpViewController } from './WarpViewController.ts'
+import { Utils, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
 export const systemLandingOptionsDivID = "systemLandingOptionsDiv";
 
-export class SSSTSystemLandingViewController {
+export class SystemLandingViewController {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div) {
     this.div = div
@@ -64,10 +64,10 @@ export class SSSTSystemLandingViewController {
     }
 
     const specialEvent = this._game.commander.getCurrentSystem().getSpecialEvent();
-    const specialEventTypeToSpecifier = SSSTSpecialEventSpecifier.specialEventTypeToSpecifier();
+    const specialEventTypeToSpecifier = SpecialEventSpecifier.specialEventTypeToSpecifier();
     const shouldHideBlock = specialEventTypeToSpecifier.get(specialEvent) && specialEventTypeToSpecifier.get(specialEvent).shouldHideBlock;
 
-    if (specialEvent === SSSTSpecialEvent.None || (shouldHideBlock && shouldHideBlock(this._game))) {
+    if (specialEvent === SpecialEvent.None || (shouldHideBlock && shouldHideBlock(this._game))) {
       const index = tableRows.indexOf("Special");
       if (index !== -1) {
         pLog.log(28)
@@ -93,7 +93,7 @@ export class SSSTSystemLandingViewController {
   }
 
   handleRowClick(row) {
-    MAUtils.maintainScrollPosition(() => {
+    Utils.maintainScrollPosition(() => {
       this._handleRowClick(row)
     })
   }
@@ -105,22 +105,22 @@ export class SSSTSystemLandingViewController {
 
     if (row === "Chart") {
       pLog.log(0)
-      const viewController = new SSSTGalacticChartViewController(contentDiv, this._game)
+      const viewController = new GalacticChartViewController(contentDiv, this._game)
       viewController.delegate = this
       viewController.presentView()
     } else if (row === "Buy") {
       pLog.log(1)
-      const viewController = new SSSTBuySellCargoViewController(contentDiv, this._game, true);
+      const viewController = new BuySellCargoViewController(contentDiv, this._game, true);
       viewController.presentView();
     } else if (row === "Sell") {
       pLog.log(2)
-      const viewController = new SSSTBuySellCargoViewController(contentDiv, this._game, false);
+      const viewController = new BuySellCargoViewController(contentDiv, this._game, false);
       viewController.presentView();
     } else if (row === "Warp") {
       pLog.log(3)
       if (!this._galaxyViewSystem) {
         pLog.log(4)
-        const closeSystems = SSSTWarpViewController.systemsWithinRange(this._game)
+        const closeSystems = WarpViewController.systemsWithinRange(this._game)
         this._galaxyViewSystem = closeSystems.length > 0 ? closeSystems[0] : null
         this._galaxyViewWormhole = false
         if (this._galaxyViewSystem && this._game.commander.currentSystem.wormhole === this._galaxyViewSystem) {
@@ -139,50 +139,50 @@ export class SSSTSystemLandingViewController {
       pLog.log(7)
       const warpSystem = this._galaxyViewWormhole ? this._galaxyViewSystem.wormhole : this._galaxyViewSystem
 
-      const viewController = new SSSTWarpViewController(contentDiv, this._game, warpSystem);
+      const viewController = new WarpViewController(contentDiv, this._game, warpSystem);
       viewController.delegate = this;
       viewController.presentView();
     } else if (row === "Equipment") {
       pLog.log(8)
-      const viewController = new SSSTEquipmentViewController(contentDiv, this._game);
+      const viewController = new EquipmentViewController(contentDiv, this._game);
       viewController.presentView();
     } else if (row === "Ship Yard") {
       pLog.log(9)
-      const viewController = new SSSTShipYardViewController(contentDiv, this._game);
+      const viewController = new ShipYardViewController(contentDiv, this._game);
 			viewController.delegate = this;
       viewController.presentView();
     } else if (row === "For Hire" || row === "Roster") {
       pLog.log(10)
-      const viewController = new SSSTPersonnelRosterViewController(contentDiv, this._game);
+      const viewController = new PersonnelRosterViewController(contentDiv, this._game);
       viewController.delegate = this
       viewController.presentView();
     } else if (row === "News") {
       pLog.log(11)
       // To avoid the news changing between viewings, use one instance
       if (!this._newsViewController) {
-        this._newsViewController = new SSSTNewsViewController(contentDiv, this._game);
+        this._newsViewController = new NewsViewController(contentDiv, this._game);
       }
       this._newsViewController.div = contentDiv; // changes after a warp
       this._newsViewController.presentView();
     } else if (row === "Bank") {
       pLog.log(12)
-      const viewController = new SSSTBankViewController(contentDiv, this._game);
+      const viewController = new BankViewController(contentDiv, this._game);
       viewController.presentView();
     } else if (row === "Commander") {
       pLog.log(13)
-      const viewController = new SSSTCommanderStatusViewController(contentDiv, this._game);
+      const viewController = new CommanderStatusViewController(contentDiv, this._game);
       viewController.delegate = this
       viewController.presentView();
     } else if (row === "Special") {
       pLog.log(14)
-      const specialEventTypeToSpecifier = SSSTSpecialEventSpecifier.specialEventTypeToSpecifier()
+      const specialEventTypeToSpecifier = SpecialEventSpecifier.specialEventTypeToSpecifier()
       const specialEventType = this._game.commander.getCurrentSystem().getSpecialEvent()
       const specialEventSpecifier = specialEventTypeToSpecifier.get(specialEventType)
 
       const acceptEventAction = () => {
         if (this._game.commander.spendingMoney() < specialEventSpecifier.price) {
           pLog.log(15)
-          SSSTAlertViewController.presentAlertWithDismiss("You don't have enough cash to accept this offer.")
+          AlertViewController.presentAlertWithDismiss("You don't have enough cash to accept this offer.")
         } else {
           pLog.log(16)
           this._game.commander.setCredits(this._game.commander.getCredits() - specialEventSpecifier.price);
@@ -200,21 +200,21 @@ export class SSSTSystemLandingViewController {
       console.log("Special event name: " + specialEventSpecifier.name)
       console.log("Special event prompt: " + specialEventSpecifier.prompt)
 
-      let aC = new SSSTAlertViewController(specialEventSpecifier.prompt)
+      let aC = new AlertViewController(specialEventSpecifier.prompt)
 
       if (specialEventSpecifier.messageOnly) {
-        aC.addAction("Dismiss", SSSTAlertActionType.Default, () => {
+        aC.addAction("Dismiss", AlertActionType.Default, () => {
           pLog.log(18)
           acceptEventAction();
         })
 
       } else {
-        aC.addAction("Yes", SSSTAlertActionType.Default, () => {
+        aC.addAction("Yes", AlertActionType.Default, () => {
           pLog.log(19)
           acceptEventAction();
         })
 
-        aC.addAction("No", SSSTAlertActionType.Cancel, () => {
+        aC.addAction("No", AlertActionType.Cancel, () => {
           pLog.log(20)
         })
       }
@@ -224,7 +224,7 @@ export class SSSTSystemLandingViewController {
   }
 
   presentView() {
-    MAUtils.maintainScrollPosition(() => {
+    Utils.maintainScrollPosition(() => {
       this._presentView()
     })
   }
@@ -240,7 +240,7 @@ export class SSSTSystemLandingViewController {
 
     const galaxyViewDiv = document.createElement('div');
     contentDiv.appendChild(galaxyViewDiv);
-    this._galaxyView = new SSSTGalaxyView(galaxyViewDiv, this._game, this._game.commander.currentSystem, false, true, true)
+    this._galaxyView = new GalaxyView(galaxyViewDiv, this._game, this._game.commander.currentSystem, false, true, true)
     this._galaxyView.delegate = this
 
     const subVCButtonsDiv = document.createElement('ul')
@@ -253,7 +253,7 @@ export class SSSTSystemLandingViewController {
 
     const subContentDiv = this._clearedSubContentDiv()
 
-    const welcomeH = MAUtils.createElement('h1', { textContent: 'Welcome to ' + this._game.commander.getCurrentSystem().getName() }, subContentDiv);
+    const welcomeH = Utils.createElement('h1', { textContent: 'Welcome to ' + this._game.commander.getCurrentSystem().getName() }, subContentDiv);
     welcomeH.id = 'system-info-welcome'
     welcomeH.classList.add('centered-div')
     welcomeH.classList.add('system-info-header')
@@ -330,7 +330,7 @@ export class SSSTSystemLandingViewController {
     this.delegate.systemLandingViewControllerGameDidEndWithStatus(this, st)
   }
 
-// SSSTWarpViewController delegate
+// WarpViewController delegate
   warpControllerGetGalaxyViewSystem(wc) {
     return this._galaxyViewWormhole ? this._galaxyViewSystem.wormhole : this._galaxyViewSystem
   }
@@ -367,25 +367,25 @@ export class SSSTSystemLandingViewController {
   }
 
 
-// SSSTShipYardViewController delegate
+// ShipYardViewController delegate
 
 	shipYardViewControllerDidBuyFuel(syVC) {
     // GalaxyView automatically picks up on the expanded range so no need to forward this callback
 	}
 
 
-// SSSTGalacticChartViewController delegate
+// GalacticChartViewController delegate
 
   galacticChartViewControllerWarpViaSingularity(vc, solarSystem) {
     pLog.log(23)
     const contentDiv = this._clearedSubContentDiv()
-    const viewController = new SSSTWarpViewController(contentDiv, this._game)
+    const viewController = new WarpViewController(contentDiv, this._game)
     viewController.delegate = this;
     viewController.presentView();
-    SSSTWarpViewController.warpWithGame(this._game, true, solarSystem, viewController);
+    WarpViewController.warpWithGame(this._game, true, solarSystem, viewController);
   }
 
-// SSSTCommanderStatusViewController delegate
+// CommanderStatusViewController delegate
 
   clearAllHighScoringGames() {
     this.delegate.clearAllHighScoringGames()
@@ -400,7 +400,7 @@ export class SSSTSystemLandingViewController {
     this.delegate.endGameViewControllerWantsContinue(vc)
   }
 
-// SSSTPersonnelRosterViewController delegate
+// PersonnelRosterViewController delegate
 
   personnelRosterViewControllerDidFire(vc, crewMember) {
     const currentSystemMercenary = this._game.commander.currentSystem.mercenary;
@@ -410,7 +410,7 @@ export class SSSTSystemLandingViewController {
     }
   }
 
-// SSSTGalaxyView delegate
+// GalaxyView delegate
 
   galaxyViewSelectedSolarSystem(gv, solarSystem, wormhole) {
     this._galaxyViewSystem = solarSystem

@@ -1,20 +1,20 @@
-import { SSSTAlertViewController } from '../legacy-ui/AlertViewController.ts'
-import { SSSTReputationScore } from './Commander.ts'
-import { SSSTRareEvent } from './Game.ts'
-import type { SSSTGame } from './Game.ts'
+import { AlertViewController } from '../legacy-ui/AlertViewController.ts'
+import { ReputationScore } from './Commander.ts'
+import { RareEvent } from './Game.ts'
+import type { Game } from './Game.ts'
 import type { SpaceTraderGame } from '../legacy-ui/main.ts'
 import { runtime } from './runtime.ts'
 
-export const MADebugMode = {
+export const DebugMode = {
   Disabled: 0,
   Alert: 1,
   Assert: 2,
 } as const;
-export type MADebugMode = (typeof MADebugMode)[keyof typeof MADebugMode];
+export type DebugMode = (typeof DebugMode)[keyof typeof DebugMode];
 
 // Measure code coverage of unit tests by sprinkling probes
-export const MA_PROBE_NEXT = 172 // Next unused probe value. `grep pLog . -r | sort -t '(' -k2,2n`
-export class MAProbeLog {
+export const PROBE_NEXT = 172 // Next unused probe value. `grep pLog . -r | sort -t '(' -k2,2n`
+export class ProbeLog {
   declare probeLog: Set<number>
 
   constructor() {
@@ -27,7 +27,7 @@ export class MAProbeLog {
 
   missingProbes() {
     const result = []
-    for (let i = 0; i < MA_PROBE_NEXT; ++i) {
+    for (let i = 0; i < PROBE_NEXT; ++i) {
       if (!this.probeLog.has(i)) {
         result.push(i)
       }
@@ -38,17 +38,17 @@ export class MAProbeLog {
 
   summaryString() {
     const missing = this.missingProbes()
-    const perc = Math.floor((this.probeLog.size / MA_PROBE_NEXT) * 1000) / 10
+    const perc = Math.floor((this.probeLog.size / PROBE_NEXT) * 1000) / 10
 
     const missingStr = missing.length > 0 ? `Missing: ${missing.join(',')}.` : "Perfect!"
-    return `Probe coverage: saw ${this.probeLog.size} / ${MA_PROBE_NEXT} (${perc}%) probes. ${missingStr}`
+    return `Probe coverage: saw ${this.probeLog.size} / ${PROBE_NEXT} (${perc}%) probes. ${missingStr}`
   }
 }
 
-export const pLog = new MAProbeLog()
+export const pLog = new ProbeLog()
 
 
-export class SSSTMockLocalStorage {
+export class MockLocalStorage {
   declare dict: Record<string, string>
 
   constructor() {
@@ -69,7 +69,7 @@ export class SSSTMockLocalStorage {
 }
 
 
-export const MAUtils = {
+export const Utils = {
   uuidv4: function() {
     // From https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -117,7 +117,7 @@ export const MAUtils = {
     const keysA = Object.keys(objA);
     const keysB = Object.keys(objB);
     if (keysA.length !== keysB.length) {
-      const differentKeys = MAUtils.symmetricDifference(keysA, keysB)
+      const differentKeys = Utils.symmetricDifference(keysA, keysB)
       inequalityHandler!(`[${keyName}] keys length equality objA ${keysA.length} keys ; objB ${keysB.length} keys ; differing keys: ${differentKeys.join(',')}`)
       return false;
     }
@@ -128,7 +128,7 @@ export const MAUtils = {
         return false;
       }
 
-      if (!MAUtils.isEqualDeep(objA[key], objB[key], inequalityHandler, keyName+"."+key)) {
+      if (!Utils.isEqualDeep(objA[key], objB[key], inequalityHandler, keyName+"."+key)) {
         return false; // Recursive comparison for nested objects
       }
     }
@@ -152,17 +152,17 @@ export const MAUtils = {
   },
 
   handleFatalError: function(str: string) {
-    const stackTrace = MAUtils.logStackTrace()
-    if (runtime.debugMode === MADebugMode.Alert) {
-      SSSTAlertViewController.presentAlertWithDismiss("DEBUG: " + str + stackTrace)
-    } else if (runtime.debugMode === MADebugMode.Assert) {
-      MAUtils.throwError(str)
+    const stackTrace = Utils.logStackTrace()
+    if (runtime.debugMode === DebugMode.Alert) {
+      AlertViewController.presentAlertWithDismiss("DEBUG: " + str + stackTrace)
+    } else if (runtime.debugMode === DebugMode.Assert) {
+      Utils.throwError(str)
     }
   },
 
   ensureInteger: function(n: unknown) {
     if (!Number.isInteger(n)) {
-      MAUtils.handleFatalError("ensureInteger failed")
+      Utils.handleFatalError("ensureInteger failed")
       return false
     }
     return true
@@ -170,7 +170,7 @@ export const MAUtils = {
 
   ensureNumber: function(n: unknown) {
     if (isNaN(n as number)) {
-      MAUtils.handleFatalError("ensureNumber failed")
+      Utils.handleFatalError("ensureNumber failed")
       return false
     }
     return true
@@ -178,14 +178,14 @@ export const MAUtils = {
 
   ensureType: function(b: unknown, typeStr: string) {
     if (b === null || (typeof b) !== typeStr) {
-      MAUtils.handleFatalError(`ensureType ${typeStr} failed. Got this instead: ${b}`)
+      Utils.handleFatalError(`ensureType ${typeStr} failed. Got this instead: ${b}`)
       return false
     }
     return true
   },
 
   ensureBool: function(b: unknown) {
-    return MAUtils.ensureType(b, `boolean`)
+    return Utils.ensureType(b, `boolean`)
   },
 
   ensureArrayOrNull: function(a: unknown, elementType: string) {
@@ -204,7 +204,7 @@ export const MAUtils = {
     }
 
     if (!valid) {
-      MAUtils.handleFatalError("ensureArrayOrNull failed")
+      Utils.handleFatalError("ensureArrayOrNull failed")
       return false
     }
 
@@ -221,7 +221,7 @@ export const MAUtils = {
       return true
     }
 
-    MAUtils.handleFatalError("ensureMapOrNull failed")
+    Utils.handleFatalError("ensureMapOrNull failed")
     return false
   },
 
@@ -229,7 +229,7 @@ export const MAUtils = {
     if (o === null) {
       return true
     }
-    return MAUtils.ensureType(o, "object")
+    return Utils.ensureType(o, "object")
   },
 
   // Treat an array like an ordered set
@@ -432,7 +432,7 @@ export const MAUtils = {
     return element
   },
 
-  createBaysCreditsElement(game: SSSTGame) {
+  createBaysCreditsElement(game: Game) {
     const container = document.createElement('div')
     container.classList.add('bays-credits')
 
@@ -497,7 +497,7 @@ export const MAUtils = {
       b.id = "cheat_averageReputation"
 
       runtime.actionLog.registerButtonEventListener(b, 'click', () => {
-          sTG.viewController._game.commander.reputationScore = SSSTReputationScore.Average
+          sTG.viewController._game.commander.reputationScore = ReputationScore.Average
       });
 
       div.appendChild(b);
@@ -526,10 +526,10 @@ export const MAUtils = {
       "Good Bottle",
     ]
 
-    for (let rareEvent = 0; rareEvent < SSSTRareEvent.Count; rareEvent++) {
+    for (let rareEvent = 0; rareEvent < RareEvent.Count; rareEvent++) {
       const eventButton = document.createElement('button');
       eventButton.innerText = "Encounter " + rareEvents[rareEvent]
-      eventButton.id = "cheat_" + MAUtils.sanitizedElementID(eventButton.innerText)
+      eventButton.id = "cheat_" + Utils.sanitizedElementID(eventButton.innerText)
 
       runtime.actionLog.registerButtonEventListener(eventButton, 'click', () => {
         sTG.viewController._game.forceRareEvent = true
@@ -576,7 +576,7 @@ export const MAUtils = {
   },
 
   prettyTimeAgoStringForTimestamp(timestamp: number, now: number) {
-    let str = MAUtils.prettyTimeStringForTimestamp(timestamp, now)
+    let str = Utils.prettyTimeStringForTimestamp(timestamp, now)
 
     if (!str) {
       // do nothing
@@ -609,6 +609,6 @@ export const MAUtils = {
     }
   },
 }
-Object.freeze(MAUtils)
+Object.freeze(Utils)
 
 export let ma_maintainScrollPositionLevel = 0

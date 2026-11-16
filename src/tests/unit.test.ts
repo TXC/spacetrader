@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 import { runtime } from '../game/runtime.ts'
-import { SSSTMockLocalStorage } from '../game/Utilities.ts'
+import { MockLocalStorage } from '../game/Utilities.ts'
 import { SpaceTraderGame } from '../legacy-ui/main.ts'
 import oldSave from './fixtures/old-save.json'
 import { registerLegacyTests } from './legacySuite.ts'
@@ -15,7 +15,7 @@ test('matches the baseline counts', () => {
 })
 
 test('a save written by the old code loads', () => {
-  const storage = new SSSTMockLocalStorage()
+  const storage = new MockLocalStorage()
   for (const [k, v] of Object.entries(oldSave)) storage.setItem(k, JSON.stringify(v))
   runtime.stLocalStorage = storage
   // main() sets viewController; the old screen code is untyped.

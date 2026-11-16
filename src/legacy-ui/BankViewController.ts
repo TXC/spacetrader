@@ -1,10 +1,10 @@
 // @ts-nocheck
-import { SSSTAlertViewController } from './AlertViewController.ts'
+import { AlertViewController } from './AlertViewController.ts'
 import { MAX_SAFE_PILOT_INSURANCE_DISCOUNT } from '../game/Commander.ts'
-import { MAUtils } from '../game/Utilities.ts'
+import { Utils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
-export class SSSTBankViewController {
+export class BankViewController {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game) {
     this.div = div
@@ -12,7 +12,7 @@ export class SSSTBankViewController {
   }
 
   presentView() {
-    MAUtils.maintainScrollPosition(() => {
+    Utils.maintainScrollPosition(() => {
       this._presentView()
     })
   }
@@ -24,10 +24,10 @@ export class SSSTBankViewController {
     containerDiv.classList.add('centered-div')
     this.div.appendChild(containerDiv)
 
-    const bh = MAUtils.createElement('h1', { textContent: 'Bank' }, containerDiv);
+    const bh = Utils.createElement('h1', { textContent: 'Bank' }, containerDiv);
     bh.classList.add('centered-div')
 
-    MAUtils.createElement('h4', { textContent: 'Loans' }, containerDiv);
+    Utils.createElement('h4', { textContent: 'Loans' }, containerDiv);
 
     const creditTable = document.createElement('table');
     creditTable.classList.add('bankTable')
@@ -58,7 +58,7 @@ export class SSSTBankViewController {
 
 			const payTinyButton = document.createElement('button');
 			payTinyButton.innerText = `Pay back $${this._payableTinyIncrement()}`;
-      payTinyButton.id = MAUtils.sanitizedElementID(payTinyButton.innerText)
+      payTinyButton.id = Utils.sanitizedElementID(payTinyButton.innerText)
       runtime.actionLog.registerButtonEventListener(payTinyButton, 'click', () => {
 				this._tinyPayPressed();
 			});
@@ -66,7 +66,7 @@ export class SSSTBankViewController {
 
 			const payMediumButton = document.createElement('button');
 			payMediumButton.innerText = `$${this._payableMediumIncrement()}`;
-      payMediumButton.id = MAUtils.sanitizedElementID("pay_" + payMediumButton.innerText)
+      payMediumButton.id = Utils.sanitizedElementID("pay_" + payMediumButton.innerText)
       runtime.actionLog.registerButtonEventListener(payMediumButton, 'click', () => {
 				this._mediumPayPressed();
 			});
@@ -74,7 +74,7 @@ export class SSSTBankViewController {
 
 			const payAllButton = document.createElement('button');
 			payAllButton.innerText = `$${this._payable()}`;
-      payAllButton.id = MAUtils.sanitizedElementID("pay_" + payAllButton.innerText)
+      payAllButton.id = Utils.sanitizedElementID("pay_" + payAllButton.innerText)
       runtime.actionLog.registerButtonEventListener(payAllButton, 'click', () => {
 				this._maxPayPressed();
 			});
@@ -105,7 +105,7 @@ export class SSSTBankViewController {
 
 			const borrowTinyButton = document.createElement('button');
 			borrowTinyButton.innerText = `Borrow $${this._borrowableTinyIncrement()}`;
-      borrowTinyButton.id = MAUtils.sanitizedElementID(borrowTinyButton.innerText)
+      borrowTinyButton.id = Utils.sanitizedElementID(borrowTinyButton.innerText)
       runtime.actionLog.registerButtonEventListener(borrowTinyButton, 'click', () => {
 				this._tinyLoanPressed();
 			});
@@ -113,7 +113,7 @@ export class SSSTBankViewController {
 
 			const borrowMediumButton = document.createElement('button');
 			borrowMediumButton.innerText = `$${this._borrowableMediumIncrement()}`;
-      borrowMediumButton.id = MAUtils.sanitizedElementID("borrow_" + borrowMediumButton.innerText)
+      borrowMediumButton.id = Utils.sanitizedElementID("borrow_" + borrowMediumButton.innerText)
       runtime.actionLog.registerButtonEventListener(borrowMediumButton, 'click', () => {
 				this._mediumLoanPressed();
 			});
@@ -121,7 +121,7 @@ export class SSSTBankViewController {
 
 			const borrowAllButton = document.createElement('button');
 			borrowAllButton.innerText = `$${this._borrowable()}`;
-      borrowAllButton.id = MAUtils.sanitizedElementID("borrow_" + borrowAllButton.innerText)
+      borrowAllButton.id = Utils.sanitizedElementID("borrow_" + borrowAllButton.innerText)
       runtime.actionLog.registerButtonEventListener(borrowAllButton, 'click', () => {
 				this._maxLoanPressed();
 			});
@@ -152,7 +152,7 @@ export class SSSTBankViewController {
     containerDiv.appendChild(document.createElement('br'));
     containerDiv.appendChild(document.createElement('br'));
 
-    MAUtils.createElement('h4', { textContent: 'Insurance' }, containerDiv);
+    Utils.createElement('h4', { textContent: 'Insurance' }, containerDiv);
 
     const insTable = document.createElement('table');
     insTable.classList.add('bankTable')
@@ -204,7 +204,7 @@ export class SSSTBankViewController {
 
     const insButton = document.createElement('button');
     insButton.innerText = this._game.commander.hasInsurance ? "Cancel Insurance Policy" : "Buy Insurance Policy"
-    insButton.id = MAUtils.sanitizedElementID(insButton.innerText)
+    insButton.id = Utils.sanitizedElementID(insButton.innerText)
     runtime.actionLog.registerButtonEventListener(insButton, 'click', () => {
       this._insuranceButtonPressed();
     });
@@ -213,7 +213,7 @@ export class SSSTBankViewController {
     containerDiv.appendChild(document.createElement('br'));
     containerDiv.appendChild(document.createElement('br'));
 
-    const baysCreditsEl = MAUtils.createBaysCreditsElement(this._game)
+    const baysCreditsEl = Utils.createBaysCreditsElement(this._game)
     containerDiv.appendChild(baysCreditsEl)
   }
 
@@ -222,7 +222,7 @@ export class SSSTBankViewController {
 
 		if (!commander.hasInsurance) {
 			if (!commander.hasEscapePod) {
-        SSSTAlertViewController.presentAlertWithDismiss("Without an escape pod, insurance isn't useful because you will be killed if your ship is destroyed. Buy one at the Ship Yard.")
+        AlertViewController.presentAlertWithDismiss("Without an escape pod, insurance isn't useful because you will be killed if your ship is destroyed. Buy one at the Ship Yard.")
 				return;
 			}
 

@@ -1,13 +1,13 @@
 // @ts-nocheck
 import { PCEImageLibrary } from '../game/Images.ts'
-import { SSSTAlertViewController } from './AlertViewController.ts'
-import { SSSTPoliceRecordScore } from '../game/Commander.ts'
-import { SSSTDragonflyQuestStatus, SSSTExperimentQuestStatus, SSSTInvasionQuestStatus, SSSTJaporiQuestStatus, SSSTJarekQuestStatus, SSSTMonsterQuestStatus, SSSTScarabQuestStatus, SSSTSpecialEvent, SSSTWildQuestStatus } from '../game/SolarSystem.types.ts'
-import { SSSTStatus, SSSTTechLevel } from '../game/TradeItem.types.ts'
-import { MAUtils, pLog } from '../game/Utilities.ts'
+import { AlertViewController } from './AlertViewController.ts'
+import { PoliceRecordScore } from '../game/Commander.ts'
+import { DragonflyQuestStatus, ExperimentQuestStatus, InvasionQuestStatus, JaporiQuestStatus, JarekQuestStatus, MonsterQuestStatus, ScarabQuestStatus, SpecialEvent, WildQuestStatus } from '../game/SolarSystem.types.ts'
+import { Status, TechLevel } from '../game/TradeItem.types.ts'
+import { Utils, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
-export class SSSTNewsViewController {
+export class NewsViewController {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game) {
     this.div = div
@@ -40,7 +40,7 @@ export class SSSTNewsViewController {
     const containerDiv = this.div
     containerDiv.innerHTML = '';
 
-    const nh = MAUtils.createElement('h1', { textContent: 'News' }, containerDiv);
+    const nh = Utils.createElement('h1', { textContent: 'News' }, containerDiv);
     nh.classList.add('centered-div')
     nh.classList.add('news-header')
 
@@ -49,7 +49,7 @@ export class SSSTNewsViewController {
 
     if (!this._game.alreadyPaidForNewspaper) {
       if (this._game.commander.spendingMoney() < this._price()) {
-        SSSTAlertViewController.presentAlertWithDismiss(`Sorry! A newspaper costs $${this._price()} in this system. You don't have enough money!`)
+        AlertViewController.presentAlertWithDismiss(`Sorry! A newspaper costs $${this._price()} in this system. You don't have enough money!`)
       } else {
         if (this._game.autoNews) {
           pLog.log(43)
@@ -138,7 +138,7 @@ export class SSSTNewsViewController {
     title = title.replace(/%@/g, this._game.commander.getCurrentSystem().getName())
 
 
-    const head = MAUtils.createElement('h4', { textContent: title }, null)
+    const head = Utils.createElement('h4', { textContent: title }, null)
 
     const newsStr = this._newsString()
     newsStrDiv.innerHTML = "<br>" + newsStr.replace(/\n/g, '<br><br>');
@@ -173,90 +173,90 @@ export class SSSTNewsViewController {
 		const wildStatus = this._game.wildStatus;
 
 		switch (specialEvent) {
-			case SSSTSpecialEvent.JaporiDisease:
-				if (japoriQuestStatus === SSSTJaporiQuestStatus.Open) {
+			case SpecialEvent.JaporiDisease:
+				if (japoriQuestStatus === JaporiQuestStatus.Open) {
           pLog.log(113)
 					specialHeadline = 'Editorial: We Must Help Japori!';
 				}
 				break;
-			case SSSTSpecialEvent.MedicineDelivery:
-				if (japoriQuestStatus === SSSTJaporiQuestStatus.HasMedicine) {
+			case SpecialEvent.MedicineDelivery:
+				if (japoriQuestStatus === JaporiQuestStatus.HasMedicine) {
           pLog.log(114)
 					specialHeadline = 'Disease Antidotes Arrive! Health Officials Optimistic.';
 				}
 				break;
-			case SSSTSpecialEvent.Scarab:
+			case SpecialEvent.Scarab:
 				specialHeadline = 'Security Scandal: Test Craft Confirmed Stolen.';
 				break;
-			case SSSTSpecialEvent.ScarabDestroyed:
-				if (scarabStatus === SSSTScarabQuestStatus.ScarabDestroyed) {
+			case SpecialEvent.ScarabDestroyed:
+				if (scarabStatus === ScarabQuestStatus.ScarabDestroyed) {
 					specialHeadline = 'Wormhole Traffic Delayed as Stolen Craft Destroyed.';
-				} else if (scarabStatus === SSSTScarabQuestStatus.ScarabExists) {
+				} else if (scarabStatus === ScarabQuestStatus.ScarabExists) {
 					specialHeadline = 'Wormhole Travelers Harassed by Unusual Ship!';
 				}
 				break;
-			case SSSTSpecialEvent.MonsterKilled:
-				if (monsterStatus === SSSTMonsterQuestStatus.ClosedMonsterDestroyed) {
+			case SpecialEvent.MonsterKilled:
+				if (monsterStatus === MonsterQuestStatus.ClosedMonsterDestroyed) {
 					specialHeadline = 'Hero Slays Space Monster! Parade, Honors Planned for Today.';
-				} else if (monsterStatus === SSSTMonsterQuestStatus.MonsterExists) {
+				} else if (monsterStatus === MonsterQuestStatus.MonsterExists) {
 					specialHeadline = 'Space Monster Threatens Homeworld!';
 				}
 				break;
-			case SSSTSpecialEvent.Dragonfly:
+			case SpecialEvent.Dragonfly:
 				specialHeadline = 'Experimental Craft Stolen! Critics Demand Security Review.';
 				break;
-			case SSSTSpecialEvent.FlyBaratas:
-				if (dragonflyStatus === SSSTDragonflyQuestStatus.GoToBaratas) {
+			case SpecialEvent.FlyBaratas:
+				if (dragonflyStatus === DragonflyQuestStatus.GoToBaratas) {
 					specialHeadline = 'Investigators Report Strange Craft.';
 				}
 				break;
-			case SSSTSpecialEvent.FlyMelina:
-				if (dragonflyStatus === SSSTDragonflyQuestStatus.GoToMelina) {
+			case SpecialEvent.FlyMelina:
+				if (dragonflyStatus === DragonflyQuestStatus.GoToMelina) {
 					specialHeadline = 'Rumors Continue: Melina Orbitted by Odd Starcraft.';
 				}
 				break;
-			case SSSTSpecialEvent.FlyRegulas:
-				if (dragonflyStatus === SSSTDragonflyQuestStatus.GoToRegulas) {
+			case SpecialEvent.FlyRegulas:
+				if (dragonflyStatus === DragonflyQuestStatus.GoToRegulas) {
 					specialHeadline = 'Strange Ship Observed in Regulas Orbit.';
 				}
 				break;
-			case SSSTSpecialEvent.DragonflyDestroyed:
-				if (dragonflyStatus === SSSTDragonflyQuestStatus.ClosedDragonflyDestroyed) {
+			case SpecialEvent.DragonflyDestroyed:
+				if (dragonflyStatus === DragonflyQuestStatus.ClosedDragonflyDestroyed) {
 					specialHeadline = 'Spectacular Display as Stolen Ship Destroyed in Fierce Space Battle.';
-				} else if (dragonflyStatus === SSSTDragonflyQuestStatus.GoToZalkon) {
+				} else if (dragonflyStatus === DragonflyQuestStatus.GoToZalkon) {
 					specialHeadline = 'Unidentified Ship: A Threat to Zalkon?';
 				}
 				break;
-			case SSSTSpecialEvent.GemulonRescued:
-				if (invasionStatus >= SSSTInvasionQuestStatus.DaysUntilInvasion._7 && invasionStatus <= SSSTInvasionQuestStatus.DaysUntilInvasion._1) {
+			case SpecialEvent.GemulonRescued:
+				if (invasionStatus >= InvasionQuestStatus.DaysUntilInvasion._7 && invasionStatus <= InvasionQuestStatus.DaysUntilInvasion._1) {
 					specialHeadline = 'Invasion Imminent! Plans in Place to Repel Hostile Invaders.';
-				} else if (invasionStatus === SSSTInvasionQuestStatus.ClosedTooLate) {
+				} else if (invasionStatus === InvasionQuestStatus.ClosedTooLate) {
 					specialHeadline = 'Alien Invasion Devastates Planet!';
 				}
 				break;
-			case SSSTSpecialEvent.AlienInvasion:
+			case SpecialEvent.AlienInvasion:
 				specialHeadline = 'Editorial: Who Will Warn Gemulon?';
 				break;
-			case SSSTSpecialEvent.ExperimentStopped:
-				if (experimentStatus >= SSSTExperimentQuestStatus.DaysRemaining._10 && experimentStatus <= SSSTExperimentQuestStatus.DaysRemaining._1) {
+			case SpecialEvent.ExperimentStopped:
+				if (experimentStatus >= ExperimentQuestStatus.DaysRemaining._10 && experimentStatus <= ExperimentQuestStatus.DaysRemaining._1) {
 					specialHeadline = 'Scientists Cancel High-profile Test! Committee to Investigate Design.';
 				}
 				break;
-			case SSSTSpecialEvent.ExperimentNotStopped:
+			case SpecialEvent.ExperimentNotStopped:
 				specialHeadline = 'Huge Explosion Reported at Research Facility.';
 				break;
-			case SSSTSpecialEvent.ArtifactDelivered:
+			case SpecialEvent.ArtifactDelivered:
 				if (this._game.commander.artifactOnBoard) {
 					specialHeadline = 'Scientist Adds Alien Artifact to Museum Collection.';
 				}
 				break;
-			case SSSTSpecialEvent.JarekGetsOut:
-				if (jarekStatus === SSSTJarekQuestStatus.OnBoard) {
+			case SpecialEvent.JarekGetsOut:
+				if (jarekStatus === JarekQuestStatus.OnBoard) {
 					specialHeadline = 'Ambassador Jarek Returns from Crisis.';
 				}
 				break;
-			case SSSTSpecialEvent.WildGetsOut:
-				if (wildStatus === SSSTWildQuestStatus.OnBoard) {
+			case SpecialEvent.WildGetsOut:
+				if (wildStatus === WildQuestStatus.OnBoard) {
 					specialHeadline = 'Rumors Suggest Known Criminal J. Wild May Come to Kravat!';
 				}
 				break;
@@ -270,13 +270,13 @@ export class SSSTNewsViewController {
 		const status = this._game.commander.getCurrentSystem().getStatus();
 		const statusString = (status) => {
 			switch (status) {
-				case SSSTStatus.AtWar: return 'War News: Offensives Continue!';
-				case SSSTStatus.Plague: return 'Plague Spreads! Outlook Grim.';
-				case SSSTStatus.Drought: return 'No Rain in Sight';
-				case SSSTStatus.Boredom: return 'Editors: Won\'t Someone Entertain Us?';
-				case SSSTStatus.ColdSpell: return 'Cold Snap Continues!';
-				case SSSTStatus.CropFailure: return 'Serious Crop Failure! Must We Ration?';
-				case SSSTStatus.LackWorkers: return 'Jobless Rate at All-Time Low!';
+				case Status.AtWar: return 'War News: Offensives Continue!';
+				case Status.Plague: return 'Plague Spreads! Outlook Grim.';
+				case Status.Drought: return 'No Rain in Sight';
+				case Status.Boredom: return 'Editors: Won\'t Someone Entertain Us?';
+				case Status.ColdSpell: return 'Cold Snap Continues!';
+				case Status.CropFailure: return 'Serious Crop Failure! Must We Ration?';
+				case Status.LackWorkers: return 'Jobless Rate at All-Time Low!';
 				default: return null;
 			}
 		};
@@ -288,7 +288,7 @@ export class SSSTNewsViewController {
 		}
 
 		const policeRecordScore = this._game.commander.policeRecordScore;
-		if (policeRecordScore <= SSSTPoliceRecordScore.Villain) {
+		if (policeRecordScore <= PoliceRecordScore.Villain) {
 			headlines += comma;
 
 			const villainHeadlines = [
@@ -300,7 +300,7 @@ export class SSSTNewsViewController {
 
 			headlines += villainHeadlines[runtime.gameRand.randomIntBelow(villainHeadlines.length)];
 			comma = '\n';
-		} else if (policeRecordScore === SSSTPoliceRecordScore.Hero) {
+		} else if (policeRecordScore === PoliceRecordScore.Hero) {
 			headlines += comma;
 
 			const heroHeadlines = [
@@ -322,31 +322,31 @@ export class SSSTNewsViewController {
 		for (let i = 0; i < solarSystemsWithinRange.length; i++) {
 			let solarSystem = solarSystemsWithinRange[i];
 
-			if (solarSystem.getSpecialEvent() === SSSTSpecialEvent.MoonForSale) {
+			if (solarSystem.getSpecialEvent() === SpecialEvent.MoonForSale) {
 				headlines += `${comma}Seller in ${solarSystem.getName()} System has Utopian Moon Available.`;
 				comma = '\n';
-			} else if (solarSystem.specialEvent === SSSTSpecialEvent.BuyTribble) {
+			} else if (solarSystem.specialEvent === SpecialEvent.BuyTribble) {
 				headlines += `${comma}Collector in ${solarSystem.getName()} System Seeks to Purchase Tribbles.`;
 				comma = '\n';
 			}
 
-			if (solarSystem.status !== SSSTStatus.Uneventful) {
-				if (runtime.gameRand.randomIntBelow(100) <= (solarSystem.techLevel * 50 / SSSTTechLevel.Count) + 10 * (5 - this._game.difficulty)) {
+			if (solarSystem.status !== Status.Uneventful) {
+				if (runtime.gameRand.randomIntBelow(100) <= (solarSystem.techLevel * 50 / TechLevel.Count) + 10 * (5 - this._game.difficulty)) {
 					const storyPrefixes = ["Reports of", "News of", "New Rumors of", "Sources say", "Notice:", "Evidence Suggests"];
 
 					const HEADLINE_STATUS_STR = (st) => {
 						switch (st) {
-							case SSSTStatus.AtWar:
+							case Status.AtWar:
 								return "Strife and War";
-							case SSSTStatus.Plague:
+							case Status.Plague:
 								return "Plague Outbreaks";
-							case SSSTStatus.Drought:
+							case Status.Drought:
 								return "Severe Drought";
-							case SSSTStatus.Boredom:
+							case Status.Boredom:
 								return "Terrible Boredom";
-							case SSSTStatus.ColdSpell:
+							case Status.ColdSpell:
 								return "Cold Weather";
-							case SSSTStatus.CropFailure:
+							case Status.CropFailure:
 								return "Crop Failures";
 							default:
 								return "Labor Shortages";

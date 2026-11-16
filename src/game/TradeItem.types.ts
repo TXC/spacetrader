@@ -1,4 +1,4 @@
-export const SSSTTechLevel = {
+export const TechLevel = {
     PreAgricultural: 0,
     Agricultural: 1,
     Medieval: 2,
@@ -9,23 +9,23 @@ export const SSSTTechLevel = {
     HighTech: 7,
     Count: 8,
 } as const;
-export type SSSTTechLevel = (typeof SSSTTechLevel)[keyof typeof SSSTTechLevel];
+export type TechLevel = (typeof TechLevel)[keyof typeof TechLevel];
 
 export const TECH_LEVEL_STR = (x: number) => {
     switch (x) {
-        case SSSTTechLevel.PreAgricultural: return "Pre-agricultural";
-        case SSSTTechLevel.Agricultural: return "Agricultural";
-        case SSSTTechLevel.Medieval: return "Medieval";
-        case SSSTTechLevel.Renaissance: return "Renaissance";
-        case SSSTTechLevel.EarlyIndustrial: return "Early Industrial";
-        case SSSTTechLevel.Industrial: return "Industrial";
-        case SSSTTechLevel.PostIndustrial: return "Post-industrial";
-        case SSSTTechLevel.HighTech: return "High-tech";
+        case TechLevel.PreAgricultural: return "Pre-agricultural";
+        case TechLevel.Agricultural: return "Agricultural";
+        case TechLevel.Medieval: return "Medieval";
+        case TechLevel.Renaissance: return "Renaissance";
+        case TechLevel.EarlyIndustrial: return "Early Industrial";
+        case TechLevel.Industrial: return "Industrial";
+        case TechLevel.PostIndustrial: return "Post-industrial";
+        case TechLevel.HighTech: return "High-tech";
         default: return "";
     }
 };
 
-export const SSSTStatus = {
+export const Status = {
     Uneventful: 0,
     AtWar: 1,
     Plague: 2,
@@ -36,23 +36,23 @@ export const SSSTStatus = {
     LackWorkers: 7,
     Count: 8,
 } as const;
-export type SSSTStatus = (typeof SSSTStatus)[keyof typeof SSSTStatus];
+export type Status = (typeof Status)[keyof typeof Status];
 
 export const STATUS_STR = (x: number) => {
     switch (x) {
-        case SSSTStatus.Uneventful: return "under no particular pressure";
-        case SSSTStatus.AtWar: return "at war";
-        case SSSTStatus.Plague: return "ravaged by a plague";
-        case SSSTStatus.Drought: return "suffering from a drought";
-        case SSSTStatus.Boredom: return "suffering from extreme boredom";
-        case SSSTStatus.ColdSpell: return "suffering from a cold spell";
-        case SSSTStatus.CropFailure: return "suffering from crop failure";
-        case SSSTStatus.LackWorkers: return "lacking enough workers";
+        case Status.Uneventful: return "under no particular pressure";
+        case Status.AtWar: return "at war";
+        case Status.Plague: return "ravaged by a plague";
+        case Status.Drought: return "suffering from a drought";
+        case Status.Boredom: return "suffering from extreme boredom";
+        case Status.ColdSpell: return "suffering from a cold spell";
+        case Status.CropFailure: return "suffering from crop failure";
+        case Status.LackWorkers: return "lacking enough workers";
         default: return "";
     }
 };
 
-export const SSSTResource = {
+export const Resource = {
     None: 0,
     MineralRich: 1,
     MineralPoor: 2,
@@ -68,28 +68,28 @@ export const SSSTResource = {
     Warlike: 12,
     Count: 13,
 } as const;
-export type SSSTResource = (typeof SSSTResource)[keyof typeof SSSTResource];
+export type Resource = (typeof Resource)[keyof typeof Resource];
 
 export const RESOURCES_STR = (x: number) => {
     switch (x) {
-        case SSSTResource.None: return "Nothing special";
-        case SSSTResource.MineralRich: return "Mineral rich";
-        case SSSTResource.MineralPoor: return "Mineral poor";
-        case SSSTResource.Desert: return "Desert";
-        case SSSTResource.SweetwaterOceans: return "Sweetwater oceans";
-        case SSSTResource.RichSoil: return "Rich soil";
-        case SSSTResource.PoorSoil: return "Poor soil";
-        case SSSTResource.RichFauna: return "Rich fauna";
-        case SSSTResource.Lifeless: return "Lifeless";
-        case SSSTResource.WeirdMushrooms: return "Weird mushrooms";
-        case SSSTResource.SpecialHerbs: return "Special herbs";
-        case SSSTResource.Artistic: return "Artistic populace";
-        case SSSTResource.Warlike: return "Warlike populace";
+        case Resource.None: return "Nothing special";
+        case Resource.MineralRich: return "Mineral rich";
+        case Resource.MineralPoor: return "Mineral poor";
+        case Resource.Desert: return "Desert";
+        case Resource.SweetwaterOceans: return "Sweetwater oceans";
+        case Resource.RichSoil: return "Rich soil";
+        case Resource.PoorSoil: return "Poor soil";
+        case Resource.RichFauna: return "Rich fauna";
+        case Resource.Lifeless: return "Lifeless";
+        case Resource.WeirdMushrooms: return "Weird mushrooms";
+        case Resource.SpecialHerbs: return "Special herbs";
+        case Resource.Artistic: return "Artistic populace";
+        case Resource.Warlike: return "Warlike populace";
         default: return "";
     }
 };
 
-export const SSSTTradeItemType = {
+export const TradeItemType = {
     None: -1,
     Water: 0,
     Furs: 1,
@@ -106,8 +106,8 @@ export const SSSTTradeItemType = {
     FakeQuestCargo: 11,
     FakeQuestCargoReactor: 12,
 } as const;
-export type SSSTTradeItemType = (typeof SSSTTradeItemType)[keyof typeof SSSTTradeItemType];
+export type TradeItemType = (typeof TradeItemType)[keyof typeof TradeItemType];
 
 export const TRADE_ITEM_IS_ILLEGAL = (x: number) => {
-    return x === SSSTTradeItemType.Firearms || x === SSSTTradeItemType.Narcotics;
+    return x === TradeItemType.Firearms || x === TradeItemType.Narcotics;
 };

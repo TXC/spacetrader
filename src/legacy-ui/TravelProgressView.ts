@@ -1,9 +1,9 @@
 // @ts-nocheck
 import { DEBUG_OVERRIDE_SCALE_TO_1, UnvisitedSystemColor, VisitedSystemColor } from './GalaxyView.ts'
 import { TRAVEL_PROGRESS_DURATION } from './TravelViewController.ts'
-import { MAUtils } from '../game/Utilities.ts'
+import { Utils } from '../game/Utilities.ts'
 
-export class SSSTTravelProgressView {
+export class TravelProgressView {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game, origin, destination, wasVisited) {
     this.div = div
@@ -185,7 +185,7 @@ export class SSSTTravelProgressView {
         animationPercent = 1
       }
 
-      const distancePercent = MAUtils.easeInOutCubic(animationPercent)
+      const distancePercent = Utils.easeInOutCubic(animationPercent)
       shipDistance = this.shipProgress + distancePercent * (this.shipTargetProgress - this.shipProgress)
 
       if (animationPercent >= 1) {

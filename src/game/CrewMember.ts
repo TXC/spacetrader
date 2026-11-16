@@ -1,9 +1,9 @@
-import { MAUtils } from './Utilities.ts'
+import { Utils } from './Utilities.ts'
 import { runtime } from './runtime.ts'
 
-export type SSSTCrewMemberState = ReturnType<SSSTCrewMember['serializedState']>
+export type CrewMemberState = ReturnType<CrewMember['serializedState']>
 
-export class SSSTCrewMember {
+export class CrewMember {
     static declare _sNames: string[] | undefined
     declare name: string | null
     declare engineer: number
@@ -53,10 +53,10 @@ export class SSSTCrewMember {
     }
 
     constructor(name: string | null, engineer: number = 0, pilot: number = 0, fighter: number = 0, trader: number = 0) {
-        MAUtils.ensureType(name, "string")
+        Utils.ensureType(name, "string")
         this.name = name || null;
 
-        MAUtils.ensureArrayOrNull([engineer, pilot, fighter, trader], "number")
+        Utils.ensureArrayOrNull([engineer, pilot, fighter, trader], "number")
 
         this.engineer = engineer;
         this.pilot = pilot;
@@ -67,7 +67,7 @@ export class SSSTCrewMember {
         this.freeMercenaryCost = false;
     }
 
-    updateWithSerializedState(serializedState: SSSTCrewMemberState) {
+    updateWithSerializedState(serializedState: CrewMemberState) {
         this.name = serializedState.name || null;
         this.engineer = serializedState.engineer;
         this.pilot = serializedState.pilot;
@@ -79,8 +79,8 @@ export class SSSTCrewMember {
         this.freeMercenaryCost = serializedState.freeMercenaryCost || false;
     }
 
-    static fromSerializedState(serializedState: SSSTCrewMemberState) {
-        const crewMember = new SSSTCrewMember(serializedState.name);
+    static fromSerializedState(serializedState: CrewMemberState) {
+        const crewMember = new CrewMember(serializedState.name);
         crewMember.updateWithSerializedState(serializedState);
         return crewMember;
     }
@@ -98,7 +98,7 @@ export class SSSTCrewMember {
     }
 
     set forQuest(f: boolean) {
-      if (MAUtils.ensureBool(f)) {
+      if (Utils.ensureBool(f)) {
         this._forQuest = f;
       }
     }
@@ -142,14 +142,14 @@ export class SSSTCrewMember {
     }
 
     serializedState() {
-        MAUtils.ensureType(this.name, "string")
-        MAUtils.ensureInteger(this.pilot)
-        MAUtils.ensureInteger(this.fighter)
-        MAUtils.ensureInteger(this.trader)
-        MAUtils.ensureInteger(this.engineer)
-        MAUtils.ensureBool(this._forQuest)
-        MAUtils.ensureBool(this.carriesMaxTraderBoost)
-        MAUtils.ensureBool(this.freeMercenaryCost)
+        Utils.ensureType(this.name, "string")
+        Utils.ensureInteger(this.pilot)
+        Utils.ensureInteger(this.fighter)
+        Utils.ensureInteger(this.trader)
+        Utils.ensureInteger(this.engineer)
+        Utils.ensureBool(this._forQuest)
+        Utils.ensureBool(this.carriesMaxTraderBoost)
+        Utils.ensureBool(this.freeMercenaryCost)
         return {
             name: this.name,
             pilot: this.pilot,

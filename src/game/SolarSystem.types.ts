@@ -1,4 +1,4 @@
-import { MAUtils } from './Utilities.ts'
+import { Utils } from './Utilities.ts'
 
 // Constants
 export const MOON_PRICE = 500000;
@@ -6,7 +6,7 @@ export const MOON_PRICE = 500000;
 export const SQR = (x: number) => (x * x);
 
 // Enumerations
-export const SSSTDifficulty = {
+export const Difficulty = {
     Beginner: 0,
     Easy: 1,
     Normal: 2,
@@ -14,14 +14,14 @@ export const SSSTDifficulty = {
     Absurd: 4,
     Count: 5
 } as const;
-export type SSSTDifficulty = (typeof SSSTDifficulty)[keyof typeof SSSTDifficulty];
+export type Difficulty = (typeof Difficulty)[keyof typeof Difficulty];
 
 export const ADJUST_SKILL_FOR_DIFFICULTY = (skill: number, difficulty: number) => {
-    MAUtils.ensureInteger(skill)
-    MAUtils.ensureInteger(difficulty)
-    if (difficulty <= SSSTDifficulty.Easy) {
+    Utils.ensureInteger(skill)
+    Utils.ensureInteger(difficulty)
+    if (difficulty <= Difficulty.Easy) {
         return skill + 1;
-    } else if (difficulty == SSSTDifficulty.Absurd) {
+    } else if (difficulty == Difficulty.Absurd) {
         return Math.max(2, skill) - 1;
     } else {
         return skill;
@@ -33,22 +33,22 @@ export const CLOAK_BONUS = 2;
 
 export const DIFFICULTY_STR = (x: number) => {
     switch (x) {
-        case SSSTDifficulty.Beginner:
+        case Difficulty.Beginner:
             return "Beginner";
-        case SSSTDifficulty.Easy:
+        case Difficulty.Easy:
             return "Easy";
-        case SSSTDifficulty.Normal:
+        case Difficulty.Normal:
             return "Normal";
-        case SSSTDifficulty.Hard:
+        case Difficulty.Hard:
             return "Hard";
-        case SSSTDifficulty.Absurd:
+        case Difficulty.Absurd:
             return "Absurd";
         default:
             return "Unknown";
     }
 };
 
-export const SSSTSystemSize = {
+export const SystemSize = {
     Tiny: 0,
     Small: 1,
     Medium: 2,
@@ -56,19 +56,19 @@ export const SSSTSystemSize = {
     Huge: 4,
     Count: 5
 } as const;
-export type SSSTSystemSize = (typeof SSSTSystemSize)[keyof typeof SSSTSystemSize];
+export type SystemSize = (typeof SystemSize)[keyof typeof SystemSize];
 
 export const SYSTEM_SIZE_STR = (x: number) => {
     switch (x) {
-        case SSSTSystemSize.Tiny:
+        case SystemSize.Tiny:
             return "Tiny";
-        case SSSTSystemSize.Small:
+        case SystemSize.Small:
             return "Small";
-        case SSSTSystemSize.Medium:
+        case SystemSize.Medium:
             return "Medium-sized";
-        case SSSTSystemSize.Large:
+        case SystemSize.Large:
             return "Large";
-        case SSSTSystemSize.Huge:
+        case SystemSize.Huge:
             return "Huge";
         default:
             return "Unknown";
@@ -76,29 +76,29 @@ export const SYSTEM_SIZE_STR = (x: number) => {
 };
 
 // Quest Status Enumerations
-export const SSSTJaporiQuestStatus = {
+export const JaporiQuestStatus = {
     Open: 0,
     HasMedicine: 1,
     Closed: 2
 } as const;
-export type SSSTJaporiQuestStatus = (typeof SSSTJaporiQuestStatus)[keyof typeof SSSTJaporiQuestStatus];
+export type JaporiQuestStatus = (typeof JaporiQuestStatus)[keyof typeof JaporiQuestStatus];
 
-export const SSSTScarabQuestStatus = {
+export const ScarabQuestStatus = {
     Open: 0,
     ScarabExists: 1,
     ScarabDestroyed: 2,
     Closed: 3
 } as const;
-export type SSSTScarabQuestStatus = (typeof SSSTScarabQuestStatus)[keyof typeof SSSTScarabQuestStatus];
+export type ScarabQuestStatus = (typeof ScarabQuestStatus)[keyof typeof ScarabQuestStatus];
 
-export const SSSTMonsterQuestStatus = {
+export const MonsterQuestStatus = {
     Open: 0,
     MonsterExists: 1,
     ClosedMonsterDestroyed: 2
 } as const;
-export type SSSTMonsterQuestStatus = (typeof SSSTMonsterQuestStatus)[keyof typeof SSSTMonsterQuestStatus];
+export type MonsterQuestStatus = (typeof MonsterQuestStatus)[keyof typeof MonsterQuestStatus];
 
-export const SSSTDragonflyQuestStatus = {
+export const DragonflyQuestStatus = {
     Open: 0,
     GoToBaratas: 1,
     GoToMelina: 2,
@@ -106,9 +106,9 @@ export const SSSTDragonflyQuestStatus = {
     GoToZalkon: 4,
     ClosedDragonflyDestroyed: 5
 } as const;
-export type SSSTDragonflyQuestStatus = (typeof SSSTDragonflyQuestStatus)[keyof typeof SSSTDragonflyQuestStatus];
+export type DragonflyQuestStatus = (typeof DragonflyQuestStatus)[keyof typeof DragonflyQuestStatus];
 
-export const SSSTInvasionQuestStatus = {
+export const InvasionQuestStatus = {
     Open: 0,
     DaysUntilInvasion: {
         _7: 1,
@@ -123,9 +123,9 @@ export const SSSTInvasionQuestStatus = {
     ClosedSaved: 9,
     ClosedRewardClaimed: 10
 } as const;
-export type SSSTInvasionQuestStatus = number;
+export type InvasionQuestStatus = number;
 
-export const SSSTExperimentQuestStatus = {
+export const ExperimentQuestStatus = {
     Open: 0,
     DaysRemaining: {
         _10: 1,
@@ -142,12 +142,12 @@ export const SSSTExperimentQuestStatus = {
     ClosedTooLate: 11,
     ClosedSaved: 12
 } as const;
-export type SSSTExperimentQuestStatus = number;
+export type ExperimentQuestStatus = number;
 
 export const REACTOR_BAY_COUNT = 5;
 export const REACTOR_MAX_FUEL = 10;
 
-export const SSSTReactorQuestStatus = {
+export const ReactorQuestStatus = {
     Open: 0,
     DaysRemaining: {
       _20: 1,
@@ -156,23 +156,23 @@ export const SSSTReactorQuestStatus = {
     ClosedTooLate: 21,
     ClosedSaved: 22
 } as const;
-export type SSSTReactorQuestStatus = number;
+export type ReactorQuestStatus = number;
 
-export const SSSTJarekQuestStatus = {
+export const JarekQuestStatus = {
     Open: 0,
     OnBoard: 1,
     Closed: 2
 } as const;
-export type SSSTJarekQuestStatus = (typeof SSSTJarekQuestStatus)[keyof typeof SSSTJarekQuestStatus];
+export type JarekQuestStatus = (typeof JarekQuestStatus)[keyof typeof JarekQuestStatus];
 
-export const SSSTWildQuestStatus = {
+export const WildQuestStatus = {
     Open: 0,
     OnBoard: 1,
     Closed: 2
 } as const;
-export type SSSTWildQuestStatus = (typeof SSSTWildQuestStatus)[keyof typeof SSSTWildQuestStatus];
+export type WildQuestStatus = (typeof WildQuestStatus)[keyof typeof WildQuestStatus];
 
-export const SSSTSpecialEvent = {
+export const SpecialEvent = {
     None: -1,
     // Fixed locations
     DragonflyDestroyed: 0,
@@ -215,4 +215,4 @@ export const SSSTSpecialEvent = {
     GetHullUpgraded: 36,
     Count: 37
 } as const;
-export type SSSTSpecialEvent = (typeof SSSTSpecialEvent)[keyof typeof SSSTSpecialEvent];
+export type SpecialEvent = (typeof SpecialEvent)[keyof typeof SpecialEvent];

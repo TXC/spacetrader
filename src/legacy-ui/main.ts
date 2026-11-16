@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { SSSTViewController } from './ViewController.ts'
-import { MAUtils } from '../game/Utilities.ts'
+import { ViewController } from './ViewController.ts'
+import { Utils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 import './style.css'
 
@@ -15,11 +15,11 @@ export class SpaceTraderGame {
   main() {
     console.log("SpaceTraderGame main")
 
-    this.viewController = new SSSTViewController(this.gameDiv, this.loadGame)
+    this.viewController = new ViewController(this.gameDiv, this.loadGame)
     this.viewController.presentView()
 
     if (runtime.debugMode) {
-      MAUtils.installCheats(document.getElementById('cheats'), this)
+      Utils.installCheats(document.getElementById('cheats'), this)
     }
   }
 }

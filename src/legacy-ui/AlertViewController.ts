@@ -1,14 +1,14 @@
 // @ts-nocheck
-import { MAUtils } from '../game/Utilities.ts'
+import { Utils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
-export const SSSTAlertActionType = {
+export const AlertActionType = {
   Default: 0,
   Destructive: 1,
   Cancel: 2,
 };
 
-export class SSSTAlertAction {
+export class AlertAction {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(title, actionType, handler) {
     this.title = title
@@ -17,50 +17,50 @@ export class SSSTAlertAction {
   }
 }
 
-export const SSSTAlertPresentationStyle = {
+export const AlertPresentationStyle = {
   Default: 0,
   High: 1,
 };
 
-export class SSSTAlertViewController {
+export class AlertViewController {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(alertStr, alertID?) { // `?` is type-only: typed rules create alerts without an id
     this._alertTitle = alertStr
     this._actions = []
     this._alertID = alertID ? "-" + alertID : ""
     this.completionHandler = null
-    this.presentationStyle = SSSTAlertPresentationStyle.Default
+    this.presentationStyle = AlertPresentationStyle.Default
   }
 
   static presentAlertWithDismiss(alertStr) {
-    let aC = new SSSTAlertViewController(alertStr)
-    aC.addAction("Dismiss", SSSTAlertActionType.Default, null)
+    let aC = new AlertViewController(alertStr)
+    aC.addAction("Dismiss", AlertActionType.Default, null)
     aC.presentView()
   }
 
   addAction(title, actionType, handler) {
-    this._actions.push(new SSSTAlertAction(title, actionType, handler))
+    this._actions.push(new AlertAction(title, actionType, handler))
   }
 
   presentView() {
     // Create the backdrop (overlay)
     const backdrop = document.createElement('div');
-    backdrop.id = "ssstalertvc-backdrop" + this._alertID
+    backdrop.id = "alertvc-backdrop" + this._alertID
     backdrop.classList.add('alert-backdrop');
 
     // Create the alert box
     const alertBox = document.createElement('div');
     alertBox.classList.add('alert-box');
-    if (this.presentationStyle === SSSTAlertPresentationStyle.Default) {
+    if (this.presentationStyle === AlertPresentationStyle.Default) {
       alertBox.classList.add('alert-box-default');
-    } else if (this.presentationStyle === SSSTAlertPresentationStyle.High) {
+    } else if (this.presentationStyle === AlertPresentationStyle.High) {
       alertBox.classList.add('alert-box-high')
     }
 
     // Create the title element
     const titleElement = document.createElement('div');
     titleElement.classList.add('alert-title');
-    titleElement.id = "ssstalertvc-title" + this._alertID
+    titleElement.id = "alertvc-title" + this._alertID
     titleElement.innerText = this._alertTitle;
 
     // Create the actions container
@@ -79,9 +79,9 @@ export class SSSTAlertViewController {
       const button = document.createElement('button');
       button.classList.add('alert-action-button');
       button.innerText = action.title;
-      button.id = MAUtils.sanitizedElementID("alertButton_" + this._alertID + button.innerText)
+      button.id = Utils.sanitizedElementID("alertButton_" + this._alertID + button.innerText)
 
-      if (action.actionType === SSSTAlertActionType.Destructive) {
+      if (action.actionType === AlertActionType.Destructive) {
         button.classList.add('destructive');
       }
 
@@ -103,7 +103,7 @@ export class SSSTAlertViewController {
 
     if (this.customViewHandler) {
       const customViewDiv = document.createElement('div')
-      customViewDiv.id = "ssstalertvc-customView" + this._alertID
+      customViewDiv.id = "alertvc-customView" + this._alertID
       alertBox.appendChild(customViewDiv)
       this.customViewHandler(customViewDiv)
     }

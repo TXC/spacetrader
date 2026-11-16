@@ -1,6 +1,6 @@
-import { SSSTTechLevel } from './TradeItem.types.ts'
+import { TechLevel } from './TradeItem.types.ts'
 
-export const SSSTAccessoryType = {
+export const AccessoryType = {
     // Gadgets
     GadgetFiveExtraCargoBays: 0,
     GadgetAutoRepairSystem: 1,
@@ -34,28 +34,28 @@ export const SSSTAccessoryType = {
 
     None: 13
 } as const;
-export type SSSTAccessoryType = (typeof SSSTAccessoryType)[keyof typeof SSSTAccessoryType];
+export type AccessoryType = (typeof AccessoryType)[keyof typeof AccessoryType];
 
 export const COUNT_BUYABLE_ACCESSORIES =
-    (SSSTAccessoryType.GadgetLastBuyable - SSSTAccessoryType.GadgetFirst + 1) +
-    (SSSTAccessoryType.WeaponLastBuyable - SSSTAccessoryType.WeaponFirst + 1) +
-    (SSSTAccessoryType.ShieldLastBuyable - SSSTAccessoryType.ShieldFirst + 1);
+    (AccessoryType.GadgetLastBuyable - AccessoryType.GadgetFirst + 1) +
+    (AccessoryType.WeaponLastBuyable - AccessoryType.WeaponFirst + 1) +
+    (AccessoryType.ShieldLastBuyable - AccessoryType.ShieldFirst + 1);
 
 export function ACCESSORY_FOR_TYPE(type: number) {
-    return SSSTGadget.gadgetForType(type) ||
-           SSSTWeapon.weaponForType(type) ||
-           SSSTShield.shieldForType(type);
+    return Gadget.gadgetForType(type) ||
+           Weapon.weaponForType(type) ||
+           Shield.shieldForType(type);
 }
 
 
-export class SSSTAccessory {
+export class Accessory {
     declare _type: number
     declare _name: string
     declare _price: number
-    declare _techLevel: SSSTTechLevel
+    declare _techLevel: TechLevel
     declare _occurrence: number
 
-    constructor(type: number, name: string, price: number, techLevel: SSSTTechLevel, occurrence: number) {
+    constructor(type: number, name: string, price: number, techLevel: TechLevel, occurrence: number) {
         this._type = type;
         this._name = name;
         this._price = price;
@@ -92,7 +92,7 @@ export class SSSTAccessory {
     }
 
     isEqual(object: unknown) {
-        if (object instanceof SSSTAccessory) {
+        if (object instanceof Accessory) {
             return this._type === object.type;
         }
         return this === object;
@@ -104,11 +104,11 @@ export class SSSTAccessory {
 }
 
 
-export class SSSTGadget extends SSSTAccessory {
-    static declare sItems: Map<number, SSSTGadget> | undefined
+export class Gadget extends Accessory {
+    static declare sItems: Map<number, Gadget> | undefined
     declare _icon: string
 
-    constructor(type: number, name: string, price: number, techLevel: SSSTTechLevel, occurrence: number, icon: string) {
+    constructor(type: number, name: string, price: number, techLevel: TechLevel, occurrence: number, icon: string) {
         super(type, name, price, techLevel, occurrence);
         this._icon = icon;
     }
@@ -126,28 +126,28 @@ export class SSSTGadget extends SSSTAccessory {
 
         if (!item) {
             switch (type) {
-                case SSSTAccessoryType.GadgetFiveExtraCargoBays:
-                    item = new SSSTGadget(type, "5 extra cargo bays", 2500, SSSTTechLevel.EarlyIndustrial, 35, "");
+                case AccessoryType.GadgetFiveExtraCargoBays:
+                    item = new Gadget(type, "5 extra cargo bays", 2500, TechLevel.EarlyIndustrial, 35, "");
                     break;
 
-                case SSSTAccessoryType.GadgetAutoRepairSystem:
-                    item = new SSSTGadget(type, "Auto-repair system", 7500, SSSTTechLevel.Industrial, 20, "");
+                case AccessoryType.GadgetAutoRepairSystem:
+                    item = new Gadget(type, "Auto-repair system", 7500, TechLevel.Industrial, 20, "");
                     break;
 
-                case SSSTAccessoryType.GadgetNavigationSystem:
-                    item = new SSSTGadget(type, "Navigation system", 15000, SSSTTechLevel.PostIndustrial, 20, "");
+                case AccessoryType.GadgetNavigationSystem:
+                    item = new Gadget(type, "Navigation system", 15000, TechLevel.PostIndustrial, 20, "");
                     break;
 
-                case SSSTAccessoryType.GadgetTargetingSystem:
-                    item = new SSSTGadget(type, "Targeting system", 25000, SSSTTechLevel.PostIndustrial, 20, "");
+                case AccessoryType.GadgetTargetingSystem:
+                    item = new Gadget(type, "Targeting system", 25000, TechLevel.PostIndustrial, 20, "");
                     break;
 
-                case SSSTAccessoryType.GadgetCloakingDevice:
-                    item = new SSSTGadget(type, "Cloaking device", 100000, SSSTTechLevel.HighTech, 5, "");
+                case AccessoryType.GadgetCloakingDevice:
+                    item = new Gadget(type, "Cloaking device", 100000, TechLevel.HighTech, 5, "");
                     break;
 
-                case SSSTAccessoryType.GadgetFuelCompactor:
-                    item = new SSSTGadget(type, "Fuel compactor", 30000, SSSTTechLevel.Count, 0, "");
+                case AccessoryType.GadgetFuelCompactor:
+                    item = new Gadget(type, "Fuel compactor", 30000, TechLevel.Count, 0, "");
                     break;
 
                 default:
@@ -167,16 +167,16 @@ export class SSSTGadget extends SSSTAccessory {
     }
 
     get isBuyable() {
-      return this._type <= SSSTAccessoryType.GadgetLastBuyable
+      return this._type <= AccessoryType.GadgetLastBuyable
     }
 }
 
 
-export class SSSTWeapon extends SSSTAccessory {
-    static declare sItems: Map<number, SSSTWeapon> | undefined
+export class Weapon extends Accessory {
+    static declare sItems: Map<number, Weapon> | undefined
     declare _power: number
 
-    constructor(type: number, name: string, price: number, techLevel: SSSTTechLevel, occurrence: number, power: number) {
+    constructor(type: number, name: string, price: number, techLevel: TechLevel, occurrence: number, power: number) {
         super(type, name, price, techLevel, occurrence);
         this._power = power;
     }
@@ -198,20 +198,20 @@ export class SSSTWeapon extends SSSTAccessory {
 
         if (!item) {
             switch (type) {
-                case SSSTAccessoryType.WeaponPulseLaser:
-                    item = new SSSTWeapon(type, "Pulse laser", 2000, SSSTTechLevel.Industrial, 50, 15);
+                case AccessoryType.WeaponPulseLaser:
+                    item = new Weapon(type, "Pulse laser", 2000, TechLevel.Industrial, 50, 15);
                     break;
 
-                case SSSTAccessoryType.WeaponBeamLaser:
-                    item = new SSSTWeapon(type, "Beam laser", 12500, SSSTTechLevel.PostIndustrial, 35, 25);
+                case AccessoryType.WeaponBeamLaser:
+                    item = new Weapon(type, "Beam laser", 12500, TechLevel.PostIndustrial, 35, 25);
                     break;
 
-                case SSSTAccessoryType.WeaponMilitaryLaser:
-                    item = new SSSTWeapon(type, "Military laser", 35000, SSSTTechLevel.HighTech, 15, 35);
+                case AccessoryType.WeaponMilitaryLaser:
+                    item = new Weapon(type, "Military laser", 35000, TechLevel.HighTech, 15, 35);
                     break;
 
-                case SSSTAccessoryType.WeaponMorgansLaser:
-                    item = new SSSTWeapon(type, "Morgan's laser", 50000, SSSTTechLevel.Count, 0, 85);
+                case AccessoryType.WeaponMorgansLaser:
+                    item = new Weapon(type, "Morgan's laser", 50000, TechLevel.Count, 0, 85);
                     break;
 
                 default:
@@ -227,7 +227,7 @@ export class SSSTWeapon extends SSSTAccessory {
     }
 
     get isBuyable() {
-      return this._type <= SSSTAccessoryType.WeaponLastBuyable
+      return this._type <= AccessoryType.WeaponLastBuyable
     }
 
     icon() {
@@ -235,11 +235,11 @@ export class SSSTWeapon extends SSSTAccessory {
     }
 }
 
-export class SSSTShield extends SSSTAccessory {
-    static declare sItems: Map<number, SSSTShield> | undefined
+export class Shield extends Accessory {
+    static declare sItems: Map<number, Shield> | undefined
     declare _power: number
 
-    constructor(type: number, name: string, price: number, techLevel: SSSTTechLevel, occurrence: number, power: number) {
+    constructor(type: number, name: string, price: number, techLevel: TechLevel, occurrence: number, power: number) {
         super(type, name, price, techLevel, occurrence);
         this._power = power;
     }
@@ -261,16 +261,16 @@ export class SSSTShield extends SSSTAccessory {
 
         if (!item) {
             switch (type) {
-                case SSSTAccessoryType.ShieldEnergy:
-                    item = new SSSTShield(type, "Energy shield", 5000, SSSTTechLevel.Industrial, 70, 100);
+                case AccessoryType.ShieldEnergy:
+                    item = new Shield(type, "Energy shield", 5000, TechLevel.Industrial, 70, 100);
                     break;
 
-                case SSSTAccessoryType.ShieldReflective:
-                    item = new SSSTShield(type, "Reflective shield", 20000, SSSTTechLevel.PostIndustrial, 30, 200);
+                case AccessoryType.ShieldReflective:
+                    item = new Shield(type, "Reflective shield", 20000, TechLevel.PostIndustrial, 30, 200);
                     break;
 
-                case SSSTAccessoryType.ShieldLightning:
-                    item = new SSSTShield(type, "Lightning shield", 45000, SSSTTechLevel.Count, 0, 350);
+                case AccessoryType.ShieldLightning:
+                    item = new Shield(type, "Lightning shield", 45000, TechLevel.Count, 0, 350);
                     break;
 
                 default:
@@ -286,7 +286,7 @@ export class SSSTShield extends SSSTAccessory {
     }
 
     get isBuyable() {
-      return this._type <= SSSTAccessoryType.ShieldLastBuyable
+      return this._type <= AccessoryType.ShieldLastBuyable
     }
 
     icon() {

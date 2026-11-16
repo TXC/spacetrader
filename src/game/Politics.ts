@@ -1,7 +1,7 @@
-import { SSSTTechLevel, SSSTTradeItemType } from './TradeItem.types.ts'
+import { TechLevel, TradeItemType } from './TradeItem.types.ts'
 import { runtime } from './runtime.ts'
 
-export const SSSTPoliticsType = {
+export const PoliticsType = {
     Anarchy: 0,
     Capitalist: 1,
     Communist: 2,
@@ -22,7 +22,7 @@ export const SSSTPoliticsType = {
 
     Count: 17
 } as const;
-export type SSSTPoliticsType = (typeof SSSTPoliticsType)[keyof typeof SSSTPoliticsType];
+export type PoliticsType = (typeof PoliticsType)[keyof typeof PoliticsType];
 
 export function occurrenceStr(x: number) {
     switch (x) {
@@ -38,9 +38,9 @@ export function occurrenceStr(x: number) {
 }
 
 
-export class SSSTPolitics {
-    static declare sPolitics: Map<number, SSSTPolitics> | undefined
-    declare type: SSSTPoliticsType
+export class Politics {
+    static declare sPolitics: Map<number, Politics> | undefined
+    declare type: PoliticsType
     declare name: string
     declare mastheads: string[]
     declare headlines: string[]
@@ -48,14 +48,14 @@ export class SSSTPolitics {
     declare occurrencePolice: number
     declare occurrencePirates: number
     declare occurrenceTraders: number
-    declare minTechLevel: SSSTTechLevel
-    declare maxTechLevel: SSSTTechLevel
+    declare minTechLevel: TechLevel
+    declare maxTechLevel: TechLevel
     declare bribeWillingness: number
     declare drugsTradeable: boolean
     declare firearmsTradeable: boolean
-    declare mostDesiredTradeItem: SSSTTradeItemType
+    declare mostDesiredTradeItem: TradeItemType
 
-    constructor(type: SSSTPoliticsType, name: string, mastheads: string[], headlines: string[], reactionIllegal: number, occurrencePolice: number, occurrencePirates: number, occurrenceTraders: number, minTechLevel: SSSTTechLevel, maxTechLevel: SSSTTechLevel, bribeWillingness: number, drugsTradeable: boolean, firearmsTradeable: boolean, mostDesiredTradeItem: SSSTTradeItemType) {
+    constructor(type: PoliticsType, name: string, mastheads: string[], headlines: string[], reactionIllegal: number, occurrencePolice: number, occurrencePirates: number, occurrenceTraders: number, minTechLevel: TechLevel, maxTechLevel: TechLevel, bribeWillingness: number, drugsTradeable: boolean, firearmsTradeable: boolean, mostDesiredTradeItem: TradeItemType) {
         this.type = type;
         this.name = name;
         this.mastheads = mastheads;
@@ -74,14 +74,14 @@ export class SSSTPolitics {
 
     static randomPoliticsForTechLevel(techLevel: number) {
         while (true) {
-            let politics = SSSTPolitics.politicsForType(runtime.gameRand.randomIntBelow(SSSTPoliticsType.Count))!;
+            let politics = Politics.politicsForType(runtime.gameRand.randomIntBelow(PoliticsType.Count))!;
             if (politics.minTechLevel <= techLevel && politics.maxTechLevel >= techLevel) {
                 return politics;
             }
         }
     }
 
-    static politicsForType(type: number): SSSTPolitics | undefined {
+    static politicsForType(type: number): Politics | undefined {
         if (!this.sPolitics) {
             this.sPolitics = new Map();
         }
@@ -90,8 +90,8 @@ export class SSSTPolitics {
 
         if (!politics) {
             switch (type) {
-                case SSSTPoliticsType.Anarchy:
-                    politics = new SSSTPolitics(
+                case PoliticsType.Anarchy:
+                    politics = new Politics(
                         type,
                         "Anarchist State",
                         ["The %@ Arsenal", "The Grassroot", "Kick It!"],
@@ -103,17 +103,17 @@ export class SSSTPolitics {
                         0,
                         7,
                         1,
-                        SSSTTechLevel.PreAgricultural,
-                        SSSTTechLevel.Industrial,
+                        TechLevel.PreAgricultural,
+                        TechLevel.Industrial,
                         7,
                         true,
                         true,
-                        SSSTTradeItemType.Food
+                        TradeItemType.Food
                     );
                     break;
 
-                case SSSTPoliticsType.Capitalist:
-                    politics = new SSSTPolitics(
+                case PoliticsType.Capitalist:
+                    politics = new Politics(
                         type,
                         "Capitalist State",
                         ["The Objectivist", "The %@ Market", "The Invisible Hand"],
@@ -125,17 +125,17 @@ export class SSSTPolitics {
                         3,
                         2,
                         7,
-                        SSSTTechLevel.EarlyIndustrial,
-                        SSSTTechLevel.HighTech,
+                        TechLevel.EarlyIndustrial,
+                        TechLevel.HighTech,
                         1,
                         true,
                         true,
-                        SSSTTradeItemType.Ore
+                        TradeItemType.Ore
                     );
                     break;
 
-                case SSSTPoliticsType.Communist:
-                    politics = new SSSTPolitics(
+                case PoliticsType.Communist:
+                    politics = new Politics(
                         type,
                         "Communist State",
                         ["The Daily Worker", "The People's Voice", "The %@ Proletariat"],
@@ -147,17 +147,17 @@ export class SSSTPolitics {
                         6,
                         4,
                         4,
-                        SSSTTechLevel.Agricultural,
-                        SSSTTechLevel.Industrial,
+                        TechLevel.Agricultural,
+                        TechLevel.Industrial,
                         5,
                         true,
                         true,
-                        SSSTTradeItemType.None
+                        TradeItemType.None
                     );
                     break;
 
-                case SSSTPoliticsType.Confederacy:
-                    politics = new SSSTPolitics(
+                case PoliticsType.Confederacy:
+                    politics = new Politics(
                         type,
                         "Confederacy",
                         ["Planet News", "The %@ Times", "Interstate Update"],
@@ -169,17 +169,17 @@ export class SSSTPolitics {
                         4,
                         3,
                         5,
-                        SSSTTechLevel.Agricultural,
-                        SSSTTechLevel.PostIndustrial,
+                        TechLevel.Agricultural,
+                        TechLevel.PostIndustrial,
                         3,
                         true,
                         true,
-                        SSSTTradeItemType.Games
+                        TradeItemType.Games
                     );
                     break;
 
-                case SSSTPoliticsType.Corporate:
-                    politics = new SSSTPolitics(
+                case PoliticsType.Corporate:
+                    politics = new Politics(
                         type,
                         "Corporate State",
                         ["%@ Memo", "News From The Board", "Status Report"],
@@ -191,17 +191,17 @@ export class SSSTPolitics {
                         6,
                         2,
                         7,
-                        SSSTTechLevel.EarlyIndustrial,
-                        SSSTTechLevel.HighTech,
+                        TechLevel.EarlyIndustrial,
+                        TechLevel.HighTech,
                         2,
                         true,
                         true,
-                        SSSTTradeItemType.Robots
+                        TradeItemType.Robots
                     );
                     break;
 
-                case SSSTPoliticsType.Cybernetic:
-                    politics = new SSSTPolitics(
+                case PoliticsType.Cybernetic:
+                    politics = new Politics(
                         type,
                         "Cybernetic State",
                         ["Pulses", "Binary Stream", "The System Clock"],
@@ -213,17 +213,17 @@ export class SSSTPolitics {
                         7,
                         7,
                         5,
-                        SSSTTechLevel.PostIndustrial,
-                        SSSTTechLevel.HighTech,
+                        TechLevel.PostIndustrial,
+                        TechLevel.HighTech,
                         0,
                         false,
                         false,
-                        SSSTTradeItemType.Ore
+                        TradeItemType.Ore
                     );
                     break;
 
-                case SSSTPoliticsType.Democracy:
-                    politics = new SSSTPolitics(
+                case PoliticsType.Democracy:
+                    politics = new Politics(
                         type,
                         "Democracy",
                         ["The Daily Planet", "The %@ Majority", "Unanimity"],
@@ -235,17 +235,17 @@ export class SSSTPolitics {
                         3,
                         2,
                         5,
-                        SSSTTechLevel.Renaissance,
-                        SSSTTechLevel.HighTech,
+                        TechLevel.Renaissance,
+                        TechLevel.HighTech,
                         2,
                         true,
                         true,
-                        SSSTTradeItemType.Games
+                        TradeItemType.Games
                     );
                     break;
 
-                case SSSTPoliticsType.Dictatorship:
-                    politics = new SSSTPolitics(
+                case PoliticsType.Dictatorship:
+                    politics = new Politics(
                         type,
                         "Dictatorship",
                         ["The Command", "Leader's Voice", "The %@ Mandate"],
@@ -257,17 +257,17 @@ export class SSSTPolitics {
                         4,
                         5,
                         3,
-                        SSSTTechLevel.PreAgricultural,
-                        SSSTTechLevel.HighTech,
+                        TechLevel.PreAgricultural,
+                        TechLevel.HighTech,
                         2,
                         true,
                         true,
-                        SSSTTradeItemType.None
+                        TradeItemType.None
                     );
                     break;
 
-                case SSSTPoliticsType.Fascist:
-                    politics = new SSSTPolitics(
+                case PoliticsType.Fascist:
+                    politics = new Politics(
                         type,
                         "Fascist State",
                         ["State Tribune", "Motherland News", "Homeland Report"],
@@ -279,17 +279,17 @@ export class SSSTPolitics {
                         7,
                         7,
                         1,
-                        SSSTTechLevel.EarlyIndustrial,
-                        SSSTTechLevel.HighTech,
+                        TechLevel.EarlyIndustrial,
+                        TechLevel.HighTech,
                         0,
                         false,
                         true,
-                        SSSTTradeItemType.Machines
+                        TradeItemType.Machines
                     );
                     break;
 
-                case SSSTPoliticsType.Feudal:
-                    politics = new SSSTPolitics(
+                case PoliticsType.Feudal:
+                    politics = new Politics(
                         type,
                         "Feudal State",
                         ["News from the Keep", "The Town Crier", "The %@ Herald"],
@@ -301,17 +301,17 @@ export class SSSTPolitics {
                         1,
                         6,
                         2,
-                        SSSTTechLevel.PreAgricultural,
-                        SSSTTechLevel.Renaissance,
+                        TechLevel.PreAgricultural,
+                        TechLevel.Renaissance,
                         6,
                         true,
                         true,
-                        SSSTTradeItemType.Firearms
+                        TradeItemType.Firearms
                     );
                     break;
 
-                case SSSTPoliticsType.Military:
-                    politics = new SSSTPolitics(
+                case PoliticsType.Military:
+                    politics = new Politics(
                         type,
                         "Military State",
                         ["General Report", "%@ Dispatch", "The %@ Sentry"],
@@ -323,17 +323,17 @@ export class SSSTPolitics {
                         7,
                         0,
                         6,
-                        SSSTTechLevel.Medieval,
-                        SSSTTechLevel.HighTech,
+                        TechLevel.Medieval,
+                        TechLevel.HighTech,
                         0,
                         false,
                         true,
-                        SSSTTradeItemType.Robots
+                        TradeItemType.Robots
                     );
                     break;
 
-                case SSSTPoliticsType.Monarchy:
-                    politics = new SSSTPolitics(
+                case PoliticsType.Monarchy:
+                    politics = new Politics(
                         type,
                         "Monarchy",
                         ["Royal Times", "The Loyal Subject", "The Fanfare"],
@@ -345,17 +345,17 @@ export class SSSTPolitics {
                         4,
                         3,
                         4,
-                        SSSTTechLevel.PreAgricultural,
-                        SSSTTechLevel.Industrial,
+                        TechLevel.PreAgricultural,
+                        TechLevel.Industrial,
                         4,
                         true,
                         true,
-                        SSSTTradeItemType.Medicine
+                        TradeItemType.Medicine
                     );
                     break;
 
-                case SSSTPoliticsType.Pacifist:
-                    politics = new SSSTPolitics(
+                case PoliticsType.Pacifist:
+                    politics = new Politics(
                         type,
                         "Pacifist State",
                         ["Pax Humani", "Principle", "The %@ Chorus"],
@@ -367,17 +367,17 @@ export class SSSTPolitics {
                         2,
                         1,
                         5,
-                        SSSTTechLevel.PreAgricultural,
-                        SSSTTechLevel.Renaissance,
+                        TechLevel.PreAgricultural,
+                        TechLevel.Renaissance,
                         1,
                         true,
                         false,
-                        SSSTTradeItemType.None
+                        TradeItemType.None
                     );
                     break;
 
-            case SSSTPoliticsType.Socialist:
-                politics = new SSSTPolitics(
+            case PoliticsType.Socialist:
+                politics = new Politics(
                     type,
                     "Socialist State",
                     ["All for One", "Brotherhood", "The People's Syndicate"],
@@ -389,17 +389,17 @@ export class SSSTPolitics {
                     2,
                     5,
                     3,
-                    SSSTTechLevel.PreAgricultural,
-                    SSSTTechLevel.Industrial,
+                    TechLevel.PreAgricultural,
+                    TechLevel.Industrial,
                     6,
                     true,
                     true,
-                    SSSTTradeItemType.None
+                    TradeItemType.None
                 );
                 break;
 
-            case SSSTPoliticsType.Satori:
-                politics = new SSSTPolitics(
+            case PoliticsType.Satori:
+                politics = new Politics(
                     type,
                     "State of Satori",
                     ["The Daily Koan", "Haiku", "One Hand Clapping"],
@@ -411,17 +411,17 @@ export class SSSTPolitics {
                     1,
                     1,
                     1,
-                    SSSTTechLevel.PreAgricultural,
-                    SSSTTechLevel.Agricultural,
+                    TechLevel.PreAgricultural,
+                    TechLevel.Agricultural,
                     0,
                     false,
                     false,
-                    SSSTTradeItemType.None
+                    TradeItemType.None
                 );
                 break;
 
-            case SSSTPoliticsType.Technocracy:
-                politics = new SSSTPolitics(
+            case PoliticsType.Technocracy:
+                politics = new Politics(
                     type,
                     "Technocracy",
                     ["The Future", "Hardware Dispatch", "TechNews"],
@@ -433,17 +433,17 @@ export class SSSTPolitics {
                     6,
                     3,
                     6,
-                    SSSTTechLevel.EarlyIndustrial,
-                    SSSTTechLevel.HighTech,
+                    TechLevel.EarlyIndustrial,
+                    TechLevel.HighTech,
                     2,
                     true,
                     true,
-                    SSSTTradeItemType.Water
+                    TradeItemType.Water
                 );
                 break;
 
-            case SSSTPoliticsType.Theocracy:
-                politics = new SSSTPolitics(
+            case PoliticsType.Theocracy:
+                politics = new Politics(
                     type,
                     "Theocracy",
                     ["The Spiritual Advisor", "Church Tidings", "The Temple Tribune"],
@@ -455,12 +455,12 @@ export class SSSTPolitics {
                     6,
                     1,
                     4,
-                    SSSTTechLevel.PreAgricultural,
-                    SSSTTechLevel.EarlyIndustrial,
+                    TechLevel.PreAgricultural,
+                    TechLevel.EarlyIndustrial,
                     0,
                     true,
                     true,
-                    SSSTTradeItemType.Narcotics
+                    TradeItemType.Narcotics
                 );
                 break;
 

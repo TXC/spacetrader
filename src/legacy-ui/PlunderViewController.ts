@@ -1,13 +1,13 @@
 // @ts-nocheck
 import { PCEImageLibrary } from '../game/Images.ts'
-import { SSSTAlertActionType, SSSTAlertPresentationStyle, SSSTAlertViewController } from './AlertViewController.ts'
-import { SSSTPoliceRecordScore } from '../game/Commander.ts'
-import { SSSTTradeItem } from '../game/TradeItem.ts'
-import { SSSTTradeItemType } from '../game/TradeItem.types.ts'
-import { MAUtils } from '../game/Utilities.ts'
+import { AlertActionType, AlertPresentationStyle, AlertViewController } from './AlertViewController.ts'
+import { PoliceRecordScore } from '../game/Commander.ts'
+import { TradeItem } from '../game/TradeItem.ts'
+import { TradeItemType } from '../game/TradeItem.types.ts'
+import { Utils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
-export class SSSTPlunderViewController {
+export class PlunderViewController {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(game, opponent, plunderLabel) {
     this._game = game
@@ -24,27 +24,27 @@ export class SSSTPlunderViewController {
   presentView() {
     const title = this._plunderMode ? this._plunderLabel : "Dump"
     const alertID = this._plunderLabel + "_" + (this._plunderMode ? "plunder" : "dump")
-    const aC = new SSSTAlertViewController(title, alertID)
+    const aC = new AlertViewController(title, alertID)
 
     if (this._plunderMode) {
-      aC.addAction("Dump some cargo", SSSTAlertActionType.Default, () => {
+      aC.addAction("Dump some cargo", AlertActionType.Default, () => {
         this._plunderMode = false
         this.presentView()
       })
 
-      aC.addAction("Done", SSSTAlertActionType.Default, () => {
+      aC.addAction("Done", AlertActionType.Default, () => {
         this.delegate.plunderViewControllerDidFinishPlundering(this)
       })
 
     } else {
       // Dump mode
-      aC.addAction("Resume plundering", SSSTAlertActionType.Default, () => {
+      aC.addAction("Resume plundering", AlertActionType.Default, () => {
         this._plunderMode = true
         this.presentView()
       })
     }
 
-    aC.presentationStyle = SSSTAlertPresentationStyle.High
+    aC.presentationStyle = AlertPresentationStyle.High
 
     aC.customViewHandler = (div) => {
       this._customViewDiv = div
@@ -65,7 +65,7 @@ export class SSSTPlunderViewController {
     table.classList.add('tight-table')
 
     // Create rows for each trade item type
-    for (let tradeItemType = 0; tradeItemType < SSSTTradeItemType.Count; tradeItemType++) {
+    for (let tradeItemType = 0; tradeItemType < TradeItemType.Count; tradeItemType++) {
 
       const quantityAvailable = this._quantityAvailable(tradeItemType)
 
@@ -74,7 +74,7 @@ export class SSSTPlunderViewController {
       // Name column
       const nameCell = document.createElement('td');
       nameCell.classList.add('left-aligned-cell')
-      const itemName = SSSTTradeItem.tradeItemForType(tradeItemType).name;
+      const itemName = TradeItem.tradeItemForType(tradeItemType).name;
 
       const icon = document.createElement('img')
       icon.classList.add('table-row-icon')
@@ -104,7 +104,7 @@ export class SSSTPlunderViewController {
 
 			const buy1Button = document.createElement('button');
 			buy1Button.innerText = `${buttonName} 1`;
-      buy1Button.id = MAUtils.sanitizedElementID("cargo_" + itemName + buy1Button.innerText)
+      buy1Button.id = Utils.sanitizedElementID("cargo_" + itemName + buy1Button.innerText)
       runtime.actionLog.registerButtonEventListener(buy1Button, 'click', () => {
 				this._buy1Pressed(tradeItemType);
 			});
@@ -113,7 +113,7 @@ export class SSSTPlunderViewController {
 
 			const buy5Button = document.createElement('button');
 			buy5Button.innerText = `5`;
-      buy5Button.id = MAUtils.sanitizedElementID("cargo_" + itemName + `${buttonName} 5`)
+      buy5Button.id = Utils.sanitizedElementID("cargo_" + itemName + `${buttonName} 5`)
       runtime.actionLog.registerButtonEventListener(buy5Button, 'click', () => {
 				this._buy5Pressed(tradeItemType);
 			});
@@ -122,7 +122,7 @@ export class SSSTPlunderViewController {
 
 			const buyAllButton = document.createElement('button');
 			buyAllButton.innerText = `All`;
-      buyAllButton.id = MAUtils.sanitizedElementID("cargo_" + itemName + `${buttonName} All`)
+      buyAllButton.id = Utils.sanitizedElementID("cargo_" + itemName + `${buttonName} All`)
       runtime.actionLog.registerButtonEventListener(buyAllButton, 'click', () => {
 				this._buyAllPressed(tradeItemType);
 			});
@@ -160,8 +160,8 @@ export class SSSTPlunderViewController {
   _executeDump(quantity, tradeItemType) {
     if (runtime.gameRand.randomIntBelow(10) < this._game.difficulty + 1) {
       const currentPoliceRecordScore = this._game.commander.policeRecordScore;
-      if (currentPoliceRecordScore > SSSTPoliceRecordScore.Dubious) {
-        this._game.commander.policeRecordScore = SSSTPoliceRecordScore.Dubious
+      if (currentPoliceRecordScore > PoliceRecordScore.Dubious) {
+        this._game.commander.policeRecordScore = PoliceRecordScore.Dubious
       } else {
         this._game.commander.policeRecordScore = currentPoliceRecordScore - 1
       }
@@ -173,17 +173,17 @@ export class SSSTPlunderViewController {
   }
 
   _dumpQuantity(quantity, tradeItemType) {
-    if (!this._game.commander.litterWarning && this._game.commander.policeRecordScore > SSSTPoliceRecordScore.Dubious) {
+    if (!this._game.commander.litterWarning && this._game.commander.policeRecordScore > PoliceRecordScore.Dubious) {
       this._game.commander.litterWarning = true
 
-      const aC = new SSSTAlertViewController("Dumping cargo in space is considered littering. If the police track your dumped goods to you it will be reflected on your criminal record. Do you really wish to dump?")
+      const aC = new AlertViewController("Dumping cargo in space is considered littering. If the police track your dumped goods to you it will be reflected on your criminal record. Do you really wish to dump?")
 
-      aC.addAction("Yes, I still want to", SSSTAlertActionType.Destructive, () => {
+      aC.addAction("Yes, I still want to", AlertActionType.Destructive, () => {
         this._executeDump(quantity, tradeItemType)
         this._populateDiv(this._customViewDiv)
       })
 
-      aC.addAction("Nevermind!", SSSTAlertActionType.Cancel, null)
+      aC.addAction("Nevermind!", AlertActionType.Cancel, null)
 
       aC.presentView()
 

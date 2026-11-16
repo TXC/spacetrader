@@ -1,15 +1,15 @@
 // @ts-nocheck
 import { PCEImageLibrary } from '../game/Images.ts'
-import { MAUtils } from '../game/Utilities.ts'
+import { Utils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
-export const SSSTRosterSectionType = {
+export const RosterSectionType = {
     Commander: 0,
     Crew: 1,
     ForHire: 2,
 };
 
-export class SSSTPersonnelRosterViewController {
+export class PersonnelRosterViewController {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game) {
     this.div = div
@@ -20,23 +20,23 @@ export class SSSTPersonnelRosterViewController {
     const containerDiv = this.div
     containerDiv.innerHTML = '';
 
-    MAUtils.createElement('h1', { textContent: 'Personnel Roster' }, containerDiv);
+    Utils.createElement('h1', { textContent: 'Personnel Roster' }, containerDiv);
 
     const table = document.createElement('table');
     table.classList.add('tight-table-collapse')
 
-    this._populateCrewRows("Commander", SSSTRosterSectionType.Commander, [this._game.commander], 1, table)
+    this._populateCrewRows("Commander", RosterSectionType.Commander, [this._game.commander], 1, table)
 
     let crew = this._game.commander.ship.crew
     crew = crew ? crew : []
-    this._populateCrewRows("Crew Quarters", SSSTRosterSectionType.Crew, crew, this._game.commander.ship.model.mercenaryQuarters(), table)
+    this._populateCrewRows("Crew Quarters", RosterSectionType.Crew, crew, this._game.commander.ship.model.mercenaryQuarters(), table)
 
     const mercenary = this._game.commander.currentSystem.mercenary
     const alreadyInCrew = crew.includes(mercenary)
     console.log("mercenary: " + mercenary + " " + (mercenary ? mercenary.name : ""))
     const forHire = mercenary && !alreadyInCrew ? [mercenary] : []
 
-    this._populateCrewRows("For Hire", SSSTRosterSectionType.ForHire, forHire, forHire.length, table)
+    this._populateCrewRows("For Hire", RosterSectionType.ForHire, forHire, forHire.length, table)
 
     containerDiv.appendChild(table);
   }
@@ -138,21 +138,21 @@ export class SSSTPersonnelRosterViewController {
     } else {
 
       for (const crewMember of crewMembers) {
-        const showPrice = sectionType != SSSTRosterSectionType.Commander && !crewMember.forQuest
+        const showPrice = sectionType != RosterSectionType.Commander && !crewMember.forQuest
         const name = (showPrice ? `${crewMember.name} ($${crewMember.hirePrice()}/day)` : crewMember.name)
 
         const skillTable = crewMember.forQuest ? null : this._crewSkillTable(crewMember)
 
-        const hideButton = (sectionType === SSSTRosterSectionType.Commander) || crewMember.forQuest
+        const hideButton = (sectionType === RosterSectionType.Commander) || crewMember.forQuest
 
         let hireFireButton = '';
         if (!hideButton) {
-          const enableButton = sectionType === SSSTRosterSectionType.Crew || this._game.commander.ship.model.mercenaryQuarters() > this._game.commander.ship.crewCount()
+          const enableButton = sectionType === RosterSectionType.Crew || this._game.commander.ship.model.mercenaryQuarters() > this._game.commander.ship.crewCount()
 
           hireFireButton = document.createElement('button');
-          const buttonIsFire = sectionType === SSSTRosterSectionType.Crew
+          const buttonIsFire = sectionType === RosterSectionType.Crew
           hireFireButton.innerText = buttonIsFire ? "Fire" : "Hire";
-          hireFireButton.id = MAUtils.sanitizedElementID("hireFire_" + crewMember.name)
+          hireFireButton.id = Utils.sanitizedElementID("hireFire_" + crewMember.name)
           runtime.actionLog.registerButtonEventListener(hireFireButton, 'click', () => {
             if (buttonIsFire) {
               this._game.commander.ship.removeCrewMember(crewMember)
@@ -173,9 +173,9 @@ export class SSSTPersonnelRosterViewController {
         const icon = document.createElement('img')
         icon.classList.add('roster-icon')
         let iconName = 'commander'
-        if (sectionType === SSSTRosterSectionType.Crew) {
+        if (sectionType === RosterSectionType.Crew) {
           iconName = 'roster'
-        } else if (sectionType === SSSTRosterSectionType.ForHire) {
+        } else if (sectionType === RosterSectionType.ForHire) {
           iconName = 'forhire'
         }
 

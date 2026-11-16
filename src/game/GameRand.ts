@@ -1,6 +1,6 @@
-import { MAUtils } from './Utilities.ts'
+import { Utils } from './Utilities.ts'
 
-export class MAGameRand {
+export class GameRand {
   declare randHigh: number
   declare randLow: number
   declare _seed: number
@@ -20,7 +20,7 @@ export class MAGameRand {
   // Return value >= min && value <= max
   randomInt(min: number, max: number) {
     if (this._logStackTrace) {
-      MAUtils.logStackTrace()
+      Utils.logStackTrace()
     }
 
     this._numInvocations++

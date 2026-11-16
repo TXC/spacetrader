@@ -1,16 +1,16 @@
-import { MAGameRand } from './GameRand.ts'
-import { MAUtils } from './Utilities.ts'
+import { GameRand } from './GameRand.ts'
+import { Utils } from './Utilities.ts'
 import type { SpaceTraderGame } from '../legacy-ui/main.ts'
 import { runtime } from './runtime.ts'
 
 type NamedEventHandler = { handleNamedEvent(eventName: string, eventContext: string): void }
 type HackHandler = (spaceTraderGame: SpaceTraderGame) => void
 
-export class SSSTActionLogger {
+export class ActionLogger {
   declare _gameRandSeed: number
   declare _idLog: string[]
   declare _eventNameLog: string[]
-  declare logUpdateHandler: ((log: SSSTActionLogger) => void) | null
+  declare logUpdateHandler: ((log: ActionLogger) => void) | null
   declare registerEventHandler: ((elementID: string, eventName: string) => void) | null
   declare replayInProgress: boolean
   declare replayInProgressQueueAsyncClosures: boolean
@@ -155,7 +155,7 @@ export class SSSTActionLogger {
   }
 }
 
-export class SSSTActionLogReplay {
+export class ActionLogReplay {
   declare spaceTraderGame: SpaceTraderGame
   declare _gameRandSeed: number
   declare _idLog: string[]
@@ -178,7 +178,7 @@ export class SSSTActionLogReplay {
     runtime.actionLog._gameRandSeed = this._gameRandSeed
     runtime.actionLog.replayInProgress = true
     console.log("Replacing runtime.gameRand instance with action log seed")
-    runtime.gameRand = new MAGameRand(this._gameRandSeed)
+    runtime.gameRand = new GameRand(this._gameRandSeed)
 
     const len = this._idLog.length
     console.log(`Replaying ${len} actions...`)
@@ -195,7 +195,7 @@ export class SSSTActionLogReplay {
 
   replayEvent(elementID: string, eventName?: string) {
     eventName = eventName ? eventName : "click"
-    const replayClass = this.constructor as typeof SSSTActionLogReplay
+    const replayClass = this.constructor as typeof ActionLogReplay
     replayClass.replayEvent(elementID, eventName, this.spaceTraderGame, this._hackHandler)
   }
 
@@ -225,7 +225,7 @@ export class SSSTActionLogReplay {
         console.log(`Did not find element for ${elementID}. EventName: ${eventName}`)
         console.log(`Current replayLog: ${runtime.actionLog.serializedString()}`)
       }
-      MAUtils.ensureType(element, "object")
+      Utils.ensureType(element, "object")
 
       if (eventName.startsWith("slider")) {
         const eventComponents = eventName.split(/\|/);

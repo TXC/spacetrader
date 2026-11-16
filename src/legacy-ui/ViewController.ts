@@ -1,21 +1,21 @@
 // @ts-nocheck
-import { SSSTCommander } from '../game/Commander.ts'
-import { SSSTEndGameViewController } from './EndGameViewController.ts'
-import { SSSTGame, SSSTGameEndStatus } from '../game/Game.ts'
-import { SSSTNewCommanderViewController } from './NewCommanderViewController.ts'
-import { SSSTSystemLandingViewController } from './SystemLandingViewController.ts'
+import { Commander } from '../game/Commander.ts'
+import { EndGameViewController } from './EndGameViewController.ts'
+import { Game, GameEndStatus } from '../game/Game.ts'
+import { NewCommanderViewController } from './NewCommanderViewController.ts'
+import { SystemLandingViewController } from './SystemLandingViewController.ts'
 import { pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
-export const SSSTMaxHighScores = 6;
+export const MaxHighScores = 6;
 
-export const SSSTDivIDs = {
+export const DivIDs = {
     NewCommander: "newCommanderDiv",
     SystemLanding: "systemLandingDiv",
 };
 
 
-export class SSSTViewController {
+export class ViewController {
     [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
     constructor(gameDiv, loadGame) {
       this.gameDiv = gameDiv
@@ -38,11 +38,11 @@ export class SSSTViewController {
     _presentSystemLandingView() {
       if (!this._systemLandingViewController) {
         const slDiv = document.createElement('div');
-        slDiv.id = SSSTDivIDs.SystemLanding;
+        slDiv.id = DivIDs.SystemLanding;
 
         this.gameDiv.appendChild(slDiv);
 
-        this._systemLandingViewController = new SSSTSystemLandingViewController(slDiv);
+        this._systemLandingViewController = new SystemLandingViewController(slDiv);
 
         this._systemLandingViewController.delegate = this;
       }
@@ -56,17 +56,17 @@ export class SSSTViewController {
       pLog.log(66)
 
       const ncDiv = document.createElement('div');
-      ncDiv.id = SSSTDivIDs.NewCommander;
+      ncDiv.id = DivIDs.NewCommander;
 
       this.gameDiv.appendChild(ncDiv);
 
-      let ncVC = new SSSTNewCommanderViewController(ncDiv);
+      let ncVC = new NewCommanderViewController(ncDiv);
       ncVC.delegate = this;
       ncVC.presentView();
     }
 
     _dismissNewCommanderView() {
-      let ncD = document.getElementById(SSSTDivIDs.NewCommander);
+      let ncD = document.getElementById(DivIDs.NewCommander);
       if (ncD) {
         ncD.remove();
       }
@@ -77,10 +77,10 @@ export class SSSTViewController {
             return;
         }
 
-        let commander = new SSSTCommander(name, engineer, pilot, fighter, trader);
+        let commander = new Commander(name, engineer, pilot, fighter, trader);
         commander.setReserveMoney(true);
         commander.setDifficulty(difficulty);
-        this._game = new SSSTGame(difficulty, commander);
+        this._game = new Game(difficulty, commander);
         this._setSaveBlock();
         console.log("Game:" + this._game);
 
@@ -93,7 +93,7 @@ export class SSSTViewController {
 
     _presentEndGameViewController() {
       this.gameDiv.innerHTML = '';
-      const endGameVC = new SSSTEndGameViewController(this.gameDiv, this._game, false)
+      const endGameVC = new EndGameViewController(this.gameDiv, this._game, false)
       endGameVC.delegate = this
       endGameVC.presentView()
     }
@@ -120,7 +120,7 @@ export class SSSTViewController {
             console.log("There are " + saveGamesUUIDs.length + " saved games.")
             const serializedGame = saveGames[saveGamesUUIDs[0]]
             if (serializedGame) {
-              const game = SSSTGame.fromSerializedState(serializedGame)
+              const game = Game.fromSerializedState(serializedGame)
               if (game) {
                 pLog.log(67)
                 console.log("Loaded game")
@@ -144,7 +144,7 @@ export class SSSTViewController {
                 saveGames = {};
             }
 
-            if (game.endStatus !== SSSTGameEndStatus.None) {
+            if (game.endStatus !== GameEndStatus.None) {
                 delete saveGames[game.uniqueID];
 
                 let highScoreGames = JSON.parse(userDefaults.getItem('highScoringGames')) || {};
@@ -158,7 +158,7 @@ export class SSSTViewController {
                 let sortedGameGuids = this.constructor.sortedHighScoringGameGUIDs(highScoreGames);
 
                 let countGames = sortedGameGuids.length;
-                for (let i = SSSTMaxHighScores; i < countGames; ++i) {
+                for (let i = MaxHighScores; i < countGames; ++i) {
                     delete highScoreGames[sortedGameGuids[i]];
                 }
 
@@ -197,7 +197,7 @@ export class SSSTViewController {
     }
 
 
-    // SSSTSystemLandingViewControllerDelegate
+    // SystemLandingViewControllerDelegate
     systemLandingViewControllerGameDidEndWithStatus(controller, st) {
         pLog.log(70)
         this._game.endStatus = st
@@ -208,7 +208,7 @@ export class SSSTViewController {
         this._game = null;
     }
 
-    // SSSTEndGameViewControllerDelegate
+    // EndGameViewControllerDelegate
     endGameViewControllerWantsContinue(controller) {
         this._systemLandingViewController = null;
 
@@ -220,7 +220,7 @@ export class SSSTViewController {
 
       try {
         const highScoreGames = JSON.parse(this.localStorage.getItem('highScoringGames')) || {};
-        const sortedGameGUIDs = SSSTViewController.sortedHighScoringGameGUIDs(highScoreGames);
+        const sortedGameGUIDs = ViewController.sortedHighScoringGameGUIDs(highScoreGames);
 
         const loopCount = Math.min(count, sortedGameGUIDs.length);
         for (let i = 0; i < loopCount; i++) {

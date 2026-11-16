@@ -1,7 +1,7 @@
 import { afterEach, beforeAll, test } from 'vitest'
 import { runtime } from '../game/runtime.ts'
-import { MADebugMode } from '../game/Utilities.ts'
-import { SSSTAlertViewController } from '../legacy-ui/AlertViewController.ts'
+import { DebugMode } from '../game/Utilities.ts'
+import { AlertViewController } from '../legacy-ui/AlertViewController.ts'
 import '../legacy-ui/style.css'
 import { UnitTests } from './UnitTests.ts'
 
@@ -13,11 +13,11 @@ export function registerLegacyTests(prefix: string): string[] {
 
   beforeAll(() => {
     document.body.insertAdjacentHTML('beforeend', '<div id="game"></div><div id="cheats" class="hidden"></div>')
-    runtime.debugMode = MADebugMode.Assert
+    runtime.debugMode = DebugMode.Assert
   })
   afterEach(() => {
     document.getElementById('game')!.innerHTML = ''
-    SSSTAlertViewController.clearAlerts()
+    AlertViewController.clearAlerts()
   })
   for (const name of names) test(name, () => ut[name]())
   return names

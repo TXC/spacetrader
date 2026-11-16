@@ -1,16 +1,16 @@
 import { PCEImageLibrary } from './Images.ts'
 import { PCEImage } from './PCEImage.ts'
-import { ACCESSORY_FOR_TYPE, SSSTAccessoryType, SSSTGadget, SSSTShield, SSSTWeapon } from './Accessory.ts'
-import type { SSSTAccessory } from './Accessory.ts'
-import type { SSSTCrewMemberState } from './CrewMember.ts'
-import type { SSSTSolarSystem } from './SolarSystem.ts'
-import { SSSTCrewMember } from './CrewMember.ts'
+import { ACCESSORY_FOR_TYPE, AccessoryType, Gadget, Shield, Weapon } from './Accessory.ts'
+import type { Accessory } from './Accessory.ts'
+import type { CrewMemberState } from './CrewMember.ts'
+import type { SolarSystem } from './SolarSystem.ts'
+import { CrewMember } from './CrewMember.ts'
 import { ADJUST_SKILL_FOR_DIFFICULTY, CLOAK_BONUS, SKILL_BONUS } from './SolarSystem.types.ts'
-import { SSSTTechLevel, SSSTTradeItemType, TRADE_ITEM_IS_ILLEGAL } from './TradeItem.types.ts'
-import { MAUtils, pLog } from './Utilities.ts'
+import { TechLevel, TradeItemType, TRADE_ITEM_IS_ILLEGAL } from './TradeItem.types.ts'
+import { Utils, pLog } from './Utilities.ts'
 import { runtime } from './runtime.ts'
 
-export const SSSTShipModelType = {
+export const ShipModelType = {
     Flea: 0,
     Gnat: 1,
     Firefly: 2,
@@ -22,7 +22,7 @@ export const SSSTShipModelType = {
     Termite: 8,
     Wasp: 9,
 
-    Best: 9, // Equivalent to SSSTShipModelTypeWasp
+    Best: 9, // Equivalent to ShipModelTypeWasp
 
     // Can't be bought
     SpaceMonster: 10,
@@ -33,26 +33,26 @@ export const SSSTShipModelType = {
 
     Count: 15
 } as const;
-export type SSSTShipModelType = (typeof SSSTShipModelType)[keyof typeof SSSTShipModelType];
+export type ShipModelType = (typeof ShipModelType)[keyof typeof ShipModelType];
 
 export const MAX_TRIBBLES = 100000;
 
 // What serializedState() writes into a saved game. Every part is optional when read back.
-export type SSSTShipState = {
+export type ShipState = {
     upgradedHull?: boolean, type?: number, difficulty?: number, fuel?: number, hull?: number,
     tribbles?: number, currentShieldPower?: number,
     cargoKeys?: number[], cargoValues?: number[],
     cargoBuyingPriceKeys?: number[], cargoBuyingPriceValues?: number[],
     weaponTypes?: number[], shieldTypes?: number[], gadgetTypes?: number[],
-    crewMap?: Record<string, SSSTCrewMemberState>,
+    crewMap?: Record<string, CrewMemberState>,
 }
 
 // An opponent or commander together with the ship they fly.
-type SSSTShipOwner = SSSTCrewMember & { ship: SSSTShip }
+type ShipOwner = CrewMember & { ship: Ship }
 
 
-export class SSSTShipModel {
-    static declare shipModelForType: (type: number) => SSSTShipModel
+export class ShipModel {
+    static declare shipModelForType: (type: number) => ShipModel
     declare type: number
     declare name: string
     declare cargoBays: number
@@ -61,7 +61,7 @@ export class SSSTShipModel {
     declare gadgetSlots: number
     declare crewQuarters: number
     declare fuelTanks: number
-    declare minTechLevel: SSSTTechLevel
+    declare minTechLevel: TechLevel
     declare costOfFuel: number
     declare price: number
     declare bounty: number
@@ -74,7 +74,7 @@ export class SSSTShipModel {
     declare size: number
     declare _shipImage?: PCEImage
 
-    constructor(type: number, name: string, cargoBays: number, weaponSlots: number, shieldSlots: number, gadgetSlots: number, crewQuarters: number, fuelTanks: number, minTechLevel: SSSTTechLevel, costOfFuel: number, price: number, bounty: number, frequency: number, hullStrength: number, police: number, pirates: number, traders: number, repairCosts: number, size: number) {
+    constructor(type: number, name: string, cargoBays: number, weaponSlots: number, shieldSlots: number, gadgetSlots: number, crewQuarters: number, fuelTanks: number, minTechLevel: TechLevel, costOfFuel: number, price: number, bounty: number, frequency: number, hullStrength: number, police: number, pirates: number, traders: number, repairCosts: number, size: number) {
         this.type = type;
         this.name = name;
         this.cargoBays = cargoBays;
@@ -110,54 +110,54 @@ export class SSSTShipModel {
 }
 
 // Static variable initialization
-export const sModels: Record<number, SSSTShipModel> = {};
+export const sModels: Record<number, ShipModel> = {};
 (() => {
-  for (let shipType = 0; shipType < SSSTShipModelType.Count; ++shipType) {
+  for (let shipType = 0; shipType < ShipModelType.Count; ++shipType) {
     switch (shipType) {
-      case SSSTShipModelType.Flea:
-        sModels[shipType] = new SSSTShipModel(shipType, "Flea", 10, 0, 0, 0, 1, 20, SSSTTechLevel.EarlyIndustrial, 1, 2000, 5, 2, 25, -1, -1, 0, 1, 0);
+      case ShipModelType.Flea:
+        sModels[shipType] = new ShipModel(shipType, "Flea", 10, 0, 0, 0, 1, 20, TechLevel.EarlyIndustrial, 1, 2000, 5, 2, 25, -1, -1, 0, 1, 0);
         break;
-      case SSSTShipModelType.Gnat:
-        sModels[shipType] = new SSSTShipModel(shipType, "Gnat", 15, 1, 0, 1, 1, 14, SSSTTechLevel.Industrial, 2, 10000, 50, 28, 100, 0, 0, 0, 1, 1);
+      case ShipModelType.Gnat:
+        sModels[shipType] = new ShipModel(shipType, "Gnat", 15, 1, 0, 1, 1, 14, TechLevel.Industrial, 2, 10000, 50, 28, 100, 0, 0, 0, 1, 1);
         break;
-      case SSSTShipModelType.Firefly:
-        sModels[shipType] = new SSSTShipModel(shipType, "Firefly", 20, 1, 1, 1, 1, 17, SSSTTechLevel.Industrial, 3, 25000, 75, 20, 100, 0, 0, 0, 1, 1);
+      case ShipModelType.Firefly:
+        sModels[shipType] = new ShipModel(shipType, "Firefly", 20, 1, 1, 1, 1, 17, TechLevel.Industrial, 3, 25000, 75, 20, 100, 0, 0, 0, 1, 1);
         break;
-      case SSSTShipModelType.Mosquito:
-        sModels[shipType] = new SSSTShipModel(shipType, "Mosquito", 15, 2, 1, 1, 1, 13, SSSTTechLevel.Industrial, 5, 30000, 100, 20, 100, 0, 1, 0, 1, 1);
+      case ShipModelType.Mosquito:
+        sModels[shipType] = new ShipModel(shipType, "Mosquito", 15, 2, 1, 1, 1, 13, TechLevel.Industrial, 5, 30000, 100, 20, 100, 0, 1, 0, 1, 1);
         break;
-      case SSSTShipModelType.Bumblebee:
-        sModels[shipType] = new SSSTShipModel(shipType, "Bumblebee", 25, 1, 2, 2, 2, 15, SSSTTechLevel.Industrial, 7, 60000, 125, 15, 100, 1, 1, 0, 1, 2);
+      case ShipModelType.Bumblebee:
+        sModels[shipType] = new ShipModel(shipType, "Bumblebee", 25, 1, 2, 2, 2, 15, TechLevel.Industrial, 7, 60000, 125, 15, 100, 1, 1, 0, 1, 2);
         break;
-      case SSSTShipModelType.Beetle:
-        sModels[shipType] = new SSSTShipModel(shipType, "Beetle", 50, 0, 1, 1, 3, 14, SSSTTechLevel.Industrial, 10, 80000, 50, 3, 50, -1, -1, 0, 1, 2);
+      case ShipModelType.Beetle:
+        sModels[shipType] = new ShipModel(shipType, "Beetle", 50, 0, 1, 1, 3, 14, TechLevel.Industrial, 10, 80000, 50, 3, 50, -1, -1, 0, 1, 2);
         break;
-      case SSSTShipModelType.Hornet:
-        sModels[shipType] = new SSSTShipModel(shipType, "Hornet", 20, 3, 2, 1, 2, 16, SSSTTechLevel.PostIndustrial, 15, 100000, 200, 6, 150, 2, 3, 1, 2, 3);
+      case ShipModelType.Hornet:
+        sModels[shipType] = new ShipModel(shipType, "Hornet", 20, 3, 2, 1, 2, 16, TechLevel.PostIndustrial, 15, 100000, 200, 6, 150, 2, 3, 1, 2, 3);
         break;
-      case SSSTShipModelType.Grasshopper:
-        sModels[shipType] = new SSSTShipModel(shipType, "Grasshopper", 30, 2, 2, 3, 3, 15, SSSTTechLevel.PostIndustrial, 15, 150000, 300, 2, 150, 3, 4, 2, 3, 3);
+      case ShipModelType.Grasshopper:
+        sModels[shipType] = new ShipModel(shipType, "Grasshopper", 30, 2, 2, 3, 3, 15, TechLevel.PostIndustrial, 15, 150000, 300, 2, 150, 3, 4, 2, 3, 3);
         break;
-      case SSSTShipModelType.Termite:
-        sModels[shipType] = new SSSTShipModel(shipType, "Termite", 60, 1, 3, 2, 3, 13, SSSTTechLevel.HighTech, 20, 225000, 300, 2, 200, 4, 4, 3, 4, 4);
+      case ShipModelType.Termite:
+        sModels[shipType] = new ShipModel(shipType, "Termite", 60, 1, 3, 2, 3, 13, TechLevel.HighTech, 20, 225000, 300, 2, 200, 4, 4, 3, 4, 4);
         break;
-      case SSSTShipModelType.Wasp:
-        sModels[shipType] = new SSSTShipModel(shipType, "Wasp", 35, 3, 2, 2, 3, 14, SSSTTechLevel.HighTech, 20, 300000, 500, 2, 200, 5, 6, 4, 5, 4);
+      case ShipModelType.Wasp:
+        sModels[shipType] = new ShipModel(shipType, "Wasp", 35, 3, 2, 2, 3, 14, TechLevel.HighTech, 20, 300000, 500, 2, 200, 5, 6, 4, 5, 4);
         break;
-      case SSSTShipModelType.SpaceMonster:
-        sModels[shipType] = new SSSTShipModel(shipType, "Space Monster", 0, 3, 0, 0, 1, 1, SSSTTechLevel.Count, 1, 500000, 0, 0, 500, 8, 8, 8, 1, 4);
+      case ShipModelType.SpaceMonster:
+        sModels[shipType] = new ShipModel(shipType, "Space Monster", 0, 3, 0, 0, 1, 1, TechLevel.Count, 1, 500000, 0, 0, 500, 8, 8, 8, 1, 4);
         break;
-      case SSSTShipModelType.Dragonfly:
-        sModels[shipType] = new SSSTShipModel(shipType, "Dragonfly", 0, 2, 3, 2, 1, 1, SSSTTechLevel.Count, 1, 500000, 0, 0, 10, 8, 8, 8, 1, 1);
+      case ShipModelType.Dragonfly:
+        sModels[shipType] = new ShipModel(shipType, "Dragonfly", 0, 2, 3, 2, 1, 1, TechLevel.Count, 1, 500000, 0, 0, 10, 8, 8, 8, 1, 1);
         break;
-      case SSSTShipModelType.Mantis:
-        sModels[shipType] = new SSSTShipModel(shipType, "Mantis", 0, 3, 1, 3, 3, 1, SSSTTechLevel.Count, 1, 500000, 0, 0, 300, 8, 8, 8, 1, 2);
+      case ShipModelType.Mantis:
+        sModels[shipType] = new ShipModel(shipType, "Mantis", 0, 3, 1, 3, 3, 1, TechLevel.Count, 1, 500000, 0, 0, 300, 8, 8, 8, 1, 2);
         break;
-      case SSSTShipModelType.Scarab:
-        sModels[shipType] = new SSSTShipModel(shipType, "Scarab", 20, 2, 0, 0, 2, 1, SSSTTechLevel.Count, 1, 500000, 0, 0, 400, 8, 8, 8, 1, 3);
+      case ShipModelType.Scarab:
+        sModels[shipType] = new ShipModel(shipType, "Scarab", 20, 2, 0, 0, 2, 1, TechLevel.Count, 1, 500000, 0, 0, 400, 8, 8, 8, 1, 3);
         break;
-      case SSSTShipModelType.Bottle:
-        sModels[shipType] = new SSSTShipModel(shipType, "Bottle", 0, 0, 0, 0, 0, 1, SSSTTechLevel.Count, 1, 100, 0, 0, 0, 8, 8, 8, 1, 1);
+      case ShipModelType.Bottle:
+        sModels[shipType] = new ShipModel(shipType, "Bottle", 0, 0, 0, 0, 0, 1, TechLevel.Count, 1, 100, 0, 0, 0, 8, 8, 8, 1, 1);
         break;
       default:
         break;
@@ -166,13 +166,13 @@ export const sModels: Record<number, SSSTShipModel> = {};
 })();
 
 // Method to retrieve ship model by type
-SSSTShipModel.shipModelForType = function(type: number) {
+ShipModel.shipModelForType = function(type: number) {
     return sModels[type];
 };
 
 
 
-export class SSSTShip {
+export class Ship {
     declare _type: number
     declare _difficulty: number
     declare _fuel: number
@@ -181,19 +181,19 @@ export class SSSTShip {
     declare _currentShieldPower: number
     declare _cargoBuyingPrice: Map<number, number>
     declare _cargo: Map<number, number>
-    declare _weapons: SSSTWeapon[]
-    declare _shields: SSSTShield[]
-    declare _gadgets: SSSTGadget[]
-    declare _crew: SSSTCrewMember[]
+    declare _weapons: Weapon[]
+    declare _shields: Shield[]
+    declare _gadgets: Gadget[]
+    declare _crew: CrewMember[]
     declare tribbles: number
 
     constructor(type: number, difficulty?: number) {
-        if (type >= SSSTShipModelType.Count) {
+        if (type >= ShipModelType.Count) {
           return
         }
         this._type = type;
         this._difficulty = difficulty!;
-        this._fuel = SSSTShipModel.shipModelForType(type).fuelTanks;
+        this._fuel = ShipModel.shipModelForType(type).fuelTanks;
         this._hull = this._hullStrength();
         this._upgradedHull = false
         this._currentShieldPower = 0;
@@ -207,21 +207,21 @@ export class SSSTShip {
     }
 
     static bestShipWithDifficulty(difficulty: number) {
-        MAUtils.ensureInteger(difficulty)
+        Utils.ensureInteger(difficulty)
 
-        let ship = new SSSTShip(SSSTShipModelType.Best, difficulty);
+        let ship = new Ship(ShipModelType.Best, difficulty);
 
-        while (ship.addShieldOfType(SSSTAccessoryType.ShieldLastBuyable)) {}
-        while (ship.addWeaponOfType(SSSTAccessoryType.WeaponLastBuyable)) {}
+        while (ship.addShieldOfType(AccessoryType.ShieldLastBuyable)) {}
+        while (ship.addWeaponOfType(AccessoryType.WeaponLastBuyable)) {}
 
-        ship.addGadgetOfType(SSSTAccessoryType.GadgetTargetingSystem);
-        ship.addGadgetOfType(SSSTAccessoryType.GadgetNavigationSystem);
+        ship.addGadgetOfType(AccessoryType.GadgetTargetingSystem);
+        ship.addGadgetOfType(AccessoryType.GadgetNavigationSystem);
 
         return ship;
     }
 
-    static createFromPreviousShip(type: number, previousShip: SSSTShip) {
-        const ship = new SSSTShip(type, previousShip._difficulty)
+    static createFromPreviousShip(type: number, previousShip: Ship) {
+        const ship = new Ship(type, previousShip._difficulty)
 
         if (previousShip) {
             for (let accessory of previousShip._weapons) {
@@ -239,9 +239,9 @@ export class SSSTShip {
                     break;
                 }
             }
-            for (let itemType = SSSTTradeItemType.Count - 1; itemType >= 0; itemType--) {
+            for (let itemType = TradeItemType.Count - 1; itemType >= 0; itemType--) {
                 let quantity = previousShip.tradeItemQuantityForType(itemType);
-                MAUtils.ensureInteger(quantity)
+                Utils.ensureInteger(quantity)
                 if (quantity > 0) {
                     if (ship.boughtQuantity(quantity, itemType, previousShip.tradeItemAverageBuyingPriceForType(itemType)) <= 0) {
                         break;
@@ -253,8 +253,8 @@ export class SSSTShip {
         return ship
     }
 
-    static fromSerializedState(serializedState: SSSTShipState, solarSystems: SSSTSolarSystem[]) {
-        const ship = new SSSTShip(SSSTShipModelType.Count)
+    static fromSerializedState(serializedState: ShipState, solarSystems: SolarSystem[]) {
+        const ship = new Ship(ShipModelType.Count)
 
         ship._upgradedHull = serializedState.upgradedHull || false;
         ship._type = serializedState.type || 0;
@@ -266,11 +266,11 @@ export class SSSTShip {
         ship._crew = [];
         if (serializedState.crewMap) {
             for (let crewName in serializedState.crewMap) {
-                let mercenary = SSSTShip.crewMemberForName(crewName, solarSystems);
+                let mercenary = Ship.crewMemberForName(crewName, solarSystems);
                 if (mercenary) {
                     ship.addCrewMember(mercenary);
                 } else {
-                    let crewMember = SSSTCrewMember.fromSerializedState(serializedState.crewMap[crewName]);
+                    let crewMember = CrewMember.fromSerializedState(serializedState.crewMap[crewName]);
                     ship.addCrewMember(crewMember);
                 }
             }
@@ -279,8 +279,8 @@ export class SSSTShip {
         ship._cargo = new Map();
         if (serializedState.cargoKeys && serializedState.cargoValues) {
             serializedState.cargoKeys.forEach((key, idx) => {
-                MAUtils.ensureInteger(key)
-                MAUtils.ensureInteger(idx)
+                Utils.ensureInteger(key)
+                Utils.ensureInteger(idx)
                 ship._cargo.set(key, serializedState.cargoValues![idx]);
             });
         }
@@ -288,8 +288,8 @@ export class SSSTShip {
         ship._cargoBuyingPrice = new Map();
         if (serializedState.cargoBuyingPriceKeys && serializedState.cargoBuyingPriceValues) {
             serializedState.cargoBuyingPriceKeys.forEach((key, idx) => {
-                MAUtils.ensureInteger(key)
-                MAUtils.ensureInteger(idx)
+                Utils.ensureInteger(key)
+                Utils.ensureInteger(idx)
                 ship._cargoBuyingPrice.set(key, serializedState.cargoBuyingPriceValues![idx]);
             });
         }
@@ -297,7 +297,7 @@ export class SSSTShip {
         ship._weapons = [];
         if (serializedState.weaponTypes) {
             serializedState.weaponTypes.forEach(accessoryType => {
-                MAUtils.ensureInteger(accessoryType)
+                Utils.ensureInteger(accessoryType)
                 ship.addAccessoryOfType(accessoryType);
             });
         }
@@ -305,7 +305,7 @@ export class SSSTShip {
         ship._shields = [];
         if (serializedState.shieldTypes) {
             serializedState.shieldTypes.forEach(accessoryType => {
-                MAUtils.ensureInteger(accessoryType)
+                Utils.ensureInteger(accessoryType)
                 ship.addAccessoryOfType(accessoryType);
             });
         }
@@ -316,7 +316,7 @@ export class SSSTShip {
         ship._gadgets = [];
         if (serializedState.gadgetTypes) {
             serializedState.gadgetTypes.forEach(accessoryType => {
-                MAUtils.ensureInteger(accessoryType)
+                Utils.ensureInteger(accessoryType)
                 ship.addAccessoryOfType(accessoryType);
             });
         }
@@ -342,19 +342,19 @@ export class SSSTShip {
     }
 
     get gadgetSlots() {
-      return SSSTShipModel.shipModelForType(this._type).gadgetSlots;
+      return ShipModel.shipModelForType(this._type).gadgetSlots;
     }
 
     get weaponSlots() {
-      return SSSTShipModel.shipModelForType(this._type).weaponSlots;
+      return ShipModel.shipModelForType(this._type).weaponSlots;
     }
 
     get shieldSlots() {
-      return SSSTShipModel.shipModelForType(this._type).shieldSlots;
+      return ShipModel.shipModelForType(this._type).shieldSlots;
     }
 
     // Static method to get crew member by name
-    static crewMemberForName(name: string, solarSystems: SSSTSolarSystem[]) {
+    static crewMemberForName(name: string, solarSystems: SolarSystem[]) {
         if (!name) return null;
 
         for (let solarSystem of solarSystems) {
@@ -371,12 +371,12 @@ export class SSSTShip {
     }
 
     // Method to add a crew member
-    addCrewMember(crew: SSSTCrewMember) {
-      if (this._crew.length >= SSSTShipModel.shipModelForType(this._type).mercenaryQuarters()) {
+    addCrewMember(crew: CrewMember) {
+      if (this._crew.length >= ShipModel.shipModelForType(this._type).mercenaryQuarters()) {
         return false
       }
 
-      if (MAUtils.ensureType(crew, "object")) {
+      if (Utils.ensureType(crew, "object")) {
         pLog.log(44)
         this._crew.push(crew)
         return true;
@@ -386,7 +386,7 @@ export class SSSTShip {
     }
 
     // Method to remove a crew member
-    removeCrewMember(crew: SSSTCrewMember) {
+    removeCrewMember(crew: CrewMember) {
         if (crew) {
             const index = this._crew.indexOf(crew);
             if (index > -1) {
@@ -398,7 +398,7 @@ export class SSSTShip {
 
     // Method to remove a crew member by name
     removeCrewMemberWithName(name: string) {
-        let toRemove: SSSTCrewMember | null = null;
+        let toRemove: CrewMember | null = null;
         this._crew.forEach((crewMember) => {
             if (crewMember.name === name) {
                 toRemove = crewMember;
@@ -413,7 +413,7 @@ export class SSSTShip {
 
     // Method to get the count of crew members
     crewCount() {
-      if (this._crew !== null && MAUtils.ensureArrayOrNull(this._crew, "object")) {
+      if (this._crew !== null && Utils.ensureArrayOrNull(this._crew, "object")) {
         return this._crew.length
       }
 
@@ -436,9 +436,9 @@ export class SSSTShip {
 
     // Private method to calculate hull strength
     _hullStrength() {
-      const baseStrength = SSSTShipModel.shipModelForType(this._type).hullStrength;
+      const baseStrength = ShipModel.shipModelForType(this._type).hullStrength;
       let result = baseStrength + (this._upgradedHull ? 50 : 0);
-      MAUtils.ensureInteger(result)
+      Utils.ensureInteger(result)
       return result
     }
 
@@ -448,7 +448,7 @@ export class SSSTShip {
 
     // Method to set upgraded hull
     setUpgradedHull(upgradedHull: boolean) {
-      if (!MAUtils.ensureBool(upgradedHull)) { return }
+      if (!Utils.ensureBool(upgradedHull)) { return }
 
       if (upgradedHull !== this._upgradedHull) {
         this._upgradedHull = upgradedHull;
@@ -467,7 +467,7 @@ export class SSSTShip {
             }
         });
 
-        MAUtils.ensureInteger(power)
+        Utils.ensureInteger(power)
         return power;
     }
 
@@ -499,33 +499,33 @@ export class SSSTShip {
 
     // Method to check if the ship has a shield of a specific type
     hasShieldOfType(type: number) {
-        return this._shields && this._shields.includes(SSSTShield.shieldForType(type)!);
+        return this._shields && this._shields.includes(Shield.shieldForType(type)!);
     }
 
     // Method to check if the ship has any shields
     hasAnyShield() {
-        MAUtils.ensureType(this._shields, "object")
+        Utils.ensureType(this._shields, "object")
         return this._shields.length !== 0;
     }
 
     // Method to calculate free slots for an accessory type
     freeSlotsForAccessoryType(type: number) {
         let totalSlots = 0;
-        let accessories: SSSTAccessory[] = [];
+        let accessories: Accessory[] = [];
 
-        if (SSSTShield.shieldForType(type)) {
-            totalSlots = SSSTShipModel.shipModelForType(this._type).shieldSlots;
+        if (Shield.shieldForType(type)) {
+            totalSlots = ShipModel.shipModelForType(this._type).shieldSlots;
             accessories = this._shields;
-        } else if (SSSTGadget.gadgetForType(type)) {
-            totalSlots = SSSTShipModel.shipModelForType(this._type).gadgetSlots;
+        } else if (Gadget.gadgetForType(type)) {
+            totalSlots = ShipModel.shipModelForType(this._type).gadgetSlots;
             accessories = this._gadgets;
-        } else if (SSSTWeapon.weaponForType(type)) {
-            totalSlots = SSSTShipModel.shipModelForType(this._type).weaponSlots;
+        } else if (Weapon.weaponForType(type)) {
+            totalSlots = ShipModel.shipModelForType(this._type).weaponSlots;
             accessories = this._weapons;
         }
 
-        MAUtils.ensureInteger(totalSlots)
-        MAUtils.ensureInteger(accessories.length)
+        Utils.ensureInteger(totalSlots)
+        Utils.ensureInteger(accessories.length)
 
         return Math.max(0, totalSlots - accessories.length);
     }
@@ -536,7 +536,7 @@ export class SSSTShip {
     }
 
     // Private method to remove an accessory type from a list
-    _removeType(type: number, list: SSSTAccessory[] | null) {
+    _removeType(type: number, list: Accessory[] | null) {
         if (!list) {
             return false;
         }
@@ -556,9 +556,9 @@ export class SSSTShip {
 
     // Method to add a shield of a specific type
     addShieldOfType(type: number) {
-        const shield = SSSTShield.shieldForType(type);
+        const shield = Shield.shieldForType(type);
 
-        if (!shield || this._shields.length >= SSSTShipModel.shipModelForType(this._type).shieldSlots) {
+        if (!shield || this._shields.length >= ShipModel.shipModelForType(this._type).shieldSlots) {
             return false;
         }
 
@@ -570,9 +570,9 @@ export class SSSTShip {
 
     // Method to add a weapon of a specific type
     addWeaponOfType(type: number) {
-        const weapon = SSSTWeapon.weaponForType(type);
+        const weapon = Weapon.weaponForType(type);
 
-        if (!weapon || this._weapons.length >= SSSTShipModel.shipModelForType(this._type).weaponSlots) {
+        if (!weapon || this._weapons.length >= ShipModel.shipModelForType(this._type).weaponSlots) {
             return false;
         }
 
@@ -583,9 +583,9 @@ export class SSSTShip {
 
     // Method to add a gadget of a specific type
     addGadgetOfType(type: number) {
-        const gadget = SSSTGadget.gadgetForType(type);
+        const gadget = Gadget.gadgetForType(type);
 
-        if (!gadget || this._gadgets.length >= SSSTShipModel.shipModelForType(this._type).gadgetSlots) {
+        if (!gadget || this._gadgets.length >= ShipModel.shipModelForType(this._type).gadgetSlots) {
             return false;
         }
 
@@ -595,7 +595,7 @@ export class SSSTShip {
     }
 
     fuelTankCapacity() {
-        return this.hasGadgetOfType(SSSTAccessoryType.GadgetFuelCompactor) ? 18 : SSSTShipModel.shipModelForType(this._type).fuelTanks;
+        return this.hasGadgetOfType(AccessoryType.GadgetFuelCompactor) ? 18 : ShipModel.shipModelForType(this._type).fuelTanks;
     }
 
 		get currentShieldPower() {
@@ -607,7 +607,7 @@ export class SSSTShip {
     }
 
     consumeFuelOverDistance(distance: number) {
-      if (MAUtils.ensureInteger(distance)) {
+      if (Utils.ensureInteger(distance)) {
         this._fuel -= Math.min(distance, this._fuel);
       }
     }
@@ -641,7 +641,7 @@ export class SSSTShip {
 
     rechargeShieldPowerByAmount(amount: number) {
         if (amount <= 0) { return }
-        if (!MAUtils.ensureInteger(amount)) { return }
+        if (!Utils.ensureInteger(amount)) { return }
 
         const allowedRechargedShieldPower = this._currentShieldPower + amount;
         this.rechargeShieldPower(); // fully recharge
@@ -649,7 +649,7 @@ export class SSSTShip {
     }
 
     damageShieldsByAmount(amount: number) {
-        if (!MAUtils.ensureInteger(amount)) {
+        if (!Utils.ensureInteger(amount)) {
           return
         }
 
@@ -663,7 +663,7 @@ export class SSSTShip {
     }
 
     fillFuelByAmount(amount: number) {
-        if (!MAUtils.ensureInteger(amount)) {
+        if (!Utils.ensureInteger(amount)) {
           return
         }
 
@@ -671,7 +671,7 @@ export class SSSTShip {
     }
 
     repairHullByAmount(amount: number) {
-        if (!MAUtils.ensureInteger(amount)) {
+        if (!Utils.ensureInteger(amount)) {
           return
         }
 
@@ -687,7 +687,7 @@ export class SSSTShip {
     }
 
     damageHullByAmount(amount: number) {
-        if (!MAUtils.ensureInteger(amount)) {
+        if (!Utils.ensureInteger(amount)) {
           return
         }
 
@@ -697,14 +697,14 @@ export class SSSTShip {
         this._hull = Math.max(this._hull, 0);
     }
 
-    shipOwnedByCommanderIsCloakedToOpponent(commander: SSSTCrewMember, opponent: SSSTShipOwner) {
-        return this.hasGadgetOfType(SSSTAccessoryType.GadgetCloakingDevice) &&
+    shipOwnedByCommanderIsCloakedToOpponent(commander: CrewMember, opponent: ShipOwner) {
+        return this.hasGadgetOfType(AccessoryType.GadgetCloakingDevice) &&
                this.crewEngineerSkillIncludingCommander(commander) > opponent.ship.crewEngineerSkillIncludingCommander(opponent);
     }
 
     shipValuationForInsurance(insurance: boolean) {
         let value = 0;
-        const model = SSSTShipModel.shipModelForType(this._type);
+        const model = ShipModel.shipModelForType(this._type);
         const SELLDISCOUNT = (x: number) => Math.floor((x * 3) / 4);
 
         value += (this.tribbles > 0 && !insurance) ? Math.floor(model.price / 4) : SELLDISCOUNT(model.price);
@@ -724,14 +724,14 @@ export class SSSTShip {
             value += SELLDISCOUNT(gadget.price);
         });
 
-        MAUtils.ensureInteger(value)
+        Utils.ensureInteger(value)
 
         return Math.floor(value);
     }
 
-    _enemyShipValuationWithOpponent(opponent: SSSTCrewMember) {
+    _enemyShipValuationWithOpponent(opponent: CrewMember) {
         let value = 0;
-        const model = SSSTShipModel.shipModelForType(this._type);
+        const model = ShipModel.shipModelForType(this._type);
         value += model.price;
 
         this._weapons.forEach(weapon => {
@@ -749,12 +749,12 @@ export class SSSTShip {
 
         value = Math.floor(value)
 
-        MAUtils.ensureInteger(value)
+        Utils.ensureInteger(value)
 
         return value
     }
 
-    bountyForEnemyShipWithOpponent(opponent: SSSTCrewMember) {
+    bountyForEnemyShipWithOpponent(opponent: CrewMember) {
         let value = this._enemyShipValuationWithOpponent(opponent);
         value /= 200;
         value /= 25;
@@ -763,22 +763,22 @@ export class SSSTShip {
         return Math.min(Math.max(value, 25), 2500);
     }
 
-    crewEngineerSkillIncludingCommander(commander: SSSTCrewMember) {
+    crewEngineerSkillIncludingCommander(commander: CrewMember) {
         let maxSkill = commander.engineer;
         this._crew.forEach(crewMember => {
             maxSkill = Math.max(maxSkill, crewMember.engineer);
         });
 
-        if (this.hasGadgetOfType(SSSTAccessoryType.GadgetAutoRepairSystem)) {
+        if (this.hasGadgetOfType(AccessoryType.GadgetAutoRepairSystem)) {
             maxSkill += SKILL_BONUS;
         }
 
-        MAUtils.ensureInteger(maxSkill)
+        Utils.ensureInteger(maxSkill)
 
         return ADJUST_SKILL_FOR_DIFFICULTY(maxSkill, this._difficulty);
     }
 
-    crewTraderSkillIncludingCommander(commander: SSSTCrewMember) {
+    crewTraderSkillIncludingCommander(commander: CrewMember) {
         let maxSkill = commander.trader;
         this._crew.forEach(crewMember => {
             maxSkill = Math.max(maxSkill, crewMember.trader);
@@ -788,41 +788,41 @@ export class SSSTShip {
             maxSkill++;
         }
 
-        MAUtils.ensureInteger(maxSkill)
+        Utils.ensureInteger(maxSkill)
 
         return ADJUST_SKILL_FOR_DIFFICULTY(maxSkill, this._difficulty);
     }
 
-    crewFighterSkillIncludingCommander(commander: SSSTCrewMember) {
+    crewFighterSkillIncludingCommander(commander: CrewMember) {
         let maxSkill = commander.fighter;
         this._crew.forEach(crewMember => {
             maxSkill = Math.max(maxSkill, crewMember.fighter);
         });
 
-        if (this.hasGadgetOfType(SSSTAccessoryType.GadgetTargetingSystem)) {
+        if (this.hasGadgetOfType(AccessoryType.GadgetTargetingSystem)) {
             maxSkill += SKILL_BONUS;
         }
 
-        MAUtils.ensureInteger(maxSkill)
+        Utils.ensureInteger(maxSkill)
 
         return ADJUST_SKILL_FOR_DIFFICULTY(maxSkill, this._difficulty);
     }
 
-    crewPilotSkillIncludingCommander(commander: SSSTCrewMember) {
+    crewPilotSkillIncludingCommander(commander: CrewMember) {
         let maxSkill = commander.pilot;
         this._crew.forEach(crewMember => {
             maxSkill = Math.max(maxSkill, crewMember.pilot);
         });
 
-        if (this.hasGadgetOfType(SSSTAccessoryType.GadgetNavigationSystem)) {
+        if (this.hasGadgetOfType(AccessoryType.GadgetNavigationSystem)) {
             maxSkill += SKILL_BONUS;
         }
 
-        if (this.hasGadgetOfType(SSSTAccessoryType.GadgetCloakingDevice)) {
+        if (this.hasGadgetOfType(AccessoryType.GadgetCloakingDevice)) {
             maxSkill += CLOAK_BONUS;
         }
 
-        MAUtils.ensureInteger(maxSkill)
+        Utils.ensureInteger(maxSkill)
 
         return ADJUST_SKILL_FOR_DIFFICULTY(maxSkill, this._difficulty);
     }
@@ -842,7 +842,7 @@ export class SSSTShip {
     }
 
     boughtQuantity(quantity: number, itemType: number, price: number) {
-        if (!MAUtils.ensureArrayOrNull([quantity, itemType, price], "number")) {
+        if (!Utils.ensureArrayOrNull([quantity, itemType, price], "number")) {
           return 0
         }
 
@@ -859,7 +859,7 @@ export class SSSTShip {
     }
 
     soldQuantity(quantity: number, itemType: number) {
-        if (!MAUtils.ensureArrayOrNull([quantity, itemType], "number")) {
+        if (!Utils.ensureArrayOrNull([quantity, itemType], "number")) {
           return
         }
 
@@ -876,7 +876,7 @@ export class SSSTShip {
         this._cargoBuyingPrice.set(itemType, newBuyingPrice);
     }
 
-    _tradeableItemsForSystem(solarSystem: SSSTSolarSystem | null, onlyIllegal: boolean, onlyLegalOrIllegal: boolean, limit: number) {
+    _tradeableItemsForSystem(solarSystem: SolarSystem | null, onlyIllegal: boolean, onlyLegalOrIllegal: boolean, limit: number) {
         const ret = [];
 
         for (const [tradeItem, quantity] of this._cargo) {
@@ -884,7 +884,7 @@ export class SSSTShip {
                 continue;
             }
 
-            if (tradeItem >= SSSTTradeItemType.FakeQuestCargoStart) {
+            if (tradeItem >= TradeItemType.FakeQuestCargoStart) {
                 continue;
             }
 
@@ -903,14 +903,14 @@ export class SSSTShip {
         return ret;
     }
 
-    hasTradeableItemsForSystem(solarSystem: SSSTSolarSystem | null, onlyIllegal: boolean) {
+    hasTradeableItemsForSystem(solarSystem: SolarSystem | null, onlyIllegal: boolean) {
         return this._tradeableItemsForSystem(solarSystem, onlyIllegal, true, 1).length > 0;
     }
 
-    randomTradeableItemForSystem(solarSystem: SSSTSolarSystem | null, onlyIllegal: boolean) {
+    randomTradeableItemForSystem(solarSystem: SolarSystem | null, onlyIllegal: boolean) {
         const items = this._tradeableItemsForSystem(solarSystem, onlyIllegal, true, this._cargo.size);
         if (items.length <= 0) {
-            return SSSTTradeItemType.None;
+            return TradeItemType.None;
         }
 
         const randomIndex = runtime.gameRand.randomIntBelow(items.length)
@@ -920,7 +920,7 @@ export class SSSTShip {
     randomTradeableItem() {
         const items = this._tradeableItemsForSystem(null, false, false, this._cargo.size);
         if (items.length <= 0) {
-            return SSSTTradeItemType.None;
+            return TradeItemType.None;
         }
 
         const randomIndex = runtime.gameRand.randomIntBelow(items.length)
@@ -929,9 +929,9 @@ export class SSSTShip {
 
 
     totalCargoBays() {
-      const extraCount = this.countGadgetOfType(SSSTAccessoryType.GadgetFiveExtraCargoBays, false);
-      const result = SSSTShipModel.shipModelForType(this._type).cargoBays + 5 * extraCount;
-      MAUtils.ensureInteger(result)
+      const extraCount = this.countGadgetOfType(AccessoryType.GadgetFiveExtraCargoBays, false);
+      const result = ShipModel.shipModelForType(this._type).cargoBays + 5 * extraCount;
+      Utils.ensureInteger(result)
       return result
     }
 
@@ -944,7 +944,7 @@ export class SSSTShip {
 
       consumedBays = Math.min(consumedBays, totalBays);
       const result = totalBays - consumedBays;
-      MAUtils.ensureInteger(result)
+      Utils.ensureInteger(result)
       return result
     }
 
@@ -953,99 +953,99 @@ export class SSSTShip {
     }
 
     costOfFuel() {
-        return SSSTShipModel.shipModelForType(this._type).costOfFuel;
+        return ShipModel.shipModelForType(this._type).costOfFuel;
     }
 
     get model() {
-        return SSSTShipModel.shipModelForType(this._type);
+        return ShipModel.shipModelForType(this._type);
     }
 
     hasIllegalGoods() {
-        return this.tradeItemQuantityForType(SSSTTradeItemType.Firearms) > 0 ||
-               this.tradeItemQuantityForType(SSSTTradeItemType.Narcotics) > 0 ||
-               this.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor) > 0;
+        return this.tradeItemQuantityForType(TradeItemType.Firearms) > 0 ||
+               this.tradeItemQuantityForType(TradeItemType.Narcotics) > 0 ||
+               this.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor) > 0;
     }
 
     serializedState() {
-        const state: SSSTShipState = {};
+        const state: ShipState = {};
 
         // BOOL
-        MAUtils.ensureBool(this._upgradedHull)
+        Utils.ensureBool(this._upgradedHull)
         state.upgradedHull = this._upgradedHull;
 
         // char
-        MAUtils.ensureInteger(this._type)
+        Utils.ensureInteger(this._type)
         state.type = this._type;
 
-        MAUtils.ensureInteger(this._difficulty)
+        Utils.ensureInteger(this._difficulty)
         state.difficulty = this._difficulty;
 
-        MAUtils.ensureInteger(this._fuel)
+        Utils.ensureInteger(this._fuel)
         state.fuel = this._fuel;
 
         // NSInteger
-        MAUtils.ensureInteger(this._hull)
+        Utils.ensureInteger(this._hull)
         state.hull = this._hull;
 
-        MAUtils.ensureInteger(this.tribbles)
+        Utils.ensureInteger(this.tribbles)
         state.tribbles = this.tribbles;
 
-        MAUtils.ensureInteger(this._currentShieldPower)
+        Utils.ensureInteger(this._currentShieldPower)
         state.currentShieldPower = this._currentShieldPower;
 
         // NSDictionary
-        MAUtils.ensureMapOrNull(this._cargo)
+        Utils.ensureMapOrNull(this._cargo)
         if (this._cargo) {
           state.cargoKeys = [];
           state.cargoValues = [];
 
 					for (const [key, value] of this._cargo) {
-              MAUtils.ensureInteger(key)
+              Utils.ensureInteger(key)
               state.cargoKeys.push(key);
 
-              MAUtils.ensureInteger(value)
+              Utils.ensureInteger(value)
               state.cargoValues.push(value);
           }
         }
 
-        MAUtils.ensureMapOrNull(this._cargoBuyingPrice)
+        Utils.ensureMapOrNull(this._cargoBuyingPrice)
         if (this._cargoBuyingPrice) {
           state.cargoBuyingPriceKeys = [];
           state.cargoBuyingPriceValues = [];
 
 					for (const [key, value] of this._cargoBuyingPrice) {
-              MAUtils.ensureInteger(key)
+              Utils.ensureInteger(key)
               state.cargoBuyingPriceKeys.push(key);
 
-              MAUtils.ensureInteger(value)
+              Utils.ensureInteger(value)
               state.cargoBuyingPriceValues.push(value);
           }
         }
 
         // NSArray
-        MAUtils.ensureArrayOrNull(this._weapons, "object")
+        Utils.ensureArrayOrNull(this._weapons, "object")
         if (this._weapons.length) {
             state.weaponTypes = this._weapons.map(weapon => weapon.type);
-            MAUtils.ensureArrayOrNull(state.weaponTypes, "number")
+            Utils.ensureArrayOrNull(state.weaponTypes, "number")
         }
 
-        MAUtils.ensureArrayOrNull(this._shields, "object")
+        Utils.ensureArrayOrNull(this._shields, "object")
         if (this._shields.length) {
             state.shieldTypes = this._shields.map(shield => shield.type);
-            MAUtils.ensureArrayOrNull(state.shieldTypes, "number")
+            Utils.ensureArrayOrNull(state.shieldTypes, "number")
         }
 
-        MAUtils.ensureArrayOrNull(this._gadgets, "object")
+        Utils.ensureArrayOrNull(this._gadgets, "object")
         if (this._gadgets.length) {
             state.gadgetTypes = this._gadgets.map(gadget => gadget.type);
-            MAUtils.ensureArrayOrNull(state.gadgetTypes, "number")
+            Utils.ensureArrayOrNull(state.gadgetTypes, "number")
         }
 
-        MAUtils.ensureArrayOrNull(this._crew, "object")
+        Utils.ensureArrayOrNull(this._crew, "object")
         if (this._crew.length) {
             state.crewMap = {};
             this._crew.forEach(crewMember => {
-                MAUtils.ensureType(crewMember.name, "string")
+                Utils.ensureType(crewMember.name, "string")
                 state.crewMap![crewMember.name!] = crewMember.serializedState();
             });
         }

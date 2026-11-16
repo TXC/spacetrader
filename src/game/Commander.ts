@@ -1,13 +1,13 @@
 import { ACCESSORY_FOR_TYPE } from './Accessory.ts'
-import { SSSTCrewMember } from './CrewMember.ts'
-import type { SSSTCrewMemberState } from './CrewMember.ts'
-import { SSSTShip } from './Ship.ts'
-import type { SSSTShipModel, SSSTShipState } from './Ship.ts'
-import { SSSTSolarSystem } from './SolarSystem.ts'
-import { MOON_PRICE, SSSTDifficulty } from './SolarSystem.types.ts'
-import { SSSTTradeItem } from './TradeItem.ts'
-import { SSSTStatus, SSSTTradeItemType } from './TradeItem.types.ts'
-import { MAUtils } from './Utilities.ts'
+import { CrewMember } from './CrewMember.ts'
+import type { CrewMemberState } from './CrewMember.ts'
+import { Ship } from './Ship.ts'
+import type { ShipModel, ShipState } from './Ship.ts'
+import { SolarSystem } from './SolarSystem.ts'
+import { MOON_PRICE, Difficulty } from './SolarSystem.types.ts'
+import { TradeItem } from './TradeItem.ts'
+import { Status, TradeItemType } from './TradeItem.types.ts'
+import { Utils } from './Utilities.ts'
 import { runtime } from './runtime.ts'
 
 export const MAX_SAFE_PILOT_INSURANCE_DISCOUNT = 90;
@@ -24,7 +24,7 @@ export const KILL_TRADER_SCORE = -4;
 export const FLEE_FROM_INSPECTION_SCORE = -2;
 export const TRAFFICKING_SCORE = -1;
 
-export const SSSTPoliceRecordScore = {
+export const PoliceRecordScore = {
     Psycho: -100,
     Villain: -70,
     Criminal: -30,
@@ -36,26 +36,26 @@ export const SSSTPoliceRecordScore = {
     Liked: 25,
     Hero: 75
 } as const;
-export type SSSTPoliceRecordScore = (typeof SSSTPoliceRecordScore)[keyof typeof SSSTPoliceRecordScore];
+export type PoliceRecordScore = (typeof PoliceRecordScore)[keyof typeof PoliceRecordScore];
 
 export function POLICE_RECORD_STR(x: number) {
-    if (x <= SSSTPoliceRecordScore.Psycho) {
+    if (x <= PoliceRecordScore.Psycho) {
         return "Psycho";
-    } else if (x <= SSSTPoliceRecordScore.Villain) {
+    } else if (x <= PoliceRecordScore.Villain) {
         return "Villain";
-    } else if (x <= SSSTPoliceRecordScore.Criminal) {
+    } else if (x <= PoliceRecordScore.Criminal) {
         return "Criminal";
-    } else if (x <= SSSTPoliceRecordScore.Crook) {
+    } else if (x <= PoliceRecordScore.Crook) {
         return "Crook";
-    } else if (x <= SSSTPoliceRecordScore.Dubious) {
+    } else if (x <= PoliceRecordScore.Dubious) {
         return "Dubious";
-    } else if (x >= SSSTPoliceRecordScore.Hero) {
+    } else if (x >= PoliceRecordScore.Hero) {
         return "Hero";
-    } else if (x >= SSSTPoliceRecordScore.Liked) {
+    } else if (x >= PoliceRecordScore.Liked) {
         return "Liked";
-    } else if (x >= SSSTPoliceRecordScore.Trusted) {
+    } else if (x >= PoliceRecordScore.Trusted) {
         return "Trusted";
-    } else if (x >= SSSTPoliceRecordScore.Lawful) {
+    } else if (x >= PoliceRecordScore.Lawful) {
         return "Lawful";
     } else {
         return "Clean";
@@ -63,16 +63,16 @@ export function POLICE_RECORD_STR(x: number) {
 }
 
 export function POLICE_RECORD_MULTIPLIER(x: number) {
-    if (x < SSSTPoliceRecordScore.Psycho) {
+    if (x < PoliceRecordScore.Psycho) {
         return 3;
-    } else if (x < SSSTPoliceRecordScore.Villain) {
+    } else if (x < PoliceRecordScore.Villain) {
         return 2;
     } else {
         return 1;
     }
 }
 
-export const SSSTReputationScore = {
+export const ReputationScore = {
     Harmless: 0,
     MostlyHarmless: 10,
     Poor: 20,
@@ -83,27 +83,27 @@ export const SSSTReputationScore = {
     Deadly: 600,
     Elite: 1500
 } as const;
-export type SSSTReputationScore = (typeof SSSTReputationScore)[keyof typeof SSSTReputationScore];
+export type ReputationScore = (typeof ReputationScore)[keyof typeof ReputationScore];
 
-export let DEFAULT_REPUTATION_SCORE = SSSTReputationScore.Harmless;
+export let DEFAULT_REPUTATION_SCORE = ReputationScore.Harmless;
 
 
 export function REPUTATION_STR(x: number) {
-    if (x >= SSSTReputationScore.Elite) {
+    if (x >= ReputationScore.Elite) {
         return "Elite";
-    } else if (x >= SSSTReputationScore.Deadly) {
+    } else if (x >= ReputationScore.Deadly) {
         return "Deadly";
-    } else if (x >= SSSTReputationScore.Dangerous) {
+    } else if (x >= ReputationScore.Dangerous) {
         return "Dangerous";
-    } else if (x >= SSSTReputationScore.Competent) {
+    } else if (x >= ReputationScore.Competent) {
         return "Competent";
-    } else if (x >= SSSTReputationScore.AboveAverage) {
+    } else if (x >= ReputationScore.AboveAverage) {
         return "Above Average";
-    } else if (x >= SSSTReputationScore.Average) {
+    } else if (x >= ReputationScore.Average) {
         return "Average";
-    } else if (x >= SSSTReputationScore.Poor) {
+    } else if (x >= ReputationScore.Poor) {
         return "Poor";
-    } else if (x >= SSSTReputationScore.MostlyHarmless) {
+    } else if (x >= ReputationScore.MostlyHarmless) {
         return "Mostly Harmless";
     } else {
         return "Harmless";
@@ -112,17 +112,17 @@ export function REPUTATION_STR(x: number) {
 
 
 // What serializedState() writes into a saved game.
-export type SSSTCommanderState = SSSTCrewMemberState & {
+export type CommanderState = CrewMemberState & {
     credits: number, debt: number, days: number, policeKills: number, traderKills: number,
     pirateKills: number, policeRecordScore: number, reputationScore: number, noClaim: number,
     travelClicksRemaining: number, difficulty: number,
     boughtMoon: boolean, hasEscapePod: boolean, hasInsurance: boolean, raided: boolean,
     inspected: boolean, litterWarning: boolean, artifactOnBoard: boolean,
     arrivedViaWormhole: boolean, reserveMoney: boolean,
-    currentSystemName: string, ship: SSSTShipState, basePrices?: number[],
+    currentSystemName: string, ship: ShipState, basePrices?: number[],
 }
 
-export class SSSTCommander extends SSSTCrewMember {
+export class Commander extends CrewMember {
     declare _basePrices: number[] | null
     declare days: number
     declare _noClaim: number
@@ -141,13 +141,13 @@ export class SSSTCommander extends SSSTCrewMember {
     declare _boughtMoon: boolean
     declare _hasEscapePod: boolean
     declare _hasInsurance: boolean
-    // The next five are not set by the constructor. They are unset until SSSTGame sets the
+    // The next five are not set by the constructor. They are unset until Game sets the
     // commander up or a saved game is loaded; the types say 'always set' to match how the rules use them.
     declare _credits: number
     declare _difficulty: number
     declare _reserveMoney: boolean
-    declare _currentSystem: SSSTSolarSystem
-    declare ship: SSSTShip
+    declare _currentSystem: SolarSystem
+    declare ship: Ship
 
     constructor(name: string | null, engineer = 0, pilot = 0, fighter = 0, trader = 0) {
 			super(name, engineer, pilot, fighter, trader)
@@ -172,13 +172,13 @@ export class SSSTCommander extends SSSTCrewMember {
       this._hasInsurance = false
 		}
 
-    static fromSerializedState(serializedState: SSSTCommanderState, solarSystems?: SSSTSolarSystem[]) {
-        const commander = new SSSTCommander(serializedState.name);
+    static fromSerializedState(serializedState: CommanderState, solarSystems?: SolarSystem[]) {
+        const commander = new Commander(serializedState.name);
         commander.updateWithSerializedState(serializedState, solarSystems);
         return commander;
     }
 
-    updateWithSerializedState(serializedState: SSSTCommanderState, solarSystems?: SSSTSolarSystem[]) {
+    updateWithSerializedState(serializedState: CommanderState, solarSystems?: SolarSystem[]) {
         super.updateWithSerializedState(serializedState);
 
         // The saved values are numbers; parseInt turns them into text first. Kept as in the old code.
@@ -210,22 +210,22 @@ export class SSSTCommander extends SSSTCrewMember {
 
 
         // Set current system and ship
-        this._currentSystem = SSSTSolarSystem.solarSystemForName(serializedState.currentSystemName, solarSystems!)!
-        MAUtils.ensureType(this._currentSystem, "object")
+        this._currentSystem = SolarSystem.solarSystemForName(serializedState.currentSystemName, solarSystems!)!
+        Utils.ensureType(this._currentSystem, "object")
 
-        this.ship = SSSTShip.fromSerializedState(serializedState.ship, solarSystems!);
+        this.ship = Ship.fromSerializedState(serializedState.ship, solarSystems!);
 
         // Base prices
         if (serializedState.basePrices) {
           this._basePrices = [ ...serializedState.basePrices ];
-          MAUtils.ensureArrayOrNull(this._basePrices, "number")
+          Utils.ensureArrayOrNull(this._basePrices, "number")
         } else {
           this._basePrices = null
         }
     }
 
     _hasDubiousPoliceRecord() {
-        return this.policeRecordScore <= SSSTPoliceRecordScore.Dubious;
+        return this.policeRecordScore <= PoliceRecordScore.Dubious;
     }
 
     get boughtMoon() {
@@ -233,13 +233,13 @@ export class SSSTCommander extends SSSTCrewMember {
     }
 
     set boughtMoon(b) {
-      if (MAUtils.ensureBool(b)) {
+      if (Utils.ensureBool(b)) {
         this._boughtMoon = b
       }
     }
 
     setReserveMoney(rM: boolean) {
-      if (MAUtils.ensureBool(rM)) {
+      if (Utils.ensureBool(rM)) {
         this._reserveMoney = rM;
       }
     }
@@ -249,7 +249,7 @@ export class SSSTCommander extends SSSTCrewMember {
     }
 
     _checkCreditsAmount(c: number) {
-      return MAUtils.ensureInteger(c)
+      return Utils.ensureInteger(c)
     }
 
     setCredits(c: number) {
@@ -275,7 +275,7 @@ export class SSSTCommander extends SSSTCrewMember {
     }
 
 		set hasEscapePod(h) {
-      if (MAUtils.ensureBool(h)) {
+      if (Utils.ensureBool(h)) {
 				this._hasEscapePod = h;
       }
 		}
@@ -285,7 +285,7 @@ export class SSSTCommander extends SSSTCrewMember {
 		}
 
 		set hasInsurance(h) {
-      if (MAUtils.ensureBool(h)) {
+      if (Utils.ensureBool(h)) {
 				this._hasInsurance = h;
       }
 		}
@@ -295,7 +295,7 @@ export class SSSTCommander extends SSSTCrewMember {
     }
 
 		set noClaim(n) {
-      if (MAUtils.ensureInteger(n)) {
+      if (Utils.ensureInteger(n)) {
 				this._noClaim = n;
       }
 		}
@@ -305,7 +305,7 @@ export class SSSTCommander extends SSSTCrewMember {
     }
 
     set reputationScore(r) {
-      if (MAUtils.ensureInteger(r)) {
+      if (Utils.ensureInteger(r)) {
         this._reputationScore = r
       }
     }
@@ -315,7 +315,7 @@ export class SSSTCommander extends SSSTCrewMember {
 		}
 
 		set raided(r) {
-      if (MAUtils.ensureBool(r)) {
+      if (Utils.ensureBool(r)) {
 				this._raided = r;
       }
 		}
@@ -325,7 +325,7 @@ export class SSSTCommander extends SSSTCrewMember {
 		}
 
 		set inspected(i) {
-      if (MAUtils.ensureBool(i)) {
+      if (Utils.ensureBool(i)) {
 				this._inspected = i;
       }
 		}
@@ -335,7 +335,7 @@ export class SSSTCommander extends SSSTCrewMember {
 		}
 
 		set litterWarning(l) {
-      if (MAUtils.ensureBool(l)) {
+      if (Utils.ensureBool(l)) {
 				this._litterWarning = l;
       }
 		}
@@ -359,7 +359,7 @@ export class SSSTCommander extends SSSTCrewMember {
 		}
 
 		set arrivedViaWormhole(v) {
-      if (MAUtils.ensureBool(v)) {
+      if (Utils.ensureBool(v)) {
 				this._arrivedViaWormhole = v;
       }
 		}
@@ -369,13 +369,13 @@ export class SSSTCommander extends SSSTCrewMember {
 		}
 
 		set travelClicksRemaining(t) {
-      if (MAUtils.ensureInteger(t)) {
+      if (Utils.ensureInteger(t)) {
 				this._travelClicksRemaining = t;
       }
 		}
 
     setDifficulty(d: number) {
-      if (MAUtils.ensureInteger(d)) {
+      if (Utils.ensureInteger(d)) {
         this._difficulty = d;
       }
     }
@@ -384,15 +384,15 @@ export class SSSTCommander extends SSSTCrewMember {
       return this._difficulty
     }
 
-    setCurrentSystem(currentSystem: SSSTSolarSystem) {
-      MAUtils.ensureType(currentSystem, "object")
+    setCurrentSystem(currentSystem: SolarSystem) {
+      Utils.ensureType(currentSystem, "object")
 
       if (this._currentSystem !== currentSystem) {
         this._currentSystem = currentSystem;
         this._currentSystem.setVisited(true);
 
         const basePrices = [];
-        for (let item = 0; item < SSSTTradeItemType.Count; ++item) {
+        for (let item = 0; item < TradeItemType.Count; ++item) {
           basePrices.push(this._calculateBasePriceForItem(item));
         }
         this._basePrices = basePrices;
@@ -411,21 +411,21 @@ export class SSSTCommander extends SSSTCrewMember {
         let price = this._currentSystem.standardPriceForItem(itemType);
         if (price <= 0) return 0;
 
-        const item = SSSTTradeItem.tradeItemForType(itemType)!;
-        if (item.doublePriceStatus !== SSSTStatus.Uneventful && this._currentSystem.status === item.doublePriceStatus) {
+        const item = TradeItem.tradeItemForType(itemType)!;
+        if (item.doublePriceStatus !== Status.Uneventful && this._currentSystem.status === item.doublePriceStatus) {
             // DoublePriceStatus is a misleading name
             price = Math.floor((price * 3) / 2)
         }
 
         price += runtime.gameRand.randomIntBelow(item.priceVariance) - runtime.gameRand.randomIntBelow(item.priceVariance);
 
-        MAUtils.ensureInteger(price)
+        Utils.ensureInteger(price)
 
         return Math.max(price, 0);
     }
 
     sellPriceForItem(itemType: number) {
-      const validState = MAUtils.ensureArrayOrNull(this._basePrices, "number") && MAUtils.ensureType(this._basePrices, "object")
+      const validState = Utils.ensureArrayOrNull(this._basePrices, "number") && Utils.ensureType(this._basePrices, "object")
 
       if (!validState) { return 0 }
 
@@ -436,7 +436,7 @@ export class SSSTCommander extends SSSTCrewMember {
         price = Math.floor((price * 90) / 100);
       }
 
-      MAUtils.ensureInteger(price)
+      Utils.ensureInteger(price)
 
       return price;
     }
@@ -447,7 +447,7 @@ export class SSSTCommander extends SSSTCrewMember {
         price = Math.floor(price * (103 + (MAX_SKILL_LEVEL - this.ship.crewTraderSkillIncludingCommander(this))) / 100);
         price = Math.max(price, this.sellPriceForItem(itemType) + 1);
 
-        MAUtils.ensureInteger(price)
+        Utils.ensureInteger(price)
 
         return price;
     }
@@ -456,20 +456,20 @@ export class SSSTCommander extends SSSTCrewMember {
         const accessory = ACCESSORY_FOR_TYPE(accessoryType)!;
         let price = (accessory.techLevel > this._currentSystem.techLevel) ? 0 : Math.floor((accessory.price * (100 - this.ship.crewTraderSkillIncludingCommander(this))) / 100);
 
-        MAUtils.ensureInteger(price)
+        Utils.ensureInteger(price)
 
         return price;
     }
 
     sellPriceForAccessory(accessoryType: number) {
       const result = Math.floor(ACCESSORY_FOR_TYPE(accessoryType)!.price * 3 / 4)
-      MAUtils.ensureInteger(result)
+      Utils.ensureInteger(result)
       return result
     }
 
-    buyPriceForShipModel(shipModel: SSSTShipModel) {
+    buyPriceForShipModel(shipModel: ShipModel) {
       const result = Math.floor(shipModel.price * (100 - this.ship.crewTraderSkillIncludingCommander(this)) / 100)
-      MAUtils.ensureInteger(result)
+      Utils.ensureInteger(result)
       return result
     }
 
@@ -479,7 +479,7 @@ export class SSSTCommander extends SSSTCrewMember {
 
     spendingMoney() {
       const result = this._reserveMoney ? Math.max(0, this._credits - this.ship.mercenaryPricePerDay() - this.currentInsuranceCost()) : this._credits
-      MAUtils.ensureInteger(result)
+      Utils.ensureInteger(result)
       return result
     }
 
@@ -489,42 +489,42 @@ export class SSSTCommander extends SSSTCrewMember {
 
     insurancePrice() {
       const result = Math.max(1, Math.floor(Math.floor(this.ship.shipValuationForInsurance(true) * 5 / 2000) * (100 - Math.min(this._noClaim, MAX_SAFE_PILOT_INSURANCE_DISCOUNT)) / 100))
-      MAUtils.ensureInteger(result)
+      Utils.ensureInteger(result)
       return result
     }
 
     netWorth() {
       const result = this.cargoAndShipValuationForInsurance(false) + this._credits - this.debt + (this._boughtMoon ? MOON_PRICE : 0)
-      MAUtils.ensureInteger(result)
+      Utils.ensureInteger(result)
       return result
     }
 
     maxLoan() {
-      const result = (this.policeRecordScore >= SSSTPoliceRecordScore.Clean) ? Math.floor(this.netWorth() / 10 / 500) * 500 : 500
-      MAUtils.ensureInteger(result)
+      const result = (this.policeRecordScore >= PoliceRecordScore.Clean) ? Math.floor(this.netWorth() / 10 / 500) * 500 : 500
+      Utils.ensureInteger(result)
       return result
     }
 
     _cargoValue() {
         let value = 0;
-        for (let item = 0; item < SSSTTradeItemType.Count; ++item) {
+        for (let item = 0; item < TradeItemType.Count; ++item) {
             const quantity = this.ship.tradeItemQuantityForType(item);
             value += quantity * this.sellPriceForItem(item);
         }
 
-        MAUtils.ensureInteger(value)
+        Utils.ensureInteger(value)
 
         return value;
     }
 
     cargoAndShipValuationForInsurance(forInsurance: boolean) {
       const result = this.ship.shipValuationForInsurance(forInsurance) + this._cargoValue()
-      MAUtils.ensureInteger(result)
+      Utils.ensureInteger(result)
       return result
     }
 
     attemptPurchaseOfFuel(amount: number) {
-      if (MAUtils.ensureInteger(amount)) {
+      if (Utils.ensureInteger(amount)) {
         let realAmount = Math.min(this.ship.fuelTankCapacity() - this.ship.fuel, amount);
         realAmount = Math.min(realAmount, Math.floor(this._credits / this.ship.model.costOfFuel));
         this.ship.fillFuelByAmount(realAmount);
@@ -533,7 +533,7 @@ export class SSSTCommander extends SSSTCrewMember {
     }
 
     attemptPurchaseOfRepairs(amount: number) {
-      if (MAUtils.ensureInteger(amount)) {
+      if (Utils.ensureInteger(amount)) {
         let realAmount = Math.min(this.ship.maximumHullStrength() - this.ship.hull, amount);
         realAmount = Math.floor(Math.min(realAmount, this._credits / this.ship.model.repairCosts));
         this.ship.repairHullByAmount(realAmount);
@@ -542,7 +542,7 @@ export class SSSTCommander extends SSSTCrewMember {
     }
 
     attemptPurchaseOfItem(itemType: number, quantity: number) {
-      if (MAUtils.ensureInteger(itemType) && MAUtils.ensureInteger(quantity)) {
+      if (Utils.ensureInteger(itemType) && Utils.ensureInteger(quantity)) {
         let actualBuyAmount = Math.min(quantity, this._currentSystem.tradeItemQuantityForType(itemType));
         actualBuyAmount = Math.min(actualBuyAmount, this.ship.freeCargoBays());
         const buyPrice = this.buyPriceForItem(itemType);
@@ -559,7 +559,7 @@ export class SSSTCommander extends SSSTCrewMember {
     }
 
     attemptSaleOfItem(itemType: number, quantity: number, forceDump: boolean) {
-      if (MAUtils.ensureInteger(itemType) && MAUtils.ensureInteger(quantity) && MAUtils.ensureBool(forceDump)) {
+      if (Utils.ensureInteger(itemType) && Utils.ensureInteger(quantity) && Utils.ensureBool(forceDump)) {
         let actualSellAmount = Math.min(quantity, this.ship.tradeItemQuantityForType(itemType));
 
         const isDumping = forceDump || this.sellPriceForItem(itemType) === 0;
@@ -578,8 +578,8 @@ export class SSSTCommander extends SSSTCrewMember {
       }
     }
 
-    wormholeTaxToWarpToSystem(destination: SSSTSolarSystem) {
-      MAUtils.ensureType(destination, "object")
+    wormholeTaxToWarpToSystem(destination: SolarSystem) {
+      Utils.ensureType(destination, "object")
       return (this._currentSystem.wormhole === destination) ? this.ship.costOfFuel() * 25 : 0
     }
 
@@ -592,7 +592,7 @@ export class SSSTCommander extends SSSTCrewMember {
     }
 
     _tweakSkillRandomly(increase: boolean) {
-        MAUtils.ensureBool(increase)
+        Utils.ensureBool(increase)
 
         const skillArray = [];
         const BOUND_CHECK = (x: number) => (increase ? x < MAX_SKILL_LEVEL : x > 0);
@@ -628,7 +628,7 @@ export class SSSTCommander extends SSSTCrewMember {
     payInterest() {
         if (this.debt > 0) {
             const debtIncrease = Math.max(1, Math.floor(this.debt / 10));
-            MAUtils.ensureInteger(debtIncrease)
+            Utils.ensureInteger(debtIncrease)
             if (this.credits > debtIncrease) {
                 this.credits -= debtIncrease;
             } else {
@@ -639,19 +639,19 @@ export class SSSTCommander extends SSSTCrewMember {
     }
 
     timePassed(days: number) {
-        if (!MAUtils.ensureInteger(days)) { return }
+        if (!Utils.ensureInteger(days)) { return }
 
         this.days += days;
         if (this._hasInsurance) {
             this._noClaim += days;
         }
 
-        if (this.policeRecordScore > SSSTPoliceRecordScore.Clean) {
+        if (this.policeRecordScore > PoliceRecordScore.Clean) {
             if (this.days % 3 === 0) {
                 this.policeRecordScore--;
             }
-        } else if (this.policeRecordScore < SSSTPoliceRecordScore.Dubious) {
-            if (this._difficulty <= SSSTDifficulty.Normal || this.days % this._difficulty === 0) {
+        } else if (this.policeRecordScore < PoliceRecordScore.Dubious) {
+            if (this._difficulty <= Difficulty.Normal || this.days % this._difficulty === 0) {
                 this.policeRecordScore++;
             }
         }
@@ -659,78 +659,78 @@ export class SSSTCommander extends SSSTCrewMember {
 
     serializedState() {
         // The commander's own fields are added below.
-        const state = super.serializedState() as SSSTCommanderState;
+        const state = super.serializedState() as CommanderState;
 
         // Integer properties
-        MAUtils.ensureInteger(this._credits)
+        Utils.ensureInteger(this._credits)
         state.credits = this._credits;
 
-        MAUtils.ensureInteger(this._debt)
+        Utils.ensureInteger(this._debt)
         state.debt = this._debt;
 
-        MAUtils.ensureInteger(this.days)
+        Utils.ensureInteger(this.days)
         state.days = this.days;
 
-        MAUtils.ensureInteger(this.policeKills)
+        Utils.ensureInteger(this.policeKills)
         state.policeKills = this.policeKills;
 
-        MAUtils.ensureInteger(this.traderKills)
+        Utils.ensureInteger(this.traderKills)
         state.traderKills = this.traderKills;
 
-        MAUtils.ensureInteger(this.pirateKills)
+        Utils.ensureInteger(this.pirateKills)
         state.pirateKills = this.pirateKills;
 
-        MAUtils.ensureInteger(this.policeRecordScore)
+        Utils.ensureInteger(this.policeRecordScore)
         state.policeRecordScore = this.policeRecordScore;
 
-        MAUtils.ensureInteger(this._reputationScore)
+        Utils.ensureInteger(this._reputationScore)
         state.reputationScore = this._reputationScore;
 
-        MAUtils.ensureInteger(this._noClaim)
+        Utils.ensureInteger(this._noClaim)
         state.noClaim = this._noClaim;
 
-        MAUtils.ensureInteger(this._travelClicksRemaining)
+        Utils.ensureInteger(this._travelClicksRemaining)
         state.travelClicksRemaining = this._travelClicksRemaining;
 
-        MAUtils.ensureInteger(this._difficulty)
+        Utils.ensureInteger(this._difficulty)
         state.difficulty = this._difficulty;
 
         // Boolean properties
-        MAUtils.ensureBool(this._boughtMoon)
+        Utils.ensureBool(this._boughtMoon)
         state.boughtMoon = this._boughtMoon;
 
-        MAUtils.ensureBool(this._hasEscapePod)
+        Utils.ensureBool(this._hasEscapePod)
         state.hasEscapePod = this._hasEscapePod;
 
-        MAUtils.ensureBool(this._hasInsurance)
+        Utils.ensureBool(this._hasInsurance)
         state.hasInsurance = this._hasInsurance;
 
-        MAUtils.ensureBool(this._raided)
+        Utils.ensureBool(this._raided)
         state.raided = this._raided;
 
-        MAUtils.ensureBool(this._inspected)
+        Utils.ensureBool(this._inspected)
         state.inspected = this._inspected;
 
-        MAUtils.ensureBool(this._litterWarning)
+        Utils.ensureBool(this._litterWarning)
         state.litterWarning = this._litterWarning;
 
-        MAUtils.ensureBool(this.artifactOnBoard)
+        Utils.ensureBool(this.artifactOnBoard)
         state.artifactOnBoard = this.artifactOnBoard;
 
-        MAUtils.ensureBool(this._arrivedViaWormhole)
+        Utils.ensureBool(this._arrivedViaWormhole)
         state.arrivedViaWormhole = this._arrivedViaWormhole;
 
-        MAUtils.ensureBool(this._reserveMoney)
+        Utils.ensureBool(this._reserveMoney)
         state.reserveMoney = this._reserveMoney;
 
         // Current system and ship
-        MAUtils.ensureType(this._currentSystem.name, "string")
+        Utils.ensureType(this._currentSystem.name, "string")
         state.currentSystemName = this._currentSystem.name;
 
         state.ship = this.ship.serializedState();
 
         // Base prices
-        MAUtils.ensureArrayOrNull(this._basePrices, "number")
+        Utils.ensureArrayOrNull(this._basePrices, "number")
         if (this._basePrices) {
           state.basePrices = [ ...this._basePrices ];
         }

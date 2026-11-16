@@ -1,13 +1,13 @@
 // @ts-nocheck
-import { SSSTAlertActionType, SSSTAlertViewController } from './AlertViewController.ts'
+import { AlertActionType, AlertViewController } from './AlertViewController.ts'
 import { POLICE_RECORD_STR, REPUTATION_STR } from '../game/Commander.ts'
-import { SSSTEndGameViewController } from './EndGameViewController.ts'
-import { SSSTGameEndStatus } from '../game/Game.ts'
+import { EndGameViewController } from './EndGameViewController.ts'
+import { GameEndStatus } from '../game/Game.ts'
 import { DIFFICULTY_STR } from '../game/SolarSystem.types.ts'
-import { MAUtils, pLog } from '../game/Utilities.ts'
+import { Utils, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
-export class SSSTCommanderStatusViewController {
+export class CommanderStatusViewController {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game) {
     this.div = div
@@ -47,20 +47,20 @@ export class SSSTCommanderStatusViewController {
   _giveUpButtonPressed() {
     console.log("Give up button");
 
-    let aC = new SSSTAlertViewController("Give Up?")
-    aC.addAction("Abandon game", SSSTAlertActionType.Destructive, () => {
+    let aC = new AlertViewController("Give Up?")
+    aC.addAction("Abandon game", AlertActionType.Destructive, () => {
       pLog.log(64)
-      this.delegate.gameDidEndWithStatus(SSSTGameEndStatus.Retired)
+      this.delegate.gameDidEndWithStatus(GameEndStatus.Retired)
     })
 
-    aC.addAction("Cancel", SSSTAlertActionType.Cancel, null)
+    aC.addAction("Cancel", AlertActionType.Cancel, null)
 
     aC.presentView()
   }
 
   _showHighScoresButtonPressed() {
     console.log("Show high scores button");
-    const highScoresVC = new SSSTEndGameViewController(this.div, this._game, true)
+    const highScoresVC = new EndGameViewController(this.div, this._game, true)
     highScoresVC.delegate = this
     highScoresVC.presentView()
   }
@@ -71,7 +71,7 @@ export class SSSTCommanderStatusViewController {
     this.div.appendChild(containerDiv)
     containerDiv.classList.add('centered')
 
-    MAUtils.createElement('h1', { textContent: this._game.commander.name }, containerDiv);
+    Utils.createElement('h1', { textContent: this._game.commander.name }, containerDiv);
 
 
 		const game = this._game;
@@ -168,7 +168,7 @@ export class SSSTCommanderStatusViewController {
 
 
 
-    MAUtils.createElement('h4', { textContent: "Special Cargo" }, containerDiv);
+    Utils.createElement('h4', { textContent: "Special Cargo" }, containerDiv);
 
     const cargoList = this._game.specialCargoDescription()
 
@@ -181,7 +181,7 @@ export class SSSTCommanderStatusViewController {
     containerDiv.appendChild(document.createElement('br'));
 
 
-    MAUtils.createElement('h4', { textContent: "Open Quests" }, containerDiv);
+    Utils.createElement('h4', { textContent: "Open Quests" }, containerDiv);
 
 		const questList = this._game.questListDescription()
 		const questListDiv = document.createElement('div');
@@ -329,7 +329,7 @@ export class SSSTCommanderStatusViewController {
     containerDiv.appendChild(giveUpButton);
   }
 
-// SSSTEndGameViewController delegate
+// EndGameViewController delegate
 
   clearAllHighScoringGames() {
     this.delegate.clearAllHighScoringGames()

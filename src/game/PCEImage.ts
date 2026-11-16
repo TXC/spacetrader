@@ -1,4 +1,4 @@
-import { MAUtils } from './Utilities.ts'
+import { Utils } from './Utilities.ts'
 
 
 export const sPCEImageCache: Record<string, string> = {}
@@ -463,8 +463,8 @@ export class PCEWobbleImage extends PCEImage {
         // Square pixels
         //ctx.fillRect(pixelXOffset-wobbleMagnitude, pixelYOffset-wobbleMagnitude, pixelDimension+2*wobbleMagnitude, pixelDimension+2*wobbleMagnitude)
         // Roundrect pixels
-        // @ts-expect-error old bug kept: MAUtils.roundRect does not exist; nothing draws a wobble image
-        MAUtils.roundRect(ctx, xOffset+pixelXOffset-wobbleMagnitude, yOffset+pixelYOffset-wobbleMagnitude, pixelDimension+2*wobbleMagnitude, pixelDimension+2*wobbleMagnitude, 2, true, false)
+        // @ts-expect-error old bug kept: Utils.roundRect does not exist; nothing draws a wobble image
+        Utils.roundRect(ctx, xOffset+pixelXOffset-wobbleMagnitude, yOffset+pixelYOffset-wobbleMagnitude, pixelDimension+2*wobbleMagnitude, pixelDimension+2*wobbleMagnitude, 2, true, false)
       }
     }
   }

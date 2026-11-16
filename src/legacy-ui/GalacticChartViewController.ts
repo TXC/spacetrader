@@ -1,13 +1,13 @@
 // @ts-nocheck
-import { SSSTAlertActionType, SSSTAlertViewController } from './AlertViewController.ts'
-import { SSSTGalaxyView } from './GalaxyView.ts'
-import { SSSTSpecialEvent, SYSTEM_SIZE_STR } from '../game/SolarSystem.types.ts'
-import { SSSTSpecialEventSpecifier } from '../game/SpecialEventSpecifier.ts'
+import { AlertActionType, AlertViewController } from './AlertViewController.ts'
+import { GalaxyView } from './GalaxyView.ts'
+import { SpecialEvent, SYSTEM_SIZE_STR } from '../game/SolarSystem.types.ts'
+import { SpecialEventSpecifier } from '../game/SpecialEventSpecifier.ts'
 import { TECH_LEVEL_STR } from '../game/TradeItem.types.ts'
-import { MAUtils, pLog } from '../game/Utilities.ts'
+import { Utils, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
-export class SSSTGalacticChartViewController {
+export class GalacticChartViewController {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game) {
     this.div = div
@@ -28,7 +28,7 @@ export class SSSTGalacticChartViewController {
   }
 
   presentView() {
-    MAUtils.maintainScrollPosition(() => {
+    Utils.maintainScrollPosition(() => {
       this._presentView()
     })
   }
@@ -37,11 +37,11 @@ export class SSSTGalacticChartViewController {
     const containerDiv = this.div
     containerDiv.innerHTML = '';
 
-    MAUtils.createElement('h1', { textContent: 'Galactic Chart' }, containerDiv);
+    Utils.createElement('h1', { textContent: 'Galactic Chart' }, containerDiv);
 
     const galaxyViewDiv = document.createElement('div');
     containerDiv.appendChild(galaxyViewDiv);
-    const galaxyView = new SSSTGalaxyView(galaxyViewDiv, this._game, this._selectedSystem, this._selectedWormhole, false, true)
+    const galaxyView = new GalaxyView(galaxyViewDiv, this._game, this._selectedSystem, this._selectedWormhole, false, true)
     galaxyView.delegate = this
 
     {
@@ -84,8 +84,8 @@ export class SSSTGalacticChartViewController {
 
       let cheatStr = ""
 
-      if (this._game.showSpecialSystems && solarSystem.specialEvent != SSSTSpecialEvent.None) {
-        const specialEventTypeToSpecifier = SSSTSpecialEventSpecifier.specialEventTypeToSpecifier()
+      if (this._game.showSpecialSystems && solarSystem.specialEvent != SpecialEvent.None) {
+        const specialEventTypeToSpecifier = SpecialEventSpecifier.specialEventTypeToSpecifier()
         const specialEventType = solarSystem.specialEvent
         const specialEventSpecifier = specialEventTypeToSpecifier.get(specialEventType)
         cheatStr = `\nSpecial: ${specialEventSpecifier.name}`
@@ -100,7 +100,7 @@ export class SSSTGalacticChartViewController {
 
 			const trackButton = document.createElement('button');
 			trackButton.innerText = (this._game.trackedSystem === solarSystem) ? `Untrack` : `Track`
-      trackButton.id = MAUtils.sanitizedElementID("galacticChart_track_" + solarSystems.length + "_" + systemName)
+      trackButton.id = Utils.sanitizedElementID("galacticChart_track_" + solarSystems.length + "_" + systemName)
       runtime.actionLog.registerButtonEventListener(trackButton, 'click', () => {
         if (this._game.trackedSystem === solarSystem) {
           this._game.trackedSystem = null
@@ -116,17 +116,17 @@ export class SSSTGalacticChartViewController {
         actionsCell.appendChild(document.createElement('br'));
         const singularityButton = document.createElement('button');
         singularityButton.innerText = `Use Singularity`
-        singularityButton.id = MAUtils.sanitizedElementID("galacticChart_useSingularity_" + solarSystems.length + "_" + systemName)
+        singularityButton.id = Utils.sanitizedElementID("galacticChart_useSingularity_" + solarSystems.length + "_" + systemName)
         singularityButton.disabled = solarSystem === this._game.commander.currentSystem
         runtime.actionLog.registerButtonEventListener(singularityButton, 'click', () => {
-          let aC = new SSSTAlertViewController(`Use your Portable Singularity to warp to ${solarSystem.name}? You can only use it once.`)
-          aC.addAction("Warp!", SSSTAlertActionType.Default, () => {
+          let aC = new AlertViewController(`Use your Portable Singularity to warp to ${solarSystem.name}? You can only use it once.`)
+          aC.addAction("Warp!", AlertActionType.Default, () => {
             pLog.log(61)
             this._game.canSuperWarp = false
             this.delegate.galacticChartViewControllerWarpViaSingularity(this, solarSystem)
           })
 
-          aC.addAction("Not now", SSSTAlertActionType.Cancel, null)
+          aC.addAction("Not now", AlertActionType.Cancel, null)
 
           aC.presentView()
         });
@@ -143,7 +143,7 @@ export class SSSTGalacticChartViewController {
   }
 
 
-  // SSSTGalaxyView delegate
+  // GalaxyView delegate
   galaxyViewSelectedSolarSystem(gv, solarSystem, wormhole) {
     //console.log("Selected system: " + solarSystem.name + " wormhole: " + wormhole)
     this._selectedSystem = solarSystem

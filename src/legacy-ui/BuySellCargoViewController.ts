@@ -1,12 +1,12 @@
 // @ts-nocheck
 import { PCEImageLibrary } from '../game/Images.ts'
-import { SSSTAlertViewController } from './AlertViewController.ts'
-import { SSSTTradeItem } from '../game/TradeItem.ts'
-import { SSSTTradeItemType } from '../game/TradeItem.types.ts'
-import { MAUtils } from '../game/Utilities.ts'
+import { AlertViewController } from './AlertViewController.ts'
+import { TradeItem } from '../game/TradeItem.ts'
+import { TradeItemType } from '../game/TradeItem.types.ts'
+import { Utils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
-export class SSSTBuySellCargoViewController {
+export class BuySellCargoViewController {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game, buyMode, baseSystem) {
     this.div = div
@@ -37,7 +37,7 @@ export class SSSTBuySellCargoViewController {
   }
 
   presentView() {
-    MAUtils.maintainScrollPosition(() => {
+    Utils.maintainScrollPosition(() => {
       this._presentView()
     })
   }
@@ -50,12 +50,12 @@ export class SSSTBuySellCargoViewController {
     const showTitle = !this._baseSystem
     if (showTitle) {
       const title = this._buyMode ? "Buy Cargo" : "Sell Cargo"
-      const ch = MAUtils.createElement('h1', { textContent: title }, containerDiv);
+      const ch = Utils.createElement('h1', { textContent: title }, containerDiv);
     }
 
     if (this._baseSystem) {
       let pricesTitlePrefix = this._relativePrices ? `Average prices on ` : `Average prices on `
-      const el = MAUtils.createElement('h4', { textContent: `${pricesTitlePrefix}${this._baseSystem.getName()} ` }, containerDiv);
+      const el = Utils.createElement('h4', { textContent: `${pricesTitlePrefix}${this._baseSystem.getName()} ` }, containerDiv);
       el.classList.add('header-with-buttons')
 
       const buttonRow = document.createElement('div')
@@ -64,7 +64,7 @@ export class SSSTBuySellCargoViewController {
 
       const togglePricesButton = document.createElement('button');
       togglePricesButton.innerText = `Show ${this._relativePrices ? "Absolute" : "Relative"}`;
-      togglePricesButton.id = MAUtils.sanitizedElementID("togglePrices_" + togglePricesButton.innerText)
+      togglePricesButton.id = Utils.sanitizedElementID("togglePrices_" + togglePricesButton.innerText)
       runtime.actionLog.registerButtonEventListener(togglePricesButton, 'click', () => {
         this._togglePricesPressed();
       });
@@ -79,7 +79,7 @@ export class SSSTBuySellCargoViewController {
     table.classList.add('tight-table')
 
     // Create rows for each trade item type
-    for (let tradeItemType = 0; tradeItemType < SSSTTradeItemType.Count; tradeItemType++) {
+    for (let tradeItemType = 0; tradeItemType < TradeItemType.Count; tradeItemType++) {
 
       const buyPrice = this._buyPriceForItem(tradeItemType);
       const sellPrice = this._sellPriceForItem(tradeItemType);
@@ -92,7 +92,7 @@ export class SSSTBuySellCargoViewController {
 
       // Name column
       const nameCell = document.createElement('td');
-      const itemName = SSSTTradeItem.tradeItemForType(tradeItemType).name;
+      const itemName = TradeItem.tradeItemForType(tradeItemType).name;
 
       let useBoldTitle = false;
       if (!hidePrices) {
@@ -157,7 +157,7 @@ export class SSSTBuySellCargoViewController {
 
 			const buy1Button = document.createElement('button');
 			buy1Button.innerText = `${buttonName} 1`;
-      buy1Button.id = MAUtils.sanitizedElementID("cargo_" + itemName + buy1Button.innerText)
+      buy1Button.id = Utils.sanitizedElementID("cargo_" + itemName + buy1Button.innerText)
       runtime.actionLog.registerButtonEventListener(buy1Button, 'click', () => {
 				this._buy1Pressed(tradeItemType);
 			});
@@ -166,7 +166,7 @@ export class SSSTBuySellCargoViewController {
 
 			const buy5Button = document.createElement('button');
 			buy5Button.innerText = `${buttonName} 5`;
-      buy5Button.id = MAUtils.sanitizedElementID("cargo_" + itemName + buy5Button.innerText)
+      buy5Button.id = Utils.sanitizedElementID("cargo_" + itemName + buy5Button.innerText)
       runtime.actionLog.registerButtonEventListener(buy5Button, 'click', () => {
 				this._buy5Pressed(tradeItemType);
 			});
@@ -175,7 +175,7 @@ export class SSSTBuySellCargoViewController {
 
 			const buyAllButton = document.createElement('button');
 			buyAllButton.innerText = `${buttonName} All`;
-      buyAllButton.id = MAUtils.sanitizedElementID("cargo_" + itemName + buyAllButton.innerText)
+      buyAllButton.id = Utils.sanitizedElementID("cargo_" + itemName + buyAllButton.innerText)
       runtime.actionLog.registerButtonEventListener(buyAllButton, 'click', () => {
 				this._buyAllPressed(tradeItemType);
 			});
@@ -191,7 +191,7 @@ export class SSSTBuySellCargoViewController {
     // Append the table to the container div
     containerDiv.appendChild(table);
 
-    const baysCreditsEl = MAUtils.createBaysCreditsElement(this._game)
+    const baysCreditsEl = Utils.createBaysCreditsElement(this._game)
     containerDiv.appendChild(baysCreditsEl)
   }
 
@@ -225,7 +225,7 @@ export class SSSTBuySellCargoViewController {
 
 	_buyQuantityOfItemType(quantity, itemType) {
     if (this._game.commander.debtIsTooLargeToBuy()) {
-      SSSTAlertViewController.presentAlertWithDismiss("Your debt is too large. Nobody will trade with you.")
+      AlertViewController.presentAlertWithDismiss("Your debt is too large. Nobody will trade with you.")
       return
     }
 

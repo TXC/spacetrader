@@ -1,17 +1,17 @@
 // @ts-nocheck
-import { SSSTAccessoryType } from '../game/Accessory.ts'
-import { SSSTAlertActionType, SSSTAlertViewController } from './AlertViewController.ts'
-import { SSSTBuySellCargoViewController } from './BuySellCargoViewController.ts'
-import { SSSTExperimentQuestStatus, SSSTWildQuestStatus } from '../game/SolarSystem.types.ts'
+import { AccessoryType } from '../game/Accessory.ts'
+import { AlertActionType, AlertViewController } from './AlertViewController.ts'
+import { BuySellCargoViewController } from './BuySellCargoViewController.ts'
+import { ExperimentQuestStatus, WildQuestStatus } from '../game/SolarSystem.types.ts'
 import { FABRIC_RIP_PROBABILITY_INITIAL } from '../game/SpecialEventSpecifier.ts'
-import { SSSTTravelViewController } from './TravelViewController.ts'
-import { MAUtils, pLog } from '../game/Utilities.ts'
+import { TravelViewController } from './TravelViewController.ts'
+import { Utils, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
 
 export const WARP_START_CLICKS = 21;
 
-export class SSSTWarpViewController {
+export class WarpViewController {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game, selectedSystem) {
     this.div = div
@@ -39,7 +39,7 @@ export class SSSTWarpViewController {
   }
 
   presentView() {
-    MAUtils.maintainScrollPosition(() => {
+    Utils.maintainScrollPosition(() => {
       this._presentView()
     })
   }
@@ -49,7 +49,7 @@ export class SSSTWarpViewController {
 
     containerDiv.innerHTML = ''
 
-    const warpHeader = MAUtils.createElement('h1', { textContent: "Warp" }, containerDiv);
+    const warpHeader = Utils.createElement('h1', { textContent: "Warp" }, containerDiv);
     warpHeader.classList.add('header-with-buttons')
 
     const baseSystem = this._currentBaseSystem()
@@ -61,7 +61,7 @@ export class SSSTWarpViewController {
 
 
 		if (baseSystem) {
-			const buyVC = new SSSTBuySellCargoViewController(buyContainerDiv, this._game, true, baseSystem);
+			const buyVC = new BuySellCargoViewController(buyContainerDiv, this._game, true, baseSystem);
 			buyVC.presentView();
 
       const buttonRow = document.createElement('div')
@@ -93,7 +93,7 @@ export class SSSTWarpViewController {
 			buttonRow.appendChild(nextButton);
 
 		} else if (this._closeSystems.length === 0) {
-			const wm = MAUtils.createElement('h3', { id: "warpMessage", textContent: "No systems within range " }, containerDiv);
+			const wm = Utils.createElement('h3', { id: "warpMessage", textContent: "No systems within range " }, containerDiv);
 
       let fuelNeeded = (this._game.commander.ship.fuelTankCapacity() - this._game.commander.ship.fuel);
       let price = fuelNeeded * this._game.commander.ship.model.costOfFuel;
@@ -108,9 +108,9 @@ export class SSSTWarpViewController {
 			wm.appendChild(buyAllButton);
 
 		} else if (this._delegate.warpControllerGetGalaxyViewSystem(this) === this._game.commander.currentSystem) {
-			MAUtils.createElement('h3', { id: "warpMessage", textContent: "Select a destination." }, containerDiv);
+			Utils.createElement('h3', { id: "warpMessage", textContent: "Select a destination." }, containerDiv);
     } else {
-			MAUtils.createElement('h3', { id: "warpMessage", textContent: "Out of range." }, containerDiv);
+			Utils.createElement('h3', { id: "warpMessage", textContent: "Out of range." }, containerDiv);
     }
   }
 
@@ -143,10 +143,10 @@ export class SSSTWarpViewController {
   }
 
 	static warpWithGame(game, viaSingularity, destination, viewController) {
-    MAUtils.ensureType(game, "object")
-    MAUtils.ensureBool(viaSingularity)
-    MAUtils.ensureType(destination, "object")
-    MAUtils.ensureType(viewController, "object")
+    Utils.ensureType(game, "object")
+    Utils.ensureBool(viaSingularity)
+    Utils.ensureType(destination, "object")
+    Utils.ensureType(viewController, "object")
 
 		const origin = game.commander.currentSystem;
 
@@ -155,23 +155,23 @@ export class SSSTWarpViewController {
 		let destructiveLabel = null;
 		let destructiveAction = null;
 
-		if (game.wildStatus === SSSTWildQuestStatus.OnBoard) {
-			if (game.commander.ship.weaponPowerBetweenMinMaxInclusive(SSSTAccessoryType.WeaponBeamLaser, SSSTAccessoryType.WeaponLast) <= 0) {
+		if (game.wildStatus === WildQuestStatus.OnBoard) {
+			if (game.commander.ship.weaponPowerBetweenMinMaxInclusive(AccessoryType.WeaponBeamLaser, AccessoryType.WeaponLast) <= 0) {
         pLog.log(128)
 				alertString = `Jonathan Wild isn't about to go with you if you're not armed with at least a Beam Laser. He'd rather take his chances hiding out here on ${origin.name}.`;
 				dismissLabel = "Cancel";
 				destructiveLabel = "He can stay!";
 				destructiveAction = () => {
           pLog.log(129)
-					game.wildStatus = SSSTWildQuestStatus.Closed
+					game.wildStatus = WildQuestStatus.Closed
 					game.commander.ship.removeCrewMemberWithName("Jonathan Wild");
-					SSSTWarpViewController.warpWithGame(game, viaSingularity, destination, viewController);
+					WarpViewController.warpWithGame(game, viaSingularity, destination, viewController);
 				};
 			}
 		}
 
 		let currentCredits = game.commander.credits;
-    MAUtils.ensureInteger(currentCredits)
+    Utils.ensureInteger(currentCredits)
 
 		if (!viaSingularity) {
 			if (game.commander.debtIsTooLargeToBuy()) {
@@ -179,14 +179,14 @@ export class SSSTWarpViewController {
 			}
 
       currentCredits -= game.commander.ship.mercenaryPricePerDay();
-      MAUtils.ensureInteger(currentCredits)
+      Utils.ensureInteger(currentCredits)
 			if (!alertString && currentCredits < 0) {
 				alertString = "You don't have enough cash to pay your mercenaries to come on this trip. Fire them or make sure you have enough cash.";
 			}
 
 			if (game.commander.hasInsurance) {
 				currentCredits -= game.commander.currentInsuranceCost();
-        MAUtils.ensureInteger(currentCredits)
+        Utils.ensureInteger(currentCredits)
 				if (!alertString && currentCredits < 0) {
 					alertString = "You can't leave if you haven't paid your insurance. If you have no way to pay, you should stop your insurance at the bank.";
 				}
@@ -194,7 +194,7 @@ export class SSSTWarpViewController {
 
       let wormholeTax = game.commander.wormholeTaxToWarpToSystem(destination);
 			currentCredits -= wormholeTax;
-      MAUtils.ensureInteger(currentCredits)
+      Utils.ensureInteger(currentCredits)
 
 			if (!alertString && currentCredits < 0) {
 				alertString = "You don't have enough money to pay for the wormhole tax.";
@@ -202,11 +202,11 @@ export class SSSTWarpViewController {
 		}
 
 		if (alertString) {
-      let aC = new SSSTAlertViewController(alertString)
-      aC.addAction(dismissLabel, SSSTAlertActionType.Default, null)
+      let aC = new AlertViewController(alertString)
+      aC.addAction(dismissLabel, AlertActionType.Default, null)
 
       if (destructiveLabel) {
-        aC.addAction(destructiveLabel, SSSTAlertActionType.Destructive, () => {
+        aC.addAction(destructiveLabel, AlertActionType.Destructive, () => {
 					if (destructiveAction) {
 						destructiveAction();
 					}
@@ -237,7 +237,7 @@ export class SSSTWarpViewController {
 
     // Evaluate whether we will suffer from the rip in space-time before accounting for time passing so our alert is accurate
 		let fabricRipAlert = null;
-		if (game.experimentStatus === SSSTExperimentQuestStatus.ClosedTooLate && game.fabricRipProbability > 0) {
+		if (game.experimentStatus === ExperimentQuestStatus.ClosedTooLate && game.fabricRipProbability > 0) {
 			if (game.fabricRipProbability === FABRIC_RIP_PROBABILITY_INITIAL) {
 				fabricRipAlert = "The galaxy is abuzz with news of a terrible malfunction in Dr. Fehler's laboratory. Evidently, he was not warned in time and he performed his experiment... with disastrous results! You may not reach your planned destination!";
 			} else if (runtime.gameRand.randomIntBelow(100) < game.fabricRipProbability) {
@@ -248,7 +248,7 @@ export class SSSTWarpViewController {
 		if (fabricRipAlert) {
 			const solarSystems = game.solarSystems;
 			destination = solarSystems[runtime.gameRand.randomIntBelow(solarSystems.length)];
-      MAUtils.ensureType(destination, "object")
+      Utils.ensureType(destination, "object")
       pLog.log(149)
 		}
 
@@ -270,7 +270,7 @@ export class SSSTWarpViewController {
 		game.commander.setCurrentSystem(destination);
 
 		const performTravel = () => {
-			const travelController = new SSSTTravelViewController(viewController.div, game, origin, destination, wasVisited);
+			const travelController = new TravelViewController(viewController.div, game, origin, destination, wasVisited);
       travelController.delegate = viewController;
 
       if (viewController._delegate) {
@@ -281,8 +281,8 @@ export class SSSTWarpViewController {
 		};
 
 		if (fabricRipAlert) {
-      let aC = new SSSTAlertViewController(fabricRipAlert)
-      aC.addAction("Dismiss", SSSTAlertActionType.Default, () => {
+      let aC = new AlertViewController(fabricRipAlert)
+      aC.addAction("Dismiss", AlertActionType.Default, () => {
         performTravel();
       })
 
@@ -292,7 +292,7 @@ export class SSSTWarpViewController {
 		}
 	}
 
-  // SSSTTravelViewController delegate
+  // TravelViewController delegate
 
   travelViewControllerDidComplete(vc) {
     if (this._delegate) {

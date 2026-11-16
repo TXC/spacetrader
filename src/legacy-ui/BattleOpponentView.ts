@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 
-export class SSSTBattleOpponentView {
+export class BattleOpponentView {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, ship, isEnemy, enableCrossfade) {
     this.div = div

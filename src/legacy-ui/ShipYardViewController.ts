@@ -1,15 +1,15 @@
 // @ts-nocheck
-import { ACCESSORY_FOR_TYPE, SSSTAccessoryType } from '../game/Accessory.ts'
-import { SSSTAlertActionType, SSSTAlertViewController } from './AlertViewController.ts'
-import { SSSTBattleOpponentView } from './BattleOpponentView.ts'
-import { SSSTShip, SSSTShipModel, SSSTShipModelType } from '../game/Ship.ts'
-import { SSSTTradeItemType } from '../game/TradeItem.types.ts'
-import { MAUtils, pLog } from '../game/Utilities.ts'
+import { ACCESSORY_FOR_TYPE, AccessoryType } from '../game/Accessory.ts'
+import { AlertActionType, AlertViewController } from './AlertViewController.ts'
+import { BattleOpponentView } from './BattleOpponentView.ts'
+import { Ship, ShipModel, ShipModelType } from '../game/Ship.ts'
+import { TradeItemType } from '../game/TradeItem.types.ts'
+import { Utils, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
 export const kEscapePodPrice = 2000;
 
-export class SSSTShipYardViewController {
+export class ShipYardViewController {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game) {
     this.div = div
@@ -17,7 +17,7 @@ export class SSSTShipYardViewController {
   }
 
   presentView() {
-    MAUtils.maintainScrollPosition(() => {
+    Utils.maintainScrollPosition(() => {
       this._presentView()
     })
   }
@@ -26,7 +26,7 @@ export class SSSTShipYardViewController {
     const containerDiv = this.div
     containerDiv.innerHTML = '';
 
-    const header = MAUtils.createElement('h1', { textContent: 'Ship Yard' }, containerDiv);
+    const header = Utils.createElement('h1', { textContent: 'Ship Yard' }, containerDiv);
     header.classList.add('centered-div')
 
 
@@ -113,15 +113,15 @@ export class SSSTShipYardViewController {
     console.log("Buy escape pod button");
 
     // Prompt instead of immediately buying since $2000 would be a lot to spend due to an accidental button press
-    let aC = new SSSTAlertViewController(`Buy an escape pod for $${kEscapePodPrice}?`)
-    aC.addAction("Yes", SSSTAlertActionType.Default, () => {
+    let aC = new AlertViewController(`Buy an escape pod for $${kEscapePodPrice}?`)
+    aC.addAction("Yes", AlertActionType.Default, () => {
       this._game.commander.credits -= kEscapePodPrice
       this._game.commander.hasEscapePod = true
       this._game.save()
       this.presentView()
     })
 
-    aC.addAction("No", SSSTAlertActionType.Cancel, null)
+    aC.addAction("No", AlertActionType.Cancel, null)
 
     aC.presentView()
   }
@@ -198,7 +198,7 @@ export class SSSTShipYardViewController {
     const commanderDiv = document.createElement('div');
     commanderDiv.classList.add('shipYardCommanderShip')
     containerDiv.appendChild(commanderDiv)
-    const commanderBattleView = new SSSTBattleOpponentView(commanderDiv, this._game.commander.ship, false, false)
+    const commanderBattleView = new BattleOpponentView(commanderDiv, this._game.commander.ship, false, false)
 
     const repairDiv = document.createElement('div');
     repairDiv.id = "repairDiv";
@@ -229,7 +229,7 @@ export class SSSTShipYardViewController {
 
 			const buy1Button = document.createElement('button');
 			buy1Button.innerText = `Buy 1 repair`;
-      buy1Button.id = MAUtils.sanitizedElementID(buy1Button.innerText)
+      buy1Button.id = Utils.sanitizedElementID(buy1Button.innerText)
       runtime.actionLog.registerButtonEventListener(buy1Button, 'click', () => {
 				this._buy1RepairPressed();
 			});
@@ -237,7 +237,7 @@ export class SSSTShipYardViewController {
 
 			const buy5Button = document.createElement('button');
 			buy5Button.innerText = `5 repairs`;
-      buy5Button.id = MAUtils.sanitizedElementID(buy5Button.innerText)
+      buy5Button.id = Utils.sanitizedElementID(buy5Button.innerText)
       runtime.actionLog.registerButtonEventListener(buy5Button, 'click', () => {
 				this._buy5RepairsPressed();
 			});
@@ -245,7 +245,7 @@ export class SSSTShipYardViewController {
 
 			const buyAllButton = document.createElement('button');
 			buyAllButton.innerText = `Full repair`;
-      buyAllButton.id = MAUtils.sanitizedElementID(buyAllButton.innerText)
+      buyAllButton.id = Utils.sanitizedElementID(buyAllButton.innerText)
       runtime.actionLog.registerButtonEventListener(buyAllButton, 'click', () => {
 				this._buyFullRepairsPressed();
 			});
@@ -310,15 +310,15 @@ export class SSSTShipYardViewController {
 		if (price > 0 && this._game.commander.debt > 0) {
       pLog.log(103)
 			cantBuyString = "Before you can buy a new ship or new equipment, you must settle your debts at the bank.";
-		} else if (this._game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor) > 0) {
+		} else if (this._game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor) > 0) {
 			cantBuyString = "Sorry! We can't take your ship as a trade-in. That Ion Reactor looks dangerous, and we have no way of removing it. Come back when you've gotten rid of it.";
       pLog.log(165)
 		}
 
 		if (cantBuyString) {
       console.log("Can't buy: " + cantBuyString);
-      let aC = new SSSTAlertViewController(cantBuyString)
-      aC.addAction("Dismiss", SSSTAlertActionType.Default, null)
+      let aC = new AlertViewController(cantBuyString)
+      aC.addAction("Dismiss", AlertActionType.Default, null)
       aC.presentView()
 			return;
 		}
@@ -328,43 +328,43 @@ export class SSSTShipYardViewController {
 		let comma = "";
 		let hasLightning = false;
 
-		if (this._game.commander.ship.hasShieldOfType(SSSTAccessoryType.ShieldLightning)) {
+		if (this._game.commander.ship.hasShieldOfType(AccessoryType.ShieldLightning)) {
 			if (model.shieldSlots === 0) {
 				alertString += `${comma}You will lose your Lightning shield due to insufficient shield slots.`;
 				comma = "\n";
 			} else {
 				hasLightning = true;
-				extraCost += Math.floor(ACCESSORY_FOR_TYPE(SSSTAccessoryType.ShieldLightning).price * 2 / 3);
+				extraCost += Math.floor(ACCESSORY_FOR_TYPE(AccessoryType.ShieldLightning).price * 2 / 3);
 			}
 		}
 
 		let hasFuelCompactor = false;
-		if (this._game.commander.ship.hasGadgetOfType(SSSTAccessoryType.GadgetFuelCompactor)) {
+		if (this._game.commander.ship.hasGadgetOfType(AccessoryType.GadgetFuelCompactor)) {
 			if (model.gadgetSlots === 0) {
 				alertString += `${comma}You will lose your Fuel Compactor due to insufficient gadget slots.`;
 				comma = "\n";
 			} else {
 				hasFuelCompactor = true;
-				extraCost += Math.floor(ACCESSORY_FOR_TYPE(SSSTAccessoryType.GadgetFuelCompactor).price * 2 / 3);
+				extraCost += Math.floor(ACCESSORY_FOR_TYPE(AccessoryType.GadgetFuelCompactor).price * 2 / 3);
 			}
 		}
 
 		let hasMorganLaser = false;
-		if (this._game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMorgansLaser)) {
+		if (this._game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMorgansLaser)) {
 			if (model.weaponSlots === 0) {
 				alertString += `${comma}You will lose your Morgan's Laser due to insufficient weapon slots.`;
 				comma = "\n";
 			} else {
 				hasMorganLaser = true;
-				extraCost += Math.floor(ACCESSORY_FOR_TYPE(SSSTAccessoryType.WeaponMorgansLaser).price * 2 / 3);
+				extraCost += Math.floor(ACCESSORY_FOR_TYPE(AccessoryType.WeaponMorgansLaser).price * 2 / 3);
 			}
 		}
 
 		if ((price + extraCost) > this._game.commander.spendingMoney()) {
       console.log("Can't buy: extra cost is too high")
 
-      let aC = new SSSTAlertViewController(`You've got special equipment on board which will cost $${extraCost} to move over. Unfortunately, you can't afford this cost and must sell some equipment or increase your cash to proceed.`)
-      aC.addAction("Dismiss", SSSTAlertActionType.Default, null)
+      let aC = new AlertViewController(`You've got special equipment on board which will cost $${extraCost} to move over. Unfortunately, you can't afford this cost and must sell some equipment or increase your cash to proceed.`)
+      aC.addAction("Dismiss", AlertActionType.Default, null)
       aC.presentView()
 
 			return;
@@ -372,8 +372,8 @@ export class SSSTShipYardViewController {
 
 		if (model.mercenaryQuarters() < this._game.commander.ship.crewCount()) {
       console.log("Can't buy: crew count")
-      let aC = new SSSTAlertViewController("The new ship you picked doesn't have enough quarters for your crew. You need to fire some mercenaries or pick a more accommodating ship.")
-      aC.addAction("Dismiss", SSSTAlertActionType.Default, null)
+      let aC = new AlertViewController("The new ship you picked doesn't have enough quarters for your crew. You need to fire some mercenaries or pick a more accommodating ship.")
+      aC.addAction("Dismiss", AlertActionType.Default, null)
       aC.presentView()
 
 			return;
@@ -390,24 +390,24 @@ export class SSSTShipYardViewController {
 
     console.log("Buy ship prompt: " + prompt);
 
-    let aC = new SSSTAlertViewController(prompt)
-    aC.addAction("Yes", SSSTAlertActionType.Default, () => {
-			let ship = new SSSTShip(model.type, this._game.difficulty);
+    let aC = new AlertViewController(prompt)
+    aC.addAction("Yes", AlertActionType.Default, () => {
+			let ship = new Ship(model.type, this._game.difficulty);
 
 			this._game.commander.ship.crew.forEach(crewMember => {
 				ship.addCrewMember(crewMember);
 			});
 
 			if (hasLightning) {
-				ship.addShieldOfType(SSSTAccessoryType.ShieldLightning);
+				ship.addShieldOfType(AccessoryType.ShieldLightning);
 			}
 
 			if (hasFuelCompactor) {
-				ship.addGadgetOfType(SSSTAccessoryType.GadgetFuelCompactor);
+				ship.addGadgetOfType(AccessoryType.GadgetFuelCompactor);
 			}
 
 			if (hasMorganLaser) {
-				ship.addWeaponOfType(SSSTAccessoryType.WeaponMorgansLaser);
+				ship.addWeaponOfType(AccessoryType.WeaponMorgansLaser);
 			}
 
 			this._game.commander.ship = ship;
@@ -418,7 +418,7 @@ export class SSSTShipYardViewController {
 			this.presentView();
     })
 
-    aC.addAction("No", SSSTAlertActionType.Cancel, null)
+    aC.addAction("No", AlertActionType.Cancel, null)
 
     aC.presentView()
 	}
@@ -427,11 +427,11 @@ export class SSSTShipYardViewController {
     if (this._game.commander.ship.tribbles > 0 && !this._game.tribbleMessage) {
       this._game.tribbleMessage = true
 
-      SSSTAlertViewController.presentAlertWithDismiss("You would normally receive about 75% of the worth of a new ship as trade-in value, but a tribble-infested ship will sell for only 25%. Trading is a way to get rid of your tribbles, though...")
+      AlertViewController.presentAlertWithDismiss("You would normally receive about 75% of the worth of a new ship as trade-in value, but a tribble-infested ship will sell for only 25%. Trading is a way to get rid of your tribbles, though...")
     }
 
 
-    MAUtils.createElement('h3', { textContent: 'Ships'}, containerDiv);
+    Utils.createElement('h3', { textContent: 'Ships'}, containerDiv);
 
     // Create the table element
     const table = document.createElement('table');
@@ -449,8 +449,8 @@ export class SSSTShipYardViewController {
     table.appendChild(headerRow);
 
     // Create rows for each ship model
-    for (let shipType = 0; shipType <= SSSTShipModelType.Best; shipType++) {
-      const model = SSSTShipModel.shipModelForType(shipType)
+    for (let shipType = 0; shipType <= ShipModelType.Best; shipType++) {
+      const model = ShipModel.shipModelForType(shipType)
 
       let price = 0;
       let priceText = "not sold";
@@ -529,7 +529,7 @@ export class SSSTShipYardViewController {
 
       const buyButton = document.createElement('button');
       buyButton.innerText = buttonName;
-      buyButton.id = MAUtils.sanitizedElementID("buyship_" + model.name)
+      buyButton.id = Utils.sanitizedElementID("buyship_" + model.name)
       runtime.actionLog.registerButtonEventListener(buyButton, 'click', () => {
 				this._buyShipPressed(model)
       });
@@ -545,7 +545,7 @@ export class SSSTShipYardViewController {
     // Append the table to the container div
     containerDiv.appendChild(table);
 
-    const baysCreditsEl = MAUtils.createBaysCreditsElement(this._game)
+    const baysCreditsEl = Utils.createBaysCreditsElement(this._game)
     containerDiv.appendChild(baysCreditsEl)
   }
 }

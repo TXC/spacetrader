@@ -1,14 +1,14 @@
-import { SSSTAccessoryType, SSSTGadget, SSSTShield, SSSTWeapon } from './Accessory.ts'
-import { MAX_SKILL_LEVEL, SSSTPoliceRecordScore } from './Commander.ts'
-import { SSSTCrewMember } from './CrewMember.ts'
-import { SSSTShip, SSSTShipModel, SSSTShipModelType } from './Ship.ts'
-import { SSSTDifficulty, SSSTWildQuestStatus } from './SolarSystem.types.ts'
-import { SSSTTradeItemType } from './TradeItem.types.ts'
-import { MAUtils } from './Utilities.ts'
-import type { SSSTGame } from './Game.ts'
+import { AccessoryType, Gadget, Shield, Weapon } from './Accessory.ts'
+import { MAX_SKILL_LEVEL, PoliceRecordScore } from './Commander.ts'
+import { CrewMember } from './CrewMember.ts'
+import { Ship, ShipModel, ShipModelType } from './Ship.ts'
+import { Difficulty, WildQuestStatus } from './SolarSystem.types.ts'
+import { TradeItemType } from './TradeItem.types.ts'
+import { Utils } from './Utilities.ts'
+import type { Game } from './Game.ts'
 import { runtime } from './runtime.ts'
 
-export const SSSTOpponentType = {
+export const OpponentType = {
     Police: 0,
     Trader: 1,
     Pirate: 2,
@@ -22,31 +22,31 @@ export const SSSTOpponentType = {
 
     Count: 10
 } as const;
-export type SSSTOpponentType = (typeof SSSTOpponentType)[keyof typeof SSSTOpponentType];
+export type OpponentType = (typeof OpponentType)[keyof typeof OpponentType];
 
-export class SSSTOpponent extends SSSTCrewMember {
+export class Opponent extends CrewMember {
     declare type: number
-    declare ship: SSSTShip
+    declare ship: Ship
 
-    constructor(type: number, engineer: number, pilot: number, fighter: number, trader: number, ship: SSSTShip) {
+    constructor(type: number, engineer: number, pilot: number, fighter: number, trader: number, ship: Ship) {
         super("opponent", engineer, pilot, fighter, trader);
-        MAUtils.ensureInteger(type)
+        Utils.ensureInteger(type)
         this.type = type;
-        MAUtils.ensureType(ship, "object")
+        Utils.ensureType(ship, "object")
         this.ship = ship;
     }
 
-    static generateOpponentWithType(type: number, game: SSSTGame) {
-        MAUtils.ensureInteger(type)
-        MAUtils.ensureType(game, "object")
+    static generateOpponentWithType(type: number, game: Game) {
+        Utils.ensureInteger(type)
+        Utils.ensureType(game, "object")
 
         let opponent = null;
         const difficulty = game.commander.difficulty;
-        MAUtils.ensureInteger(difficulty)
+        Utils.ensureInteger(difficulty)
 
-        if (type === SSSTOpponentType.FamousCaptain) {
-            const ship = SSSTShip.bestShipWithDifficulty(difficulty);
-            opponent = new SSSTOpponent(
+        if (type === OpponentType.FamousCaptain) {
+            const ship = Ship.bestShipWithDifficulty(difficulty);
+            opponent = new Opponent(
                 type,
                 MAX_SKILL_LEVEL,
                 MAX_SKILL_LEVEL,
@@ -54,54 +54,54 @@ export class SSSTOpponent extends SSSTCrewMember {
                 MAX_SKILL_LEVEL,
                 ship
             );
-        } else if (type === SSSTOpponentType.Dragonfly) {
-            const ship = new SSSTShip(SSSTShipModelType.Dragonfly, difficulty);
-            ship.addShieldOfType(SSSTAccessoryType.ShieldLightning);
-            ship.addShieldOfType(SSSTAccessoryType.ShieldLightning);
-            ship.addShieldOfType(SSSTAccessoryType.ShieldLightning);
-            ship.addGadgetOfType(SSSTAccessoryType.GadgetAutoRepairSystem);
-            ship.addGadgetOfType(SSSTAccessoryType.GadgetTargetingSystem);
-            ship.addWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser);
-            ship.addWeaponOfType(SSSTAccessoryType.WeaponPulseLaser);
-            opponent = new SSSTOpponent(
-                SSSTOpponentType.Dragonfly,
+        } else if (type === OpponentType.Dragonfly) {
+            const ship = new Ship(ShipModelType.Dragonfly, difficulty);
+            ship.addShieldOfType(AccessoryType.ShieldLightning);
+            ship.addShieldOfType(AccessoryType.ShieldLightning);
+            ship.addShieldOfType(AccessoryType.ShieldLightning);
+            ship.addGadgetOfType(AccessoryType.GadgetAutoRepairSystem);
+            ship.addGadgetOfType(AccessoryType.GadgetTargetingSystem);
+            ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
+            ship.addWeaponOfType(AccessoryType.WeaponPulseLaser);
+            opponent = new Opponent(
+                OpponentType.Dragonfly,
                 6 + difficulty,
                 4 + difficulty,
                 6 + difficulty,
                 1,
                 ship
             );
-        } else if (type === SSSTOpponentType.Scarab) {
-            const ship = new SSSTShip(SSSTShipModelType.Scarab, difficulty);
-            ship.addWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser);
-            ship.addWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser);
-            opponent = new SSSTOpponent(
-                SSSTOpponentType.Scarab,
+        } else if (type === OpponentType.Scarab) {
+            const ship = new Ship(ShipModelType.Scarab, difficulty);
+            ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
+            ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
+            opponent = new Opponent(
+                OpponentType.Scarab,
                 6 + difficulty,
                 5 + difficulty,
                 6 + difficulty,
                 1,
                 ship
             );
-        } else if (type === SSSTOpponentType.Monster) {
-            const ship = new SSSTShip(SSSTShipModelType.SpaceMonster, difficulty);
+        } else if (type === OpponentType.Monster) {
+            const ship = new Ship(ShipModelType.SpaceMonster, difficulty);
             const currentHull = ship.hull;
             ship.damageHullByAmount(currentHull - game.monsterHull);
-            ship.addWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser);
-            ship.addWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser);
-            ship.addWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser);
-            opponent = new SSSTOpponent(
-                SSSTOpponentType.Monster,
+            ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
+            ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
+            ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
+            opponent = new Opponent(
+                OpponentType.Monster,
                 1 + difficulty,
                 8 + difficulty,
                 8 + difficulty,
                 1,
                 ship
             );
-        } else if (type === SSSTOpponentType.Bottle) {
-            const ship = new SSSTShip(SSSTShipModelType.Bottle, game.difficulty);
-            opponent = new SSSTOpponent(
-                SSSTOpponentType.Bottle,
+        } else if (type === OpponentType.Bottle) {
+            const ship = new Ship(ShipModelType.Bottle, game.difficulty);
+            opponent = new Opponent(
+                OpponentType.Bottle,
                 0,
                 0,
                 0,
@@ -110,53 +110,53 @@ export class SSSTOpponent extends SSSTCrewMember {
             );
         } else {
             let allNarcotics = false;
-            if (type === SSSTOpponentType.MarieCeleste) {
-                type = SSSTOpponentType.Trader;
+            if (type === OpponentType.MarieCeleste) {
+                type = OpponentType.Trader;
                 allNarcotics = true;
             }
 
             let tries = 1; // We'll roll a die `tries` times and pick the best roll
-            let chosenShipType: number = SSSTShipModelType.Count;
+            let chosenShipType: number = ShipModelType.Count;
 
             // Police are more likely to be stronger against worse police records
-            if (type === SSSTOpponentType.Police) {
-                if (game.commander.policeRecordScore < SSSTPoliceRecordScore.Villain && game.wildStatus !== SSSTWildQuestStatus.OnBoard) {
+            if (type === OpponentType.Police) {
+                if (game.commander.policeRecordScore < PoliceRecordScore.Villain && game.wildStatus !== WildQuestStatus.OnBoard) {
                     tries = 3;
-                } else if (game.commander.policeRecordScore < SSSTPoliceRecordScore.Psycho || game.wildStatus === SSSTWildQuestStatus.OnBoard) {
+                } else if (game.commander.policeRecordScore < PoliceRecordScore.Psycho || game.wildStatus === WildQuestStatus.OnBoard) {
                     tries = 5;
                 }
-                tries = Math.max(1, tries + game.difficulty - SSSTDifficulty.Normal);
-            } else if (type === SSSTOpponentType.Pirate) {
+                tries = Math.max(1, tries + game.difficulty - Difficulty.Normal);
+            } else if (type === OpponentType.Pirate) {
                 // Pirates can smell the money on you!
                 tries = 1 + Math.floor(game.commander.netWorth() / 100000);
-                tries = Math.max(1, tries + game.difficulty - SSSTDifficulty.Normal);
-            } else if (type === SSSTOpponentType.Mantis) {
+                tries = Math.max(1, tries + game.difficulty - Difficulty.Normal);
+            } else if (type === OpponentType.Mantis) {
                 tries = 1 + game.difficulty;
-                chosenShipType = SSSTShipModelType.Mantis;
+                chosenShipType = ShipModelType.Mantis;
             }
 
-            MAUtils.ensureInteger(tries)
-            MAUtils.ensureInteger(chosenShipType)
+            Utils.ensureInteger(tries)
+            Utils.ensureInteger(chosenShipType)
 
-            if (chosenShipType >= SSSTShipModelType.Count) {
-                let handicap = Math.max(game.difficulty - SSSTDifficulty.Normal, 0);
+            if (chosenShipType >= ShipModelType.Count) {
+                let handicap = Math.max(game.difficulty - Difficulty.Normal, 0);
                 let totalShipOccurrence = 0;
-                let possibleShipTypes = [type === SSSTOpponentType.Trader ? SSSTShipModelType.Flea : SSSTShipModelType.Gnat];
+                let possibleShipTypes = [type === OpponentType.Trader ? ShipModelType.Flea : ShipModelType.Gnat];
 
-                for (let i = 0; i <= SSSTShipModelType.Best; ++i) {
-                    let model = SSSTShipModel.shipModelForType(i);
-                    if (type === SSSTOpponentType.Police &&
+                for (let i = 0; i <= ShipModelType.Best; ++i) {
+                    let model = ShipModel.shipModelForType(i);
+                    if (type === OpponentType.Police &&
                         (model.police < 0 || (game.commander.currentSystem.politics.occurrencePolice + handicap) < model.police)) {
                         continue;
-                    } else if (type === SSSTOpponentType.Pirate &&
+                    } else if (type === OpponentType.Pirate &&
                         (model.pirates < 0 || (game.commander.currentSystem.politics.occurrencePirates + handicap) < model.pirates)) {
                         continue;
-                    } else if (type === SSSTOpponentType.Trader &&
+                    } else if (type === OpponentType.Trader &&
                         (model.traders < 0 || (game.commander.currentSystem.politics.occurrenceTraders + handicap) < model.traders)) {
                         continue;
                     }
                     totalShipOccurrence += model.frequency;
-                    MAUtils.addToOrderedSet(possibleShipTypes, i);
+                    Utils.addToOrderedSet(possibleShipTypes, i);
                 }
 
                 let shipChoice = 0;
@@ -167,7 +167,7 @@ export class SSSTOpponent extends SSSTCrewMember {
                 let frequencySum = 0;
                 chosenShipType = possibleShipTypes[0];
                 for (let shipType of possibleShipTypes) {
-                    let model = SSSTShipModel.shipModelForType(shipType);
+                    let model = ShipModel.shipModelForType(shipType);
                     frequencySum += model.frequency;
                     if (frequencySum >= shipChoice) {
                         chosenShipType = shipType;
@@ -176,23 +176,23 @@ export class SSSTOpponent extends SSSTCrewMember {
                 }
             }
 
-            MAUtils.ensureInteger(chosenShipType)
-            MAUtils.ensureInteger(game.difficulty)
+            Utils.ensureInteger(chosenShipType)
+            Utils.ensureInteger(game.difficulty)
 
-            const ship = new SSSTShip(chosenShipType, game.difficulty);
-            const model = SSSTShipModel.shipModelForType(chosenShipType);
+            const ship = new Ship(chosenShipType, game.difficulty);
+            const model = ShipModel.shipModelForType(chosenShipType);
 
-            if (type === SSSTOpponentType.Mantis) {
+            if (type === OpponentType.Mantis) {
                 tries = 1 + game.difficulty;
             } else {
-                tries = Math.max(1, Math.floor(game.commander.netWorth() / 150000) + game.difficulty - SSSTDifficulty.Normal);
+                tries = Math.max(1, Math.floor(game.commander.netWorth() / 150000) + game.difficulty - Difficulty.Normal);
             }
 
-            MAUtils.ensureInteger(tries)
+            Utils.ensureInteger(tries)
 
             let gadgetSlots = 0;
             if (model.gadgetSlots > 0) {
-                if (game.difficulty <= SSSTDifficulty.Hard) {
+                if (game.difficulty <= Difficulty.Hard) {
                     gadgetSlots = runtime.gameRand.randomIntBelow(model.gadgetSlots + 1);
                     if (gadgetSlots < model.gadgetSlots) {
                         if (tries > 4) {
@@ -206,7 +206,7 @@ export class SSSTOpponent extends SSSTCrewMember {
                 }
             }
 
-            MAUtils.ensureInteger(gadgetSlots)
+            Utils.ensureInteger(gadgetSlots)
 
             for (let i = 0; i < gadgetSlots; ++i) {
                 let gadgetRoll = 0;
@@ -215,10 +215,10 @@ export class SSSTOpponent extends SSSTCrewMember {
                 }
                 let gadgetFreqSum = 0;
                 let addedGadget = false;
-                for (let gadgetType = SSSTAccessoryType.GadgetFirst; gadgetType <= SSSTAccessoryType.GadgetLastBuyable; ++gadgetType) {
-                    const gadget = SSSTGadget.gadgetForType(gadgetType)!;
+                for (let gadgetType = AccessoryType.GadgetFirst; gadgetType <= AccessoryType.GadgetLastBuyable; ++gadgetType) {
+                    const gadget = Gadget.gadgetForType(gadgetType)!;
                     gadgetFreqSum += gadget.occurrence;
-                    MAUtils.ensureInteger(gadgetFreqSum)
+                    Utils.ensureInteger(gadgetFreqSum)
                     if (gadgetFreqSum >= gadgetRoll) {
                         if (!ship.hasGadgetOfType(gadgetType)) {
                             ship.addGadgetOfType(gadgetType);
@@ -228,24 +228,24 @@ export class SSSTOpponent extends SSSTCrewMember {
                     }
                 }
                 if (!addedGadget) {
-                    ship.addGadgetOfType(SSSTAccessoryType.GadgetFiveExtraCargoBays);
+                    ship.addGadgetOfType(AccessoryType.GadgetFiveExtraCargoBays);
                 }
             }
 
             const totalCargoBays = ship.totalCargoBays();
-            MAUtils.ensureInteger(totalCargoBays)
+            Utils.ensureInteger(totalCargoBays)
 
             if (allNarcotics) {
-                ship.boughtQuantity(Math.min(totalCargoBays, 5), SSSTTradeItemType.Narcotics, 0);
-            } else if (type !== SSSTOpponentType.Police && totalCargoBays > 5) {
+                ship.boughtQuantity(Math.min(totalCargoBays, 5), TradeItemType.Narcotics, 0);
+            } else if (type !== OpponentType.Police && totalCargoBays > 5) {
                 let amountCargo = totalCargoBays;
 
-                if (game.difficulty >= SSSTDifficulty.Normal) {
+                if (game.difficulty >= Difficulty.Normal) {
                     amountCargo = Math.min(15, 3 + runtime.gameRand.randomIntBelow(totalCargoBays - 5));
                 }
 
-                if (type === SSSTOpponentType.Pirate) {
-                    if (game.difficulty < SSSTDifficulty.Normal) {
+                if (type === OpponentType.Pirate) {
+                    if (game.difficulty < Difficulty.Normal) {
                         amountCargo = Math.floor((amountCargo * 4) / 5);
                     } else {
                         amountCargo = Math.floor(amountCargo / game.difficulty);
@@ -255,11 +255,11 @@ export class SSSTOpponent extends SSSTCrewMember {
                 amountCargo = Math.max(1, amountCargo);
 
                 let cargoToDistribute = amountCargo;
-                MAUtils.ensureInteger(cargoToDistribute)
+                Utils.ensureInteger(cargoToDistribute)
 
                 while (cargoToDistribute > 0) {
-                    const itemType = runtime.gameRand.randomIntBelow(SSSTTradeItemType.Count)
-                    let amount = 1 + runtime.gameRand.randomIntBelow(1 + SSSTTradeItemType.Count - itemType); // Give fewer of the better items
+                    const itemType = runtime.gameRand.randomIntBelow(TradeItemType.Count)
+                    let amount = 1 + runtime.gameRand.randomIntBelow(1 + TradeItemType.Count - itemType); // Give fewer of the better items
                     amount = Math.min(cargoToDistribute, amount);
 
                     ship.boughtQuantity(amount, itemType, 0);
@@ -268,29 +268,29 @@ export class SSSTOpponent extends SSSTCrewMember {
             }
 
             let weaponSlots = model.weaponSlots;
-            if (model.weaponSlots > 1 && game.difficulty <= SSSTDifficulty.Hard) {
+            if (model.weaponSlots > 1 && game.difficulty <= Difficulty.Hard) {
                 weaponSlots = 1 + runtime.gameRand.randomIntBelow(model.weaponSlots);
                 if (weaponSlots < model.weaponSlots) {
-                    if (tries > 4 && game.difficulty >= SSSTDifficulty.Hard) {
+                    if (tries > 4 && game.difficulty >= Difficulty.Hard) {
                         weaponSlots++;
-                    } else if (tries > 3 || game.difficulty >= SSSTDifficulty.Hard) {
+                    } else if (tries > 3 || game.difficulty >= Difficulty.Hard) {
                         weaponSlots += runtime.gameRand.randomIntBelow(2);
                     }
                 }
             }
 
-            MAUtils.ensureInteger(weaponSlots)
+            Utils.ensureInteger(weaponSlots)
 
             for (let i = 0; i < weaponSlots; ++i) {
                 let weaponRoll = 0;
                 weaponRoll = BEST_ROLL(weaponRoll, tries, 100);
-                MAUtils.ensureInteger(weaponRoll)
+                Utils.ensureInteger(weaponRoll)
 
                 let weaponFreqSum = 0;
-                for (let weaponType = SSSTAccessoryType.WeaponFirst; weaponType <= SSSTAccessoryType.WeaponLastBuyable; ++weaponType) {
-                    const weapon = SSSTWeapon.weaponForType(weaponType)!;
+                for (let weaponType = AccessoryType.WeaponFirst; weaponType <= AccessoryType.WeaponLastBuyable; ++weaponType) {
+                    const weapon = Weapon.weaponForType(weaponType)!;
                     weaponFreqSum += weapon.occurrence;
-                    MAUtils.ensureInteger(weaponFreqSum)
+                    Utils.ensureInteger(weaponFreqSum)
                     if (weaponFreqSum >= weaponRoll) {
                         ship.addWeaponOfType(weaponType);
                         break;
@@ -299,7 +299,7 @@ export class SSSTOpponent extends SSSTCrewMember {
             }
 
             let shieldSlots = model.shieldSlots;
-            if (model.shieldSlots > 0 && game.difficulty <= SSSTDifficulty.Hard) {
+            if (model.shieldSlots > 0 && game.difficulty <= Difficulty.Hard) {
                 shieldSlots = runtime.gameRand.randomIntBelow(1 + model.shieldSlots);
                 if (shieldSlots < model.shieldSlots) {
                     if (tries > 3) {
@@ -310,17 +310,17 @@ export class SSSTOpponent extends SSSTCrewMember {
                 }
             }
 
-            MAUtils.ensureInteger(shieldSlots)
+            Utils.ensureInteger(shieldSlots)
 
             let totalShieldPower = 0;
             for (let i = 0; i < shieldSlots; ++i) {
                 let shieldRoll = 0;
                 shieldRoll = BEST_ROLL(shieldRoll, tries, 100);
-                MAUtils.ensureInteger(shieldRoll)
+                Utils.ensureInteger(shieldRoll)
 
                 let shieldFreqSum = 0;
-                for (let shieldType = SSSTAccessoryType.ShieldFirst; shieldType <= SSSTAccessoryType.ShieldLastBuyable; ++shieldType) {
-                    const shield = SSSTShield.shieldForType(shieldType)!;
+                for (let shieldType = AccessoryType.ShieldFirst; shieldType <= AccessoryType.ShieldLastBuyable; ++shieldType) {
+                    const shield = Shield.shieldForType(shieldType)!;
                     shieldFreqSum += shield.occurrence;
                     if (shieldFreqSum >= shieldRoll) {
                         ship.addShieldOfType(shieldType);
@@ -333,7 +333,7 @@ export class SSSTOpponent extends SSSTCrewMember {
                 }
             }
 
-            MAUtils.ensureInteger(totalShieldPower)
+            Utils.ensureInteger(totalShieldPower)
 
             const damage = ship.currentShieldPower - totalShieldPower;
             ship.damageShieldsByAmount(damage);
@@ -341,7 +341,7 @@ export class SSSTOpponent extends SSSTCrewMember {
             // Shields means there's likely a stronger hull
             if (ship.currentShieldPower > 0 && (runtime.gameRand.randomIntBelow(10) <= 7)) {
                 // Hull is already at full strength
-            } else if (type !== SSSTOpponentType.Mantis) {
+            } else if (type !== OpponentType.Mantis) {
                 let hullStrength = 0;
                 hullStrength = BEST_ROLL(hullStrength, 5, ship.hull);
 
@@ -349,18 +349,18 @@ export class SSSTOpponent extends SSSTCrewMember {
             }
 
             let numMercenaries = model.mercenaryQuarters();
-            if (game.difficulty <= SSSTDifficulty.Hard) {
+            if (game.difficulty <= Difficulty.Hard) {
                 numMercenaries = 1 + runtime.gameRand.randomIntBelow(model.mercenaryQuarters());
 
-                if (game.difficulty >= SSSTDifficulty.Hard && numMercenaries < model.mercenaryQuarters()) {
+                if (game.difficulty >= Difficulty.Hard && numMercenaries < model.mercenaryQuarters()) {
                     numMercenaries++;
                 }
             }
 
-            MAUtils.ensureInteger(numMercenaries)
+            Utils.ensureInteger(numMercenaries)
 
             for (let i = 0; i < numMercenaries; ++i) {
-                const mercenary = new SSSTCrewMember(SSSTCrewMember.mercenaryNames()[i]);
+                const mercenary = new CrewMember(CrewMember.mercenaryNames()[i]);
                 mercenary.randomizeAttributes();
                 ship.addCrewMember(mercenary);
             }
@@ -369,11 +369,11 @@ export class SSSTOpponent extends SSSTCrewMember {
             const fighter = 1 + runtime.gameRand.randomIntBelow(MAX_SKILL_LEVEL);
             const trader = 1 + runtime.gameRand.randomIntBelow(MAX_SKILL_LEVEL);
             let engineer = 1 + runtime.gameRand.randomIntBelow(MAX_SKILL_LEVEL);
-            if (game.commander.currentSystem.name === "Kravat" && game.wildStatus === SSSTWildQuestStatus.OnBoard && runtime.gameRand.randomIntBelow(10) < game.difficulty + 1) {
+            if (game.commander.currentSystem.name === "Kravat" && game.wildStatus === WildQuestStatus.OnBoard && runtime.gameRand.randomIntBelow(10) < game.difficulty + 1) {
                 engineer = MAX_SKILL_LEVEL;
             }
 
-            opponent = new SSSTOpponent(type, engineer, pilot, fighter, trader, ship);
+            opponent = new Opponent(type, engineer, pilot, fighter, trader, ship);
         }
 
         return opponent;

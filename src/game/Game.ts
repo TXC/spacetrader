@@ -1,14 +1,14 @@
-import { SSSTCommander } from './Commander.ts'
-import type { SSSTCommanderState } from './Commander.ts'
-import { SSSTCrewMember } from './CrewMember.ts'
-import { SSSTPolitics, SSSTPoliticsType } from './Politics.ts'
-import { MAX_TRIBBLES, SSSTShip, SSSTShipModel, SSSTShipModelType } from './Ship.ts'
-import { SSSTSolarSystem } from './SolarSystem.ts'
-import type { SSSTSolarSystemState } from './SolarSystem.ts'
-import { REACTOR_BAY_COUNT, REACTOR_MAX_FUEL, SSSTDifficulty, SSSTDragonflyQuestStatus, SSSTExperimentQuestStatus, SSSTInvasionQuestStatus, SSSTJaporiQuestStatus, SSSTJarekQuestStatus, SSSTMonsterQuestStatus, SSSTReactorQuestStatus, SSSTScarabQuestStatus, SSSTSpecialEvent, SSSTWildQuestStatus } from './SolarSystem.types.ts'
-import { FABRIC_RIP_PROBABILITY_INITIAL, SSSTSpecialEventSpecifier } from './SpecialEventSpecifier.ts'
-import { SSSTTechLevel, SSSTTradeItemType } from './TradeItem.types.ts'
-import { MAUtils, pLog } from './Utilities.ts'
+import { Commander } from './Commander.ts'
+import type { CommanderState } from './Commander.ts'
+import { CrewMember } from './CrewMember.ts'
+import { Politics, PoliticsType } from './Politics.ts'
+import { MAX_TRIBBLES, Ship, ShipModel, ShipModelType } from './Ship.ts'
+import { SolarSystem } from './SolarSystem.ts'
+import type { SolarSystemState } from './SolarSystem.ts'
+import { REACTOR_BAY_COUNT, REACTOR_MAX_FUEL, Difficulty, DragonflyQuestStatus, ExperimentQuestStatus, InvasionQuestStatus, JaporiQuestStatus, JarekQuestStatus, MonsterQuestStatus, ReactorQuestStatus, ScarabQuestStatus, SpecialEvent, WildQuestStatus } from './SolarSystem.types.ts'
+import { FABRIC_RIP_PROBABILITY_INITIAL, SpecialEventSpecifier } from './SpecialEventSpecifier.ts'
+import { TechLevel, TradeItemType } from './TradeItem.types.ts'
+import { Utils, pLog } from './Utilities.ts'
 import { runtime } from './runtime.ts'
 
 export const GALAXY_WIDTH = 150;
@@ -16,15 +16,15 @@ export const GALAXY_HEIGHT = 110;
 
 export let STARTING_CREDITS = 1000;
 
-export const SSSTGameEndStatus = {
+export const GameEndStatus = {
   None: 0,
   Retired: 1,
   Killed: 2,
   Moon: 3,
 } as const;
-export type SSSTGameEndStatus = (typeof SSSTGameEndStatus)[keyof typeof SSSTGameEndStatus];
+export type GameEndStatus = (typeof GameEndStatus)[keyof typeof GameEndStatus];
 
-export const SSSTRareEvent = {
+export const RareEvent = {
   MarieCeleste: 0,
   CaptainAhab: 1,
   CaptainConrad: 2,
@@ -34,7 +34,7 @@ export const SSSTRareEvent = {
 
   Count: 6
 } as const;
-export type SSSTRareEvent = (typeof SSSTRareEvent)[keyof typeof SSSTRareEvent];
+export type RareEvent = (typeof RareEvent)[keyof typeof RareEvent];
 
 
 export const MIN_DISTANCE = 6;
@@ -46,11 +46,11 @@ export const CLOSE_DISTANCE = Math.max(MIN_DISTANCE, (0.07 * DIAGONAL_SIZE));
 
 export const WORMHOLE_COUNT = 6;
 
-export const MERCENARY_COUNT = SSSTCrewMember.mercenaryNames().length;
+export const MERCENARY_COUNT = CrewMember.mercenaryNames().length;
 
 
 // What serializedState() writes into a saved game.
-export type SSSTGameState = {
+export type GameState = {
   monsterStatus: number, dragonflyStatus: number, scarabStatus: number, japoriQuestStatus: number,
   jarekStatus: number, invasionStatus: number, experimentStatus: number, fabricRipProbability: number,
   wildStatus: number, reactorStatus: number, difficulty: number, endStatus: number,
@@ -59,18 +59,18 @@ export type SSSTGameState = {
   alwaysIgnorePirates: boolean, alwaysIgnorePolice: boolean, alwaysIgnoreTraders: boolean,
   alwaysIgnoreTradeInOrbit: boolean, autoFuel: boolean, autoRepairs: boolean, autoNews: boolean,
   canSuperWarp: boolean,
-  breakingNews?: string[], commander: SSSTCommanderState, warpSystemName?: string,
+  breakingNews?: string[], commander: CommanderState, warpSystemName?: string,
   trackedSystemName?: string, uniqueID: string, remainingRareEvents: number[],
-  solarSystems: SSSTSolarSystemState[], lastSave: Date | string,
+  solarSystems: SolarSystemState[], lastSave: Date | string,
 }
 
-export class SSSTGame {
-  // `new SSSTGame()` with no commander returns an empty shell that fromSerializedState() fills in.
+export class Game {
+  // `new Game()` with no commander returns an empty shell that fromSerializedState() fills in.
   // `_remainingRareEvents` is typed as always set, but is unset until the game is set up.
-  declare _saveBlock: ((game: SSSTGame) => void) | null
+  declare _saveBlock: ((game: Game) => void) | null
   declare _uniqueID: string
   declare _endStatus: number
-  declare _trackedSystem: SSSTSolarSystem | null
+  declare _trackedSystem: SolarSystem | null
   declare _breakingNews: string[] | null
   declare canSuperWarp: boolean
   declare autoNews: boolean
@@ -93,23 +93,23 @@ export class SSSTGame {
   declare fabricRipProbability: number
   declare wildStatus: number
   declare reactorStatus: number
-  declare commander: SSSTCommander
+  declare commander: Commander
   declare difficulty: number
   declare _monsterHull: number
   declare _remainingRareEvents: number[]
-  declare solarSystems: SSSTSolarSystem[]
-  declare _warpSystem: SSSTSolarSystem | null
+  declare solarSystems: SolarSystem[]
+  declare _warpSystem: SolarSystem | null
   declare _lastSave?: Date // unset until the first serializedState()
   // Set by the cheats panel, read by the old screens.
   declare forceRareEvent?: boolean
   declare showSpecialSystems?: boolean
 
-  constructor(difficulty?: number, commander?: SSSTCommander) {
+  constructor(difficulty?: number, commander?: Commander) {
     this._saveBlock = null
 
     if (commander) {
       this._uniqueID = this._generateUniqueID();
-      this._endStatus = SSSTGameEndStatus.None
+      this._endStatus = GameEndStatus.None
 
       this._trackedSystem = null
       this._breakingNews = null
@@ -137,10 +137,10 @@ export class SSSTGame {
       this.wildStatus = 0
       this.reactorStatus = 0
 
-      MAUtils.ensureType(commander, "object")
+      Utils.ensureType(commander, "object")
       this.commander = commander;
 
-      MAUtils.ensureInteger(difficulty)
+      Utils.ensureInteger(difficulty)
       this.difficulty = difficulty!;
 
       this._populateSolarSystems();
@@ -150,8 +150,8 @@ export class SSSTGame {
     }
   }
 
-  static fromSerializedState(serializedState: SSSTGameState) {
-    const instance = new SSSTGame();
+  static fromSerializedState(serializedState: GameState) {
+    const instance = new Game();
 
     instance.monsterStatus = serializedState.monsterStatus;
     instance.dragonflyStatus = serializedState.dragonflyStatus;
@@ -183,16 +183,16 @@ export class SSSTGame {
     if (serializedState.breakingNews) {
       pLog.log(71)
       instance._breakingNews = [ ...serializedState.breakingNews ];
-      MAUtils.ensureArrayOrNull(instance._breakingNews, "string")
+      Utils.ensureArrayOrNull(instance._breakingNews, "string")
     } else {
       pLog.log(72)
       instance._breakingNews = null
     }
 
     instance._remainingRareEvents = [...serializedState.remainingRareEvents];
-    MAUtils.ensureArrayOrNull(instance._remainingRareEvents, "number")
+    Utils.ensureArrayOrNull(instance._remainingRareEvents, "number")
 
-    instance.solarSystems = serializedState.solarSystems.map(ss => SSSTSolarSystem.fromSerializedState(ss));
+    instance.solarSystems = serializedState.solarSystems.map(ss => SolarSystem.fromSerializedState(ss));
 
     instance.solarSystems.forEach((solarSystem, idx) => {
       solarSystem.updateWormholeForSerializedState(serializedState.solarSystems[idx], instance.solarSystems);
@@ -201,7 +201,7 @@ export class SSSTGame {
     instance._warpSystem = instance._findSolarSystem(serializedState.warpSystemName);
     instance._trackedSystem = instance._findSolarSystem(serializedState.trackedSystemName);
 
-    instance.commander = SSSTCommander.fromSerializedState(serializedState.commander, instance.solarSystems)
+    instance.commander = Commander.fromSerializedState(serializedState.commander, instance.solarSystems)
 
     instance._lastSave = new Date(serializedState.lastSave);
 
@@ -215,7 +215,7 @@ export class SSSTGame {
   }
 
   set trackedSystem(s) {
-    if (MAUtils.ensureObjectOrNull(s)) {
+    if (Utils.ensureObjectOrNull(s)) {
       this._trackedSystem = s
     }
   }
@@ -225,7 +225,7 @@ export class SSSTGame {
   }
 
   set endStatus(st) {
-    if (MAUtils.ensureInteger(st)) {
+    if (Utils.ensureInteger(st)) {
       this._endStatus = st
     }
   }
@@ -244,84 +244,84 @@ export class SSSTGame {
 
   serializedState() {
     // Filled in field by field below.
-    const state = {} as SSSTGameState;
+    const state = {} as GameState;
 
-    MAUtils.ensureInteger(this.monsterStatus)
+    Utils.ensureInteger(this.monsterStatus)
     state.monsterStatus = this.monsterStatus;
 
-    MAUtils.ensureInteger(this.dragonflyStatus)
+    Utils.ensureInteger(this.dragonflyStatus)
     state.dragonflyStatus = this.dragonflyStatus;
 
-    MAUtils.ensureInteger(this.scarabStatus)
+    Utils.ensureInteger(this.scarabStatus)
     state.scarabStatus = this.scarabStatus;
 
-    MAUtils.ensureInteger(this.japoriQuestStatus)
+    Utils.ensureInteger(this.japoriQuestStatus)
     state.japoriQuestStatus = this.japoriQuestStatus;
 
-    MAUtils.ensureInteger(this.jarekStatus)
+    Utils.ensureInteger(this.jarekStatus)
     state.jarekStatus = this.jarekStatus;
 
-    MAUtils.ensureInteger(this.invasionStatus)
+    Utils.ensureInteger(this.invasionStatus)
     state.invasionStatus = this.invasionStatus;
 
-    MAUtils.ensureInteger(this.experimentStatus)
+    Utils.ensureInteger(this.experimentStatus)
     state.experimentStatus = this.experimentStatus;
 
-    MAUtils.ensureInteger(this.fabricRipProbability)
+    Utils.ensureInteger(this.fabricRipProbability)
     state.fabricRipProbability = this.fabricRipProbability;
 
-    MAUtils.ensureInteger(this.wildStatus)
+    Utils.ensureInteger(this.wildStatus)
     state.wildStatus = this.wildStatus;
 
-    MAUtils.ensureInteger(this.reactorStatus)
+    Utils.ensureInteger(this.reactorStatus)
     state.reactorStatus = this.reactorStatus;
 
-    MAUtils.ensureInteger(this.difficulty)
+    Utils.ensureInteger(this.difficulty)
     state.difficulty = this.difficulty;
 
-    MAUtils.ensureInteger(this._endStatus)
+    Utils.ensureInteger(this._endStatus)
     state.endStatus = this._endStatus;
 
-    MAUtils.ensureInteger(this._monsterHull)
+    Utils.ensureInteger(this._monsterHull)
     state.monsterHull = this._monsterHull;
 
     state.score = this.score()
-    MAUtils.ensureInteger(state.score)
+    Utils.ensureInteger(state.score)
 
-    MAUtils.ensureBool(this.remindLoans)
+    Utils.ensureBool(this.remindLoans)
     state.remindLoans = this.remindLoans;
 
-    MAUtils.ensureBool(this.tribbleMessage)
+    Utils.ensureBool(this.tribbleMessage)
     state.tribbleMessage = this.tribbleMessage;
 
-    MAUtils.ensureBool(this.alreadyPaidForNewspaper)
+    Utils.ensureBool(this.alreadyPaidForNewspaper)
     state.alreadyPaidForNewspaper = this.alreadyPaidForNewspaper;
 
-    MAUtils.ensureBool(this.alwaysIgnorePirates)
+    Utils.ensureBool(this.alwaysIgnorePirates)
     state.alwaysIgnorePirates = this.alwaysIgnorePirates;
 
-    MAUtils.ensureBool(this.alwaysIgnorePolice)
+    Utils.ensureBool(this.alwaysIgnorePolice)
     state.alwaysIgnorePolice = this.alwaysIgnorePolice;
 
-    MAUtils.ensureBool(this.alwaysIgnoreTraders)
+    Utils.ensureBool(this.alwaysIgnoreTraders)
     state.alwaysIgnoreTraders = this.alwaysIgnoreTraders;
 
-    MAUtils.ensureBool(this.alwaysIgnoreTradeInOrbit)
+    Utils.ensureBool(this.alwaysIgnoreTradeInOrbit)
     state.alwaysIgnoreTradeInOrbit = this.alwaysIgnoreTradeInOrbit;
 
-    MAUtils.ensureBool(this.autoFuel)
+    Utils.ensureBool(this.autoFuel)
     state.autoFuel = this.autoFuel;
 
-    MAUtils.ensureBool(this.autoRepairs)
+    Utils.ensureBool(this.autoRepairs)
     state.autoRepairs = this.autoRepairs;
 
-    MAUtils.ensureBool(this.autoNews)
+    Utils.ensureBool(this.autoNews)
     state.autoNews = this.autoNews;
 
-    MAUtils.ensureBool(this.canSuperWarp)
+    Utils.ensureBool(this.canSuperWarp)
     state.canSuperWarp = this.canSuperWarp;
 
-    MAUtils.ensureArrayOrNull(this._breakingNews, "string")
+    Utils.ensureArrayOrNull(this._breakingNews, "string")
     if (this._breakingNews) {
       state.breakingNews = [ ...this._breakingNews ];
       pLog.log(73)
@@ -329,29 +329,29 @@ export class SSSTGame {
 
     state.commander = this.commander.serializedState();
 
-    MAUtils.ensureObjectOrNull(this._warpSystem)
+    Utils.ensureObjectOrNull(this._warpSystem)
     if (this._warpSystem) {
-      MAUtils.ensureType(this._warpSystem.name, "string")
+      Utils.ensureType(this._warpSystem.name, "string")
       state.warpSystemName = this._warpSystem.name;
     }
 
-    MAUtils.ensureObjectOrNull(this._trackedSystem)
+    Utils.ensureObjectOrNull(this._trackedSystem)
     if (this._trackedSystem) {
-      MAUtils.ensureType(this._trackedSystem.name, "string")
+      Utils.ensureType(this._trackedSystem.name, "string")
       state.trackedSystemName = this._trackedSystem.name;
       pLog.log(74)
     }
 
-    MAUtils.ensureType(this._uniqueID, "string")
+    Utils.ensureType(this._uniqueID, "string")
     state.uniqueID = this._uniqueID;
 
-    MAUtils.ensureArrayOrNull(this._remainingRareEvents, "number")
+    Utils.ensureArrayOrNull(this._remainingRareEvents, "number")
     if (this._remainingRareEvents) {
       state.remainingRareEvents = [...this._remainingRareEvents];
       pLog.log(75)
     }
 
-    MAUtils.ensureArrayOrNull(this.solarSystems, "object")
+    Utils.ensureArrayOrNull(this.solarSystems, "object")
     state.solarSystems = this.solarSystems.map(solarSystem => solarSystem.serializedState());
 
     this._lastSave = new Date();
@@ -360,7 +360,7 @@ export class SSSTGame {
     return state;
   }
 
-  setSaveBlock(saveBlock: ((game: SSSTGame) => void) | null) {
+  setSaveBlock(saveBlock: ((game: Game) => void) | null) {
     this._saveBlock = saveBlock;
   }
 
@@ -376,9 +376,9 @@ export class SSSTGame {
     const MILLION = 1000000;
     const adjustedWorth = worth < MILLION ? worth : Math.floor(MILLION + (worth - MILLION) / 10);
 
-    if (this._endStatus === SSSTGameEndStatus.Killed) {
+    if (this._endStatus === GameEndStatus.Killed) {
       score = (this.difficulty + 1) * ((adjustedWorth * 90) / 50000);
-    } else if (this._endStatus === SSSTGameEndStatus.Retired) {
+    } else if (this._endStatus === GameEndStatus.Retired) {
       score = (this.difficulty + 1) * ((adjustedWorth * 95) / 50000);
     } else {
       const dayFactor = Math.max(0, (this.difficulty + 1) * 100 - this.commander.days);
@@ -386,7 +386,7 @@ export class SSSTGame {
     }
 
     score = Math.floor(score)
-    MAUtils.ensureInteger(score)
+    Utils.ensureInteger(score)
 
     return score
   }
@@ -401,9 +401,9 @@ export class SSSTGame {
   _populateSolarSystems() {
     if (this.solarSystems) return;
 
-    const solarSystemCount = SSSTSolarSystem.solarSystemNames().length;
+    const solarSystemCount = SolarSystem.solarSystemNames().length;
     let solarSystems = [];
-    let solarSystemNames = [...SSSTSolarSystem.solarSystemNames()];
+    let solarSystemNames = [...SolarSystem.solarSystemNames()];
 
     let i = 0;
     while (i < solarSystemCount) {
@@ -454,7 +454,7 @@ export class SSSTGame {
       if (tooClose || !closeFound) continue;
 
       const randomNameIndex = runtime.gameRand.randomIntBelow(solarSystemNames.length);
-      const solarSystem = new SSSTSolarSystem(
+      const solarSystem = new SolarSystem(
         solarSystemNames[randomNameIndex],
         x,
         y,
@@ -487,29 +487,29 @@ export class SSSTGame {
   _setupEventsAndMercenaries() {
     // Setup special events and any hard-coded mercenaries
 
-    let eventsToPlace = SSSTSpecialEventSpecifier.randomOccurrenceEventTypes();
+    let eventsToPlace = SpecialEventSpecifier.randomOccurrenceEventTypes();
 
     const kravat = this._findSolarSystem('Kravat')!;
-    kravat.setSpecialEvent(SSSTSpecialEvent.WildGetsOut);
+    kravat.setSpecialEvent(SpecialEvent.WildGetsOut);
 
-    this._findSolarSystem('Acamar')!.setSpecialEvent(SSSTSpecialEvent.MonsterKilled);
-    this._findSolarSystem('Baratas')!.setSpecialEvent(SSSTSpecialEvent.FlyBaratas);
-    this._findSolarSystem('Melina')!.setSpecialEvent(SSSTSpecialEvent.FlyMelina);
-    this._findSolarSystem('Regulas')!.setSpecialEvent(SSSTSpecialEvent.FlyRegulas);
-    this._findSolarSystem('Zalkon')!.setSpecialEvent(SSSTSpecialEvent.DragonflyDestroyed);
-    this._findSolarSystem('Japori')!.setSpecialEvent(SSSTSpecialEvent.MedicineDelivery);
-    this._findSolarSystem('Utopia')!.setSpecialEvent(SSSTSpecialEvent.MoonBought);
-    this._findSolarSystem('Devidia')!.setSpecialEvent(SSSTSpecialEvent.JarekGetsOut);
+    this._findSolarSystem('Acamar')!.setSpecialEvent(SpecialEvent.MonsterKilled);
+    this._findSolarSystem('Baratas')!.setSpecialEvent(SpecialEvent.FlyBaratas);
+    this._findSolarSystem('Melina')!.setSpecialEvent(SpecialEvent.FlyMelina);
+    this._findSolarSystem('Regulas')!.setSpecialEvent(SpecialEvent.FlyRegulas);
+    this._findSolarSystem('Zalkon')!.setSpecialEvent(SpecialEvent.DragonflyDestroyed);
+    this._findSolarSystem('Japori')!.setSpecialEvent(SpecialEvent.MedicineDelivery);
+    this._findSolarSystem('Utopia')!.setSpecialEvent(SpecialEvent.MoonBought);
+    this._findSolarSystem('Devidia')!.setSpecialEvent(SpecialEvent.JarekGetsOut);
 
     const SPECIAL_SQR_DISTANCE = 70*70
     const gemulon = this._findSolarSystem('Gemulon')!;
-    gemulon.setSpecialEvent(SSSTSpecialEvent.GemulonRescued);
+    gemulon.setSpecialEvent(SpecialEvent.GemulonRescued);
     let bestDistance = Infinity;
-    let rescueSystem = null as SSSTSolarSystem | null;
+    let rescueSystem = null as SolarSystem | null;
     // Perform search in reverse to prefer systems without wormholes
 		const solarSystemsReversed = this.solarSystems.slice().reverse()
     solarSystemsReversed.forEach((other) => {
-      if (other.getSpecialEvent() === SSSTSpecialEvent.None) {
+      if (other.getSpecialEvent() === SpecialEvent.None) {
         const distance = gemulon.squaredDistanceTo(other);
         if (distance >= SPECIAL_SQR_DISTANCE && distance < bestDistance) {
           rescueSystem = other;
@@ -517,14 +517,14 @@ export class SSSTGame {
         }
       }
     });
-    rescueSystem!.setSpecialEvent(SSSTSpecialEvent.AlienInvasion);
+    rescueSystem!.setSpecialEvent(SpecialEvent.AlienInvasion);
 
     const daled = this._findSolarSystem('Daled')!;
-    daled.setSpecialEvent(SSSTSpecialEvent.ExperimentStopped);
+    daled.setSpecialEvent(SpecialEvent.ExperimentStopped);
     bestDistance = Infinity;
-    let experimentSystem = null as SSSTSolarSystem | null;
+    let experimentSystem = null as SolarSystem | null;
     solarSystemsReversed.forEach((other) => {
-      if (other.getSpecialEvent() === SSSTSpecialEvent.None) {
+      if (other.getSpecialEvent() === SpecialEvent.None) {
         const distance = daled.squaredDistanceTo(other);
         if (distance >= SPECIAL_SQR_DISTANCE && distance < bestDistance) {
           experimentSystem = other;
@@ -532,14 +532,14 @@ export class SSSTGame {
         }
       }
     });
-    experimentSystem!.setSpecialEvent(SSSTSpecialEvent.Experiment);
+    experimentSystem!.setSpecialEvent(SpecialEvent.Experiment);
 
     const nix = this._findSolarSystem('Nix')!;
-    nix.setSpecialEvent(SSSTSpecialEvent.ReactorDelivered);
+    nix.setSpecialEvent(SpecialEvent.ReactorDelivered);
     bestDistance = Infinity;
-    let getReactorSystem = null as SSSTSolarSystem | null;
+    let getReactorSystem = null as SolarSystem | null;
     solarSystemsReversed.forEach((other) => {
-      if (other.getSpecialEvent() === SSSTSpecialEvent.None) {
+      if (other.getSpecialEvent() === SpecialEvent.None) {
         const distance = nix.squaredDistanceTo(other);
         if (distance >= SPECIAL_SQR_DISTANCE && distance < bestDistance) {
           getReactorSystem = other;
@@ -547,23 +547,23 @@ export class SSSTGame {
         }
       }
     });
-    getReactorSystem!.setSpecialEvent(SSSTSpecialEvent.GetReactor);
+    getReactorSystem!.setSpecialEvent(SpecialEvent.GetReactor);
 
     let wormholeSystemsSpecial = this.solarSystems.slice(0, WORMHOLE_COUNT);
     while (wormholeSystemsSpecial.length > 0) {
       const randomIndex = runtime.gameRand.randomIntBelow(wormholeSystemsSpecial.length);
-      if (wormholeSystemsSpecial[randomIndex].getSpecialEvent() === SSSTSpecialEvent.None) {
-        wormholeSystemsSpecial[randomIndex].setSpecialEvent(SSSTSpecialEvent.ScarabDestroyed);
-        eventsToPlace.push(SSSTSpecialEvent.Scarab);
+      if (wormholeSystemsSpecial[randomIndex].getSpecialEvent() === SpecialEvent.None) {
+        wormholeSystemsSpecial[randomIndex].setSpecialEvent(SpecialEvent.ScarabDestroyed);
+        eventsToPlace.push(SpecialEvent.Scarab);
         break;
       }
       wormholeSystemsSpecial.splice(randomIndex, 1);
     }
 
 		for (let highTech of solarSystemsReversed) {
-      if (highTech.getSpecialEvent() === SSSTSpecialEvent.None && highTech.techLevel >= SSSTTechLevel.HighTech) {
-        highTech.setSpecialEvent(SSSTSpecialEvent.ArtifactDelivered);
-        eventsToPlace.push(SSSTSpecialEvent.AlienArtifact);
+      if (highTech.getSpecialEvent() === SpecialEvent.None && highTech.techLevel >= TechLevel.HighTech) {
+        highTech.setSpecialEvent(SpecialEvent.ArtifactDelivered);
+        eventsToPlace.push(SpecialEvent.AlienArtifact);
         break
       }
     }
@@ -573,7 +573,7 @@ export class SSSTGame {
 				break
 			}
 
-      if (eventSystem.getSpecialEvent() === SSSTSpecialEvent.None) {
+      if (eventSystem.getSpecialEvent() === SpecialEvent.None) {
         eventSystem.setSpecialEvent(eventsToPlace[0]);
         eventsToPlace.shift();
       }
@@ -588,7 +588,7 @@ export class SSSTGame {
         if (mercenarySystem.getMercenary()) mercenarySystem = null;
       }
 
-      const mercenary = new SSSTCrewMember(SSSTCrewMember.mercenaryNames()[i]);
+      const mercenary = new CrewMember(CrewMember.mercenaryNames()[i]);
       mercenary.randomizeAttributes();
       mercenarySystem.setMercenary(mercenary);
     }
@@ -597,7 +597,7 @@ export class SSSTGame {
   _setupCommander() {
     this.commander.credits = STARTING_CREDITS;
 
-    let ship = new SSSTShip(SSSTShipModelType.Gnat, this.difficulty);
+    let ship = new Ship(ShipModelType.Gnat, this.difficulty);
     this.commander.ship = ship;
 
     this.commander.setCurrentSystem(this.solarSystems[this.solarSystems.length - 1]);
@@ -608,9 +608,9 @@ export class SSSTGame {
     for (let i = this.solarSystems.length - 1; i >= 0; i--) {
       let startSystem = this.solarSystems[i];
       if (
-        startSystem.getSpecialEvent() === SSSTSpecialEvent.None &&
-        startSystem.techLevel >= SSSTTechLevel.Agricultural &&
-        startSystem.techLevel < SSSTTechLevel.PostIndustrial
+        startSystem.getSpecialEvent() === SpecialEvent.None &&
+        startSystem.techLevel >= TechLevel.Agricultural &&
+        startSystem.techLevel < TechLevel.PostIndustrial
       ) {
         let nearbyCount = 0;
         for (let j = 0; j < this.solarSystems.length; j++) {
@@ -629,30 +629,30 @@ export class SSSTGame {
   }
 
   _setupInitialGameState() {
-    for (let i = 0; i < SSSTRareEvent.Count; ++i) {
+    for (let i = 0; i < RareEvent.Count; ++i) {
       this.addRemainingRareEvents([i]);
     }
     this.addRemainingRareEvents([
-      SSSTRareEvent.BottleGood,
-      SSSTRareEvent.BottleGood,
-      SSSTRareEvent.BottleOld,
-      SSSTRareEvent.BottleOld,
+      RareEvent.BottleGood,
+      RareEvent.BottleGood,
+      RareEvent.BottleOld,
+      RareEvent.BottleOld,
     ]); // Some extra skill enhancements
 
     this._warpSystem = this.commander.getCurrentSystem();
     this.remindLoans = true;
-    this._monsterHull = SSSTShipModel.shipModelForType(SSSTShipModelType.SpaceMonster).hullStrength;
+    this._monsterHull = ShipModel.shipModelForType(ShipModelType.SpaceMonster).hullStrength;
 
-    if (this.difficulty < SSSTDifficulty.Normal) {
-      if (this.commander.getCurrentSystem().getSpecialEvent() === SSSTSpecialEvent.None) {
+    if (this.difficulty < Difficulty.Normal) {
+      if (this.commander.getCurrentSystem().getSpecialEvent() === SpecialEvent.None) {
         pLog.log(109)
-        this.commander.getCurrentSystem().setSpecialEvent(SSSTSpecialEvent.LotteryWinner);
+        this.commander.getCurrentSystem().setSpecialEvent(SpecialEvent.LotteryWinner);
       }
     }
   }
 
   _findSolarSystem(name: string | undefined) {
-    return SSSTSolarSystem.solarSystemForName(name, this.solarSystems);
+    return SolarSystem.solarSystemForName(name, this.solarSystems);
   }
 
   solarSystemsWithinRange() {
@@ -674,7 +674,7 @@ export class SSSTGame {
       }
     }
 
-    MAUtils.ensureArrayOrNull(result, "object")
+    Utils.ensureArrayOrNull(result, "object")
 
     return result;
   }
@@ -703,7 +703,7 @@ export class SSSTGame {
   }
 
   addBreakingNewsItem(item: string) {
-    if (!MAUtils.ensureType(item, "string")) { return }
+    if (!Utils.ensureType(item, "string")) { return }
 
     if (!this._breakingNews) {
       this._breakingNews = [];
@@ -712,8 +712,8 @@ export class SSSTGame {
   }
 
   replaceNewsContainingString(needle: string, item: string) {
-    if (!MAUtils.ensureType(needle, "string")) { return }
-    if (!MAUtils.ensureType(item, "string")) { return }
+    if (!Utils.ensureType(needle, "string")) { return }
+    if (!Utils.ensureType(item, "string")) { return }
 
     let index = this._breakingNews!.findIndex((existingItem) => existingItem.includes(needle));
     if (index !== -1) {
@@ -731,7 +731,7 @@ export class SSSTGame {
   }
 
   addRemainingRareEvents(rareEvents: number[]) {
-    if (!MAUtils.ensureArrayOrNull(rareEvents, "number")) { return }
+    if (!Utils.ensureArrayOrNull(rareEvents, "number")) { return }
 
     if (!this._remainingRareEvents) {
       this._remainingRareEvents = [];
@@ -740,7 +740,7 @@ export class SSSTGame {
   }
 
   removeRemainingRareEvent(rareEvent: number) {
-    MAUtils.ensureInteger(rareEvent)
+    Utils.ensureInteger(rareEvent)
 
     let index = this._remainingRareEvents.indexOf(rareEvent);
     if (index !== -1) {
@@ -756,51 +756,51 @@ export class SSSTGame {
   }
 
   timePassed(days: number) {
-    MAUtils.ensureInteger(days)
+    Utils.ensureInteger(days)
 
     this.commander.timePassed(days);
 
     if (
-      this.invasionStatus >= SSSTInvasionQuestStatus.DaysUntilInvasion._7 &&
-      this.invasionStatus <= SSSTInvasionQuestStatus.DaysUntilInvasion._1
+      this.invasionStatus >= InvasionQuestStatus.DaysUntilInvasion._7 &&
+      this.invasionStatus <= InvasionQuestStatus.DaysUntilInvasion._1
     ) {
-      this.invasionStatus = Math.min(SSSTInvasionQuestStatus.ClosedTooLate, this.invasionStatus + days);
-      if (this.invasionStatus === SSSTInvasionQuestStatus.ClosedTooLate) {
+      this.invasionStatus = Math.min(InvasionQuestStatus.ClosedTooLate, this.invasionStatus + days);
+      if (this.invasionStatus === InvasionQuestStatus.ClosedTooLate) {
         let gemulon = this._findSolarSystem('Gemulon')!;
-        gemulon.setSpecialEvent(SSSTSpecialEvent.GemulonInvaded);
-        gemulon.techLevel = SSSTTechLevel.PreAgricultural
-        gemulon.politics = SSSTPolitics.politicsForType(SSSTPoliticsType.Anarchy)!
+        gemulon.setSpecialEvent(SpecialEvent.GemulonInvaded);
+        gemulon.techLevel = TechLevel.PreAgricultural
+        gemulon.politics = Politics.politicsForType(PoliticsType.Anarchy)!
         gemulon.updateInventories();
         pLog.log(134)
       }
     }
 
-    if (this.reactorStatus > SSSTReactorQuestStatus.Open && this.reactorStatus < SSSTReactorQuestStatus.ClosedTooLate) {
-      this.reactorStatus = Math.min(SSSTReactorQuestStatus.DaysRemaining._1, this.reactorStatus + days);
+    if (this.reactorStatus > ReactorQuestStatus.Open && this.reactorStatus < ReactorQuestStatus.ClosedTooLate) {
+      this.reactorStatus = Math.min(ReactorQuestStatus.DaysRemaining._1, this.reactorStatus + days);
 
-      let currentQuantity = this.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor);
+      let currentQuantity = this.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor);
       let desiredQuantity = REACTOR_BAY_COUNT + REACTOR_MAX_FUEL - Math.floor((this.reactorStatus - 1) / 2);
       if (desiredQuantity < currentQuantity) {
-        this.commander.ship.soldQuantity(currentQuantity - desiredQuantity, SSSTTradeItemType.FakeQuestCargoReactor);
+        this.commander.ship.soldQuantity(currentQuantity - desiredQuantity, TradeItemType.FakeQuestCargoReactor);
       }
     }
 
     if (
-      this.experimentStatus >= SSSTExperimentQuestStatus.DaysRemaining._10 &&
-      this.experimentStatus <= SSSTExperimentQuestStatus.DaysRemaining._1
+      this.experimentStatus >= ExperimentQuestStatus.DaysRemaining._10 &&
+      this.experimentStatus <= ExperimentQuestStatus.DaysRemaining._1
     ) {
-      this.experimentStatus = Math.min(SSSTExperimentQuestStatus.ClosedTooLate, this.experimentStatus + days);
-      if (this.experimentStatus === SSSTExperimentQuestStatus.ClosedTooLate) {
+      this.experimentStatus = Math.min(ExperimentQuestStatus.ClosedTooLate, this.experimentStatus + days);
+      if (this.experimentStatus === ExperimentQuestStatus.ClosedTooLate) {
         this.fabricRipProbability = FABRIC_RIP_PROBABILITY_INITIAL;
 
         let daled = this._findSolarSystem('Daled')!;
-        daled.setSpecialEvent(SSSTSpecialEvent.ExperimentNotStopped);
+        daled.setSpecialEvent(SpecialEvent.ExperimentNotStopped);
         this.addBreakingNewsItem('Travelers Report Timespace Damage, Warp Problems!');
         pLog.log(145)
       }
-    } else if (this.experimentStatus === SSSTExperimentQuestStatus.ClosedTooLate && this.fabricRipProbability > 0) {
+    } else if (this.experimentStatus === ExperimentQuestStatus.ClosedTooLate && this.fabricRipProbability > 0) {
       this.fabricRipProbability -= Math.min(this.fabricRipProbability, days);
-      MAUtils.ensureInteger(this.fabricRipProbability)
+      Utils.ensureInteger(this.fabricRipProbability)
       pLog.log(146)
     }
   }
@@ -810,17 +810,17 @@ export class SSSTGame {
   }
 
   set monsterHull(m) {
-    if (MAUtils.ensureInteger(m)) {
+    if (Utils.ensureInteger(m)) {
       this._monsterHull = m
     }
   }
 
   healMonster() {
     this._monsterHull = Math.min(
-      SSSTShipModel.shipModelForType(SSSTShipModelType.SpaceMonster).hullStrength,
+      ShipModel.shipModelForType(ShipModelType.SpaceMonster).hullStrength,
       Math.floor((this._monsterHull * 105) / 100)
     );
-    MAUtils.ensureInteger(this._monsterHull)
+    Utils.ensureInteger(this._monsterHull)
     pLog.log(142)
   }
 
@@ -847,7 +847,7 @@ export class SSSTGame {
       comma = '\n';
     }
 
-    if (this.japoriQuestStatus === SSSTJaporiQuestStatus.HasMedicine) {
+    if (this.japoriQuestStatus === JaporiQuestStatus.HasMedicine) {
       cargoList += comma;
       cargoList += '10 bays of antidote.';
       comma = '\n';
@@ -859,9 +859,9 @@ export class SSSTGame {
       comma = '\n';
     }
 
-    if (this.reactorStatus > SSSTReactorQuestStatus.Open && this.reactorStatus < SSSTReactorQuestStatus.ClosedTooLate) {
+    if (this.reactorStatus > ReactorQuestStatus.Open && this.reactorStatus < ReactorQuestStatus.ClosedTooLate) {
       cargoList += comma;
-      let numFuelBays = Math.max(0, this.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor) - REACTOR_BAY_COUNT);
+      let numFuelBays = Math.max(0, this.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor) - REACTOR_BAY_COUNT);
       cargoList += `An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up ${numFuelBays} bay${numFuelBays === 1 ? '' : 's'}.`;
       comma = '\n';
     }
@@ -900,80 +900,80 @@ export class SSSTGame {
 			comma = '\n';
 		}
 
-		if (SSSTSolarSystem.solarSystemForName("Nix", this.solarSystems)!.getSpecialEvent() === SSSTSpecialEvent.GetSpecialLaser) {
+		if (SolarSystem.solarSystemForName("Nix", this.solarSystems)!.getSpecialEvent() === SpecialEvent.GetSpecialLaser) {
       pLog.log(78)
 			questList += `${comma}Get your special laser at Nix.`;
 			comma = '\n';
 		}
 
-    if (this.scarabStatus === SSSTScarabQuestStatus.ScarabDestroyed) {
-      const hullSystems = this.solarSystems.filter(x => x.specialEvent === SSSTSpecialEvent.GetHullUpgraded)
+    if (this.scarabStatus === ScarabQuestStatus.ScarabDestroyed) {
+      const hullSystems = this.solarSystems.filter(x => x.specialEvent === SpecialEvent.GetHullUpgraded)
       const hullSystem = hullSystems.length > 0 ? hullSystems[0] : null
 			questList += `${comma}Get your hull upgraded at ${hullSystem ? hullSystem.name : ""}.`;
 			comma = '\n';
       pLog.log(170)
     }
 
-		if (this.japoriQuestStatus === SSSTJaporiQuestStatus.HasMedicine) {
+		if (this.japoriQuestStatus === JaporiQuestStatus.HasMedicine) {
       pLog.log(79)
 			questList += `${comma}Deliver antidote to Japori.`;
 			comma = '\n';
 		}
 
-		if (this.scarabStatus === SSSTScarabQuestStatus.ScarabExists) {
+		if (this.scarabStatus === ScarabQuestStatus.ScarabExists) {
       pLog.log(80)
 			questList += `${comma}Find and destroy the Scarab (which is hiding near a wormhole).`;
 			comma = '\n';
 		}
 
-		if (this.monsterStatus === SSSTMonsterQuestStatus.MonsterExists) {
+		if (this.monsterStatus === MonsterQuestStatus.MonsterExists) {
       pLog.log(81)
 			questList += `${comma}Kill the space monster at Acamar.`;
 			comma = '\n';
 		}
 
 		let dragonflyStatus = this.dragonflyStatus;
-		if (dragonflyStatus > SSSTDragonflyQuestStatus.Open && dragonflyStatus !== SSSTDragonflyQuestStatus.ClosedDragonflyDestroyed) {
-			let nextSystem = (dragonflyStatus === SSSTDragonflyQuestStatus.GoToBaratas ? "Baratas" :
-				dragonflyStatus === SSSTDragonflyQuestStatus.GoToMelina ? "Melina" :
-				dragonflyStatus === SSSTDragonflyQuestStatus.GoToRegulas ? "Regulas" :
+		if (dragonflyStatus > DragonflyQuestStatus.Open && dragonflyStatus !== DragonflyQuestStatus.ClosedDragonflyDestroyed) {
+			let nextSystem = (dragonflyStatus === DragonflyQuestStatus.GoToBaratas ? "Baratas" :
+				dragonflyStatus === DragonflyQuestStatus.GoToMelina ? "Melina" :
+				dragonflyStatus === DragonflyQuestStatus.GoToRegulas ? "Regulas" :
 				"Zalkon");
       pLog.log(82)
 			questList += `${comma}Follow the Dragonfly to ${nextSystem}.`;
 			comma = '\n';
-		} else if (SSSTSolarSystem.solarSystemForName("Zalkon", this.solarSystems)!.getSpecialEvent() === SSSTSpecialEvent.InstallLightningShield) {
+		} else if (SolarSystem.solarSystemForName("Zalkon", this.solarSystems)!.getSpecialEvent() === SpecialEvent.InstallLightningShield) {
       pLog.log(83)
 			questList += `${comma}Get your Lightning shield at Zalkon.`;
 			comma = '\n';
 		}
 
-		if (this.invasionStatus >= SSSTInvasionQuestStatus.DaysUntilInvasion._7 && this.invasionStatus <= SSSTInvasionQuestStatus.DaysUntilInvasion._1) {
+		if (this.invasionStatus >= InvasionQuestStatus.DaysUntilInvasion._7 && this.invasionStatus <= InvasionQuestStatus.DaysUntilInvasion._1) {
 			let whenString =
-				(this.invasionStatus === SSSTInvasionQuestStatus.DaysUntilInvasion._2) ? "by end of tomorrow" :
-				(this.invasionStatus === SSSTInvasionQuestStatus.DaysUntilInvasion._1) ? "today" :
-				`within ${SSSTInvasionQuestStatus.ClosedTooLate - this.invasionStatus} days`;
+				(this.invasionStatus === InvasionQuestStatus.DaysUntilInvasion._2) ? "by end of tomorrow" :
+				(this.invasionStatus === InvasionQuestStatus.DaysUntilInvasion._1) ? "today" :
+				`within ${InvasionQuestStatus.ClosedTooLate - this.invasionStatus} days`;
       pLog.log(84)
 			questList += `${comma}Inform Gemulon about alien invasion ${whenString}.`;
 			comma = '\n';
-		} else if (this.invasionStatus === SSSTInvasionQuestStatus.ClosedSaved) {
+		} else if (this.invasionStatus === InvasionQuestStatus.ClosedSaved) {
       pLog.log(85)
 			questList += `${comma}Get your fuel compactor at Gemulon.`;
 			comma = '\n';
 		}
 
-		if (this.experimentStatus >= SSSTExperimentQuestStatus.DaysRemaining._10 && this.experimentStatus <= SSSTExperimentQuestStatus.DaysRemaining._1) {
+		if (this.experimentStatus >= ExperimentQuestStatus.DaysRemaining._10 && this.experimentStatus <= ExperimentQuestStatus.DaysRemaining._1) {
       pLog.log(86)
 			let whenString =
-				(this.experimentStatus === SSSTExperimentQuestStatus.DaysRemaining._2) ? "by end of tomorrow" :
-				(this.experimentStatus === SSSTExperimentQuestStatus.DaysRemaining._1) ? "today" :
-				`within ${SSSTExperimentQuestStatus.ClosedTooLate - this.experimentStatus} days`;
+				(this.experimentStatus === ExperimentQuestStatus.DaysRemaining._2) ? "by end of tomorrow" :
+				(this.experimentStatus === ExperimentQuestStatus.DaysRemaining._1) ? "today" :
+				`within ${ExperimentQuestStatus.ClosedTooLate - this.experimentStatus} days`;
 			questList += `${comma}Stop Dr. Fehler's experiment at Daled ${whenString}.`;
 			comma = '\n';
 		}
 
-		if (this.reactorStatus > SSSTReactorQuestStatus.Open && this.reactorStatus < SSSTReactorQuestStatus.ClosedTooLate) {
+		if (this.reactorStatus > ReactorQuestStatus.Open && this.reactorStatus < ReactorQuestStatus.ClosedTooLate) {
 			questList += `${comma}Deliver the unstable reactor to Nix `;
-			if (this.reactorStatus <= SSSTReactorQuestStatus.DaysRemaining._20) {
+			if (this.reactorStatus <= ReactorQuestStatus.DaysRemaining._20) {
         pLog.log(87)
 				questList += 'for Henry Morgan.';
 			} else {
@@ -983,13 +983,13 @@ export class SSSTGame {
 			comma = '\n';
 		}
 
-		if (this.jarekStatus === SSSTJarekQuestStatus.OnBoard) {
+		if (this.jarekStatus === JarekQuestStatus.OnBoard) {
       pLog.log(89)
 			questList += `${comma}Bring Ambassador Jarek to Devidia.`;
 			comma = '\n';
 		}
 
-		if (this.wildStatus === SSSTWildQuestStatus.OnBoard) {
+		if (this.wildStatus === WildQuestStatus.OnBoard) {
       pLog.log(90)
 			questList += `${comma}Smuggle Jonathan Wild to Kravat.`;
 			comma = '\n';

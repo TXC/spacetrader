@@ -1,10 +1,10 @@
 // @ts-nocheck
 import { PCEImageLibrary } from '../game/Images.ts'
-import { SSSTBattleOpponentView } from './BattleOpponentView.ts'
-import { MAUtils } from '../game/Utilities.ts'
+import { BattleOpponentView } from './BattleOpponentView.ts'
+import { Utils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
-export class SSSTEncounterViewController {
+export class EncounterViewController {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game) {
     this.div = div
@@ -30,7 +30,7 @@ export class SSSTEncounterViewController {
       this._commanderDiv.classList.add('crossfade-container')
       this._battleViewsContainer.appendChild(this._commanderDiv)
 
-      this._commanderBattleView = new SSSTBattleOpponentView(this._commanderDiv, this._game.commander.ship, false, true)
+      this._commanderBattleView = new BattleOpponentView(this._commanderDiv, this._game.commander.ship, false, true)
     } else {
       this._commanderBattleView.updateHPPercentage()
     }
@@ -55,7 +55,7 @@ export class SSSTEncounterViewController {
           if (this._opponentBattleView) {
             this._opponentBattleView.fadeOutAndRemove()
           }
-          this._opponentBattleView = new SSSTBattleOpponentView(this._opponentDiv, opponent.ship, true, true)
+          this._opponentBattleView = new BattleOpponentView(this._opponentDiv, opponent.ship, true, true)
         }
 
       } else if (this._opponentBattleView) { // No opponent
@@ -95,7 +95,7 @@ export class SSSTEncounterViewController {
       battleButtonsDiv.appendChild(button)
 
       const a = document.createElement('a');
-      a.id = MAUtils.sanitizedElementID("ecButton_" + row)
+      a.id = Utils.sanitizedElementID("ecButton_" + row)
       a.classList.add('battle-button-link')
       a.href = '#'; // Use # to make the link focusable/clickable without navigating
 

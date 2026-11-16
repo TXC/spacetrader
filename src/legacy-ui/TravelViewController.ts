@@ -1,22 +1,22 @@
 // @ts-nocheck
-import { SSSTAccessoryType } from '../game/Accessory.ts'
-import { SSSTAlertActionType, SSSTAlertViewController } from './AlertViewController.ts'
-import { CAUGHT_WITH_WILD_SCORE, MAX_SKILL_LEVEL, POLICE_RECORD_MULTIPLIER, SSSTPoliceRecordScore, SSSTReputationScore } from '../game/Commander.ts'
-import { SSSTEncounterController, SSSTEncounterType } from '../game/EncounterController.ts'
-import { SSSTEncounterViewController } from './EncounterViewController.ts'
-import { SSSTGameEndStatus, SSSTRareEvent } from '../game/Game.ts'
-import { SSSTOpponent, SSSTOpponentType } from '../game/Opponent.ts'
-import { MAX_TRIBBLES, SSSTShip, SSSTShipModelType } from '../game/Ship.ts'
-import { SSSTDifficulty, SSSTDragonflyQuestStatus, SSSTInvasionQuestStatus, SSSTJaporiQuestStatus, SSSTJarekQuestStatus, SSSTMonsterQuestStatus, SSSTReactorQuestStatus, SSSTScarabQuestStatus, SSSTSpecialEvent, SSSTWildQuestStatus } from '../game/SolarSystem.types.ts'
-import { SSSTTradeItemType } from '../game/TradeItem.types.ts'
-import { SSSTTravelProgressView } from './TravelProgressView.ts'
-import { MAUtils, pLog } from '../game/Utilities.ts'
+import { AccessoryType } from '../game/Accessory.ts'
+import { AlertActionType, AlertViewController } from './AlertViewController.ts'
+import { CAUGHT_WITH_WILD_SCORE, MAX_SKILL_LEVEL, POLICE_RECORD_MULTIPLIER, PoliceRecordScore, ReputationScore } from '../game/Commander.ts'
+import { EncounterController, EncounterType } from '../game/EncounterController.ts'
+import { EncounterViewController } from './EncounterViewController.ts'
+import { GameEndStatus, RareEvent } from '../game/Game.ts'
+import { Opponent, OpponentType } from '../game/Opponent.ts'
+import { MAX_TRIBBLES, Ship, ShipModelType } from '../game/Ship.ts'
+import { Difficulty, DragonflyQuestStatus, InvasionQuestStatus, JaporiQuestStatus, JarekQuestStatus, MonsterQuestStatus, ReactorQuestStatus, ScarabQuestStatus, SpecialEvent, WildQuestStatus } from '../game/SolarSystem.types.ts'
+import { TradeItemType } from '../game/TradeItem.types.ts'
+import { TravelProgressView } from './TravelProgressView.ts'
+import { Utils, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
 export const TRAVEL_PROGRESS_DURATION = 0.2;
 export const CHANCE_OF_TRADE_IN_ORBIT = 100;
 
-export class SSSTTravelViewController {
+export class TravelViewController {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game, origin, destination, wasVisited) {
     this.div = div
@@ -44,14 +44,14 @@ export class SSSTTravelViewController {
     const travelProgressViewDiv = document.createElement('div');
 		travelProgressViewDiv.id = 'travelProgressView'
     containerDiv.appendChild(travelProgressViewDiv);
-    this._progressView = new SSSTTravelProgressView(travelProgressViewDiv, this._game, this._origin, this._destination, this._destWasVisited)
+    this._progressView = new TravelProgressView(travelProgressViewDiv, this._game, this._origin, this._destination, this._destWasVisited)
 
     const encounterDiv = document.createElement('div');
     encounterDiv.id = "encounterDiv";
     containerDiv.appendChild(encounterDiv);
 
     if (!this._encounterViewController) {
-      this._encounterViewController = new SSSTEncounterViewController(encounterDiv, this._game)
+      this._encounterViewController = new EncounterViewController(encounterDiv, this._game)
       this._encounterViewController.delegate = this
     }
 
@@ -76,7 +76,7 @@ export class SSSTTravelViewController {
     }
 
     while (currentClicks > 0) {
-      let encounterType = SSSTEncounterType.None;
+      let encounterType = EncounterType.None;
 
       this._game.commander.travelClicksRemaining = currentClicks;
       this._progressView.setProgress(1 - (currentClicks * 1.0 / this._startClicksRemaining));
@@ -88,171 +88,171 @@ export class SSSTTravelViewController {
       repairAmount = this._game.commander.ship.repairHullByAmount(repairAmount);
       this._game.commander.ship.rechargeShieldPowerByAmount(2 * repairAmount); // Shields are easier to recharge
 
-      let opponentType = SSSTOpponentType.Count;
+      let opponentType = OpponentType.Count;
 
       if (currentClicks === 1 && this._needPostMarieCustomsPolice) {
-        opponentType = SSSTOpponentType.Police;
-      } else if (currentClicks === 1 && this._destination.name === "Acamar" && this._game.monsterStatus === SSSTMonsterQuestStatus.MonsterExists) {
-        opponentType = SSSTOpponentType.Monster;
-      } else if (currentClicks === 1 && this._destination.name === "Zalkon" && this._game.dragonflyStatus === SSSTDragonflyQuestStatus.GoToZalkon) {
-        opponentType = SSSTOpponentType.Dragonfly;
-      } else if (currentClicks === 20 && this._destination.specialEvent === SSSTSpecialEvent.ScarabDestroyed && this._game.scarabStatus === SSSTScarabQuestStatus.ScarabExists && this._game.commander.arrivedViaWormhole) {
-        opponentType = SSSTOpponentType.Scarab;
+        opponentType = OpponentType.Police;
+      } else if (currentClicks === 1 && this._destination.name === "Acamar" && this._game.monsterStatus === MonsterQuestStatus.MonsterExists) {
+        opponentType = OpponentType.Monster;
+      } else if (currentClicks === 1 && this._destination.name === "Zalkon" && this._game.dragonflyStatus === DragonflyQuestStatus.GoToZalkon) {
+        opponentType = OpponentType.Dragonfly;
+      } else if (currentClicks === 20 && this._destination.specialEvent === SpecialEvent.ScarabDestroyed && this._game.scarabStatus === ScarabQuestStatus.ScarabExists && this._game.commander.arrivedViaWormhole) {
+        opponentType = OpponentType.Scarab;
         pLog.log(169)
-      } else if (this._destination.name === "Gemulon" && this._game.invasionStatus === SSSTInvasionQuestStatus.ClosedTooLate) {
+      } else if (this._destination.name === "Gemulon" && this._game.invasionStatus === InvasionQuestStatus.ClosedTooLate) {
         if (runtime.gameRand.randomIntBelow(10) > 4) {
-          opponentType = SSSTOpponentType.Mantis;
+          opponentType = OpponentType.Mantis;
         }
       } else {
         let encounterTest = runtime.gameRand.randomIntBelow((44 - (2 * this._game.difficulty)));
 
         // Fleas have half as many encounters
-        if (this._game.commander.ship.type === SSSTShipModelType.Flea) {
+        if (this._game.commander.ship.type === ShipModelType.Flea) {
           encounterTest *= 2;
         }
 
-        MAUtils.ensureInteger(encounterTest)
+        Utils.ensureInteger(encounterTest)
 
         if (encounterTest < this._destination.politics.occurrencePirates && !this._game.commander.raided) {
-          opponentType = SSSTOpponentType.Pirate;
+          opponentType = OpponentType.Pirate;
         } else if (encounterTest < this._destination.politics.occurrencePirates +
           this._destination.politics.occurrencePolice * POLICE_RECORD_MULTIPLIER(this._game.commander.policeRecordScore)) {
-          opponentType = SSSTOpponentType.Police;
+          opponentType = OpponentType.Police;
         } else if (encounterTest < this._destination.politics.occurrencePirates +
           this._destination.politics.occurrencePolice * POLICE_RECORD_MULTIPLIER(this._game.commander.policeRecordScore) +
           this._destination.politics.occurrenceTraders) {
-          opponentType = SSSTOpponentType.Trader;
+          opponentType = OpponentType.Trader;
         } else {
           // Welcome to Kravat, outlaw!
-          if (this._game.wildStatus === SSSTWildQuestStatus.OnBoard && this._destination.name === "Kravat") {
+          if (this._game.wildStatus === WildQuestStatus.OnBoard && this._destination.name === "Kravat") {
             let diceRoll = runtime.gameRand.randomIntBelow(100);
-            if ((this._game.difficulty <= SSSTDifficulty.Easy && diceRoll < 25) ||
-              (this._game.difficulty === SSSTDifficulty.Normal && diceRoll < 33) ||
-              (this._game.difficulty > SSSTDifficulty.Normal && diceRoll < 50)) {
+            if ((this._game.difficulty <= Difficulty.Easy && diceRoll < 25) ||
+              (this._game.difficulty === Difficulty.Normal && diceRoll < 33) ||
+              (this._game.difficulty > Difficulty.Normal && diceRoll < 50)) {
               pLog.log(125)
-              opponentType = SSSTOpponentType.Police;
+              opponentType = OpponentType.Police;
             }
           }
         }
 
-        MAUtils.ensureInteger(opponentType)
+        Utils.ensureInteger(opponentType)
 
-        if (opponentType >= SSSTOpponentType.Count) {
+        if (opponentType >= OpponentType.Count) {
           if (this._game.commander.artifactOnBoard && runtime.gameRand.randomIntBelow(20) <= 3) {
-            opponentType = SSSTOpponentType.Mantis;
+            opponentType = OpponentType.Mantis;
           }
         }
       }
 
       let opponent = null;
 
-      if (opponentType === SSSTOpponentType.Police) {
-        opponent = SSSTOpponent.generateOpponentWithType(opponentType, this._game);
+      if (opponentType === OpponentType.Police) {
+        opponent = Opponent.generateOpponentWithType(opponentType, this._game);
 
         if (currentClicks === 1 && this._needPostMarieCustomsPolice) {
-          encounterType = SSSTEncounterType.PostMarieCelestePoliceEncounter;
+          encounterType = EncounterType.PostMarieCelestePoliceEncounter;
           this._needPostMarieCustomsPolice = false;
         } else {
-          encounterType = SSSTEncounterType.PoliceIgnore;
+          encounterType = EncounterType.PoliceIgnore;
           let policeHaveWeapons = opponent.ship.weapons.length > 0;
 
           if (this._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(this._game.commander, opponent)) {
-            encounterType = SSSTEncounterType.PoliceIgnore;
-          } else if (this._game.commander.policeRecordScore < SSSTPoliceRecordScore.Dubious) {
+            encounterType = EncounterType.PoliceIgnore;
+          } else if (this._game.commander.policeRecordScore < PoliceRecordScore.Dubious) {
             // If you're a criminal, the police will try to attack
             if (!policeHaveWeapons) {
               if (opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, this._game.commander)) {
-                encounterType = SSSTEncounterType.PoliceIgnore;
+                encounterType = EncounterType.PoliceIgnore;
               } else {
-                encounterType = SSSTEncounterType.PoliceFlee;
+                encounterType = EncounterType.PoliceFlee;
               }
-            } else if (this._game.commander.reputationScore < SSSTReputationScore.Average) {
-              encounterType = SSSTEncounterType.PoliceAttack;
-            } else if (runtime.gameRand.randomIntBelow(SSSTReputationScore.Elite) > Math.floor((this._game.commander.reputationScore / (1 + opponent.ship.type)))) {
-              encounterType = SSSTEncounterType.PoliceAttack;
+            } else if (this._game.commander.reputationScore < ReputationScore.Average) {
+              encounterType = EncounterType.PoliceAttack;
+            } else if (runtime.gameRand.randomIntBelow(ReputationScore.Elite) > Math.floor((this._game.commander.reputationScore / (1 + opponent.ship.type)))) {
+              encounterType = EncounterType.PoliceAttack;
             } else if (opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, this._game.commander)) {
-              encounterType = SSSTEncounterType.PoliceIgnore;
+              encounterType = EncounterType.PoliceIgnore;
             } else {
-              encounterType = SSSTEncounterType.PoliceFlee;
+              encounterType = EncounterType.PoliceFlee;
             }
-          } else if (this._game.commander.policeRecordScore >= SSSTPoliceRecordScore.Dubious && this._game.commander.policeRecordScore < SSSTPoliceRecordScore.Clean && !this._game.commander.inspected) {
+          } else if (this._game.commander.policeRecordScore >= PoliceRecordScore.Dubious && this._game.commander.policeRecordScore < PoliceRecordScore.Clean && !this._game.commander.inspected) {
             // If your reputation is dubious, the police will inspect you
-            encounterType = SSSTEncounterType.PoliceInspection;
+            encounterType = EncounterType.PoliceInspection;
             this._game.commander.inspected = true;
-          } else if (this._game.commander.policeRecordScore < SSSTPoliceRecordScore.Lawful) {
+          } else if (this._game.commander.policeRecordScore < PoliceRecordScore.Lawful) {
             // Clean record, infrequent inspections
             if (runtime.gameRand.randomIntBelow((12 - this._game.difficulty)) < 1 && !this._game.commander.inspected) {
-              encounterType = SSSTEncounterType.PoliceInspection;
+              encounterType = EncounterType.PoliceInspection;
               this._game.commander.inspected = true;
             }
           } else {
             // Lawful trader, very infrequent inspections
             if (runtime.gameRand.randomIntBelow(40) === 1 && !this._game.commander.inspected) {
-              encounterType = SSSTEncounterType.PoliceInspection;
+              encounterType = EncounterType.PoliceInspection;
               this._game.commander.inspected = true;
             }
           }
 
           // Police aren't intimidated if your ship is weaker
-          if (encounterType === SSSTEncounterType.PoliceFlee && opponent.ship.type > this._game.commander.ship.type) {
-            if (policeHaveWeapons && this._game.commander.policeRecordScore < SSSTPoliceRecordScore.Dubious) {
-              encounterType = SSSTEncounterType.PoliceAttack;
+          if (encounterType === EncounterType.PoliceFlee && opponent.ship.type > this._game.commander.ship.type) {
+            if (policeHaveWeapons && this._game.commander.policeRecordScore < PoliceRecordScore.Dubious) {
+              encounterType = EncounterType.PoliceAttack;
             } else {
-              encounterType = SSSTEncounterType.PoliceInspection;
+              encounterType = EncounterType.PoliceInspection;
             }
           }
 
-          let noConfrontation = (encounterType === SSSTEncounterType.PoliceFlee || encounterType === SSSTEncounterType.PoliceIgnore);
+          let noConfrontation = (encounterType === EncounterType.PoliceFlee || encounterType === EncounterType.PoliceIgnore);
 
           if (noConfrontation && opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, this._game.commander)) {
-            encounterType = SSSTEncounterType.None;
+            encounterType = EncounterType.None;
           } else if (noConfrontation && this._game.alwaysIgnorePolice) {
-            encounterType = SSSTEncounterType.None;
+            encounterType = EncounterType.None;
           }
         }
-      } else if (opponentType === SSSTOpponentType.Pirate || opponentType === SSSTOpponentType.Mantis) {
-        opponent = SSSTOpponent.generateOpponentWithType(opponentType, this._game);
+      } else if (opponentType === OpponentType.Pirate || opponentType === OpponentType.Mantis) {
+        opponent = Opponent.generateOpponentWithType(opponentType, this._game);
 
-        if (opponentType === SSSTOpponentType.Mantis) {
-          encounterType = SSSTEncounterType.PirateAttack;
+        if (opponentType === OpponentType.Mantis) {
+          encounterType = EncounterType.PirateAttack;
         } else if (this._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(this._game.commander, opponent)) {
-          encounterType = SSSTEncounterType.PirateIgnore;
-        } else if (opponent.ship.type >= SSSTShipModelType.Grasshopper ||
+          encounterType = EncounterType.PirateIgnore;
+        } else if (opponent.ship.type >= ShipModelType.Grasshopper ||
           opponent.ship.type > this._game.commander.ship.type ||
-          runtime.gameRand.randomIntBelow(SSSTReputationScore.Elite) > Math.floor(this._game.commander.reputationScore * 4 / (1 + opponent.ship.type))) {
+          runtime.gameRand.randomIntBelow(ReputationScore.Elite) > Math.floor(this._game.commander.reputationScore * 4 / (1 + opponent.ship.type))) {
           // Pirates mostly attack but will flee if commander's reputation is too high
-          encounterType = SSSTEncounterType.PirateAttack;
+          encounterType = EncounterType.PirateAttack;
         } else {
-          encounterType = SSSTEncounterType.PirateFlee;
+          encounterType = EncounterType.PirateFlee;
         }
 
-        let noConfrontation = (encounterType === SSSTEncounterType.PirateFlee || encounterType === SSSTEncounterType.PirateIgnore);
+        let noConfrontation = (encounterType === EncounterType.PirateFlee || encounterType === EncounterType.PirateIgnore);
 
         // If this isn't a confrontation and we can't see the pirate, skip the encounter
         if (noConfrontation && opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, this._game.commander)) {
-          encounterType = SSSTEncounterType.None;
+          encounterType = EncounterType.None;
         } else if (noConfrontation && this._game.alwaysIgnorePirates) {
-          encounterType = SSSTEncounterType.None;
+          encounterType = EncounterType.None;
         }
-      } else if (opponentType === SSSTOpponentType.Trader) {
-        opponent = SSSTOpponent.generateOpponentWithType(opponentType, this._game);
-        encounterType = SSSTEncounterType.TraderIgnore;
+      } else if (opponentType === OpponentType.Trader) {
+        opponent = Opponent.generateOpponentWithType(opponentType, this._game);
+        encounterType = EncounterType.TraderIgnore;
 
         if (this._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(this._game.commander, opponent)) {
-          encounterType = SSSTEncounterType.TraderIgnore;
-        } else if (this._game.commander.policeRecordScore <= SSSTPoliceRecordScore.Criminal) {
+          encounterType = EncounterType.TraderIgnore;
+        } else if (this._game.commander.policeRecordScore <= PoliceRecordScore.Criminal) {
           // Traders flee from sketchy commanders
-          if (runtime.gameRand.randomIntBelow(SSSTReputationScore.Elite) <= Math.floor(this._game.commander.reputationScore * 10 / (1 + opponent.ship.type))) {
+          if (runtime.gameRand.randomIntBelow(ReputationScore.Elite) <= Math.floor(this._game.commander.reputationScore * 10 / (1 + opponent.ship.type))) {
             if (opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, this._game.commander)) {
-              encounterType = SSSTEncounterType.TraderIgnore;
+              encounterType = EncounterType.TraderIgnore;
             } else {
-              encounterType = SSSTEncounterType.TraderFlee;
+              encounterType = EncounterType.TraderFlee;
             }
           }
         }
 
         if (
-          encounterType === SSSTEncounterType.TraderIgnore &&
+          encounterType === EncounterType.TraderIgnore &&
           runtime.gameRand.randomIntBelow(1000) < CHANCE_OF_TRADE_IN_ORBIT
         ) {
           if (
@@ -260,52 +260,52 @@ export class SSSTTravelViewController {
             opponent.ship.hasTradeableItemsForSystem(
               this._game.commander.currentSystem,
               this._game.commander.policeRecordScore <
-              SSSTPoliceRecordScore.Dubious
+              PoliceRecordScore.Dubious
             )
           ) {
-            encounterType = SSSTEncounterType.TraderSell;
+            encounterType = EncounterType.TraderSell;
           } else if (
             this._game.commander.ship.hasTradeableItemsForSystem(
               this._game.commander.currentSystem,
               this._game.commander.policeRecordScore <
-              SSSTPoliceRecordScore.Dubious
+              PoliceRecordScore.Dubious
             )
           ) {
-            encounterType = SSSTEncounterType.TraderBuy;
+            encounterType = EncounterType.TraderBuy;
           }
         }
 
         let noTrade =
-          encounterType === SSSTEncounterType.TraderFlee ||
-          encounterType === SSSTEncounterType.TraderIgnore;
+          encounterType === EncounterType.TraderFlee ||
+          encounterType === EncounterType.TraderIgnore;
 
         if (opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, this._game.commander)) {
-          encounterType = SSSTEncounterType.None;
+          encounterType = EncounterType.None;
         } else if (noTrade && this._game.alwaysIgnoreTraders) {
-          encounterType = SSSTEncounterType.None;
+          encounterType = EncounterType.None;
         } else if (this._game.alwaysIgnoreTradeInOrbit) {
-          encounterType = SSSTEncounterType.None;
+          encounterType = EncounterType.None;
         }
-      } else if (opponentType === SSSTOpponentType.Scarab) {
-        opponent = SSSTOpponent.generateOpponentWithType(opponentType, this._game);
-        encounterType = SSSTEncounterType.ScarabAttack;
+      } else if (opponentType === OpponentType.Scarab) {
+        opponent = Opponent.generateOpponentWithType(opponentType, this._game);
+        encounterType = EncounterType.ScarabAttack;
 
         if (this._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(this._game.commander, opponent)) {
-          encounterType = SSSTEncounterType.ScarabIgnore;
+          encounterType = EncounterType.ScarabIgnore;
         }
-      } else if (opponentType === SSSTOpponentType.Dragonfly) {
-        opponent = SSSTOpponent.generateOpponentWithType(opponentType, this._game);
-        encounterType = SSSTEncounterType.DragonflyAttack;
+      } else if (opponentType === OpponentType.Dragonfly) {
+        opponent = Opponent.generateOpponentWithType(opponentType, this._game);
+        encounterType = EncounterType.DragonflyAttack;
 
         if (this._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(this._game.commander, opponent)) {
-          encounterType = SSSTEncounterType.DragonflyIgnore;
+          encounterType = EncounterType.DragonflyIgnore;
         }
-      } else if (opponentType === SSSTOpponentType.Monster) {
-        opponent = SSSTOpponent.generateOpponentWithType(opponentType, this._game);
-        encounterType = SSSTEncounterType.MonsterAttack;
+      } else if (opponentType === OpponentType.Monster) {
+        opponent = Opponent.generateOpponentWithType(opponentType, this._game);
+        encounterType = EncounterType.MonsterAttack;
 
         if (this._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(this._game.commander, opponent)) {
-          encounterType = SSSTEncounterType.MonsterIgnore;
+          encounterType = EncounterType.MonsterIgnore;
         }
       } else {
         // Very Rare Random Events:
@@ -319,96 +319,96 @@ export class SSSTTravelViewController {
         if (this._game.forceRareEvent || // testing hook
             (this._game.commander.days > 10 && runtime.gameRand.randomIntBelow(1000) < 5)) {
           const rareEvents = this._game.remainingRareEvents;
-          MAUtils.ensureArrayOrNull(rareEvents, "number")
+          Utils.ensureArrayOrNull(rareEvents, "number")
 
           const index =
             rareEvents.length > 0
             ? runtime.gameRand.randomIntBelow(rareEvents.length)
             : -1;
           const rareEvent =
-            index !== -1 ? rareEvents[index] : SSSTRareEvent.Count;
+            index !== -1 ? rareEvents[index] : RareEvent.Count;
 
-          MAUtils.ensureInteger(rareEvent)
+          Utils.ensureInteger(rareEvent)
 
           switch (rareEvent) {
-            case SSSTRareEvent.CaptainAhab:
+            case RareEvent.CaptainAhab:
               if (
                 this._game.commander.ship.hasShieldOfType(
-                  SSSTAccessoryType.ShieldReflective
+                  AccessoryType.ShieldReflective
                 ) &&
                 this._game.commander.pilot < MAX_SKILL_LEVEL &&
                 this._game.commander.policeRecordScore >
-                SSSTPoliceRecordScore.Criminal
+                PoliceRecordScore.Criminal
               ) {
                 pLog.log(95)
-                encounterType = SSSTEncounterType.FamousCaptainAhabEncounter;
-                opponent = SSSTOpponent.generateOpponentWithType(
-                  SSSTOpponentType.FamousCaptain,
+                encounterType = EncounterType.FamousCaptainAhabEncounter;
+                opponent = Opponent.generateOpponentWithType(
+                  OpponentType.FamousCaptain,
                   this._game
                 );
               }
               break;
 
-            case SSSTRareEvent.CaptainConrad:
+            case RareEvent.CaptainConrad:
               if (
                 this._game.commander.ship.hasWeaponOfType(
-                  SSSTAccessoryType.WeaponMilitaryLaser
+                  AccessoryType.WeaponMilitaryLaser
                 ) &&
                 this._game.commander.engineer < MAX_SKILL_LEVEL &&
                 this._game.commander.policeRecordScore >
-                SSSTPoliceRecordScore.Criminal
+                PoliceRecordScore.Criminal
               ) {
                 pLog.log(96)
                 encounterType =
-                  SSSTEncounterType.FamousCaptainConradEncounter;
-                opponent = SSSTOpponent.generateOpponentWithType(
-                  SSSTOpponentType.FamousCaptain,
+                  EncounterType.FamousCaptainConradEncounter;
+                opponent = Opponent.generateOpponentWithType(
+                  OpponentType.FamousCaptain,
                   this._game
                 );
               }
               break;
 
-            case SSSTRareEvent.CaptainHuie:
+            case RareEvent.CaptainHuie:
               if (
                 this._game.commander.ship.hasWeaponOfType(
-                  SSSTAccessoryType.WeaponMilitaryLaser
+                  AccessoryType.WeaponMilitaryLaser
                 ) &&
                 this._game.commander.trader < MAX_SKILL_LEVEL &&
                 this._game.commander.policeRecordScore >
-                SSSTPoliceRecordScore.Criminal
+                PoliceRecordScore.Criminal
               ) {
                 pLog.log(97)
-                encounterType = SSSTEncounterType.FamousCaptainHuieEncounter;
-                opponent = SSSTOpponent.generateOpponentWithType(
-                  SSSTOpponentType.FamousCaptain,
+                encounterType = EncounterType.FamousCaptainHuieEncounter;
+                opponent = Opponent.generateOpponentWithType(
+                  OpponentType.FamousCaptain,
                   this._game
                 );
               }
               break;
 
-            case SSSTRareEvent.MarieCeleste:
+            case RareEvent.MarieCeleste:
               pLog.log(98)
-              encounterType = SSSTEncounterType.MarieCelesteEncounter;
-              opponent = SSSTOpponent.generateOpponentWithType(
-                SSSTOpponentType.MarieCeleste,
+              encounterType = EncounterType.MarieCelesteEncounter;
+              opponent = Opponent.generateOpponentWithType(
+                OpponentType.MarieCeleste,
                 this._game
               );
               break;
 
-            case SSSTRareEvent.BottleOld:
+            case RareEvent.BottleOld:
               pLog.log(99)
-              encounterType = SSSTEncounterType.BottleOld;
-              opponent = SSSTOpponent.generateOpponentWithType(
-                SSSTOpponentType.Bottle,
+              encounterType = EncounterType.BottleOld;
+              opponent = Opponent.generateOpponentWithType(
+                OpponentType.Bottle,
                 this._game
               );
               break;
 
-            case SSSTRareEvent.BottleGood:
+            case RareEvent.BottleGood:
               pLog.log(100)
-              encounterType = SSSTEncounterType.BottleGood
-              opponent = SSSTOpponent.generateOpponentWithType(
-                SSSTOpponentType.Bottle,
+              encounterType = EncounterType.BottleGood
+              opponent = Opponent.generateOpponentWithType(
+                OpponentType.Bottle,
                 this._game
               );
               break;
@@ -417,14 +417,14 @@ export class SSSTTravelViewController {
               break;
           }
 
-          if (encounterType !== SSSTEncounterType.None) {
+          if (encounterType !== EncounterType.None) {
             this._game.removeRemainingRareEvent(rareEvent);
           }
         }
       }
 
-      if (encounterType !== SSSTEncounterType.None && opponent) {
-        const encounterController = new SSSTEncounterController(
+      if (encounterType !== EncounterType.None && opponent) {
+        const encounterController = new EncounterController(
           encounterType,
           this._game,
           opponent
@@ -483,8 +483,8 @@ export class SSSTTravelViewController {
         );
         pLog.log(154)
         break;
-      case SSSTReactorQuestStatus.DaysRemaining._1:
-        this._game.reactorStatus = SSSTReactorQuestStatus.ClosedTooLate;
+      case ReactorQuestStatus.DaysRemaining._1:
+        this._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
 
         let alerts = [];
 
@@ -498,7 +498,7 @@ export class SSSTTravelViewController {
             this._performPodEscape();
             pLog.log(155)
           } else {
-            this._delegate.travelViewControllerGameDidEndWithStatus(this, SSSTGameEndStatus.Killed);
+            this._delegate.travelViewControllerGameDidEndWithStatus(this, GameEndStatus.Killed);
             pLog.log(156)
           }
         });
@@ -509,10 +509,10 @@ export class SSSTTravelViewController {
 
     let foodOnBoard = false;
     let currentTribbles = this._game.commander.ship.tribbles;
-    MAUtils.ensureInteger(currentTribbles)
+    Utils.ensureInteger(currentTribbles)
 
     let previousTribbles = currentTribbles;
-    let reactorStatus = (this._game.reactorStatus > SSSTReactorQuestStatus.Open && this._game.reactorStatus < SSSTReactorQuestStatus.ClosedTooLate);
+    let reactorStatus = (this._game.reactorStatus > ReactorQuestStatus.Open && this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate);
 
     if (currentTribbles > 0 && reactorStatus) {
       currentTribbles = Math.floor(currentTribbles / 2);
@@ -523,19 +523,19 @@ export class SSSTTravelViewController {
         alertStrings.push("The radiation from the Ion Reactor seems to be deadly to Tribbles. Half the Tribbles on board died.");
       }
       pLog.log(157)
-    } else if (currentTribbles > 0 && this._game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Narcotics) > 0) {
+    } else if (currentTribbles > 0 && this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics) > 0) {
       currentTribbles += 1 + runtime.gameRand.randomIntBelow(3);
-      let amountNarcotics = this._game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Narcotics);
+      let amountNarcotics = this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics);
       let consumedNarcotics = Math.min(1 + runtime.gameRand.randomIntBelow(3), amountNarcotics);
-      this._game.commander.ship.soldQuantity(consumedNarcotics, SSSTTradeItemType.Narcotics);
-      this._game.commander.ship.boughtQuantity(consumedNarcotics, SSSTTradeItemType.Furs, 0);
+      this._game.commander.ship.soldQuantity(consumedNarcotics, TradeItemType.Narcotics);
+      this._game.commander.ship.boughtQuantity(consumedNarcotics, TradeItemType.Furs, 0);
       alertStrings.push("You find that, instead of narcotics, some of your cargo bays contain only dead tribbles!");
       pLog.log(158)
-    } else if (currentTribbles > 0 && this._game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Food) > 0) {
-      let amountFood = this._game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Food);
+    } else if (currentTribbles > 0 && this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Food) > 0) {
+      let amountFood = this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Food);
       currentTribbles += 100 + runtime.gameRand.randomIntBelow((amountFood * 100));
       let foodConsumed = runtime.gameRand.randomIntBelow(amountFood);
-      this._game.commander.ship.soldQuantity(foodConsumed, SSSTTradeItemType.Food);
+      this._game.commander.ship.soldQuantity(foodConsumed, TradeItemType.Food);
       foodOnBoard = true;
       alertStrings.push("You find that, instead of food, some of your cargo bays contain only tribbles!");
       pLog.log(159)
@@ -546,7 +546,7 @@ export class SSSTTravelViewController {
     }
 
     currentTribbles = Math.min(currentTribbles, MAX_TRIBBLES);
-    MAUtils.ensureInteger(currentTribbles)
+    Utils.ensureInteger(currentTribbles)
     this._game.commander.ship.tribbles = currentTribbles;
 
     if ((previousTribbles < 100 && currentTribbles >= 100) ||
@@ -584,9 +584,9 @@ export class SSSTTravelViewController {
       this._delegate.travelViewControllerDidComplete(this);
 
       if (failString.length > 0) {
-        let aC = new SSSTAlertViewController(`You don't have enough money to buy ${failString}.`)
+        let aC = new AlertViewController(`You don't have enough money to buy ${failString}.`)
 
-        aC.addAction("Darn", SSSTAlertActionType.Default, null)
+        aC.addAction("Darn", AlertActionType.Default, null)
 
         aC.presentView()
       }
@@ -601,8 +601,8 @@ export class SSSTTravelViewController {
 
 			console.log("Prompt with alert string: " + firstString);
 
-      let aC = new SSSTAlertViewController(firstString)
-      aC.addAction("Dismiss", SSSTAlertActionType.Default, () => {
+      let aC = new AlertViewController(firstString)
+      aC.addAction("Dismiss", AlertActionType.Default, () => {
 				this._promptForStrings(alertStrings, completion);
 			})
 
@@ -646,7 +646,7 @@ export class SSSTTravelViewController {
     }
   }
 
-// SSSTEncounterViewController delegate
+// EncounterViewController delegate
   encounterViewControllerOpponent(encounterVC) {
     if (this._encounterController) {
       return this._encounterController.opponent
@@ -660,10 +660,10 @@ export class SSSTTravelViewController {
   }
 
 
-// SSSTEncounterController delegate
+// EncounterController delegate
 
   encounterControllerDidPlunder(controller, didPlunder) {
-    if (controller.type === SSSTEncounterType.MarieCelesteEncounter && didPlunder) {
+    if (controller.type === EncounterType.MarieCelesteEncounter && didPlunder) {
       this._needPostMarieCustomsPolice = true
     }
   }
@@ -700,7 +700,7 @@ export class SSSTTravelViewController {
       this._performPodEscape();
     } else {
       pLog.log(30)
-      this._delegate.travelViewControllerGameDidEndWithStatus(this, SSSTGameEndStatus.Killed);
+      this._delegate.travelViewControllerGameDidEndWithStatus(this, GameEndStatus.Killed);
     }
   }
 
@@ -708,16 +708,16 @@ export class SSSTTravelViewController {
     let alerts = [];
 
     let reactorStr = ""
-    if (this._game.reactorStatus > SSSTReactorQuestStatus.Open && this._game.reactorStatus < SSSTReactorQuestStatus.ClosedTooLate) {
+    if (this._game.reactorStatus > ReactorQuestStatus.Open && this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate) {
       reactorStr = " The destruction of your ship is made much more spectacular by the added explosion of the Ion Reactor."
-      this._game.reactorStatus = SSSTReactorQuestStatus.ClosedTooLate;
+      this._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
       pLog.log(160)
     }
 
     alerts.push(`Just before the final demise of your ship, your escape pod gets activated and ejects you.${reactorStr} After a few days, the Space Corps picks you up and drops you off at a nearby space port.`);
 
-    if (this._game.japoriQuestStatus === SSSTJaporiQuestStatus.HasMedicine) {
-      this._game.japoriQuestStatus = SSSTJaporiQuestStatus.Open;
+    if (this._game.japoriQuestStatus === JaporiQuestStatus.HasMedicine) {
+      this._game.japoriQuestStatus = JaporiQuestStatus.Open;
       alerts.push("The antidote for the Japori system was destroyed with your ship. Fortunately, they probably have some new antidote in the system where you originally got it.");
     }
 
@@ -726,14 +726,14 @@ export class SSSTTravelViewController {
       alerts.push("You couldn't take the artifact with you in the escape pod, so now it's lost in the wreckage. The aliens will probably pick it up there.");
     }
 
-    if (this._game.jarekStatus === SSSTJarekQuestStatus.OnBoard) {
+    if (this._game.jarekStatus === JarekQuestStatus.OnBoard) {
       alerts.push("The Space Corps decides to give ambassador Jarek a lift home to Devidia.");
-      this._game.jarekStatus = SSSTJarekQuestStatus.Closed;
+      this._game.jarekStatus = JarekQuestStatus.Closed;
     }
 
-    if (this._game.wildStatus === SSSTWildQuestStatus.OnBoard) {
+    if (this._game.wildStatus === WildQuestStatus.OnBoard) {
       alerts.push("Jonathan Wild is arrested, and taken away to stand trial.");
-      this._game.wildStatus = SSSTWildQuestStatus.Closed;
+      this._game.wildStatus = WildQuestStatus.Closed;
       this._game.commander.ship.removeCrewMemberWithName("Jonathan Wild");
       this._game.addBreakingNewsItem("Notorious Criminal Jonathan Wild Arrested!");
       this._game.commander.policeRecordScore = this._game.commander.policeRecordScore + CAUGHT_WITH_WILD_SCORE;
@@ -771,7 +771,7 @@ export class SSSTTravelViewController {
 
     this._game.timePassed(3);
 
-    let ship = new SSSTShip(SSSTShipModelType.Flea, this._game.difficulty);
+    let ship = new Ship(ShipModelType.Flea, this._game.difficulty);
     this._game.commander.ship = ship;
 
     this._promptForStrings(alerts, () => {

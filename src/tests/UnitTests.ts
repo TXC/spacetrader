@@ -1,21 +1,21 @@
 // @ts-nocheck
-import { MAGameRand } from '../game/GameRand.ts'
-import { SSSTAccessoryType } from '../game/Accessory.ts'
-import { SSSTActionLogReplay, SSSTActionLogger } from '../game/ActionLogger.ts'
-import { ATTACK_POLICE_SCORE, ATTACK_TRADER_SCORE, KILL_PIRATE_SCORE, SSSTPoliceRecordScore } from '../game/Commander.ts'
-import { SSSTGame, SSSTGameEndStatus, SSSTRareEvent } from '../game/Game.ts'
-import { SSSTPoliticsType } from '../game/Politics.ts'
-import { SSSTShipModel, SSSTShipModelType } from '../game/Ship.ts'
-import { SSSTDifficulty, SSSTExperimentQuestStatus, SSSTInvasionQuestStatus, SSSTJaporiQuestStatus, SSSTJarekQuestStatus, SSSTMonsterQuestStatus, SSSTReactorQuestStatus, SSSTScarabQuestStatus, SSSTSpecialEvent, SSSTWildQuestStatus } from '../game/SolarSystem.types.ts'
+import { GameRand } from '../game/GameRand.ts'
+import { AccessoryType } from '../game/Accessory.ts'
+import { ActionLogReplay, ActionLogger } from '../game/ActionLogger.ts'
+import { ATTACK_POLICE_SCORE, ATTACK_TRADER_SCORE, KILL_PIRATE_SCORE, PoliceRecordScore } from '../game/Commander.ts'
+import { Game, GameEndStatus, RareEvent } from '../game/Game.ts'
+import { PoliticsType } from '../game/Politics.ts'
+import { ShipModel, ShipModelType } from '../game/Ship.ts'
+import { Difficulty, ExperimentQuestStatus, InvasionQuestStatus, JaporiQuestStatus, JarekQuestStatus, MonsterQuestStatus, ReactorQuestStatus, ScarabQuestStatus, SpecialEvent, WildQuestStatus } from '../game/SolarSystem.types.ts'
 import { FABRIC_RIP_PROBABILITY_INITIAL } from '../game/SpecialEventSpecifier.ts'
-import { SSSTTechLevel, SSSTTradeItemType } from '../game/TradeItem.types.ts'
-import { MAUtils, SSSTMockLocalStorage, pLog } from '../game/Utilities.ts'
+import { TechLevel, TradeItemType } from '../game/TradeItem.types.ts'
+import { Utils, MockLocalStorage, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
-import { SSSTAlertViewController } from '../legacy-ui/AlertViewController.ts'
-import { SSSTViewController } from '../legacy-ui/ViewController.ts'
+import { AlertViewController } from '../legacy-ui/AlertViewController.ts'
+import { ViewController } from '../legacy-ui/ViewController.ts'
 import { SpaceTraderGame } from '../legacy-ui/main.ts'
 
-class MALogger {
+class Logger {
   constructor() {
     this.logs = []
   }
@@ -29,7 +29,7 @@ class MALogger {
   }
 }
 
-export let MALog = new MALogger()
+export let Log = new Logger()
 
 var assertionCount = 0
 export function getAssertionCount() { return assertionCount }
@@ -37,7 +37,7 @@ export function getAssertionCount() { return assertionCount }
 let caughtError = null
 function assertTrue(condition, str) {
     if (!condition) {
-      MALog.log("Failed assertion: " + str)
+      Log.log("Failed assertion: " + str)
       throw "Failed assertion: " + str + "\n" + (new Error()).stack
     }
     assertionCount++
@@ -46,7 +46,7 @@ function assertTrue(condition, str) {
 function assertEqual(str1, str2) {
     if (str1 !== str2) {
       let str = "Failed assertion: \"" + str1 + "\" does not equal \"" + str2 + "\"" + "\n" + (new Error()).stack
-      MALog.log(str)
+      Log.log(str)
       throw str
     }
     assertionCount++
@@ -58,9 +58,9 @@ function assertEqualDeep(obj1, obj2) {
       ineqStr = " ; " + s
     }
 
-    if (!MAUtils.isEqualDeep(obj1, obj2, ineqHandler)) {
+    if (!Utils.isEqualDeep(obj1, obj2, ineqHandler)) {
       let str = "Failed assertion: \"" + obj1 + "\" does not deep equal \"" + obj2 + "\"" + ineqStr
-      MALog.log(str)
+      Log.log(str)
       throw str + "\n" + (new Error()).stack
     }
     assertionCount++
@@ -114,7 +114,7 @@ function assertEqualFloats(f1, f2, tolerance) {
 
     if (Math.abs(f1-f2) > tolerance) {
       let str = "Failed assertion: \"" + f1 + "\" does not equal \"" + f2 + "\""
-      MALog.log(str)
+      Log.log(str)
       throw str + "\n" + (new Error()).stack
     }
     assertionCount++
@@ -129,7 +129,7 @@ function assertEqualArrays(arr1, arr2) {
 
     if (!isEqual) {
       let str = "Failed assertion:\n\n\"" + arr1 + "\" does not equal\n\n\"" + arr2 + "\""
-      MALog.log(str)
+      Log.log(str)
       throw str + "\n" + (new Error()).stack
     }
     assertionCount++
@@ -137,16 +137,16 @@ function assertEqualArrays(arr1, arr2) {
 
 function assertPixelColor(ctx, x, y, color) {
   let data = ctx.getImageData(x, y, 1, 1).data
-  let hex = MAUtils.rgbToHex(data[0], data[1], data[2])
+  let hex = Utils.rgbToHex(data[0], data[1], data[2])
   assertEqual(hex, color)
 }
 
 
 export class UnitTests {
 
-// MAGameRand
+// GameRand
   test_randomInt() {
-    let r = new MAGameRand(1)
+    let r = new GameRand(1)
     //              0  1  2  3  4  5  6  7  8  9 10 11
     let observed = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     let expected = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
@@ -158,14 +158,14 @@ export class UnitTests {
     assertEqualArrays(observed, expected)
   }
 
-// MAUtils
+// Utils
   test_addToOrderedSet() {
-    let arr = [SSSTShipModelType.Flea, SSSTShipModelType.Firefly];
-    MAUtils.addToOrderedSet(arr, SSSTShipModelType.Flea)
-    MAUtils.addToOrderedSet(arr, SSSTShipModelType.Gnat)
-    MAUtils.addToOrderedSet(arr, SSSTShipModelType.Firefly)
-    MAUtils.addToOrderedSet(arr, SSSTShipModelType.Beetle)
-    assertEqualArrays(arr, [SSSTShipModelType.Flea, SSSTShipModelType.Firefly, SSSTShipModelType.Gnat, SSSTShipModelType.Beetle])
+    let arr = [ShipModelType.Flea, ShipModelType.Firefly];
+    Utils.addToOrderedSet(arr, ShipModelType.Flea)
+    Utils.addToOrderedSet(arr, ShipModelType.Gnat)
+    Utils.addToOrderedSet(arr, ShipModelType.Firefly)
+    Utils.addToOrderedSet(arr, ShipModelType.Beetle)
+    assertEqualArrays(arr, [ShipModelType.Flea, ShipModelType.Firefly, ShipModelType.Gnat, ShipModelType.Beetle])
   }
 
 // Rare Events
@@ -213,7 +213,7 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Drink", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. In the old days, this stuff went for thousands of credits a bottle since people reported significant gains in their abilities after quaffing a bottle. Would you like to drink it?")
+    assertEqual(AlertViewController.currentAlertTitle(), "This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. In the old days, this stuff went for thousands of credits a bottle since people reported significant gains in their abilities after quaffing a bottle. Would you like to drink it?")
 
     replay.replayEvent("alertButton_I_ll_pass", "click")
 
@@ -252,11 +252,11 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Drink", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. In the old days, this stuff went for thousands of credits a bottle since people reported significant gains in their abilities after quaffing a bottle. Would you like to drink it?")
+    assertEqual(AlertViewController.currentAlertTitle(), "This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. In the old days, this stuff went for thousands of credits a bottle since people reported significant gains in their abilities after quaffing a bottle. Would you like to drink it?")
 
     replay.replayEvent("alertButton_Yes__drink_it", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Mmmmm. Captain Marmoset's Amazing Skill Tonic not only fills you with energy, but tastes like a fine single-malt. You feel a slight tingling in your fingertips.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Mmmmm. Captain Marmoset's Amazing Skill Tonic not only fills you with energy, but tastes like a fine single-malt. You feel a slight tingling in your fingertips.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -326,7 +326,7 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Drink", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. The \"best used by\" date stamped on the bottle has become illegible. The tonic might still be good. Then again, it's not clear what happens when the Tonic breaks down...")
+    assertEqual(AlertViewController.currentAlertTitle(), "This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. The \"best used by\" date stamped on the bottle has become illegible. The tonic might still be good. Then again, it's not clear what happens when the Tonic breaks down...")
 
     replay.replayEvent("alertButton_I_ll_pass", "click")
 
@@ -365,11 +365,11 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Drink", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. The \"best used by\" date stamped on the bottle has become illegible. The tonic might still be good. Then again, it's not clear what happens when the Tonic breaks down...")
+    assertEqual(AlertViewController.currentAlertTitle(), "This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. The \"best used by\" date stamped on the bottle has become illegible. The tonic might still be good. Then again, it's not clear what happens when the Tonic breaks down...")
 
     replay.replayEvent("alertButton_Yes__drink_it", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "While you don't know what it was supposed to taste like, you get the feeling that this dose of tonic was a bit off. This bottle tasted very strange, like slightly salty red wine. You feel a bit dizzy and your teeth itch for a while.")
+    assertEqual(AlertViewController.currentAlertTitle(), "While you don't know what it was supposed to taste like, you get the feeling that this dose of tonic was a bit off. This bottle tasted very strange, like slightly salty red wine. You feel a bit dizzy and your teeth itch for a while.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -406,10 +406,10 @@ export class UnitTests {
     let encounterText = document.getElementById('eVC_dialog').innerHTML
     assertEqual(encounterText, "At 15 clicks from Japori you encounter a police Firefly.<br><br>It ignores you.")
 
-    assertEqualArrays(game._remainingRareEvents, [SSSTRareEvent.CaptainAhab])
+    assertEqualArrays(game._remainingRareEvents, [RareEvent.CaptainAhab])
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqualArrays(game2._remainingRareEvents, [SSSTRareEvent.CaptainAhab])
+    assertEqualArrays(game2._remainingRareEvents, [RareEvent.CaptainAhab])
   }
 
   test_Ahab_accept() {
@@ -425,27 +425,27 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Meet", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Captain Ahab, one of the greatest pilots of all time, is in need of a shield for an upcoming mission. To save the time it would take to land and find a vendor, Ahab is offering to trade you some piloting lessons in exchange for one reflective shield.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Captain Ahab, one of the greatest pilots of all time, is in need of a shield for an upcoming mission. To save the time it would take to land and find a vendor, Ahab is offering to trade you some piloting lessons in exchange for one reflective shield.")
 
     const pilotBefore = game.commander.pilot
-    assertEqual(game.commander.ship.hasShieldOfType(SSSTAccessoryType.ShieldReflective), true)
+    assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true)
 
     replay.replayEvent("alertButton_Yes__trade_", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "After a few hours of training with a top expert, you feel your abilities have improved significantly.")
+    assertEqual(AlertViewController.currentAlertTitle(), "After a few hours of training with a top expert, you feel your abilities have improved significantly.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
     const pilotAfter = game.commander.pilot
     assertEqual(pilotAfter, pilotBefore+2)
 
-    assertEqual(game.commander.ship.hasShieldOfType(SSSTAccessoryType.ShieldReflective), false)
+    assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), false)
 
     assertEqualArrays(game._remainingRareEvents, [])
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqualArrays(game2._remainingRareEvents, [])
-    assertEqual(game2.commander.ship.hasShieldOfType(SSSTAccessoryType.ShieldReflective), false)
+    assertEqual(game2.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), false)
     const pilotAfter2 = game2.commander.pilot
     assertEqual(pilotAfter2, pilotBefore+2)
   }
@@ -463,10 +463,10 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Meet", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Captain Ahab, one of the greatest pilots of all time, is in need of a shield for an upcoming mission. To save the time it would take to land and find a vendor, Ahab is offering to trade you some piloting lessons in exchange for one reflective shield.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Captain Ahab, one of the greatest pilots of all time, is in need of a shield for an upcoming mission. To save the time it would take to land and find a vendor, Ahab is offering to trade you some piloting lessons in exchange for one reflective shield.")
 
     const pilotBefore = game.commander.pilot
-    assertEqual(game.commander.ship.hasShieldOfType(SSSTAccessoryType.ShieldReflective), true)
+    assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true)
 
     replay.replayEvent("alertButton_No_thanks_", "click")
 
@@ -476,13 +476,13 @@ export class UnitTests {
     const pilotAfter = game.commander.pilot
     assertEqual(pilotAfter, pilotBefore)
 
-    assertEqual(game.commander.ship.hasShieldOfType(SSSTAccessoryType.ShieldReflective), true)
+    assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true)
 
     assertEqualArrays(game._remainingRareEvents, [])
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqualArrays(game2._remainingRareEvents, [])
-    assertEqual(game2.commander.ship.hasShieldOfType(SSSTAccessoryType.ShieldReflective), true)
+    assertEqual(game2.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true)
     const pilotAfter2 = game2.commander.pilot
     assertEqual(pilotAfter2, pilotBefore)
   }
@@ -499,7 +499,7 @@ export class UnitTests {
     assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Ahab.<br><br>The captain requests a brief meeting with you.")
 
     const pilotBefore = game.commander.pilot
-    assertEqual(game.commander.ship.hasShieldOfType(SSSTAccessoryType.ShieldReflective), true)
+    assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true)
 
     replay.replayEvent("ecButton_Ignore", "click")
 
@@ -509,13 +509,13 @@ export class UnitTests {
     const pilotAfter = game.commander.pilot
     assertEqual(pilotAfter, pilotBefore)
 
-    assertEqual(game.commander.ship.hasShieldOfType(SSSTAccessoryType.ShieldReflective), true)
+    assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true)
 
     assertEqualArrays(game._remainingRareEvents, [])
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqualArrays(game2._remainingRareEvents, [])
-    assertEqual(game2.commander.ship.hasShieldOfType(SSSTAccessoryType.ShieldReflective), true)
+    assertEqual(game2.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true)
     const pilotAfter2 = game2.commander.pilot
     assertEqual(pilotAfter2, pilotBefore)
   }
@@ -532,12 +532,12 @@ export class UnitTests {
     assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Ahab.<br><br>The captain requests a brief meeting with you.")
 
     const pilotBefore = game.commander.pilot
-    assertEqual(game.commander.ship.hasShieldOfType(SSSTAccessoryType.ShieldReflective), true)
+    assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true)
 
     const policeRecordScoreBefore = game.commander.policeRecordScore
     replay.replayEvent("ecButton_Attack", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Famous captains get famous by, among other things, destroying everyone who attacks them. Do you really want to attack?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Famous captains get famous by, among other things, destroying everyone who attacks them. Do you really want to attack?")
 
 
     replay.replayEvent("alertButton_Attack", "click")
@@ -595,21 +595,21 @@ export class UnitTests {
 
     assertEqual(game._breakingNews, null)
 
-    assertEqual(game.commander.policeRecordScore, SSSTPoliceRecordScore.Villain + ATTACK_TRADER_SCORE)
+    assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Villain + ATTACK_TRADER_SCORE)
 
     const pilotAfter = game.commander.pilot
     assertEqual(pilotAfter, pilotBefore)
 
-    assertEqual(game.commander.ship.hasShieldOfType(SSSTAccessoryType.ShieldReflective), true)
+    assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true)
 
     assertEqualArrays(game._remainingRareEvents, [])
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqualArrays(game2._remainingRareEvents, [])
-    assertEqual(game2.commander.ship.hasShieldOfType(SSSTAccessoryType.ShieldReflective), true)
+    assertEqual(game2.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true)
     const pilotAfter2 = game2.commander.pilot
     assertEqual(pilotAfter2, pilotBefore)
-    assertEqual(game2.commander.policeRecordScore, SSSTPoliceRecordScore.Villain + ATTACK_TRADER_SCORE)
+    assertEqual(game2.commander.policeRecordScore, PoliceRecordScore.Villain + ATTACK_TRADER_SCORE)
   }
 
   test_Conrad_notEligible() {
@@ -623,10 +623,10 @@ export class UnitTests {
     let encounterText = document.getElementById('eVC_dialog').innerHTML
     assertEqual(encounterText, "At 15 clicks from Japori you encounter a police Firefly.<br><br>It ignores you.")
 
-    assertEqualArrays(game._remainingRareEvents, [SSSTRareEvent.CaptainConrad])
+    assertEqualArrays(game._remainingRareEvents, [RareEvent.CaptainConrad])
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqualArrays(game2._remainingRareEvents, [SSSTRareEvent.CaptainConrad])
+    assertEqualArrays(game2._remainingRareEvents, [RareEvent.CaptainConrad])
   }
 
   test_Conrad_accept() {
@@ -642,28 +642,28 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Meet", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Captain Conrad, fleet historian and inventor of the modern warp drive, is in need of a laser to test her new shield design. Unfortunately, she's used up her R&D budget for the year. Instead of cash, she'll trade you some engineering lessons in exchange for one military laser.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Captain Conrad, fleet historian and inventor of the modern warp drive, is in need of a laser to test her new shield design. Unfortunately, she's used up her R&D budget for the year. Instead of cash, she'll trade you some engineering lessons in exchange for one military laser.")
 
     const engBefore = game.commander.engineer
 
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
     replay.replayEvent("alertButton_Yes__trade_", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "After a few hours of training with a top expert, you feel your abilities have improved significantly.")
+    assertEqual(AlertViewController.currentAlertTitle(), "After a few hours of training with a top expert, you feel your abilities have improved significantly.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
     const engAfter = game.commander.engineer
     assertEqual(engAfter, engBefore+2)
 
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), false)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), false)
 
     assertEqualArrays(game._remainingRareEvents, [])
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqualArrays(game2._remainingRareEvents, [])
-    assertEqual(game2.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), false)
+    assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), false)
     const engAfter2 = game2.commander.engineer
     assertEqual(engAfter2, engBefore+2)
   }
@@ -681,10 +681,10 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Meet", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Captain Conrad, fleet historian and inventor of the modern warp drive, is in need of a laser to test her new shield design. Unfortunately, she's used up her R&D budget for the year. Instead of cash, she'll trade you some engineering lessons in exchange for one military laser.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Captain Conrad, fleet historian and inventor of the modern warp drive, is in need of a laser to test her new shield design. Unfortunately, she's used up her R&D budget for the year. Instead of cash, she'll trade you some engineering lessons in exchange for one military laser.")
 
     const engBefore = game.commander.engineer
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
     replay.replayEvent("alertButton_No_thanks_", "click")
 
@@ -694,13 +694,13 @@ export class UnitTests {
     const engAfter = game.commander.engineer
     assertEqual(engAfter, engBefore)
 
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
     assertEqualArrays(game._remainingRareEvents, [])
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqualArrays(game2._remainingRareEvents, [])
-    assertEqual(game2.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
     const engAfter2 = game2.commander.engineer
     assertEqual(engAfter2, engBefore)
   }
@@ -717,7 +717,7 @@ export class UnitTests {
     assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Conrad.<br><br>The captain requests a brief meeting with you.")
 
     const engBefore = game.commander.engineer
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
     replay.replayEvent("ecButton_Ignore", "click")
 
@@ -727,13 +727,13 @@ export class UnitTests {
     const engAfter = game.commander.engineer
     assertEqual(engAfter, engBefore)
 
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
     assertEqualArrays(game._remainingRareEvents, [])
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqualArrays(game2._remainingRareEvents, [])
-    assertEqual(game2.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
     const engAfter2 = game2.commander.engineer
     assertEqual(engAfter2, engBefore)
   }
@@ -750,12 +750,12 @@ export class UnitTests {
     assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Conrad.<br><br>The captain requests a brief meeting with you.")
 
     const engBefore = game.commander.engineer
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
     const policeRecordScoreBefore = game.commander.policeRecordScore
     replay.replayEvent("ecButton_Attack", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Famous captains get famous by, among other things, destroying everyone who attacks them. Do you really want to attack?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Famous captains get famous by, among other things, destroying everyone who attacks them. Do you really want to attack?")
 
 
     replay.replayEvent("alertButton_Attack", "click")
@@ -813,21 +813,21 @@ export class UnitTests {
 
     assertEqual(game._breakingNews, null)
 
-    assertEqual(game.commander.policeRecordScore, SSSTPoliceRecordScore.Villain + ATTACK_TRADER_SCORE)
+    assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Villain + ATTACK_TRADER_SCORE)
 
     const engAfter = game.commander.engineer
     assertEqual(engAfter, engBefore)
 
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
     assertEqualArrays(game._remainingRareEvents, [])
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqualArrays(game2._remainingRareEvents, [])
-    assertEqual(game2.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
     const engAfter2 = game2.commander.engineer
     assertEqual(engAfter2, engBefore)
-    assertEqual(game2.commander.policeRecordScore, SSSTPoliceRecordScore.Villain + ATTACK_TRADER_SCORE)
+    assertEqual(game2.commander.policeRecordScore, PoliceRecordScore.Villain + ATTACK_TRADER_SCORE)
   }
 
   test_Huie_notEligible() {
@@ -841,10 +841,10 @@ export class UnitTests {
     let encounterText = document.getElementById('eVC_dialog').innerHTML
     assertEqual(encounterText, "At 15 clicks from Japori you encounter a police Firefly.<br><br>It ignores you.")
 
-    assertEqualArrays(game._remainingRareEvents, [SSSTRareEvent.CaptainHuie])
+    assertEqualArrays(game._remainingRareEvents, [RareEvent.CaptainHuie])
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqualArrays(game2._remainingRareEvents, [SSSTRareEvent.CaptainHuie])
+    assertEqualArrays(game2._remainingRareEvents, [RareEvent.CaptainHuie])
   }
 
   test_Huie_accept() {
@@ -860,28 +860,28 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Meet", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Captain Huie, former Trade Commissioner of the Galactic Council, is in need of a laser for an upcoming mission. Huie is known for driving a hard bargain and is offering some secrets of doing business in exchange for one military laser.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Captain Huie, former Trade Commissioner of the Galactic Council, is in need of a laser for an upcoming mission. Huie is known for driving a hard bargain and is offering some secrets of doing business in exchange for one military laser.")
 
     const tradBefore = game.commander.trader
 
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
     replay.replayEvent("alertButton_Yes__trade_", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "After a few hours of training with a top expert, you feel your abilities have improved significantly.")
+    assertEqual(AlertViewController.currentAlertTitle(), "After a few hours of training with a top expert, you feel your abilities have improved significantly.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
     const tradAfter = game.commander.trader
     assertEqual(tradAfter, tradBefore+2)
 
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), false)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), false)
 
     assertEqualArrays(game._remainingRareEvents, [])
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqualArrays(game2._remainingRareEvents, [])
-    assertEqual(game2.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), false)
+    assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), false)
     const tradAfter2 = game2.commander.trader
     assertEqual(tradAfter2, tradBefore+2)
   }
@@ -899,10 +899,10 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Meet", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Captain Huie, former Trade Commissioner of the Galactic Council, is in need of a laser for an upcoming mission. Huie is known for driving a hard bargain and is offering some secrets of doing business in exchange for one military laser.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Captain Huie, former Trade Commissioner of the Galactic Council, is in need of a laser for an upcoming mission. Huie is known for driving a hard bargain and is offering some secrets of doing business in exchange for one military laser.")
 
     const tradBefore = game.commander.trader
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
     replay.replayEvent("alertButton_No_thanks_", "click")
 
@@ -912,13 +912,13 @@ export class UnitTests {
     const tradAfter = game.commander.trader
     assertEqual(tradAfter, tradBefore)
 
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
     assertEqualArrays(game._remainingRareEvents, [])
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqualArrays(game2._remainingRareEvents, [])
-    assertEqual(game2.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
     const tradAfter2 = game2.commander.trader
     assertEqual(tradAfter2, tradBefore)
   }
@@ -935,7 +935,7 @@ export class UnitTests {
     assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Huie.<br><br>The captain requests a brief meeting with you.")
 
     const tradBefore = game.commander.trader
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
     replay.replayEvent("ecButton_Ignore", "click")
 
@@ -945,13 +945,13 @@ export class UnitTests {
     const tradAfter = game.commander.trader
     assertEqual(tradAfter, tradBefore)
 
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
     assertEqualArrays(game._remainingRareEvents, [])
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqualArrays(game2._remainingRareEvents, [])
-    assertEqual(game2.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
     const tradAfter2 = game2.commander.trader
     assertEqual(tradAfter2, tradBefore)
   }
@@ -968,12 +968,12 @@ export class UnitTests {
     assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Huie.<br><br>The captain requests a brief meeting with you.")
 
     const tradBefore = game.commander.trader
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
     const policeRecordScoreBefore = game.commander.policeRecordScore
     replay.replayEvent("ecButton_Attack", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Famous captains get famous by, among other things, destroying everyone who attacks them. Do you really want to attack?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Famous captains get famous by, among other things, destroying everyone who attacks them. Do you really want to attack?")
 
 
     replay.replayEvent("alertButton_Attack", "click")
@@ -1031,21 +1031,21 @@ export class UnitTests {
 
     assertEqual(game._breakingNews, null)
 
-    assertEqual(game.commander.policeRecordScore, SSSTPoliceRecordScore.Villain + ATTACK_TRADER_SCORE)
+    assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Villain + ATTACK_TRADER_SCORE)
 
     const tradAfter = game.commander.trader
     assertEqual(tradAfter, tradBefore)
 
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
     assertEqualArrays(game._remainingRareEvents, [])
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqualArrays(game2._remainingRareEvents, [])
-    assertEqual(game2.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMilitaryLaser), true)
+    assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
     const tradAfter2 = game2.commander.trader
     assertEqual(tradAfter2, tradBefore)
-    assertEqual(game2.commander.policeRecordScore, SSSTPoliceRecordScore.Villain + ATTACK_TRADER_SCORE)
+    assertEqual(game2.commander.policeRecordScore, PoliceRecordScore.Villain + ATTACK_TRADER_SCORE)
   }
 
   test_MarieCeleste_ignore() {
@@ -1160,7 +1160,7 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Yield", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "The Customs Police find nothing illegal in your cargo holds and apologize for the inconvenience.")
+    assertEqual(AlertViewController.currentAlertTitle(), "The Customs Police find nothing illegal in your cargo holds and apologize for the inconvenience.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -1202,18 +1202,18 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Yield", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "The Customs Police confiscated all of your illegal cargo. For being cooperative, you avoided stronger fines or penalties.")
+    assertEqual(AlertViewController.currentAlertTitle(), "The Customs Police confiscated all of your illegal cargo. For being cooperative, you avoided stronger fines or penalties.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Narcotics), 0)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics), 0)
 
     const systemInfoHeader = document.getElementById('system-info-welcome')
     assertEqual(systemInfoHeader.innerText, "Welcome to Jason")
 
-    assertEqual(game.commander.policeRecordScore, SSSTPoliceRecordScore.Dubious)
+    assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Dubious)
     assertEqual(game.commander.reputationScore, reputationBefore)
 
     assertEqualArrays(game._remainingRareEvents, [])
@@ -1242,7 +1242,7 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Bribe", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "We'd love to take your money, but Space Command already knows you've got illegal goods onboard.")
+    assertEqual(AlertViewController.currentAlertTitle(), "We'd love to take your money, but Space Command already knows you've got illegal goods onboard.")
     assertTrue(document.getElementById("ecButton_Yield") != null, "yield option available")
 
     assertEqualArrays(game._remainingRareEvents, [])
@@ -1274,7 +1274,7 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Auto_Flee", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Are you sure you want to flee? The Customs Police know you have engaged in criminal activity and your police record will reflect this fact.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Are you sure you want to flee? The Customs Police know you have engaged in criminal activity and your police record will reflect this fact.")
 
     replay.replayEvent("alertButton_Flee", "click")
 
@@ -1282,12 +1282,12 @@ export class UnitTests {
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Narcotics), 1)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics), 1)
 
     const systemInfoHeader = document.getElementById('system-info-welcome')
     assertEqual(systemInfoHeader.innerText, "Welcome to Jason")
 
-    assertEqual(game.commander.policeRecordScore, SSSTPoliceRecordScore.Criminal)
+    assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Criminal)
     assertEqual(game.commander.reputationScore, reputationBefore)
 
     assertEqualArrays(game._remainingRareEvents, [])
@@ -1319,7 +1319,7 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Attack", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Are you sure you wish to attack the police? This will turn you into a criminal!")
+    assertEqual(AlertViewController.currentAlertTitle(), "Are you sure you wish to attack the police? This will turn you into a criminal!")
 
     replay.replayEvent("alertButton_Attack", "click")
 
@@ -1329,12 +1329,12 @@ export class UnitTests {
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Narcotics), 1)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics), 1)
 
     const systemInfoHeader = document.getElementById('system-info-welcome')
     assertEqual(systemInfoHeader.innerText, "Welcome to Jason")
 
-    assertEqual(game.commander.policeRecordScore, SSSTPoliceRecordScore.Criminal + ATTACK_POLICE_SCORE)
+    assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Criminal + ATTACK_POLICE_SCORE)
     assertEqual(game.commander.reputationScore, reputationBefore)
 
     assertEqualArrays(game._remainingRareEvents, [])
@@ -1352,7 +1352,7 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    assertEqual(game.solarSystems.filter(x => x.specialEvent !== SSSTSpecialEvent.None).length, 42)
+    assertEqual(game.solarSystems.filter(x => x.specialEvent !== SpecialEvent.None).length, 42)
   }
 
   test_scarab() {
@@ -1364,7 +1364,7 @@ export class UnitTests {
     const game = stG.viewController._game
 
     // reputationScore is too low for Special to show up
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.Scarab)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.Scarab)
     let specialEl = document.getElementById("Special")
     assertEqual(specialEl, null)
 
@@ -1382,13 +1382,13 @@ export class UnitTests {
     this._replaySkipEncounters(replay)
 
     // Shows up now
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.Scarab)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.Scarab)
     specialEl = document.getElementById("Special")
     assertEqual(specialEl !== null, true)
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Captain Renwick developed a new organic hull material for his ship which cannot be damaged except by Pulse lasers. While he was celebrating this success, pirates boarded and stole the craft, which they have named the Scarab. Rumors suggest it's being hidden at the exit to a wormhole. Destroy the ship for a reward!")
+    assertEqual(AlertViewController.currentAlertTitle(), "Captain Renwick developed a new organic hull material for his ship which cannot be damaged except by Pulse lasers. While he was celebrating this success, pirates boarded and stole the craft, which they have named the Scarab. Rumors suggest it's being hidden at the exit to a wormhole. Destroy the ship for a reward!")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -1431,7 +1431,7 @@ export class UnitTests {
     replay.replayEvent("cheat_fighter15", "click") // need more skill to win
     replay.replayEvent("ecButton_Auto_Attack", "click")
 
-    assertEqual(game.scarabStatus, SSSTScarabQuestStatus.ScarabDestroyed)
+    assertEqual(game.scarabStatus, ScarabQuestStatus.ScarabDestroyed)
 
     this._replaySkipEncounters(replay)
 
@@ -1443,32 +1443,32 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Space Corps is indebted to you for destroying the Scarab and the pirates who stole it. As a reward, we can have Captain Renwick upgrade the hull of your ship. Note that his upgrades won't be transferable if you buy a new ship! Come back with the ship you wish to upgrade.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Space Corps is indebted to you for destroying the Scarab and the pirates who stole it. As a reward, we can have Captain Renwick upgrade the hull of your ship. Note that his upgrades won't be transferable if you buy a new ship! Come back with the ship you wish to upgrade.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.GetHullUpgraded)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.GetHullUpgraded)
     assertEqual(game.commander.ship.upgradedHull, false)
-    assertEqual(game.scarabStatus, SSSTScarabQuestStatus.ScarabDestroyed)
+    assertEqual(game.scarabStatus, ScarabQuestStatus.ScarabDestroyed)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Get your hull upgraded at Khefka.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.GetHullUpgraded)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.GetHullUpgraded)
     assertEqual(game2.commander.ship.upgradedHull, false)
-    assertEqual(game2.scarabStatus, SSSTScarabQuestStatus.ScarabDestroyed)
+    assertEqual(game2.scarabStatus, ScarabQuestStatus.ScarabDestroyed)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Get your hull upgraded at Khefka.")
 
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_No", "click")
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "The organic hull used in the Scarab is still not ready for day-to-day use. But Captain Renwick can certainly upgrade your hull with some of his retrofit technology. It's light stuff, and won't reduce your ship's range. Should he upgrade your ship?")
+    assertEqual(AlertViewController.currentAlertTitle(), "The organic hull used in the Scarab is still not ready for day-to-day use. But Captain Renwick can certainly upgrade your hull with some of his retrofit technology. It's light stuff, and won't reduce your ship's range. Should he upgrade your ship?")
 
     replay.replayEvent("alertButton_Yes", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Technicians spent the day replacing welds and bolts, and adding materials to your ship. When they're done, they tell you your ship should be significantly sturdier.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Technicians spent the day replacing welds and bolts, and adding materials to your ship. When they're done, they tell you your ship should be significantly sturdier.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -1478,17 +1478,17 @@ export class UnitTests {
     assertEqual(repairDiv.innerHTML, `Your hull strength is at 100%.<br>Your ship has an upgraded hull.<br><input type="checkbox" id="autoRepairCheckbox"><label for="autoRepairCheckbox">Automatically buy repairs upon arrival</label><br><br><button id="buy_escape_pod">Buy an escape pod for $2000</button>`)
 
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
     assertEqual(game.commander.ship.upgradedHull, true)
-    assertEqual(game.scarabStatus, SSSTScarabQuestStatus.Closed)
+    assertEqual(game.scarabStatus, ScarabQuestStatus.Closed)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "No open quests.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
     assertEqual(game2.commander.ship.upgradedHull, true)
-    assertEqual(game2.scarabStatus, SSSTScarabQuestStatus.Closed)
+    assertEqual(game2.scarabStatus, ScarabQuestStatus.Closed)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "No open quests.")
 
@@ -1507,7 +1507,7 @@ export class UnitTests {
     const game = stG.viewController._game
 
     // reputationScore is too low for Special to show up
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.Scarab)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.Scarab)
     let specialEl = document.getElementById("Special")
     assertEqual(specialEl, null)
 
@@ -1525,13 +1525,13 @@ export class UnitTests {
     this._replaySkipEncounters(replay)
 
     // Shows up now
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.Scarab)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.Scarab)
     specialEl = document.getElementById("Special")
     assertEqual(specialEl !== null, true)
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Captain Renwick developed a new organic hull material for his ship which cannot be damaged except by Pulse lasers. While he was celebrating this success, pirates boarded and stole the craft, which they have named the Scarab. Rumors suggest it's being hidden at the exit to a wormhole. Destroy the ship for a reward!")
+    assertEqual(AlertViewController.currentAlertTitle(), "Captain Renwick developed a new organic hull material for his ship which cannot be damaged except by Pulse lasers. While he was celebrating this success, pirates boarded and stole the craft, which they have named the Scarab. Rumors suggest it's being hidden at the exit to a wormhole. Destroy the ship for a reward!")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -1614,19 +1614,19 @@ export class UnitTests {
     replay.replayEvent("Special", "click")
 
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Galactic criminal Henry Morgan wants this illegal ion reactor delivered to Nix. It's a very dangerous mission! The reactor and its fuel are bulky, taking up 15 bays. Worse, it's not stable -- its resonant energy will weaken your shields and hull strength while it's aboard your ship. Are you willing to deliver it?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Galactic criminal Henry Morgan wants this illegal ion reactor delivered to Nix. It's a very dangerous mission! The reactor and its fuel are bulky, taking up 15 bays. Worse, it's not stable -- its resonant energy will weaken your shields and hull strength while it's aboard your ship. Are you willing to deliver it?")
 
     replay.replayEvent("alertButton_No", "click")
 
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
-    assertEqual(game.reactorStatus, SSSTReactorQuestStatus.DaysRemaining._20)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20)
 
     assertEqual(game.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game.questListDescription(), "Deliver the unstable reactor to Nix for Henry Morgan.")
@@ -1636,16 +1636,16 @@ export class UnitTests {
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
-    assertEqual(game2.reactorStatus, SSSTReactorQuestStatus.DaysRemaining._20)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20)
     assertEqual(game2.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game2.questListDescription(), "Deliver the unstable reactor to Nix for Henry Morgan.")
 
 
 
     const breakConditionFn = () => {
-      const alertTitle = SSSTAlertViewController.currentAlertTitle()
+      const alertTitle = AlertViewController.currentAlertTitle()
       return alertTitle && alertTitle.toLowerCase().includes("reactor")
     }
 
@@ -1655,7 +1655,7 @@ export class UnitTests {
     const expectedFuel = [10, 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1]
 
     let loopCycles = 0
-    for (loopCycles = 0; loopCycles < 100 && game.reactorStatus < SSSTReactorQuestStatus.DaysRemaining._1-1; ++loopCycles) {
+    for (loopCycles = 0; loopCycles < 100 && game.reactorStatus < ReactorQuestStatus.DaysRemaining._1-1; ++loopCycles) {
       const prevReactorStatus = game.reactorStatus
 
       replay.replayEvent("Warp", "click")
@@ -1663,7 +1663,7 @@ export class UnitTests {
 
       this._replaySkipEncounters(replay, breakConditionFn)
 
-      const alertTitle = SSSTAlertViewController.currentAlertTitle()
+      const alertTitle = AlertViewController.currentAlertTitle()
       if (alertTitle && [2, 16, 18].includes(game.reactorStatus)) {
         seenAlertTitles.push(alertTitle)
         replay.replayEvent("alertButton_Dismiss", "click")
@@ -1671,7 +1671,7 @@ export class UnitTests {
 
       assertEqual(game.reactorStatus, prevReactorStatus+1)
       const reactorFuelRemaining = expectedFuel[loopCycles]
-      assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 5 + reactorFuelRemaining)
+      assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 5 + reactorFuelRemaining)
       const baysStr = reactorFuelRemaining === 1 ? "bay" : "bays"
       assertEqual(game.specialCargoDescription(), `An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up ${reactorFuelRemaining} ${baysStr}.`)
       assertEqual(game.questListDescription(), "Deliver the unstable reactor to Nix before it consumes all of its fuel.")
@@ -1680,7 +1680,7 @@ export class UnitTests {
       game2 = this._serializeAndDeserialize(game)
       assertEqualGames(game, game2)
       assertEqual(game2.reactorStatus, prevReactorStatus+1)
-      assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 5 + reactorFuelRemaining)
+      assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 5 + reactorFuelRemaining)
       assertEqual(game2.specialCargoDescription(), `An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up ${reactorFuelRemaining} ${baysStr}.`)
       assertEqual(game2.questListDescription(), "Deliver the unstable reactor to Nix before it consumes all of its fuel.")
     }
@@ -1704,32 +1704,32 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Henry Morgan takes delivery of the reactor with great glee. His men immediately set about stabilizing the fuel system. As a reward, Morgan offers you a special, high-powered laser that he designed. Return with an empty weapon slot when you want it installed.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Henry Morgan takes delivery of the reactor with great glee. His men immediately set about stabilizing the fuel system. As a reward, Morgan offers you a special, high-powered laser that he designed. Return with an empty weapon slot when you want it installed.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.GetSpecialLaser)
-    assertEqual(game.reactorStatus, SSSTReactorQuestStatus.ClosedSaved)
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 0)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.GetSpecialLaser)
+    assertEqual(game.reactorStatus, ReactorQuestStatus.ClosedSaved)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 0)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), `Get your special laser at Nix.`)
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.GetSpecialLaser)
-    assertEqual(game2.reactorStatus, SSSTReactorQuestStatus.ClosedSaved)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 0)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.GetSpecialLaser)
+    assertEqual(game2.reactorStatus, ReactorQuestStatus.ClosedSaved)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 0)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), `Get your special laser at Nix.`)
 
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Morgan's technicians are standing by with something that looks a lot like a military laser -- if you ignore the additional cooling vents and anodized ducts. Do you want them to install Morgan's special laser?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Morgan's technicians are standing by with something that looks a lot like a military laser -- if you ignore the additional cooling vents and anodized ducts. Do you want them to install Morgan's special laser?")
 
     replay.replayEvent("alertButton_No", "click")
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You have already filled all of your available weapon slots.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You have already filled all of your available weapon slots.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
     replay.replayEvent("Equipment", "click")
@@ -1738,26 +1738,26 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You now have Henry Morgan's special laser installed on your ship.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You now have Henry Morgan's special laser installed on your ship.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMorgansLaser), true)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMorgansLaser), true)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "No open quests.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game2.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMorgansLaser), true)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMorgansLaser), true)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "No open quests.")
 
     replay.replayEvent("Warp", "click")
     replay.replayEvent("warpBlastOff", "click")
     replay.replayEvent("ecButton_Auto_Attack", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You have destroyed your opponent.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You have destroyed your opponent.")
     replay.replayEvent("alertButton_Dismiss", "click")
   }
 
@@ -1772,19 +1772,19 @@ export class UnitTests {
     replay.replayEvent("Special", "click")
 
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Galactic criminal Henry Morgan wants this illegal ion reactor delivered to Nix. It's a very dangerous mission! The reactor and its fuel are bulky, taking up 15 bays. Worse, it's not stable -- its resonant energy will weaken your shields and hull strength while it's aboard your ship. Are you willing to deliver it?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Galactic criminal Henry Morgan wants this illegal ion reactor delivered to Nix. It's a very dangerous mission! The reactor and its fuel are bulky, taking up 15 bays. Worse, it's not stable -- its resonant energy will weaken your shields and hull strength while it's aboard your ship. Are you willing to deliver it?")
 
     replay.replayEvent("alertButton_No", "click")
 
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
-    assertEqual(game.reactorStatus, SSSTReactorQuestStatus.DaysRemaining._20)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20)
 
     assertEqual(game.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game.questListDescription(), "Deliver the unstable reactor to Nix for Henry Morgan.")
@@ -1794,16 +1794,16 @@ export class UnitTests {
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
-    assertEqual(game2.reactorStatus, SSSTReactorQuestStatus.DaysRemaining._20)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20)
     assertEqual(game2.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game2.questListDescription(), "Deliver the unstable reactor to Nix for Henry Morgan.")
 
 
 
     const breakConditionFn = () => {
-      const alertTitle = SSSTAlertViewController.currentAlertTitle()
+      const alertTitle = AlertViewController.currentAlertTitle()
       return alertTitle && alertTitle.toLowerCase().includes("reactor")
     }
 
@@ -1813,7 +1813,7 @@ export class UnitTests {
     const expectedFuel = [10, 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1]
 
     let loopCycles = 0
-    for (loopCycles = 0; loopCycles < 100 && game.reactorStatus < SSSTReactorQuestStatus.DaysRemaining._1-1; ++loopCycles) {
+    for (loopCycles = 0; loopCycles < 100 && game.reactorStatus < ReactorQuestStatus.DaysRemaining._1-1; ++loopCycles) {
       const prevReactorStatus = game.reactorStatus
 
       replay.replayEvent("Warp", "click")
@@ -1821,7 +1821,7 @@ export class UnitTests {
 
       this._replaySkipEncounters(replay, breakConditionFn)
 
-      const alertTitle = SSSTAlertViewController.currentAlertTitle()
+      const alertTitle = AlertViewController.currentAlertTitle()
       if (alertTitle && [2, 16, 18].includes(game.reactorStatus)) {
         seenAlertTitles.push(alertTitle)
         replay.replayEvent("alertButton_Dismiss", "click")
@@ -1829,7 +1829,7 @@ export class UnitTests {
 
       assertEqual(game.reactorStatus, prevReactorStatus+1)
       const reactorFuelRemaining = expectedFuel[loopCycles]
-      assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 5 + reactorFuelRemaining)
+      assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 5 + reactorFuelRemaining)
       const baysStr = reactorFuelRemaining === 1 ? "bay" : "bays"
       assertEqual(game.specialCargoDescription(), `An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up ${reactorFuelRemaining} ${baysStr}.`)
       assertEqual(game.questListDescription(), "Deliver the unstable reactor to Nix before it consumes all of its fuel.")
@@ -1838,7 +1838,7 @@ export class UnitTests {
       game2 = this._serializeAndDeserialize(game)
       assertEqualGames(game, game2)
       assertEqual(game2.reactorStatus, prevReactorStatus+1)
-      assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 5 + reactorFuelRemaining)
+      assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 5 + reactorFuelRemaining)
       assertEqual(game2.specialCargoDescription(), `An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up ${reactorFuelRemaining} ${baysStr}.`)
       assertEqual(game2.questListDescription(), "Deliver the unstable reactor to Nix before it consumes all of its fuel.")
     }
@@ -1858,22 +1858,22 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay, breakConditionFn)
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Just as you approach the docking bay, the reactor explodes into a huge radioactive fireball!")
+    assertEqual(AlertViewController.currentAlertTitle(), "Just as you approach the docking bay, the reactor explodes into a huge radioactive fireball!")
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.reactorStatus, SSSTReactorQuestStatus.ClosedTooLate)
+    assertEqual(game.reactorStatus, ReactorQuestStatus.ClosedTooLate)
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You are destroyed along with your ship as a result of the explosion.");
+    assertEqual(AlertViewController.currentAlertTitle(), "You are destroyed along with your ship as a result of the explosion.");
     replay.replayEvent("alertButton_Dismiss", "click")
 
     assertEqual(document.getElementById("endgame") !== null, true)
-    assertEqual(game.endStatus, SSSTGameEndStatus.Killed)
+    assertEqual(game.endStatus, GameEndStatus.Killed)
 
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.reactorStatus, SSSTReactorQuestStatus.ClosedTooLate)
-    assertEqual(game2.endStatus, SSSTGameEndStatus.Killed)
+    assertEqual(game2.reactorStatus, ReactorQuestStatus.ClosedTooLate)
+    assertEqual(game2.endStatus, GameEndStatus.Killed)
   }
 
   test_ionReactor_tooLate_escapePod() {
@@ -1887,19 +1887,19 @@ export class UnitTests {
     replay.replayEvent("Special", "click")
 
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Galactic criminal Henry Morgan wants this illegal ion reactor delivered to Nix. It's a very dangerous mission! The reactor and its fuel are bulky, taking up 15 bays. Worse, it's not stable -- its resonant energy will weaken your shields and hull strength while it's aboard your ship. Are you willing to deliver it?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Galactic criminal Henry Morgan wants this illegal ion reactor delivered to Nix. It's a very dangerous mission! The reactor and its fuel are bulky, taking up 15 bays. Worse, it's not stable -- its resonant energy will weaken your shields and hull strength while it's aboard your ship. Are you willing to deliver it?")
 
     replay.replayEvent("alertButton_No", "click")
 
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
-    assertEqual(game.reactorStatus, SSSTReactorQuestStatus.DaysRemaining._20)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20)
 
     assertEqual(game.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game.questListDescription(), "Deliver the unstable reactor to Nix for Henry Morgan.")
@@ -1909,16 +1909,16 @@ export class UnitTests {
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
-    assertEqual(game2.reactorStatus, SSSTReactorQuestStatus.DaysRemaining._20)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20)
     assertEqual(game2.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game2.questListDescription(), "Deliver the unstable reactor to Nix for Henry Morgan.")
 
 
 
     const breakConditionFn = () => {
-      const alertTitle = SSSTAlertViewController.currentAlertTitle()
+      const alertTitle = AlertViewController.currentAlertTitle()
       return alertTitle && alertTitle.toLowerCase().includes("reactor")
     }
 
@@ -1928,7 +1928,7 @@ export class UnitTests {
     const expectedFuel = [10, 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1]
 
     let loopCycles = 0
-    for (loopCycles = 0; loopCycles < 100 && game.reactorStatus < SSSTReactorQuestStatus.DaysRemaining._1-1; ++loopCycles) {
+    for (loopCycles = 0; loopCycles < 100 && game.reactorStatus < ReactorQuestStatus.DaysRemaining._1-1; ++loopCycles) {
       const prevReactorStatus = game.reactorStatus
 
       replay.replayEvent("Warp", "click")
@@ -1936,7 +1936,7 @@ export class UnitTests {
 
       this._replaySkipEncounters(replay, breakConditionFn)
 
-      const alertTitle = SSSTAlertViewController.currentAlertTitle()
+      const alertTitle = AlertViewController.currentAlertTitle()
       if (alertTitle && [2, 16, 18].includes(game.reactorStatus)) {
         seenAlertTitles.push(alertTitle)
         replay.replayEvent("alertButton_Dismiss", "click")
@@ -1944,7 +1944,7 @@ export class UnitTests {
 
       assertEqual(game.reactorStatus, prevReactorStatus+1)
       const reactorFuelRemaining = expectedFuel[loopCycles]
-      assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 5 + reactorFuelRemaining)
+      assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 5 + reactorFuelRemaining)
       const baysStr = reactorFuelRemaining === 1 ? "bay" : "bays"
       assertEqual(game.specialCargoDescription(), `An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up ${reactorFuelRemaining} ${baysStr}.`)
       assertEqual(game.questListDescription(), "Deliver the unstable reactor to Nix before it consumes all of its fuel.")
@@ -1953,7 +1953,7 @@ export class UnitTests {
       game2 = this._serializeAndDeserialize(game)
       assertEqualGames(game, game2)
       assertEqual(game2.reactorStatus, prevReactorStatus+1)
-      assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 5 + reactorFuelRemaining)
+      assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 5 + reactorFuelRemaining)
       assertEqual(game2.specialCargoDescription(), `An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up ${reactorFuelRemaining} ${baysStr}.`)
       assertEqual(game2.questListDescription(), "Deliver the unstable reactor to Nix before it consumes all of its fuel.")
     }
@@ -1977,27 +1977,27 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay, breakConditionFn)
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Just as you approach the docking bay, the reactor explodes into a huge radioactive fireball!")
+    assertEqual(AlertViewController.currentAlertTitle(), "Just as you approach the docking bay, the reactor explodes into a huge radioactive fireball!")
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.reactorStatus, SSSTReactorQuestStatus.ClosedTooLate)
+    assertEqual(game.reactorStatus, ReactorQuestStatus.ClosedTooLate)
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Just before the final demise of your ship, your escape pod gets activated and ejects you. After a few days, the Space Corps picks you up and drops you off at a nearby space port.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Just before the final demise of your ship, your escape pod gets activated and ejects you. After a few days, the Space Corps picks you up and drops you off at a nearby space port.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "In 3 days and with $500, you manage to convert your pod into a Flea.")
+    assertEqual(AlertViewController.currentAlertTitle(), "In 3 days and with $500, you manage to convert your pod into a Flea.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
 
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 0)
-    assertEqual(game.reactorStatus, SSSTReactorQuestStatus.ClosedTooLate)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 0)
+    assertEqual(game.reactorStatus, ReactorQuestStatus.ClosedTooLate)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "No open quests.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 0)
-    assertEqual(game2.reactorStatus, SSSTReactorQuestStatus.ClosedTooLate)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 0)
+    assertEqual(game2.reactorStatus, ReactorQuestStatus.ClosedTooLate)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "No open quests.")
   }
@@ -2013,19 +2013,19 @@ export class UnitTests {
     replay.replayEvent("Special", "click")
 
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Galactic criminal Henry Morgan wants this illegal ion reactor delivered to Nix. It's a very dangerous mission! The reactor and its fuel are bulky, taking up 15 bays. Worse, it's not stable -- its resonant energy will weaken your shields and hull strength while it's aboard your ship. Are you willing to deliver it?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Galactic criminal Henry Morgan wants this illegal ion reactor delivered to Nix. It's a very dangerous mission! The reactor and its fuel are bulky, taking up 15 bays. Worse, it's not stable -- its resonant energy will weaken your shields and hull strength while it's aboard your ship. Are you willing to deliver it?")
 
     replay.replayEvent("alertButton_No", "click")
 
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
-    assertEqual(game.reactorStatus, SSSTReactorQuestStatus.DaysRemaining._20)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20)
 
     assertEqual(game.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game.questListDescription(), "Deliver the unstable reactor to Nix for Henry Morgan.")
@@ -2035,9 +2035,9 @@ export class UnitTests {
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
-    assertEqual(game2.reactorStatus, SSSTReactorQuestStatus.DaysRemaining._20)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20)
     assertEqual(game2.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game2.questListDescription(), "Deliver the unstable reactor to Nix for Henry Morgan.")
 
@@ -2058,10 +2058,10 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Surrender", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Surrender? Ha! We want your HEAD!")
+    assertEqual(AlertViewController.currentAlertTitle(), "Surrender? Ha! We want your HEAD!")
 
     // Erase police record so next surrender works
-    game.commander.policeRecordScore = SSSTPoliceRecordScore.Clean;
+    game.commander.policeRecordScore = PoliceRecordScore.Clean;
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -2078,21 +2078,21 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Surrender", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "If you surrender, you will spend some time in prison and will have to pay a hefty fine. Additionally, the police will destroy the Ion Reactor. Are you sure you want to do that?")
+    assertEqual(AlertViewController.currentAlertTitle(), "If you surrender, you will spend some time in prison and will have to pay a hefty fine. Additionally, the police will destroy the Ion Reactor. Are you sure you want to do that?")
     replay.replayEvent("alertButton_Surrender", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), `You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to 33 days in prison and a fine of $299000.\nThe police impounded all of the illegal goods you had on board.\nThe police confiscated the Ion Reactor as evidence of your dealings with unsavory characters. The bad news is that you've lost the Ion Reactor. The good news is that you no longer have to worry about managing its depleting fuel store.`)
+    assertEqual(AlertViewController.currentAlertTitle(), `You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to 33 days in prison and a fine of $299000.\nThe police impounded all of the illegal goods you had on board.\nThe police confiscated the Ion Reactor as evidence of your dealings with unsavory characters. The bad news is that you've lost the Ion Reactor. The good news is that you no longer have to worry about managing its depleting fuel store.`)
     replay.replayEvent("alertButton_Dismiss", "click")
 
 
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 0)
-    assertEqual(game.reactorStatus, SSSTReactorQuestStatus.ClosedTooLate)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 0)
+    assertEqual(game.reactorStatus, ReactorQuestStatus.ClosedTooLate)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "No open quests.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 0)
-    assertEqual(game2.reactorStatus, SSSTReactorQuestStatus.ClosedTooLate)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 0)
+    assertEqual(game2.reactorStatus, ReactorQuestStatus.ClosedTooLate)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "No open quests.")
   }
@@ -2124,13 +2124,13 @@ export class UnitTests {
     replay.replayEvent("warpBlastOff", "click")
 
     const breakConditionFn = () => {
-      const alertTitle = SSSTAlertViewController.currentAlertTitle()
+      const alertTitle = AlertViewController.currentAlertTitle()
       return alertTitle && alertTitle.toLowerCase().includes("tribbles")
     }
 
     this._replaySkipEncounters(replay, breakConditionFn)
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "The radiation from the Ion Reactor is deadly to Tribbles. All of the Tribbles on board your ship have died.");
+    assertEqual(AlertViewController.currentAlertTitle(), "The radiation from the Ion Reactor is deadly to Tribbles. All of the Tribbles on board your ship have died.");
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -2157,19 +2157,19 @@ export class UnitTests {
     replay.replayEvent("Special", "click")
 
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Galactic criminal Henry Morgan wants this illegal ion reactor delivered to Nix. It's a very dangerous mission! The reactor and its fuel are bulky, taking up 15 bays. Worse, it's not stable -- its resonant energy will weaken your shields and hull strength while it's aboard your ship. Are you willing to deliver it?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Galactic criminal Henry Morgan wants this illegal ion reactor delivered to Nix. It's a very dangerous mission! The reactor and its fuel are bulky, taking up 15 bays. Worse, it's not stable -- its resonant energy will weaken your shields and hull strength while it's aboard your ship. Are you willing to deliver it?")
 
     replay.replayEvent("alertButton_No", "click")
 
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
-    assertEqual(game.reactorStatus, SSSTReactorQuestStatus.DaysRemaining._20)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20)
 
     assertEqual(game.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game.questListDescription(), "Deliver the unstable reactor to Nix for Henry Morgan.")
@@ -2179,16 +2179,16 @@ export class UnitTests {
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
-    assertEqual(game2.reactorStatus, SSSTReactorQuestStatus.DaysRemaining._20)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20)
     assertEqual(game2.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game2.questListDescription(), "Deliver the unstable reactor to Nix for Henry Morgan.")
 
 
 
     const breakConditionFn = () => {
-      const alertTitle = SSSTAlertViewController.currentAlertTitle()
+      const alertTitle = AlertViewController.currentAlertTitle()
       return alertTitle && alertTitle.toLowerCase().includes("reactor")
     }
 
@@ -2198,7 +2198,7 @@ export class UnitTests {
     const expectedFuel = [10, 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1]
 
     let loopCycles = 0
-    for (loopCycles = 0; loopCycles < 100 && game.reactorStatus < SSSTReactorQuestStatus.DaysRemaining._1-9; ++loopCycles) {
+    for (loopCycles = 0; loopCycles < 100 && game.reactorStatus < ReactorQuestStatus.DaysRemaining._1-9; ++loopCycles) {
       const prevReactorStatus = game.reactorStatus
 
       replay.replayEvent("Warp", "click")
@@ -2206,7 +2206,7 @@ export class UnitTests {
 
       this._replaySkipEncounters(replay, breakConditionFn)
 
-      const alertTitle = SSSTAlertViewController.currentAlertTitle()
+      const alertTitle = AlertViewController.currentAlertTitle()
       if (alertTitle && [2, 16, 18].includes(game.reactorStatus)) {
         seenAlertTitles.push(alertTitle)
         replay.replayEvent("alertButton_Dismiss", "click")
@@ -2214,7 +2214,7 @@ export class UnitTests {
 
       assertEqual(game.reactorStatus, prevReactorStatus+1)
       const reactorFuelRemaining = expectedFuel[loopCycles]
-      assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 5 + reactorFuelRemaining)
+      assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 5 + reactorFuelRemaining)
       const baysStr = reactorFuelRemaining === 1 ? "bay" : "bays"
       assertEqual(game.specialCargoDescription(), `An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up ${reactorFuelRemaining} ${baysStr}.`)
       assertEqual(game.questListDescription(), "Deliver the unstable reactor to Nix before it consumes all of its fuel.")
@@ -2223,7 +2223,7 @@ export class UnitTests {
       game2 = this._serializeAndDeserialize(game)
       assertEqualGames(game, game2)
       assertEqual(game2.reactorStatus, prevReactorStatus+1)
-      assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 5 + reactorFuelRemaining)
+      assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 5 + reactorFuelRemaining)
       assertEqual(game2.specialCargoDescription(), `An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up ${reactorFuelRemaining} ${baysStr}.`)
       assertEqual(game2.questListDescription(), "Deliver the unstable reactor to Nix before it consumes all of its fuel.")
     }
@@ -2247,32 +2247,32 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Henry Morgan takes delivery of the reactor with great glee. His men immediately set about stabilizing the fuel system. As a reward, Morgan offers you a special, high-powered laser that he designed. Return with an empty weapon slot when you want it installed.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Henry Morgan takes delivery of the reactor with great glee. His men immediately set about stabilizing the fuel system. As a reward, Morgan offers you a special, high-powered laser that he designed. Return with an empty weapon slot when you want it installed.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.GetSpecialLaser)
-    assertEqual(game.reactorStatus, SSSTReactorQuestStatus.ClosedSaved)
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 0)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.GetSpecialLaser)
+    assertEqual(game.reactorStatus, ReactorQuestStatus.ClosedSaved)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 0)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), `Get your special laser at Nix.`)
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.GetSpecialLaser)
-    assertEqual(game2.reactorStatus, SSSTReactorQuestStatus.ClosedSaved)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 0)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.GetSpecialLaser)
+    assertEqual(game2.reactorStatus, ReactorQuestStatus.ClosedSaved)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 0)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), `Get your special laser at Nix.`)
 
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Morgan's technicians are standing by with something that looks a lot like a military laser -- if you ignore the additional cooling vents and anodized ducts. Do you want them to install Morgan's special laser?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Morgan's technicians are standing by with something that looks a lot like a military laser -- if you ignore the additional cooling vents and anodized ducts. Do you want them to install Morgan's special laser?")
 
     replay.replayEvent("alertButton_No", "click")
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You have already filled all of your available weapon slots.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You have already filled all of your available weapon slots.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
     replay.replayEvent("Equipment", "click")
@@ -2281,26 +2281,26 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You now have Henry Morgan's special laser installed on your ship.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You now have Henry Morgan's special laser installed on your ship.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMorgansLaser), true)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMorgansLaser), true)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "No open quests.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game2.commander.ship.hasWeaponOfType(SSSTAccessoryType.WeaponMorgansLaser), true)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMorgansLaser), true)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "No open quests.")
 
     replay.replayEvent("Warp", "click")
     replay.replayEvent("warpBlastOff", "click")
     replay.replayEvent("ecButton_Auto_Attack", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You have destroyed your opponent.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You have destroyed your opponent.")
     replay.replayEvent("alertButton_Dismiss", "click")
   }
 
@@ -2319,7 +2319,7 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You don't have enough empty cargo bays at the moment.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You don't have enough empty cargo bays at the moment.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -2329,22 +2329,22 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
-    assertEqual(game.reactorStatus, SSSTReactorQuestStatus.DaysRemaining._20)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20)
 
     assertEqual(game.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game.questListDescription(), "Deliver the unstable reactor to Nix for Henry Morgan.")
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
-    assertEqual(game2.reactorStatus, SSSTReactorQuestStatus.DaysRemaining._20)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20)
     assertEqual(game2.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game2.questListDescription(), "Deliver the unstable reactor to Nix for Henry Morgan.")
   }
@@ -2359,22 +2359,22 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
-    assertEqual(game.reactorStatus, SSSTReactorQuestStatus.DaysRemaining._20)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20)
 
     assertEqual(game.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game.questListDescription(), "Deliver the unstable reactor to Nix for Henry Morgan.")
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
-    assertEqual(game2.reactorStatus, SSSTReactorQuestStatus.DaysRemaining._20)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20)
     assertEqual(game2.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game2.questListDescription(), "Deliver the unstable reactor to Nix for Henry Morgan.")
 
@@ -2389,19 +2389,19 @@ export class UnitTests {
     replay.replayEvent("buyship_Termite", "click")
 
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Sorry! We can't take your ship as a trade-in. That Ion Reactor looks dangerous, and we have no way of removing it. Come back when you've gotten rid of it.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Sorry! We can't take your ship as a trade-in. That Ion Reactor looks dangerous, and we have no way of removing it. Come back when you've gotten rid of it.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.ship.type, SSSTShipModelType.Wasp)
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game.commander.ship.type, ShipModelType.Wasp)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
     assertEqual(game.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game.questListDescription(), "Deliver the unstable reactor to Nix before it consumes all of its fuel.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.ship.type, SSSTShipModelType.Wasp)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game2.commander.ship.type, ShipModelType.Wasp)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
     assertEqual(game2.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game2.questListDescription(), "Deliver the unstable reactor to Nix before it consumes all of its fuel.")
   }
@@ -2416,22 +2416,22 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
-    assertEqual(game.reactorStatus, SSSTReactorQuestStatus.DaysRemaining._20)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20)
 
     assertEqual(game.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game.questListDescription(), "Deliver the unstable reactor to Nix for Henry Morgan.")
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 15)
-    assertEqual(game2.reactorStatus, SSSTReactorQuestStatus.DaysRemaining._20)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 15)
+    assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20)
     assertEqual(game2.specialCargoDescription(), "An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
     assertEqual(game2.questListDescription(), "Deliver the unstable reactor to Nix for Henry Morgan.")
 
@@ -2459,24 +2459,24 @@ export class UnitTests {
     replay.replayEvent("ecButton_Ignore", "click")
     replay.replayEvent("ecButton_Auto_Attack", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Just before the final demise of your ship, your escape pod gets activated and ejects you. The destruction of your ship is made much more spectacular by the added explosion of the Ion Reactor. After a few days, the Space Corps picks you up and drops you off at a nearby space port.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Just before the final demise of your ship, your escape pod gets activated and ejects you. The destruction of your ship is made much more spectacular by the added explosion of the Ion Reactor. After a few days, the Space Corps picks you up and drops you off at a nearby space port.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "In 3 days and with $500, you manage to convert your pod into a Flea.")
+    assertEqual(AlertViewController.currentAlertTitle(), "In 3 days and with $500, you manage to convert your pod into a Flea.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
 
-    assertEqual(game.commander.ship.type, SSSTShipModelType.Flea)
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 0)
-    assertEqual(game.reactorStatus, SSSTReactorQuestStatus.ClosedTooLate)
+    assertEqual(game.commander.ship.type, ShipModelType.Flea)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 0)
+    assertEqual(game.reactorStatus, ReactorQuestStatus.ClosedTooLate)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "No open quests.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.ship.type, SSSTShipModelType.Flea)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargoReactor), 0)
-    assertEqual(game2.reactorStatus, SSSTReactorQuestStatus.ClosedTooLate)
+    assertEqual(game2.commander.ship.type, ShipModelType.Flea)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 0)
+    assertEqual(game2.reactorStatus, ReactorQuestStatus.ClosedTooLate)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "No open quests.")
   }
@@ -2495,19 +2495,19 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "While reviewing the plans for Dr. Fehler's new space-warping drive, Dr. Lowenstam discovered a critical error. If you don't go to Daled and stop the experiment within ten days, the space-time continuum itself could be damaged!")
+    assertEqual(AlertViewController.currentAlertTitle(), "While reviewing the plans for Dr. Fehler's new space-warping drive, Dr. Lowenstam discovered a critical error. If you don't go to Daled and stop the experiment within ten days, the space-time continuum itself could be damaged!")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._10)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._10)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 10 days.")
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._10)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._10)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 10 days.")
 
@@ -2520,13 +2520,13 @@ export class UnitTests {
     this._replaySkipEncounters(replay)
 
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._9)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._9)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 9 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._9)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._9)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 9 days.")
 
@@ -2536,13 +2536,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._8)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._8)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 8 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._8)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._8)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 8 days.")
 
@@ -2559,13 +2559,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._7)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._7)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 7 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._7)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._7)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 7 days.")
 
@@ -2575,33 +2575,33 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._6)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._6)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 6 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._6)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._6)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 6 days.")
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Upon your warning, Dr. Fehler calls off the experiment. As a reward, you are given a Portable Singularity. This device will, for one time only, instantaneously transport you to any system in the galaxy. The Singularity can be accessed on the Galactic Chart.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Upon your warning, Dr. Fehler calls off the experiment. As a reward, you are given a Portable Singularity. This device will, for one time only, instantaneously transport you to any system in the galaxy. The Singularity can be accessed on the Galactic Chart.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
     assertEqual(game.canSuperWarp, true)
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.ClosedSaved)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.ClosedSaved)
     assertEqual(game.specialCargoDescription(), "A Portable Singularity.")
     assertEqual(game.questListDescription(), "No open quests.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
     assertEqual(game2.canSuperWarp, true)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.ClosedSaved)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.ClosedSaved)
     assertEqual(game2.specialCargoDescription(), "A Portable Singularity.")
     assertEqual(game2.questListDescription(), "No open quests.")
   }
@@ -2620,19 +2620,19 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "While reviewing the plans for Dr. Fehler's new space-warping drive, Dr. Lowenstam discovered a critical error. If you don't go to Daled and stop the experiment within ten days, the space-time continuum itself could be damaged!")
+    assertEqual(AlertViewController.currentAlertTitle(), "While reviewing the plans for Dr. Fehler's new space-warping drive, Dr. Lowenstam discovered a critical error. If you don't go to Daled and stop the experiment within ten days, the space-time continuum itself could be damaged!")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._10)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._10)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 10 days.")
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._10)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._10)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 10 days.")
 
@@ -2645,13 +2645,13 @@ export class UnitTests {
     this._replaySkipEncounters(replay)
 
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._9)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._9)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 9 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._9)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._9)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 9 days.")
 
@@ -2661,13 +2661,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._8)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._8)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 8 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._8)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._8)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 8 days.")
 
@@ -2684,13 +2684,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._7)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._7)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 7 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._7)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._7)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 7 days.")
 
@@ -2700,13 +2700,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._6)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._6)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 6 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._6)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._6)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 6 days.")
 
@@ -2716,13 +2716,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._5)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._5)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 5 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._5)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._5)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 5 days.")
 
@@ -2731,13 +2731,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._4)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._4)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 4 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._4)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._4)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 4 days.")
 
@@ -2747,13 +2747,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._3)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._3)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 3 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._3)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._3)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 3 days.")
 
@@ -2762,13 +2762,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._2)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._2)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled by end of tomorrow.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._2)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._2)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled by end of tomorrow.")
 
@@ -2777,13 +2777,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._1)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._1)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled today.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._1)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._1)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled today.")
 
@@ -2794,33 +2794,33 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._1)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._1)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled today.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._1)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._1)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled today.")
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Upon your warning, Dr. Fehler calls off the experiment. As a reward, you are given a Portable Singularity. This device will, for one time only, instantaneously transport you to any system in the galaxy. The Singularity can be accessed on the Galactic Chart.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Upon your warning, Dr. Fehler calls off the experiment. As a reward, you are given a Portable Singularity. This device will, for one time only, instantaneously transport you to any system in the galaxy. The Singularity can be accessed on the Galactic Chart.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
     assertEqual(game.canSuperWarp, true)
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.ClosedSaved)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.ClosedSaved)
     assertEqual(game.specialCargoDescription(), "A Portable Singularity.")
     assertEqual(game.questListDescription(), "No open quests.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
     assertEqual(game2.canSuperWarp, true)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.ClosedSaved)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.ClosedSaved)
     assertEqual(game2.specialCargoDescription(), "A Portable Singularity.")
     assertEqual(game2.questListDescription(), "No open quests.")
   }
@@ -2839,19 +2839,19 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "While reviewing the plans for Dr. Fehler's new space-warping drive, Dr. Lowenstam discovered a critical error. If you don't go to Daled and stop the experiment within ten days, the space-time continuum itself could be damaged!")
+    assertEqual(AlertViewController.currentAlertTitle(), "While reviewing the plans for Dr. Fehler's new space-warping drive, Dr. Lowenstam discovered a critical error. If you don't go to Daled and stop the experiment within ten days, the space-time continuum itself could be damaged!")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._10)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._10)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 10 days.")
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._10)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._10)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 10 days.")
 
@@ -2864,13 +2864,13 @@ export class UnitTests {
     this._replaySkipEncounters(replay)
 
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._9)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._9)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 9 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._9)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._9)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 9 days.")
 
@@ -2880,13 +2880,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._8)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._8)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 8 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._8)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._8)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 8 days.")
 
@@ -2903,13 +2903,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._7)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._7)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 7 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._7)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._7)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 7 days.")
 
@@ -2919,13 +2919,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._6)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._6)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 6 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._6)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._6)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 6 days.")
 
@@ -2935,13 +2935,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._5)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._5)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 5 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._5)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._5)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 5 days.")
 
@@ -2950,13 +2950,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._4)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._4)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 4 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._4)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._4)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 4 days.")
 
@@ -2966,13 +2966,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._3)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._3)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 3 days.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._3)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._3)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 3 days.")
 
@@ -2981,13 +2981,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._2)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._2)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled by end of tomorrow.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._2)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._2)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled by end of tomorrow.")
 
@@ -2996,13 +2996,13 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._1)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._1)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled today.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.DaysRemaining._1)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._1)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled today.")
 
@@ -3011,14 +3011,14 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.ClosedTooLate)
+    assertEqual(game.experimentStatus, ExperimentQuestStatus.ClosedTooLate)
     assertEqual(game.fabricRipProbability, FABRIC_RIP_PROBABILITY_INITIAL)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "No open quests.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.ClosedTooLate)
+    assertEqual(game2.experimentStatus, ExperimentQuestStatus.ClosedTooLate)
     assertEqual(game2.fabricRipProbability, FABRIC_RIP_PROBABILITY_INITIAL)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "No open quests.")
@@ -3026,7 +3026,7 @@ export class UnitTests {
     replay.replayEvent("Warp", "click")
     replay.replayEvent("warpBlastOff", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "The galaxy is abuzz with news of a terrible malfunction in Dr. Fehler's laboratory. Evidently, he was not warned in time and he performed his experiment... with disastrous results! You may not reach your planned destination!")
+    assertEqual(AlertViewController.currentAlertTitle(), "The galaxy is abuzz with news of a terrible malfunction in Dr. Fehler's laboratory. Evidently, he was not warned in time and he performed his experiment... with disastrous results! You may not reach your planned destination!")
     replay.replayEvent("alertButton_Dismiss", "click")
 
     this._replaySkipEncounters(replay)
@@ -3038,14 +3038,14 @@ export class UnitTests {
 
       this._replaySkipEncounters(replay)
 
-      assertEqual(game.experimentStatus, SSSTExperimentQuestStatus.ClosedTooLate)
+      assertEqual(game.experimentStatus, ExperimentQuestStatus.ClosedTooLate)
       assertEqual(game.fabricRipProbability, FABRIC_RIP_PROBABILITY_INITIAL - 2 - loopCycles)
       assertEqual(game.specialCargoDescription(), "No special items.")
       assertEqual(game.questListDescription(), "No open quests.")
 
       game2 = this._serializeAndDeserialize(game)
       assertEqualGames(game, game2)
-      assertEqual(game2.experimentStatus, SSSTExperimentQuestStatus.ClosedTooLate)
+      assertEqual(game2.experimentStatus, ExperimentQuestStatus.ClosedTooLate)
       assertEqual(game2.fabricRipProbability, FABRIC_RIP_PROBABILITY_INITIAL - 2 - loopCycles)
       assertEqual(game2.specialCargoDescription(), "No special items.")
       assertEqual(game2.questListDescription(), "No open quests.")
@@ -3067,19 +3067,19 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "A space monster has invaded the Acamar system and is disturbing the trade routes. You'll be rewarded handsomely if you manage to destroy it.")
+    assertEqual(AlertViewController.currentAlertTitle(), "A space monster has invaded the Acamar system and is disturbing the trade routes. You'll be rewarded handsomely if you manage to destroy it.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game.monsterStatus, SSSTMonsterQuestStatus.MonsterExists)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game.monsterStatus, MonsterQuestStatus.MonsterExists)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Kill the space monster at Acamar.")
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game2.monsterStatus, SSSTMonsterQuestStatus.MonsterExists)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game2.monsterStatus, MonsterQuestStatus.MonsterExists)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Kill the space monster at Acamar.")
 
@@ -3108,7 +3108,7 @@ export class UnitTests {
     this._replaySkipEncounters(replay)
 
     assertEqual(game.monsterHull, 299)
-    assertEqual(game.monsterStatus, SSSTMonsterQuestStatus.MonsterExists)
+    assertEqual(game.monsterStatus, MonsterQuestStatus.MonsterExists)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Kill the space monster at Acamar.")
     let specialEl = document.getElementById("Special")
@@ -3117,7 +3117,7 @@ export class UnitTests {
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqual(game2.monsterHull, 299)
-    assertEqual(game2.monsterStatus, SSSTMonsterQuestStatus.MonsterExists)
+    assertEqual(game2.monsterStatus, MonsterQuestStatus.MonsterExists)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Kill the space monster at Acamar.")
 
@@ -3149,14 +3149,14 @@ export class UnitTests {
     this._replaySkipEncounters(replay)
 
     assertEqual(game.monsterHull, 196)
-    assertEqual(game.monsterStatus, SSSTMonsterQuestStatus.MonsterExists)
+    assertEqual(game.monsterStatus, MonsterQuestStatus.MonsterExists)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Kill the space monster at Acamar.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqual(game2.monsterHull, 196)
-    assertEqual(game2.monsterStatus, SSSTMonsterQuestStatus.MonsterExists)
+    assertEqual(game2.monsterStatus, MonsterQuestStatus.MonsterExists)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Kill the space monster at Acamar.")
 
@@ -3188,20 +3188,20 @@ export class UnitTests {
     const creditsBefore = game.commander.credits
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "We thank you for destroying the space monster that circled our system for so long. Please accept $15000 as reward for your heroic deed.")
+    assertEqual(AlertViewController.currentAlertTitle(), "We thank you for destroying the space monster that circled our system for so long. Please accept $15000 as reward for your heroic deed.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
     assertEqual(game.commander.credits, creditsBefore+15000)
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game.monsterStatus, SSSTMonsterQuestStatus.ClosedMonsterDestroyed)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game.monsterStatus, MonsterQuestStatus.ClosedMonsterDestroyed)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "No open quests.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqual(game2.commander.credits, creditsBefore+15000)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
-    assertEqual(game2.monsterStatus, SSSTMonsterQuestStatus.ClosedMonsterDestroyed)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
+    assertEqual(game2.monsterStatus, MonsterQuestStatus.ClosedMonsterDestroyed)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "No open quests.")
   }
@@ -3221,21 +3221,21 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "A recent change in the political climate of this solar system has forced ambassador Jarek to flee back to his home system, Devidia. Would you be willing to give him a lift?")
+    assertEqual(AlertViewController.currentAlertTitle(), "A recent change in the political climate of this solar system has forced ambassador Jarek to flee back to his home system, Devidia. Would you be willing to give him a lift?")
 
     replay.replayEvent("alertButton_No", "click")
 
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You have taken Ambassador Jarek on board.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You have taken Ambassador Jarek on board.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
     assertEqual(game.commander.ship._crew[0].name, "Ambassador Jarek")
     assertEqual(game.commander.ship._crew[0].forQuest, true)
-    assertEqual(game.jarekStatus, SSSTJarekQuestStatus.OnBoard)
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game.jarekStatus, JarekQuestStatus.OnBoard)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
 
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Bring Ambassador Jarek to Devidia.")
@@ -3244,8 +3244,8 @@ export class UnitTests {
     assertEqualGames(game, game2)
     assertEqual(game2.commander.ship._crew[0].name, "Ambassador Jarek")
     assertEqual(game2.commander.ship._crew[0].forQuest, true)
-    assertEqual(game2.jarekStatus, SSSTJarekQuestStatus.OnBoard)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game2.jarekStatus, JarekQuestStatus.OnBoard)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
 
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Bring Ambassador Jarek to Devidia.")
@@ -3255,7 +3255,7 @@ export class UnitTests {
 
     const crewMember = game.commander.ship.crew[0]
     // We don't show hireFire button
-    assertEqual(document.getElementById(MAUtils.sanitizedElementID("hireFire_" + crewMember.name)), null)
+    assertEqual(document.getElementById(Utils.sanitizedElementID("hireFire_" + crewMember.name)), null)
 
     // He shows up with no cost, no skills
     const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
@@ -3274,27 +3274,27 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Ambassador Jarek is very grateful to you for delivering him back to Devidia. As a reward, he gives you an experimental handheld haggling computer, which allows you to gain larger discounts when purchasing goods and equipment.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Ambassador Jarek is very grateful to you for delivering him back to Devidia. As a reward, he gives you an experimental handheld haggling computer, which allows you to gain larger discounts when purchasing goods and equipment.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.jarekStatus, SSSTJarekQuestStatus.Closed)
+    assertEqual(game.jarekStatus, JarekQuestStatus.Closed)
     assertEqual(game.commander.carriesMaxTraderBoost, true)
     assertEqual(game.commander.ship._crew.length, 0)
     assertEqual(game.commander.ship.crewTraderSkillIncludingCommander(game.commander), traderSkillBefore+1)
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
 
     assertEqual(game.specialCargoDescription(), "A haggling computer.")
     assertEqual(game.questListDescription(), "No open quests.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.jarekStatus, SSSTJarekQuestStatus.Closed)
+    assertEqual(game2.jarekStatus, JarekQuestStatus.Closed)
     assertEqual(game2.commander.carriesMaxTraderBoost, true)
     assertEqual(game2.commander.ship._crew.length, 0)
     assertEqual(game2.commander.ship.crewTraderSkillIncludingCommander(game.commander), traderSkillBefore+1)
 
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
 
     assertEqual(game2.specialCargoDescription(), "A haggling computer.")
     assertEqual(game2.questListDescription(), "No open quests.")
@@ -3315,21 +3315,21 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "A recent change in the political climate of this solar system has forced ambassador Jarek to flee back to his home system, Devidia. Would you be willing to give him a lift?")
+    assertEqual(AlertViewController.currentAlertTitle(), "A recent change in the political climate of this solar system has forced ambassador Jarek to flee back to his home system, Devidia. Would you be willing to give him a lift?")
 
     replay.replayEvent("alertButton_No", "click")
 
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You have taken Ambassador Jarek on board.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You have taken Ambassador Jarek on board.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
     assertEqual(game.commander.ship._crew[0].name, "Ambassador Jarek")
     assertEqual(game.commander.ship._crew[0].forQuest, true)
-    assertEqual(game.jarekStatus, SSSTJarekQuestStatus.OnBoard)
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game.jarekStatus, JarekQuestStatus.OnBoard)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
 
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Bring Ambassador Jarek to Devidia.")
@@ -3338,8 +3338,8 @@ export class UnitTests {
     assertEqualGames(game, game2)
     assertEqual(game2.commander.ship._crew[0].name, "Ambassador Jarek")
     assertEqual(game2.commander.ship._crew[0].forQuest, true)
-    assertEqual(game2.jarekStatus, SSSTJarekQuestStatus.OnBoard)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game2.jarekStatus, JarekQuestStatus.OnBoard)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
 
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Bring Ambassador Jarek to Devidia.")
@@ -3349,7 +3349,7 @@ export class UnitTests {
 
     const crewMember = game.commander.ship.crew[0]
     // We don't show hireFire button
-    assertEqual(document.getElementById(MAUtils.sanitizedElementID("hireFire_" + crewMember.name)), null)
+    assertEqual(document.getElementById(Utils.sanitizedElementID("hireFire_" + crewMember.name)), null)
 
     // He shows up with no cost, no skills
     const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
@@ -3365,11 +3365,11 @@ export class UnitTests {
     replay.replayEvent("ecButton_Surrender", "click")
     replay.replayEvent("alertButton_Surrender", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to 33 days in prison and a fine of $300500.\nThe Space Corps decides to give Ambassador Jarek a lift home to Devidia.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to 33 days in prison and a fine of $300500.\nThe Space Corps decides to give Ambassador Jarek a lift home to Devidia.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.jarekStatus, SSSTJarekQuestStatus.Closed)
+    assertEqual(game.jarekStatus, JarekQuestStatus.Closed)
     assertEqual(game.commander.ship.crew.length, 0)
 
     assertEqual(game.specialCargoDescription(), "No special items.")
@@ -3377,7 +3377,7 @@ export class UnitTests {
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.jarekStatus, SSSTJarekQuestStatus.Closed)
+    assertEqual(game2.jarekStatus, JarekQuestStatus.Closed)
     assertEqual(game2.commander.ship.crew.length, 0)
 
     assertEqual(game2.specialCargoDescription(), "No special items.")
@@ -3393,19 +3393,19 @@ export class UnitTests {
 
     this._replaySkipEncounters(replay)
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.AmbassadorJarek)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.AmbassadorJarek)
 
     let specialEl = document.getElementById("Special")
     assertEqual(specialEl !== null, true)
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "A recent change in the political climate of this solar system has forced ambassador Jarek to flee back to his home system, Devidia. Would you be willing to give him a lift?")
+    assertEqual(AlertViewController.currentAlertTitle(), "A recent change in the political climate of this solar system has forced ambassador Jarek to flee back to his home system, Devidia. Would you be willing to give him a lift?")
 
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You do not have any crew quarters available for Ambassador Jarek.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You do not have any crew quarters available for Ambassador Jarek.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.AmbassadorJarek)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.AmbassadorJarek)
 
     specialEl = document.getElementById("Special")
     assertEqual(specialEl !== null, true)
@@ -3423,7 +3423,7 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "This alien artifact should be delivered to Professor Berger, who is currently traveling. You can probably find him at a hi-tech solar system. The alien race which produced this artifact seems keen on getting it back, however, and may hinder the carrier. Are you, for a price, willing to deliver it?")
+    assertEqual(AlertViewController.currentAlertTitle(), "This alien artifact should be delivered to Professor Berger, who is currently traveling. You can probably find him at a hi-tech solar system. The alien race which produced this artifact seems keen on getting it back, however, and may hinder the carrier. Are you, for a price, willing to deliver it?")
 
     replay.replayEvent("alertButton_No", "click")
 
@@ -3455,7 +3455,7 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "This is Professor Berger. I thank you for delivering the alien artifact to me. I hope the aliens weren't too much of a nuisance. I have transferred $20000 to your account, which I assume compensates you for your troubles.")
+    assertEqual(AlertViewController.currentAlertTitle(), "This is Professor Berger. I thank you for delivering the alien artifact to me. I hope the aliens weren't too much of a nuisance. I have transferred $20000 to your account, which I assume compensates you for your troubles.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -3484,7 +3484,7 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "This alien artifact should be delivered to Professor Berger, who is currently traveling. You can probably find him at a hi-tech solar system. The alien race which produced this artifact seems keen on getting it back, however, and may hinder the carrier. Are you, for a price, willing to deliver it?")
+    assertEqual(AlertViewController.currentAlertTitle(), "This alien artifact should be delivered to Professor Berger, who is currently traveling. You can probably find him at a hi-tech solar system. The alien race which produced this artifact seems keen on getting it back, however, and may hinder the carrier. Are you, for a price, willing to deliver it?")
 
     replay.replayEvent("alertButton_No", "click")
 
@@ -3512,11 +3512,11 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Surrender")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "If you surrender to the aliens, they will steal the artifact. Are you sure you wish to do that?")
+    assertEqual(AlertViewController.currentAlertTitle(), "If you surrender to the aliens, they will steal the artifact. Are you sure you wish to do that?")
 
     replay.replayEvent("alertButton_Surrender")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "The aliens have taken the artifact from you. Well, it's rightfully theirs, so you probably shouldn't complain. You won't receive any reward from Professor Berger, though.")
+    assertEqual(AlertViewController.currentAlertTitle(), "The aliens have taken the artifact from you. Well, it's rightfully theirs, so you probably shouldn't complain. You won't receive any reward from Professor Berger, though.")
 
     replay.replayEvent("alertButton_Dismiss")
 
@@ -3541,7 +3541,7 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "We received word that aliens will invade Gemulon seven days from now. We know exactly at which coordinates they will arrive, but we can't warn Gemulon because an ion storm disturbs all forms of communication. We need someone, anyone, to deliver this info to Gemulon within seven days.")
+    assertEqual(AlertViewController.currentAlertTitle(), "We received word that aliens will invade Gemulon seven days from now. We know exactly at which coordinates they will arrive, but we can't warn Gemulon because an ion storm disturbs all forms of communication. We need someone, anyone, to deliver this info to Gemulon within seven days.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -3650,11 +3650,11 @@ export class UnitTests {
 
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "No open quests.")
-    assertEqual(game.invasionStatus, SSSTInvasionQuestStatus.ClosedTooLate)
+    assertEqual(game.invasionStatus, InvasionQuestStatus.ClosedTooLate)
     let gemulon = game._findSolarSystem('Gemulon');
-    assertEqual(gemulon.specialEvent, SSSTSpecialEvent.GemulonInvaded)
-    assertEqual(gemulon.techLevel, SSSTTechLevel.PreAgricultural)
-    assertEqual(gemulon.politics.type, SSSTPoliticsType.Anarchy)
+    assertEqual(gemulon.specialEvent, SpecialEvent.GemulonInvaded)
+    assertEqual(gemulon.techLevel, TechLevel.PreAgricultural)
+    assertEqual(gemulon.politics.type, PoliticsType.Anarchy)
 
 
     game2 = this._serializeAndDeserialize(game)
@@ -3675,7 +3675,7 @@ export class UnitTests {
     assertEqual(systemInfoEl.innerText, "large pre-agricultural anarchist state\nunder no particular pressure\nnothing special, no police, excessive pirates")
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Alas, Gemulon has been invaded by aliens, which has thrown us back to pre-agricultural times. If only we had known the exact coordinates where they first arrived at our system, we might have prevented this tragedy from happening.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Alas, Gemulon has been invaded by aliens, which has thrown us back to pre-agricultural times. If only we had known the exact coordinates where they first arrived at our system, we might have prevented this tragedy from happening.")
   }
 
   test_gemulon_alienInvasion_oneDayLate() {
@@ -3688,7 +3688,7 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "We received word that aliens will invade Gemulon seven days from now. We know exactly at which coordinates they will arrive, but we can't warn Gemulon because an ion storm disturbs all forms of communication. We need someone, anyone, to deliver this info to Gemulon within seven days.")
+    assertEqual(AlertViewController.currentAlertTitle(), "We received word that aliens will invade Gemulon seven days from now. We know exactly at which coordinates they will arrive, but we can't warn Gemulon because an ion storm disturbs all forms of communication. We need someone, anyone, to deliver this info to Gemulon within seven days.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -3797,11 +3797,11 @@ export class UnitTests {
 
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "No open quests.")
-    assertEqual(game.invasionStatus, SSSTInvasionQuestStatus.ClosedTooLate)
+    assertEqual(game.invasionStatus, InvasionQuestStatus.ClosedTooLate)
     let gemulon = game._findSolarSystem('Gemulon');
-    assertEqual(gemulon.specialEvent, SSSTSpecialEvent.GemulonInvaded)
-    assertEqual(gemulon.techLevel, SSSTTechLevel.PreAgricultural)
-    assertEqual(gemulon.politics.type, SSSTPoliticsType.Anarchy)
+    assertEqual(gemulon.specialEvent, SpecialEvent.GemulonInvaded)
+    assertEqual(gemulon.techLevel, TechLevel.PreAgricultural)
+    assertEqual(gemulon.politics.type, PoliticsType.Anarchy)
 
 
     game2 = this._serializeAndDeserialize(game)
@@ -3824,7 +3824,7 @@ export class UnitTests {
     assertEqual(systemInfoEl.innerText, "large pre-agricultural anarchist state\nunder no particular pressure\nnothing special, no police, excessive pirates")
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Alas, Gemulon has been invaded by aliens, which has thrown us back to pre-agricultural times. If only we had known the exact coordinates where they first arrived at our system, we might have prevented this tragedy from happening.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Alas, Gemulon has been invaded by aliens, which has thrown us back to pre-agricultural times. If only we had known the exact coordinates where they first arrived at our system, we might have prevented this tragedy from happening.")
   }
 
   test_gemulon_alienInvasion_arriveLastDay() {
@@ -3837,7 +3837,7 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "We received word that aliens will invade Gemulon seven days from now. We know exactly at which coordinates they will arrive, but we can't warn Gemulon because an ion storm disturbs all forms of communication. We need someone, anyone, to deliver this info to Gemulon within seven days.")
+    assertEqual(AlertViewController.currentAlertTitle(), "We received word that aliens will invade Gemulon seven days from now. We know exactly at which coordinates they will arrive, but we can't warn Gemulon because an ion storm disturbs all forms of communication. We need someone, anyone, to deliver this info to Gemulon within seven days.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -3961,39 +3961,39 @@ export class UnitTests {
     // Save Gemulon
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "This information of the arrival of the alien invasion force allows us to prepare a defense. You have saved our way of life. As a reward, we have a fuel compactor gadget for you, which allows you to travel 18 parsecs with any ship. Return here to get it installed.")
+    assertEqual(AlertViewController.currentAlertTitle(), "This information of the arrival of the alien invasion force allows us to prepare a defense. You have saved our way of life. As a reward, we have a fuel compactor gadget for you, which allows you to travel 18 parsecs with any ship. Return here to get it installed.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Get your fuel compactor at Gemulon.")
-    assertEqual(game.invasionStatus, SSSTInvasionQuestStatus.ClosedSaved)
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.GetFuelCompactor)
+    assertEqual(game.invasionStatus, InvasionQuestStatus.ClosedSaved)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.GetFuelCompactor)
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Get your fuel compactor at Gemulon.")
-    assertEqual(game2.invasionStatus, SSSTInvasionQuestStatus.ClosedSaved)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.GetFuelCompactor)
+    assertEqual(game2.invasionStatus, InvasionQuestStatus.ClosedSaved)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.GetFuelCompactor)
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Do you wish for us to install the fuel compactor on your current ship?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Do you wish for us to install the fuel compactor on your current ship?")
     replay.replayEvent("alertButton_No", "click")
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Do you wish for us to install the fuel compactor on your current ship?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Do you wish for us to install the fuel compactor on your current ship?")
     replay.replayEvent("alertButton_Yes", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You now have a fuel compactor installed on your ship.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You now have a fuel compactor installed on your ship.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.ship.hasGadgetOfType(SSSTAccessoryType.GadgetFuelCompactor), true)
+    assertEqual(game.commander.ship.hasGadgetOfType(AccessoryType.GadgetFuelCompactor), true)
     assertEqual(game.commander.ship.fuelTankCapacity(), 18)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "No open quests.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.ship.hasGadgetOfType(SSSTAccessoryType.GadgetFuelCompactor), true)
+    assertEqual(game2.commander.ship.hasGadgetOfType(AccessoryType.GadgetFuelCompactor), true)
     assertEqual(game2.commander.ship.fuelTankCapacity(), 18)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "No open quests.")
@@ -4009,7 +4009,7 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "We received word that aliens will invade Gemulon seven days from now. We know exactly at which coordinates they will arrive, but we can't warn Gemulon because an ion storm disturbs all forms of communication. We need someone, anyone, to deliver this info to Gemulon within seven days.")
+    assertEqual(AlertViewController.currentAlertTitle(), "We received word that aliens will invade Gemulon seven days from now. We know exactly at which coordinates they will arrive, but we can't warn Gemulon because an ion storm disturbs all forms of communication. We need someone, anyone, to deliver this info to Gemulon within seven days.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -4088,39 +4088,39 @@ export class UnitTests {
     // Save Gemulon
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "This information of the arrival of the alien invasion force allows us to prepare a defense. You have saved our way of life. As a reward, we have a fuel compactor gadget for you, which allows you to travel 18 parsecs with any ship. Return here to get it installed.")
+    assertEqual(AlertViewController.currentAlertTitle(), "This information of the arrival of the alien invasion force allows us to prepare a defense. You have saved our way of life. As a reward, we have a fuel compactor gadget for you, which allows you to travel 18 parsecs with any ship. Return here to get it installed.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Get your fuel compactor at Gemulon.")
-    assertEqual(game.invasionStatus, SSSTInvasionQuestStatus.ClosedSaved)
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.GetFuelCompactor)
+    assertEqual(game.invasionStatus, InvasionQuestStatus.ClosedSaved)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.GetFuelCompactor)
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Get your fuel compactor at Gemulon.")
-    assertEqual(game2.invasionStatus, SSSTInvasionQuestStatus.ClosedSaved)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.GetFuelCompactor)
+    assertEqual(game2.invasionStatus, InvasionQuestStatus.ClosedSaved)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.GetFuelCompactor)
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Do you wish for us to install the fuel compactor on your current ship?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Do you wish for us to install the fuel compactor on your current ship?")
     replay.replayEvent("alertButton_No", "click")
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Do you wish for us to install the fuel compactor on your current ship?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Do you wish for us to install the fuel compactor on your current ship?")
     replay.replayEvent("alertButton_Yes", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You now have a fuel compactor installed on your ship.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You now have a fuel compactor installed on your ship.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.ship.hasGadgetOfType(SSSTAccessoryType.GadgetFuelCompactor), true)
+    assertEqual(game.commander.ship.hasGadgetOfType(AccessoryType.GadgetFuelCompactor), true)
     assertEqual(game.commander.ship.fuelTankCapacity(), 18)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "No open quests.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.ship.hasGadgetOfType(SSSTAccessoryType.GadgetFuelCompactor), true)
+    assertEqual(game2.commander.ship.hasGadgetOfType(AccessoryType.GadgetFuelCompactor), true)
     assertEqual(game2.commander.ship.fuelTankCapacity(), 18)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "No open quests.")
@@ -4136,7 +4136,7 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "We received word that aliens will invade Gemulon seven days from now. We know exactly at which coordinates they will arrive, but we can't warn Gemulon because an ion storm disturbs all forms of communication. We need someone, anyone, to deliver this info to Gemulon within seven days.")
+    assertEqual(AlertViewController.currentAlertTitle(), "We received word that aliens will invade Gemulon seven days from now. We know exactly at which coordinates they will arrive, but we can't warn Gemulon because an ion storm disturbs all forms of communication. We need someone, anyone, to deliver this info to Gemulon within seven days.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -4215,20 +4215,20 @@ export class UnitTests {
     // Save Gemulon
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "This information of the arrival of the alien invasion force allows us to prepare a defense. You have saved our way of life. As a reward, we have a fuel compactor gadget for you, which allows you to travel 18 parsecs with any ship. Return here to get it installed.")
+    assertEqual(AlertViewController.currentAlertTitle(), "This information of the arrival of the alien invasion force allows us to prepare a defense. You have saved our way of life. As a reward, we have a fuel compactor gadget for you, which allows you to travel 18 parsecs with any ship. Return here to get it installed.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Get your fuel compactor at Gemulon.")
-    assertEqual(game.invasionStatus, SSSTInvasionQuestStatus.ClosedSaved)
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.GetFuelCompactor)
+    assertEqual(game.invasionStatus, InvasionQuestStatus.ClosedSaved)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.GetFuelCompactor)
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Get your fuel compactor at Gemulon.")
-    assertEqual(game2.invasionStatus, SSSTInvasionQuestStatus.ClosedSaved)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.GetFuelCompactor)
+    assertEqual(game2.invasionStatus, InvasionQuestStatus.ClosedSaved)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.GetFuelCompactor)
 
     replay.replayEvent("Equipment", "click")
     replay.replayEvent("buy_5_extra_cargo_bays", "click")
@@ -4236,29 +4236,29 @@ export class UnitTests {
 
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Do you wish for us to install the fuel compactor on your current ship?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Do you wish for us to install the fuel compactor on your current ship?")
     replay.replayEvent("alertButton_No", "click")
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Do you wish for us to install the fuel compactor on your current ship?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Do you wish for us to install the fuel compactor on your current ship?")
     replay.replayEvent("alertButton_Yes", "click")
 
 
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You have already filled all of your available gadget slots.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You have already filled all of your available gadget slots.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
 
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "Get your fuel compactor at Gemulon.")
-    assertEqual(game.invasionStatus, SSSTInvasionQuestStatus.ClosedSaved)
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.GetFuelCompactor)
+    assertEqual(game.invasionStatus, InvasionQuestStatus.ClosedSaved)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.GetFuelCompactor)
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "Get your fuel compactor at Gemulon.")
-    assertEqual(game2.invasionStatus, SSSTInvasionQuestStatus.ClosedSaved)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.GetFuelCompactor)
+    assertEqual(game2.invasionStatus, InvasionQuestStatus.ClosedSaved)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.GetFuelCompactor)
 
 
 
@@ -4268,21 +4268,21 @@ export class UnitTests {
 
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Do you wish for us to install the fuel compactor on your current ship?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Do you wish for us to install the fuel compactor on your current ship?")
     replay.replayEvent("alertButton_Yes", "click")
 
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You now have a fuel compactor installed on your ship.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You now have a fuel compactor installed on your ship.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.ship.hasGadgetOfType(SSSTAccessoryType.GadgetFuelCompactor), true)
+    assertEqual(game.commander.ship.hasGadgetOfType(AccessoryType.GadgetFuelCompactor), true)
     assertEqual(game.commander.ship.fuelTankCapacity(), 18)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "No open quests.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.ship.hasGadgetOfType(SSSTAccessoryType.GadgetFuelCompactor), true)
+    assertEqual(game2.commander.ship.hasGadgetOfType(AccessoryType.GadgetFuelCompactor), true)
     assertEqual(game2.commander.ship.fuelTankCapacity(), 18)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "No open quests.")
@@ -4298,7 +4298,7 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "A trader in second-hand goods offers you 3 sealed cargo canisters for the sum of $1000. It could be a good deal: they could contain robots. Then again, it might just be water. Do you want the canisters?")
+    assertEqual(AlertViewController.currentAlertTitle(), "A trader in second-hand goods offers you 3 sealed cargo canisters for the sum of $1000. It could be a good deal: they could contain robots. Then again, it might just be water. Do you want the canisters?")
 
     replay.replayEvent("alertButton_No", "click")
 
@@ -4308,23 +4308,23 @@ export class UnitTests {
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "The canisters contain medicine.")
+    assertEqual(AlertViewController.currentAlertTitle(), "The canisters contain medicine.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
     cargoQuantity = [...game.commander.ship._cargo.values()].reduce((acc, value) => acc + value, 0);
     assertEqual(cargoQuantity, 3)
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Medicine), 3)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.Medicine), 3)
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     cargoQuantity = [...game2.commander.ship._cargo.values()].reduce((acc, value) => acc + value, 0);
     assertEqual(cargoQuantity, 3)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Medicine), 3)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Medicine), 3)
 
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
   }
 
   test_wild_cleanRecord() {
@@ -4334,7 +4334,7 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.TransportWild)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.TransportWild)
     // Don't have a police record, special doesn't show
     let specialEl = document.getElementById("Special")
     assertEqual(specialEl, null)
@@ -4349,7 +4349,7 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Bribe", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "These police officers are willing to forego inspection for $10000.")
+    assertEqual(AlertViewController.currentAlertTitle(), "These police officers are willing to forego inspection for $10000.")
 
     replay.replayEvent("alertButton_Offer_bribe", "click")
 
@@ -4364,19 +4364,19 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.TransportWild)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.TransportWild)
 
     let specialEl = document.getElementById("Special")
     assertEqual(specialEl !== null, true)
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Law Enforcement is closing in on notorious criminal kingpin Jonathan Wild. He would reward you handsomely for smuggling him home to Kravat. You'd have to avoid capture by the Police on the way. Are you willing to give him a berth?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Law Enforcement is closing in on notorious criminal kingpin Jonathan Wild. He would reward you handsomely for smuggling him home to Kravat. You'd have to avoid capture by the Police on the way. Are you willing to give him a berth?")
 
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You do not have any crew quarters available for Jonathan Wild.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You do not have any crew quarters available for Jonathan Wild.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.TransportWild)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.TransportWild)
 
     specialEl = document.getElementById("Special")
     assertEqual(specialEl !== null, true)
@@ -4390,10 +4390,10 @@ export class UnitTests {
     const game = stG.viewController._game
 
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), `Jonathan Wild refuses to board unless you're armed with a Beam Laser or better. He'd rather take his chances hiding out here on Exo.`)
+    assertEqual(AlertViewController.currentAlertTitle(), `Jonathan Wild refuses to board unless you're armed with a Beam Laser or better. He'd rather take his chances hiding out here on Exo.`)
 
     replay.replayEvent("alertButton_Dismiss", "click")
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.TransportWild)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.TransportWild)
 
     const specialEl = document.getElementById("Special")
     assertEqual(specialEl !== null, true)
@@ -4407,11 +4407,11 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You have taken Jonathan Wild on board.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You have taken Jonathan Wild on board.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.wildStatus, SSSTWildQuestStatus.OnBoard)
+    assertEqual(game.wildStatus, WildQuestStatus.OnBoard)
     assertEqual(game.commander.ship.crew.length, 1)
     assertEqual(game.commander.ship.crew[0].name, "Jonathan Wild")
     assertEqual(game.commander.ship.crew[0].forQuest, true)
@@ -4422,7 +4422,7 @@ export class UnitTests {
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.wildStatus, SSSTWildQuestStatus.OnBoard)
+    assertEqual(game2.wildStatus, WildQuestStatus.OnBoard)
     assertEqual(game2.commander.ship.crew.length, 1)
     assertEqual(game2.commander.ship.crew[0].name, "Jonathan Wild")
     assertEqual(game2.commander.ship.crew[0].forQuest, true)
@@ -4435,7 +4435,7 @@ export class UnitTests {
 
     const crewMember = game.commander.ship.crew[0]
     // We don't show hireFire button
-    assertEqual(document.getElementById(MAUtils.sanitizedElementID("hireFire_" + crewMember.name)), null)
+    assertEqual(document.getElementById(Utils.sanitizedElementID("hireFire_" + crewMember.name)), null)
 
     // He shows up with no cost, no skills
     const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
@@ -4478,11 +4478,11 @@ export class UnitTests {
     replay.replayEvent("alertButton_Dismiss", "click")
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Jonathan Wild is most grateful to you for spiriting him to safety. As a reward, he has one of his Cyber Criminals hack into the Police Database, and clean up your record. He also offers you the opportunity to take his talented nephew Zeethibal along as a Mercenary with no pay.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Jonathan Wild is most grateful to you for spiriting him to safety. As a reward, he has one of his Cyber Criminals hack into the Police Database, and clean up your record. He also offers you the opportunity to take his talented nephew Zeethibal along as a Mercenary with no pay.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.wildStatus, SSSTWildQuestStatus.Closed)
+    assertEqual(game.wildStatus, WildQuestStatus.Closed)
     assertEqual(game.commander.ship.crew.length, 2)
     assertEqual(game.commander.ship.crew[0].name, "Mercedez")
     assertEqual(game.commander.ship.crew[0].forQuest, false)
@@ -4493,17 +4493,17 @@ export class UnitTests {
     assertEqual(game.commander.ship.crew[1].fighter, 5)
     assertEqual(game.commander.ship.crew[1].trader, 10)
     assertEqual(game.commander.ship.crew[1].engineer, 5)
-    assertEqual(game.commander.policeRecordScore, SSSTPoliceRecordScore.Clean)
+    assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Clean)
 
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "No open quests.")
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
 
-    assertEqual(game2.wildStatus, SSSTWildQuestStatus.Closed)
+    assertEqual(game2.wildStatus, WildQuestStatus.Closed)
     assertEqual(game2.commander.ship.crew.length, 2)
     assertEqual(game2.commander.ship.crew[0].name, "Mercedez")
     assertEqual(game2.commander.ship.crew[0].forQuest, false)
@@ -4514,11 +4514,11 @@ export class UnitTests {
     assertEqual(game2.commander.ship.crew[1].fighter, 5)
     assertEqual(game2.commander.ship.crew[1].trader, 10)
     assertEqual(game2.commander.ship.crew[1].engineer, 5)
-    assertEqual(game2.commander.policeRecordScore, SSSTPoliceRecordScore.Clean)
+    assertEqual(game2.commander.policeRecordScore, PoliceRecordScore.Clean)
 
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "No open quests.")
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
   }
 
   test_wild_surrenderToPirate() {
@@ -4529,11 +4529,11 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You have taken Jonathan Wild on board.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You have taken Jonathan Wild on board.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.wildStatus, SSSTWildQuestStatus.OnBoard)
+    assertEqual(game.wildStatus, WildQuestStatus.OnBoard)
     assertEqual(game.commander.ship.crew.length, 1)
     assertEqual(game.commander.ship.crew[0].name, "Jonathan Wild")
     assertEqual(game.commander.ship.crew[0].forQuest, true)
@@ -4544,7 +4544,7 @@ export class UnitTests {
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.wildStatus, SSSTWildQuestStatus.OnBoard)
+    assertEqual(game2.wildStatus, WildQuestStatus.OnBoard)
     assertEqual(game2.commander.ship.crew.length, 1)
     assertEqual(game2.commander.ship.crew[0].name, "Jonathan Wild")
     assertEqual(game2.commander.ship.crew[0].forQuest, true)
@@ -4557,7 +4557,7 @@ export class UnitTests {
 
     const crewMember = game.commander.ship.crew[0]
     // We don't show hireFire button
-    assertEqual(document.getElementById(MAUtils.sanitizedElementID("hireFire_" + crewMember.name)), null)
+    assertEqual(document.getElementById(Utils.sanitizedElementID("hireFire_" + crewMember.name)), null)
 
     // He shows up with no cost, no skills
     const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
@@ -4569,10 +4569,10 @@ export class UnitTests {
     replay.replayEvent("ecButton_Auto_Flee", "click")
     replay.replayEvent("alertButton_Dismiss", "click")
     replay.replayEvent("ecButton_Surrender", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "The pirates are upset that they found no cargo on your ship. To save yourself, you have no choice but to pay them 5% of your current net worth. The pirate captain turns out to be an old associate of Jonathan Wild. He invites Wild to go to Kravat aboard the pirate ship. Wild accepts the offer and thanks you for the ride.")
+    assertEqual(AlertViewController.currentAlertTitle(), "The pirates are upset that they found no cargo on your ship. To save yourself, you have no choice but to pay them 5% of your current net worth. The pirate captain turns out to be an old associate of Jonathan Wild. He invites Wild to go to Kravat aboard the pirate ship. Wild accepts the offer and thanks you for the ride.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.wildStatus, SSSTWildQuestStatus.Closed)
+    assertEqual(game.wildStatus, WildQuestStatus.Closed)
     assertEqual(game.commander.ship.crew.length, 0)
 
     assertEqual(game.specialCargoDescription(), "No special items.")
@@ -4580,7 +4580,7 @@ export class UnitTests {
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.wildStatus, SSSTWildQuestStatus.Closed)
+    assertEqual(game2.wildStatus, WildQuestStatus.Closed)
     assertEqual(game2.commander.ship.crew.length, 0)
 
     assertEqual(game2.specialCargoDescription(), "No special items.")
@@ -4595,11 +4595,11 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You have taken Jonathan Wild on board.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You have taken Jonathan Wild on board.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.wildStatus, SSSTWildQuestStatus.OnBoard)
+    assertEqual(game.wildStatus, WildQuestStatus.OnBoard)
     assertEqual(game.commander.ship.crew.length, 1)
     assertEqual(game.commander.ship.crew[0].name, "Jonathan Wild")
     assertEqual(game.commander.ship.crew[0].forQuest, true)
@@ -4610,7 +4610,7 @@ export class UnitTests {
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.wildStatus, SSSTWildQuestStatus.OnBoard)
+    assertEqual(game2.wildStatus, WildQuestStatus.OnBoard)
     assertEqual(game2.commander.ship.crew.length, 1)
     assertEqual(game2.commander.ship.crew[0].name, "Jonathan Wild")
     assertEqual(game2.commander.ship.crew[0].forQuest, true)
@@ -4623,7 +4623,7 @@ export class UnitTests {
 
     const crewMember = game.commander.ship.crew[0]
     // We don't show hireFire button
-    assertEqual(document.getElementById(MAUtils.sanitizedElementID("hireFire_" + crewMember.name)), null)
+    assertEqual(document.getElementById(Utils.sanitizedElementID("hireFire_" + crewMember.name)), null)
 
     // He shows up with no cost, no skills
     const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
@@ -4635,15 +4635,15 @@ export class UnitTests {
 
     replay.replayEvent("ecButton_Surrender", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "If you surrender, you will spend some time in prison and will have to pay a hefty fine. Wild will be arrested, too. Are you sure you want to do that?")
+    assertEqual(AlertViewController.currentAlertTitle(), "If you surrender, you will spend some time in prison and will have to pay a hefty fine. Wild will be arrested, too. Are you sure you want to do that?")
 
     replay.replayEvent("alertButton_Surrender", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to 30 days in prison and a fine of $292950.\nJonathan Wild is arrested and taken away to stand trial.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to 30 days in prison and a fine of $292950.\nJonathan Wild is arrested and taken away to stand trial.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.wildStatus, SSSTWildQuestStatus.Closed)
+    assertEqual(game.wildStatus, WildQuestStatus.Closed)
     assertEqual(game.commander.ship.crew.length, 0)
 
     assertEqual(game.specialCargoDescription(), "No special items.")
@@ -4651,7 +4651,7 @@ export class UnitTests {
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.wildStatus, SSSTWildQuestStatus.Closed)
+    assertEqual(game2.wildStatus, WildQuestStatus.Closed)
     assertEqual(game2.commander.ship.crew.length, 0)
 
     assertEqual(game2.specialCargoDescription(), "No special items.")
@@ -4667,12 +4667,12 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Jonathan Wild is arrested, and taken away to stand trial.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Jonathan Wild is arrested, and taken away to stand trial.")
 
     replay.replayEvent("alertButton_Dismiss")
     replay.replayEvent("alertButton_Dismiss")
 
-    assertEqual(game.wildStatus, SSSTWildQuestStatus.Closed)
+    assertEqual(game.wildStatus, WildQuestStatus.Closed)
     assertEqual(game.commander.ship.crew.length, 0)
 
     assertEqual(game.specialCargoDescription(), "No special items.")
@@ -4681,7 +4681,7 @@ export class UnitTests {
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.wildStatus, SSSTWildQuestStatus.Closed)
+    assertEqual(game2.wildStatus, WildQuestStatus.Closed)
     assertEqual(game2.commander.ship.crew.length, 0)
 
     assertEqual(game2.specialCargoDescription(), "No special items.")
@@ -4696,11 +4696,11 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You have taken Jonathan Wild on board.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You have taken Jonathan Wild on board.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.wildStatus, SSSTWildQuestStatus.OnBoard)
+    assertEqual(game.wildStatus, WildQuestStatus.OnBoard)
     assertEqual(game.commander.ship.crew.length, 1)
     assertEqual(game.commander.ship.crew[0].name, "Jonathan Wild")
     assertEqual(game.commander.ship.crew[0].forQuest, true)
@@ -4711,7 +4711,7 @@ export class UnitTests {
 
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.wildStatus, SSSTWildQuestStatus.OnBoard)
+    assertEqual(game2.wildStatus, WildQuestStatus.OnBoard)
     assertEqual(game2.commander.ship.crew.length, 1)
     assertEqual(game2.commander.ship.crew[0].name, "Jonathan Wild")
     assertEqual(game2.commander.ship.crew[0].forQuest, true)
@@ -4724,7 +4724,7 @@ export class UnitTests {
 
     const crewMember = game.commander.ship.crew[0]
     // We don't show hireFire button
-    assertEqual(document.getElementById(MAUtils.sanitizedElementID("hireFire_" + crewMember.name)), null)
+    assertEqual(document.getElementById(Utils.sanitizedElementID("hireFire_" + crewMember.name)), null)
 
     // He shows up with no cost, no skills
     const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
@@ -4740,7 +4740,7 @@ export class UnitTests {
     replay.replayEvent("Warp", "click")
     replay.replayEvent("warpBlastOff", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), `Jonathan Wild isn't about to go with you if you're not armed with at least a Beam Laser. He'd rather take his chances hiding out here on Exo.`)
+    assertEqual(AlertViewController.currentAlertTitle(), `Jonathan Wild isn't about to go with you if you're not armed with at least a Beam Laser. He'd rather take his chances hiding out here on Exo.`)
 
     replay.replayEvent("alertButton_Cancel", "click")
     replay.replayEvent("warpBlastOff", "click")
@@ -4750,7 +4750,7 @@ export class UnitTests {
     let encounterText = document.getElementById('eVC_dialog').innerHTML
     assertEqual(encounterText, "At 18 clicks from Malcoria you encounter a police Firefly.<br><br>Your opponent attacks.")
 
-    assertEqual(game.wildStatus, SSSTWildQuestStatus.Closed)
+    assertEqual(game.wildStatus, WildQuestStatus.Closed)
     assertEqual(game.commander.ship.crew.length, 0)
 
     assertEqual(game.specialCargoDescription(), "No special items.")
@@ -4758,7 +4758,7 @@ export class UnitTests {
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.wildStatus, SSSTWildQuestStatus.Closed)
+    assertEqual(game2.wildStatus, WildQuestStatus.Closed)
     assertEqual(game2.commander.ship.crew.length, 0)
 
     assertEqual(game2.specialCargoDescription(), "No special items.")
@@ -4813,8 +4813,8 @@ export class UnitTests {
     replay.replayEvent("alertButton_Dismiss", "click")
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Jonathan Wild doesn't like the looks of that Ion Reactor. He thinks it's too dangerous, and won't get on board.")
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.TransportWild)
+    assertEqual(AlertViewController.currentAlertTitle(), "Jonathan Wild doesn't like the looks of that Ion Reactor. He thinks it's too dangerous, and won't get on board.")
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.TransportWild)
 
     const specialEl = document.getElementById("Special")
     assertEqual(specialEl !== null, true)
@@ -4857,12 +4857,12 @@ export class UnitTests {
     assertEqual(encounterText, "At 1 click from Zalkon you encounter a stolen Dragonfly.<br><br>Your opponent attacks.")
 
     replay.replayEvent("ecButton_Auto_Attack", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You have destroyed your opponent.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You have destroyed your opponent.")
     replay.replayEvent("alertButton_Dismiss", "click")
     replay.replayEvent("alertButton_Dismiss", "click")
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Hello, Commander. This is Colonel Jackson again. On behalf of the Space Corps, I thank you for your valuable assistance in destroying the Dragonfly. As a reward, we will install one of the experimental shields on your ship. Return here for that when you're ready.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Hello, Commander. This is Colonel Jackson again. On behalf of the Space Corps, I thank you for your valuable assistance in destroying the Dragonfly. As a reward, we will install one of the experimental shields on your ship. Return here for that when you're ready.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -4878,11 +4878,11 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Colonel Jackson here. Do you want us to install a Lightning shield on your current ship?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Colonel Jackson here. Do you want us to install a Lightning shield on your current ship?")
 
     replay.replayEvent("alertButton_Yes", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You have already filled all of your available shield slots.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You have already filled all of your available shield slots.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
 
@@ -4892,20 +4892,20 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Colonel Jackson here. Do you want us to install a Lightning shield on your current ship?")
+    assertEqual(AlertViewController.currentAlertTitle(), "Colonel Jackson here. Do you want us to install a Lightning shield on your current ship?")
 
     replay.replayEvent("alertButton_Yes", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You now have one Lightning shield installed on your ship.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You now have one Lightning shield installed on your ship.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    assertEqual(game.commander.ship.hasShieldOfType(SSSTAccessoryType.ShieldLightning), true)
+    assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldLightning), true)
     assertEqual(game.specialCargoDescription(), "No special items.")
     assertEqual(game.questListDescription(), "No open quests.")
 
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
-    assertEqual(game2.commander.ship.hasShieldOfType(SSSTAccessoryType.ShieldLightning), true)
+    assertEqual(game2.commander.ship.hasShieldOfType(AccessoryType.ShieldLightning), true)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "No open quests.")
   }
@@ -4945,12 +4945,12 @@ export class UnitTests {
 
     replay.replayEvent("Warp", "click")
     replay.replayEvent("cargo_WaterBuy_All", "click")
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Water), 15)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.Water), 15)
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "A strange disease has invaded the Japori system. We would like you to deliver these ten canisters of special antidote to Japori. Note that, if you accept, ten of your cargo bays will remain in use on your way to Japori. Do you accept this mission?")
+    assertEqual(AlertViewController.currentAlertTitle(), "A strange disease has invaded the Japori system. We would like you to deliver these ten canisters of special antidote to Japori. Note that, if you accept, ten of your cargo bays will remain in use on your way to Japori. Do you accept this mission?")
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You must have at least 10 free cargo bays to accept this mission.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You must have at least 10 free cargo bays to accept this mission.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
     replay.replayEvent("Commander", "click")
@@ -4977,9 +4977,9 @@ export class UnitTests {
     assertEqual(newsStrDiv.innerHTML, "<h4>The Loyal Subject</h4><br>Travelers Claim Sighting of Ship Materializing in Orbit!<br><br>Editorial: We Must Help Japori!<br><br>Notice: Cold Weather in the Ligon System.")
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "A strange disease has invaded the Japori system. We would like you to deliver these ten canisters of special antidote to Japori. Note that, if you accept, ten of your cargo bays will remain in use on your way to Japori. Do you accept this mission?")
+    assertEqual(AlertViewController.currentAlertTitle(), "A strange disease has invaded the Japori system. We would like you to deliver these ten canisters of special antidote to Japori. Note that, if you accept, ten of your cargo bays will remain in use on your way to Japori. Do you accept this mission?")
     replay.replayEvent("alertButton_Yes", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Ten of your cargo bays now contain antidote for the Japori system.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Ten of your cargo bays now contain antidote for the Japori system.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
     replay.replayEvent("Commander", "click")
@@ -4998,9 +4998,9 @@ export class UnitTests {
     assertEqual(freeBays, 5)
 
     replay.replayEvent("cargo_WaterBuy_All", "click")
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Water), 5)
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargo), 10)
-    assertEqual(game.japoriQuestStatus, SSSTJaporiQuestStatus.HasMedicine)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.Water), 5)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargo), 10)
+    assertEqual(game.japoriQuestStatus, JaporiQuestStatus.HasMedicine)
 
 
     let game2 = this._serializeAndDeserialize(game)
@@ -5008,9 +5008,9 @@ export class UnitTests {
     assertEqual(game2.commander.ship.totalCargoBays(), 15)
     assertEqual(game2.commander.ship.freeCargoBays(), 0)
 
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Water), 5)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargo), 10)
-    assertEqual(game2.japoriQuestStatus, SSSTJaporiQuestStatus.HasMedicine)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Water), 5)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargo), 10)
+    assertEqual(game2.japoriQuestStatus, JaporiQuestStatus.HasMedicine)
 
 
     replay.replayEvent("Chart", "click")
@@ -5034,14 +5034,14 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Thank you for delivering the medicine to us. We don't have any money to reward you, but we do have an alien fast-learning machine with which we will increase your skills.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Thank you for delivering the medicine to us. We don't have any money to reward you, but we do have an alien fast-learning machine with which we will increase your skills.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
     specialEl = document.getElementById("Special")
     assertEqual(specialEl, null)
 
-    assertEqual(game.japoriQuestStatus, SSSTJaporiQuestStatus.Closed)
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargo), 0)
+    assertEqual(game.japoriQuestStatus, JaporiQuestStatus.Closed)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargo), 0)
     assertEqual(game.commander.pilot, 5)
     assertEqual(game.commander.trader, 6)
     assertEqual(game.commander.engineer, 6)
@@ -5055,8 +5055,8 @@ export class UnitTests {
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
 
-    assertEqual(game2.japoriQuestStatus, SSSTJaporiQuestStatus.Closed)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.FakeQuestCargo), 0)
+    assertEqual(game2.japoriQuestStatus, JaporiQuestStatus.Closed)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargo), 0)
     assertEqual(game2.commander.pilot, 5)
     assertEqual(game2.commander.trader, 6)
     assertEqual(game2.commander.engineer, 6)
@@ -5122,28 +5122,28 @@ export class UnitTests {
     assertEqual(specialEl !== null, true)
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "A hacker conveys to you that he has cracked the passwords to the galaxy-wide police computer network, and that he can erase your police record for the sum of $5000. Do you want him to do that?")
+    assertEqual(AlertViewController.currentAlertTitle(), "A hacker conveys to you that he has cracked the passwords to the galaxy-wide police computer network, and that he can erase your police record for the sum of $5000. Do you want him to do that?")
 
     const creditsBefore = game.commander.credits
     assertEqual(game.commander.policeRecordScore, -33)
 
     replay.replayEvent("alertButton_Yes", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "The hacker resets your police record to be clean.")
+    assertEqual(AlertViewController.currentAlertTitle(), "The hacker resets your police record to be clean.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
     specialEl = document.getElementById("Special")
     assertEqual(specialEl, null)
 
     assertEqual(game.commander.credits, creditsBefore - 5000)
-    assertEqual(game.commander.policeRecordScore, SSSTPoliceRecordScore.Clean)
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Clean)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
 
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqual(game2.commander.credits, creditsBefore - 5000)
-    assertEqual(game2.commander.policeRecordScore, SSSTPoliceRecordScore.Clean)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game2.commander.policeRecordScore, PoliceRecordScore.Clean)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
   }
 
   test_eraseRecord_decline() {
@@ -5200,7 +5200,7 @@ export class UnitTests {
     assertEqual(specialEl !== null, true)
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "A hacker conveys to you that he has cracked the passwords to the galaxy-wide police computer network, and that he can erase your police record for the sum of $5000. Do you want him to do that?")
+    assertEqual(AlertViewController.currentAlertTitle(), "A hacker conveys to you that he has cracked the passwords to the galaxy-wide police computer network, and that he can erase your police record for the sum of $5000. Do you want him to do that?")
 
     const creditsBefore = game.commander.credits
     assertEqual(game.commander.policeRecordScore, -33)
@@ -5212,13 +5212,13 @@ export class UnitTests {
 
     assertEqual(game.commander.credits, creditsBefore)
     assertEqual(game.commander.policeRecordScore, -33)
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.EraseRecord)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.EraseRecord)
 
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqual(game2.commander.credits, creditsBefore)
     assertEqual(game2.commander.policeRecordScore, -33)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.EraseRecord)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.EraseRecord)
   }
 
   test_skillIncrease_incidence() {
@@ -5228,7 +5228,7 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    assertEqual(game.solarSystems.filter(x => x.specialEvent === SSSTSpecialEvent.SkillIncrease).length, 3)
+    assertEqual(game.solarSystems.filter(x => x.specialEvent === SpecialEvent.SkillIncrease).length, 3)
   }
 
   test_skillIncrease_decline() {
@@ -5242,7 +5242,7 @@ export class UnitTests {
 
     const creditsBefore = game.commander.credits
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "An alien with a fast-learning machine offers to increase one of your skills for the reasonable sum of $3000. You won't be able to pick that skill, though. Do you accept his offer?")
+    assertEqual(AlertViewController.currentAlertTitle(), "An alien with a fast-learning machine offers to increase one of your skills for the reasonable sum of $3000. You won't be able to pick that skill, though. Do you accept his offer?")
 
     replay.replayEvent("alertButton_No", "click")
 
@@ -5252,7 +5252,7 @@ export class UnitTests {
     assertEqual(game.commander.engineer, 5)
     assertEqual(game.commander.fighter, 5)
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.SkillIncrease)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.SkillIncrease)
 
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
@@ -5262,7 +5262,7 @@ export class UnitTests {
     assertEqual(game2.commander.engineer, 5)
     assertEqual(game2.commander.fighter, 5)
 
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.SkillIncrease)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.SkillIncrease)
   }
 
   test_skillIncrease_accept() {
@@ -5276,7 +5276,7 @@ export class UnitTests {
 
     const creditsBefore = game.commander.credits
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "An alien with a fast-learning machine offers to increase one of your skills for the reasonable sum of $3000. You won't be able to pick that skill, though. Do you accept his offer?")
+    assertEqual(AlertViewController.currentAlertTitle(), "An alien with a fast-learning machine offers to increase one of your skills for the reasonable sum of $3000. You won't be able to pick that skill, though. Do you accept his offer?")
 
     replay.replayEvent("alertButton_Yes", "click")
 
@@ -5286,7 +5286,7 @@ export class UnitTests {
     assertEqual(game.commander.engineer, 6)
     assertEqual(game.commander.fighter, 5)
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
 
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
@@ -5296,7 +5296,7 @@ export class UnitTests {
     assertEqual(game2.commander.engineer, 6)
     assertEqual(game2.commander.fighter, 5)
 
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
   }
 
   test_lottery_easy() {
@@ -5310,18 +5310,18 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "What luck! While docking in the space port, you receive a message that you won $1000 in a lottery. The prize has been added to your account.")
+    assertEqual(AlertViewController.currentAlertTitle(), "What luck! While docking in the space port, you receive a message that you won $1000 in a lottery. The prize has been added to your account.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
     assertEqual(game.commander.credits, creditsBefore + 1000)
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
 
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqual(game2.commander.credits, creditsBefore + 1000)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
   }
 
   test_lottery_beginner() {
@@ -5335,18 +5335,18 @@ export class UnitTests {
 
     replay.replayEvent("Special", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "What luck! While docking in the space port, you receive a message that you won $1000 in a lottery. The prize has been added to your account.")
+    assertEqual(AlertViewController.currentAlertTitle(), "What luck! While docking in the space port, you receive a message that you won $1000 in a lottery. The prize has been added to your account.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
     assertEqual(game.commander.credits, creditsBefore + 1000)
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
 
     const game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     assertEqual(game2.commander.credits, creditsBefore + 1000)
-    assertEqual(game2.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None)
   }
 
   test_lottery_normal() {
@@ -5358,7 +5358,7 @@ export class UnitTests {
 
     const creditsBefore = game.commander.credits
 
-    assertEqual(game.commander.currentSystem.specialEvent, SSSTSpecialEvent.None)
+    assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
   }
 
   test_retire() {
@@ -5374,7 +5374,7 @@ export class UnitTests {
     replay.replayEvent("cheat_freeSingularity")
 
 
-    const target = game.solarSystems.find(x => x.specialEvent === SSSTSpecialEvent.MoonForSale)
+    const target = game.solarSystems.find(x => x.specialEvent === SpecialEvent.MoonForSale)
 
     replay.replayEvent("Chart")
     replay.replayEvent(`galacticChart_useSingularity_121_${target.name}`)
@@ -5394,7 +5394,7 @@ export class UnitTests {
 
     replay.replayEvent("cheat_freeSingularity")
 
-    const target2 = game.solarSystems.find(x => x.specialEvent === SSSTSpecialEvent.MoonBought)
+    const target2 = game.solarSystems.find(x => x.specialEvent === SpecialEvent.MoonBought)
 
     replay.replayEvent("Chart")
     replay.replayEvent(`galacticChart_useSingularity_121_${target2.name}`)
@@ -5421,8 +5421,8 @@ export class UnitTests {
     const game = stG.viewController._game
     const commander = game.commander
 
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Narcotics), 0)
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs), 3)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics), 0)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 3)
     assertEqual(commander.ship.tribbles, 1946)
 
     assertEqual(game.specialCargoDescription(), "1946 cute, furry tribbles.")
@@ -5431,22 +5431,22 @@ export class UnitTests {
     let game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     // Spot check some properties
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Narcotics), 0)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs), 3)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics), 0)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 3)
     assertEqual(game2.commander.ship.tribbles, 1946)
     assertEqual(game2.specialCargoDescription(), "1946 cute, furry tribbles.")
     assertEqual(game2.questListDescription(), "Get rid of those pesky tribbles.")
 
 
     replay.replayEvent("Special", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "An eccentric alien billionaire wants to buy your collection of tribbles and offers half a credit for each of them. Do you accept his offer?")
+    assertEqual(AlertViewController.currentAlertTitle(), "An eccentric alien billionaire wants to buy your collection of tribbles and offers half a credit for each of them. Do you accept his offer?")
 
     replay.replayEvent("alertButton_No", "click")
 
     replay.replayEvent("Special", "click")
     replay.replayEvent("alertButton_Yes", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "The alien uses advanced technology to beam your whole collection of tribbles to his ship.")
+    assertEqual(AlertViewController.currentAlertTitle(), "The alien uses advanced technology to beam your whole collection of tribbles to his ship.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
     assertEqual(commander.ship.tribbles, 0)
@@ -5457,8 +5457,8 @@ export class UnitTests {
     game2 = this._serializeAndDeserialize(game)
     assertEqualGames(game, game2)
     // Spot check some properties
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Narcotics), 0)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs), 3)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics), 0)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 3)
     assertEqual(game2.commander.ship.tribbles, 0)
     assertEqual(game2.specialCargoDescription(), "No special items.")
     assertEqual(game2.questListDescription(), "No open quests.")
@@ -5473,7 +5473,7 @@ export class UnitTests {
     const game = stG.viewController._game
     const commander = game.commander
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You don't have enough cash to accept this offer.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You don't have enough cash to accept this offer.")
     assertEqual(game.commander.ship.tribbles, 0)
 
     let game2 = this._serializeAndDeserialize(game)
@@ -5712,13 +5712,13 @@ export class UnitTests {
     const commander = stG.viewController._game.commander
 
     assertEqual(commander.credits, 6057)
-    assertEqual(SSSTShipModel.shipModelForType(commander.ship.type).name, "Flea")
+    assertEqual(ShipModel.shipModelForType(commander.ship.type).name, "Flea")
 
     replay.replayEvent("cheat_freeMoney", "click")
     replay.replayEvent("Ship Yard", "click")
     replay.replayEvent("buyship_Gnat", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "Before you can buy a new ship or new equipment, you must settle your debts at the bank.")
+    assertEqual(AlertViewController.currentAlertTitle(), "Before you can buy a new ship or new equipment, you must settle your debts at the bank.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
     replay.replayEvent("Bank", "click")
@@ -5729,7 +5729,7 @@ export class UnitTests {
     replay.replayEvent("alertButton_Yes", "click")
 
     assertEqual(commander.credits, 991500)
-    assertEqual(SSSTShipModel.shipModelForType(commander.ship.type).name, "Gnat")
+    assertEqual(ShipModel.shipModelForType(commander.ship.type).name, "Gnat")
   }
 
   test_buyShip_debt_downgrade() {
@@ -5741,7 +5741,7 @@ export class UnitTests {
     const commander = stG.viewController._game.commander
 
     assertEqual(commander.credits, 6057)
-    assertEqual(SSSTShipModel.shipModelForType(commander.ship.type).name, "Flea")
+    assertEqual(ShipModel.shipModelForType(commander.ship.type).name, "Flea")
   }
 
   test_escapePod() {
@@ -5754,7 +5754,7 @@ export class UnitTests {
 
     assertEqual(commander.credits, 997500)
     assertEqual(commander.currentSystem.name, "Lowry")
-    assertEqual(SSSTShipModel.shipModelForType(commander.ship.type).name, "Flea")
+    assertEqual(ShipModel.shipModelForType(commander.ship.type).name, "Flea")
   }
 
   // Sometimes Auto-Flee immediately succeeds in fleeing
@@ -5816,7 +5816,7 @@ export class UnitTests {
     replay.replayEvent("alertButton_Attack", "click")
     replay.replayEvent("alertButton_Attack", "click")
     replay.replayEvent("ecButton_Auto_Attack", "click")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You have destroyed your opponent.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You have destroyed your opponent.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
     encounterText = document.getElementById('eVC_dialog').innerHTML
@@ -5986,7 +5986,7 @@ export class UnitTests {
     replay.replayEvent("ecButton_Surrender")
     replay.replayEvent("alertButton_Surrender")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to 33 days in prison and a fine of $328500.\nYour hired mercenaries have left.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to 33 days in prison and a fine of $328500.\nYour hired mercenaries have left.")
 
     replay.replayEvent("alertButton_Dismiss")
 
@@ -6006,7 +6006,7 @@ export class UnitTests {
 
     const creditsBeforeTrade = commander.credits
 
-    const alertTitleEl = document.getElementById("ssstalertvc-title")
+    const alertTitleEl = document.getElementById("alertvc-title")
     assertEqual(alertTitleEl.innerText, "Thanks for the trade!")
 
     // Disable automatically purchasing fuel since there's no opportunity
@@ -6017,7 +6017,7 @@ export class UnitTests {
     replay.replayEvent("alertButton_Dismiss", "click")
 
     const tradeQuantity = 7
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Ore), tradeQuantity)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Ore), tradeQuantity)
 
     const price = 350
     assertEqual(commander.credits, creditsBeforeTrade - tradeQuantity*price)
@@ -6032,7 +6032,7 @@ export class UnitTests {
 
     const creditsBeforeTrade = commander.credits
 
-    const alertTitleEl = document.getElementById("ssstalertvc-title")
+    const alertTitleEl = document.getElementById("alertvc-title")
     assertEqual(alertTitleEl.innerText, "Thanks for the trade!")
 
     // Disable automatically purchasing fuel since there's no opportunity
@@ -6043,7 +6043,7 @@ export class UnitTests {
     replay.replayEvent("alertButton_Dismiss", "click")
 
     const tradeQuantity = 14
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Ore), tradeQuantity)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Ore), tradeQuantity)
 
     const price = 350
     assertEqual(commander.credits, creditsBeforeTrade - tradeQuantity*price)
@@ -6058,11 +6058,11 @@ export class UnitTests {
 
     const creditsBeforeTrade = commander.credits
 
-    const alertTitleEl = document.getElementById("ssstalertvc-title")
+    const alertTitleEl = document.getElementById("alertvc-title")
     assertTrue(!alertTitleEl, "no alert showing")
 
     const tradeQuantity = 0
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Ore), tradeQuantity)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Ore), tradeQuantity)
 
     const price = 350
     assertEqual(commander.credits, creditsBeforeTrade - tradeQuantity*price)
@@ -6077,7 +6077,7 @@ export class UnitTests {
 
     const creditsBeforeTrade = commander.credits
 
-    const alertTitleEl = document.getElementById("ssstalertvc-title")
+    const alertTitleEl = document.getElementById("alertvc-title")
     assertEqual(alertTitleEl.innerText, "Thanks for the trade!")
 
     // Disable automatically purchasing fuel since there's no opportunity
@@ -6088,7 +6088,7 @@ export class UnitTests {
     replay.replayEvent("alertButton_Dismiss", "click")
 
     const tradeQuantity = 1
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs), 3-tradeQuantity)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 3-tradeQuantity)
 
     assertEqual(commander.credits, creditsBeforeTrade + tradeQuantity*280)
   }
@@ -6102,7 +6102,7 @@ export class UnitTests {
 
     const creditsBeforeTrade = commander.credits
 
-    const alertTitleEl = document.getElementById("ssstalertvc-title")
+    const alertTitleEl = document.getElementById("alertvc-title")
     assertEqual(alertTitleEl.innerText, "Thanks for the trade!")
 
     // Disable automatically purchasing fuel since there's no opportunity
@@ -6112,7 +6112,7 @@ export class UnitTests {
     replay.replayEvent("alertButton_Dismiss", "click")
 
     const tradeQuantity = 8
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Ore), tradeQuantity)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Ore), tradeQuantity)
 
     assertEqual(commander.credits, creditsBeforeTrade - tradeQuantity*350)
   }
@@ -6126,7 +6126,7 @@ export class UnitTests {
 
     const creditsBeforeTrade = commander.credits
 
-    const alertTitleEl = document.getElementById("ssstalertvc-title")
+    const alertTitleEl = document.getElementById("alertvc-title")
     assertEqual(alertTitleEl.innerText, "Thanks for the trade!")
 
     // Disable automatically purchasing fuel since there's no opportunity
@@ -6136,7 +6136,7 @@ export class UnitTests {
     replay.replayEvent("alertButton_Dismiss", "click")
 
     const tradeQuantity = 3
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs), 3-tradeQuantity)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 3-tradeQuantity)
 
     assertEqual(commander.credits, creditsBeforeTrade + tradeQuantity*280)
   }
@@ -6156,10 +6156,10 @@ export class UnitTests {
     stG.viewController._game.autoRepairs = false
 
     const tradeQuantity = 0
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs), 3-tradeQuantity)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 3-tradeQuantity)
 
     assertEqual(commander.credits, creditsBeforeTrade)
-    const alertTitleEl = document.getElementById("ssstalertvc-title")
+    const alertTitleEl = document.getElementById("alertvc-title")
     assertTrue(!alertTitleEl, "no alert showing")
   }
 
@@ -6171,7 +6171,7 @@ export class UnitTests {
 
     const commander = stG.viewController._game.commander
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You earned a bounty of $350.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You earned a bounty of $350.")
   }
 
   test_destroy_pirate_pick_up_canister() {
@@ -6205,7 +6205,7 @@ export class UnitTests {
     // Offer to plunder
     replay.replayEvent("ecButton_Auto_Attack", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You earned a bounty of $650.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You earned a bounty of $650.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
     assertEqual(commander.policeRecordScore, policeRecordBefore+KILL_PIRATE_SCORE)
@@ -6218,21 +6218,21 @@ export class UnitTests {
     // Offer to plunder
     replay.replayEvent("ecButton_Auto_Attack", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You earned a bounty of $600.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You earned a bounty of $600.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    const before = commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs)
-    let alertTitleEl = document.getElementById("ssstalertvc-title")
+    const before = commander.ship.tradeItemQuantityForType(TradeItemType.Furs)
+    let alertTitleEl = document.getElementById("alertvc-title")
     assertEqual(alertTitleEl.innerText, "A canister from the destroyed ship, labelled Furs, drifts within range of your scoops.")
 
     replay.replayEvent("alertButton_Pick_it_up_", "click")
 
-    const after = commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs)
+    const after = commander.ship.tradeItemQuantityForType(TradeItemType.Furs)
     assertEqual(before+1, after)
 
     assertEqual(commander.policeRecordScore, policeRecordBefore+2*KILL_PIRATE_SCORE)
     assertEqual(commander.pirateKills, 2)
-    assertEqual(commander.reputationScore, reputationBefore + 1 + Math.floor(SSSTShipModelType.Hornet/2) + 1 + Math.floor(SSSTShipModelType.Bumblebee/2))
+    assertEqual(commander.reputationScore, reputationBefore + 1 + Math.floor(ShipModelType.Hornet/2) + 1 + Math.floor(ShipModelType.Bumblebee/2))
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -6271,7 +6271,7 @@ export class UnitTests {
     // Offer to plunder
     replay.replayEvent("ecButton_Auto_Attack", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You earned a bounty of $650.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You earned a bounty of $650.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
     assertEqual(commander.policeRecordScore, policeRecordBefore+KILL_PIRATE_SCORE)
@@ -6284,21 +6284,21 @@ export class UnitTests {
     // Offer to plunder
     replay.replayEvent("ecButton_Auto_Attack", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You earned a bounty of $600.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You earned a bounty of $600.")
     replay.replayEvent("alertButton_Dismiss", "click")
 
-    const before = commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs)
-    let alertTitleEl = document.getElementById("ssstalertvc-title")
+    const before = commander.ship.tradeItemQuantityForType(TradeItemType.Furs)
+    let alertTitleEl = document.getElementById("alertvc-title")
     assertEqual(alertTitleEl.innerText, "A canister from the destroyed ship, labelled Furs, drifts within range of your scoops.")
 
     replay.replayEvent("alertButton_Let_it_go", "click")
 
-    const after = commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs)
+    const after = commander.ship.tradeItemQuantityForType(TradeItemType.Furs)
     assertEqual(before, after)
 
     assertEqual(commander.policeRecordScore, policeRecordBefore+2*KILL_PIRATE_SCORE)
     assertEqual(commander.pirateKills, 2)
-    assertEqual(commander.reputationScore, reputationBefore + 1 + Math.floor(SSSTShipModelType.Hornet/2) + 1 + Math.floor(SSSTShipModelType.Bumblebee/2))
+    assertEqual(commander.reputationScore, reputationBefore + 1 + Math.floor(ShipModelType.Hornet/2) + 1 + Math.floor(ShipModelType.Bumblebee/2))
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -6319,12 +6319,12 @@ export class UnitTests {
     replay.replayEvent("cargo_FursPlunder_1", "click")
 
     // Erase police record so we get warned about littering
-    game.commander.policeRecordScore = SSSTPoliceRecordScore.Clean;
+    game.commander.policeRecordScore = PoliceRecordScore.Clean;
 
     replay.replayEvent("alertButton__Plunder_plunderDump_some_cargo", "click")
     replay.replayEvent("cargo_FursDump_1", "click")
 
-    let alertTitleEl = document.getElementById("ssstalertvc-title")
+    let alertTitleEl = document.getElementById("alertvc-title")
     assertEqual(alertTitleEl.innerText, "Dumping cargo in space is considered littering. If the police track your dumped goods to you it will be reflected on your criminal record. Do you really wish to dump?")
 
     assertEqual(game.commander.litterWarning, true)
@@ -6334,7 +6334,7 @@ export class UnitTests {
     replay.replayEvent("alertButton__Plunder_plunderDone", "click")
 
 
-    assertEqual(game.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs), 1)
+    assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 1)
   }
 
   test_plunder_dump_litter_yes() {
@@ -6349,17 +6349,17 @@ export class UnitTests {
     replay.replayEvent("ecButton_Plunder", "click")
 
     // Erase police record so we get warned about littering
-    game.commander.policeRecordScore = SSSTPoliceRecordScore.Clean;
+    game.commander.policeRecordScore = PoliceRecordScore.Clean;
 
-    let customViewEl = document.getElementById("ssstalertvc-customView-Plunder_plunder")
+    let customViewEl = document.getElementById("alertvc-customView-Plunder_plunder")
     assertTrue(customViewEl.innerHTML.includes(`Furs</span></td><td class="right-aligned-cell">5</td>`), "HTML shows 5 furs")
 
     replay.replayEvent("cargo_FursPlunder_1", "click")
 
-    customViewEl = document.getElementById("ssstalertvc-customView-Plunder_plunder")
+    customViewEl = document.getElementById("alertvc-customView-Plunder_plunder")
     assertTrue(customViewEl.innerHTML.includes(`Furs</span></td><td class="right-aligned-cell">4</td>`), "HTML shows 4 furs")
 
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs), 1)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 1)
 
     replay.replayEvent("alertButton__Plunder_plunderDump_some_cargo", "click")
 
@@ -6369,7 +6369,7 @@ export class UnitTests {
 
     replay.replayEvent("cargo_FursDump_1", "click")
 
-    let alertTitleEl = document.getElementById("ssstalertvc-title")
+    let alertTitleEl = document.getElementById("alertvc-title")
     assertEqual(alertTitleEl.innerText, "Dumping cargo in space is considered littering. If the police track your dumped goods to you it will be reflected on your criminal record. Do you really wish to dump?")
 
     assertEqual(commander.litterWarning, true)
@@ -6377,7 +6377,7 @@ export class UnitTests {
     replay.replayEvent("alertButton_Yes__I_still_want_to", "click")
 
 
-    customViewEl = document.getElementById("ssstalertvc-customView-Plunder_dump")
+    customViewEl = document.getElementById("alertvc-customView-Plunder_dump")
     assertTrue(customViewEl.innerHTML.includes(`Furs</span></td><td class="right-aligned-cell">0</td>`), "HTML updated to show 0 furs")
 
 
@@ -6385,7 +6385,7 @@ export class UnitTests {
     replay.replayEvent("alertButton__Plunder_plunderDone", "click")
 
 
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs), 0)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 0)
 
     assertEqual(game.breakingNews[0], `Police Trace Orbiting Space Litter to ${commander.name}.`)
   }
@@ -6402,21 +6402,21 @@ export class UnitTests {
     replay.replayEvent("ecButton_Plunder", "click")
 
     // Erase police record so we get warned about littering
-    game.commander.policeRecordScore = SSSTPoliceRecordScore.Clean;
+    game.commander.policeRecordScore = PoliceRecordScore.Clean;
 
-    let customViewEl = document.getElementById("ssstalertvc-customView-Plunder_plunder")
+    let customViewEl = document.getElementById("alertvc-customView-Plunder_plunder")
     assertTrue(customViewEl.innerHTML.includes(`Furs</span></td><td class="right-aligned-cell">5</td>`), "HTML shows 5 furs")
 
     replay.replayEvent("cargo_FursPlunder_1", "click")
 
-    customViewEl = document.getElementById("ssstalertvc-customView-Plunder_plunder")
+    customViewEl = document.getElementById("alertvc-customView-Plunder_plunder")
     assertTrue(customViewEl.innerHTML.includes(`Furs</span></td><td class="right-aligned-cell">4</td>`), "HTML shows 4 furs")
 
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs), 1)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 1)
 
     replay.replayEvent("alertButton__Plunder_plunderDone", "click")
 
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs), 1)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 1)
   }
 
   test_surrender_pirate_noCargo() {
@@ -6430,7 +6430,7 @@ export class UnitTests {
     const netWorthBefore = commander.netWorth()
     replay.replayEvent("ecButton_Surrender", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "The pirates are upset that they found no cargo on your ship. To save yourself, you have no choice but to pay them 5% of your current net worth.")
+    assertEqual(AlertViewController.currentAlertTitle(), "The pirates are upset that they found no cargo on your ship. To save yourself, you have no choice but to pay them 5% of your current net worth.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -6448,15 +6448,15 @@ export class UnitTests {
     const creditsBefore = commander.credits
     replay.replayEvent("ecButton_Surrender", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "The pirates board your ship and transfer as much of your cargo to their own ship as their cargo bays can hold.")
+    assertEqual(AlertViewController.currentAlertTitle(), "The pirates board your ship and transfer as much of your cargo to their own ship as their cargo bays can hold.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
     assertEqual(commander.credits, creditsBefore)
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Water), 0)
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs), 0)
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Food), 0)
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Ore), 0)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Water), 0)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 0)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Food), 0)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Ore), 0)
   }
 
   test_surrender_police() {
@@ -6477,7 +6477,7 @@ export class UnitTests {
     replay.replayEvent("ecButton_Surrender", "click")
     replay.replayEvent("alertButton_Surrender", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to 33 days in prison and a fine of $332000.\nSince you can't pay your insurance while you're in prison, your insurance contract has been voided.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to 33 days in prison and a fine of $332000.\nSince you can't pay your insurance while you're in prison, your insurance contract has been voided.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
@@ -6508,16 +6508,16 @@ export class UnitTests {
     replay.replayEvent("ecButton_Surrender", "click")
     replay.replayEvent("alertButton_Surrender", "click")
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to 33 days in prison and a fine of $3000.\nSince you can't pay your insurance while you're in prison, your insurance contract has been voided.\nTo pay your fine, your ship had to be sold at auction. The police have given you a second-hand Flea so you can continue your travels.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to 33 days in prison and a fine of $3000.\nSince you can't pay your insurance while you're in prison, your insurance contract has been voided.\nTo pay your fine, your ship had to be sold at auction. The police have given you a second-hand Flea so you can continue your travels.")
 
     replay.replayEvent("alertButton_Dismiss", "click")
 
     assertEqual(commander.credits, 5958)
     assertEqual(commander.hasInsurance, false)
 
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Water), 2)
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs), 3)
-    assertEqual(commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Food), 4)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Water), 2)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 3)
+    assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Food), 4)
 
     assertEqual(commander.ship.gadgets.length, 0)
 
@@ -6533,7 +6533,7 @@ export class UnitTests {
     const stG = replay.spaceTraderGame
     const game = stG.viewController._game
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), `Since your ship was insured, the bank pays you $7374, the total value of the destroyed ship.`);
+    assertEqual(AlertViewController.currentAlertTitle(), `Since your ship was insured, the bank pays you $7374, the total value of the destroyed ship.`);
 
     replay.replayEvent("alertButton_Dismiss")
     replay.replayEvent("alertButton_Dismiss")
@@ -7199,7 +7199,7 @@ export class UnitTests {
     const commander = stG.viewController._game.commander
 
 
-    const alertTitleEl = document.getElementById("ssstalertvc-title")
+    const alertTitleEl = document.getElementById("alertvc-title")
     assertEqual(alertTitleEl.innerText, "The police find nothing illegal in your cargo holds and apologize for the inconvenience.")
 
 
@@ -7243,13 +7243,13 @@ export class UnitTests {
 
   test_saveLoad() {
     const gameDiv = document.getElementById("game")
-    let vc = new SSSTViewController(gameDiv, true)
+    let vc = new ViewController(gameDiv, true)
 
     const randSeed = Date.now()
-    runtime.gameRand = new MAGameRand(randSeed)
-    runtime.actionLog = new SSSTActionLogger(randSeed)
+    runtime.gameRand = new GameRand(randSeed)
+    runtime.actionLog = new ActionLogger(randSeed)
 
-    const mockLS = new SSSTMockLocalStorage()
+    const mockLS = new MockLocalStorage()
 
     vc._localStorage = mockLS
 
@@ -7258,7 +7258,7 @@ export class UnitTests {
     assertEqual(mockLS.getItem('games'), null)
     assertEqual(mockLS.getItem('highScoringGames'), null)
 
-    SSSTActionLogReplay.replayEvent("createCommander", "click")
+    ActionLogReplay.replayEvent("createCommander", "click")
 
     // After creating a game, one is saved. No high scoring games are saved.
     let saveGames = JSON.parse(mockLS.getItem('games')) || {}
@@ -7267,18 +7267,18 @@ export class UnitTests {
 
     // Check that the saved game looks valid
     const gameUniqueID = Object.keys(saveGames)[0]
-    MAUtils.ensureType(gameUniqueID, "string")
+    Utils.ensureType(gameUniqueID, "string")
 
-    const sg = SSSTGame.fromSerializedState(saveGames[gameUniqueID])
+    const sg = Game.fromSerializedState(saveGames[gameUniqueID])
     assertEqual(sg.commander.name, "Jean-Luc")
-    assertEqual(sg.endStatus, SSSTGameEndStatus.None)
+    assertEqual(sg.endStatus, GameEndStatus.None)
 
     // Clear out the old instance
     vc = null
     gameDiv.innerHTML = ''
 
     // Create a new VC and see that it loads the game
-    vc = new SSSTViewController(gameDiv, true)
+    vc = new ViewController(gameDiv, true)
     vc._localStorage = mockLS
 
     vc.presentView()
@@ -7287,9 +7287,9 @@ export class UnitTests {
     assertEqual(vc._game.commander.name, "Jean-Luc")
 
     // End the game, check that the game moves to the high scoring list and no longer appears in the in progress list
-    SSSTActionLogReplay.replayEvent("Commander", "click")
-    SSSTActionLogReplay.replayEvent("giveup", "click")
-    SSSTActionLogReplay.replayEvent("alertButton_Abandon_game", "click")
+    ActionLogReplay.replayEvent("Commander", "click")
+    ActionLogReplay.replayEvent("giveup", "click")
+    ActionLogReplay.replayEvent("alertButton_Abandon_game", "click")
 
     saveGames = JSON.parse(mockLS.getItem('games')) || {}
     assertEqual(Object.keys(saveGames).length, 0)
@@ -7298,16 +7298,16 @@ export class UnitTests {
     assertEqual(Object.keys(highScoreGames).length, 1)
 
     // Check that the saved high score game looks valid
-    const sg2 = SSSTGame.fromSerializedState(highScoreGames[gameUniqueID])
+    const sg2 = Game.fromSerializedState(highScoreGames[gameUniqueID])
     assertEqual(sg2.commander.name, "Jean-Luc")
-    assertEqual(sg2.endStatus, SSSTGameEndStatus.Retired)
+    assertEqual(sg2.endStatus, GameEndStatus.Retired)
   }
 
   _serializeAndDeserialize(game) {
     const gsJSONStr = JSON.stringify(game.serializedState())
     const gs = JSON.parse(gsJSONStr)
 
-    const game2 = SSSTGame.fromSerializedState(gs)
+    const game2 = Game.fromSerializedState(gs)
 
     return game2
   }
@@ -7325,7 +7325,7 @@ export class UnitTests {
     assertEqualGames(game, game2)
 
     // Spot check some properties
-    assertEqual(game2.difficulty, SSSTDifficulty.Normal)
+    assertEqual(game2.difficulty, Difficulty.Normal)
     assertEqual(game2.commander.credits, 1000)
 
 
@@ -7364,14 +7364,14 @@ export class UnitTests {
 
     // Spot check quests
 
-    game.jarekStatus = SSSTJarekQuestStatus.OnBoard
+    game.jarekStatus = JarekQuestStatus.OnBoard
 
     game2 = this._serializeAndDeserialize(game)
 
     assertEqualGames(game, game2)
     assertEqual(game2.questListDescription(), `Bring Ambassador Jarek to Devidia.`)
 
-		game.wildStatus = SSSTWildQuestStatus.OnBoard
+		game.wildStatus = WildQuestStatus.OnBoard
 
     game2 = this._serializeAndDeserialize(game)
 
@@ -7399,13 +7399,13 @@ export class UnitTests {
     assertEqualGames(game, game2)
 
     // Spot check some properties
-    assertEqual(game2.difficulty, SSSTDifficulty.Normal)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Water), 1)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Furs), 0)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Food), 2)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Ore), 2)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Games), 2)
-    assertEqual(game2.commander.ship.tradeItemQuantityForType(SSSTTradeItemType.Machines), 0)
+    assertEqual(game2.difficulty, Difficulty.Normal)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Water), 1)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 0)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Food), 2)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Ore), 2)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Games), 2)
+    assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Machines), 0)
     assertEqual(game2.commander.credits, 545215)
 
 
@@ -7446,14 +7446,14 @@ export class UnitTests {
 
     // Spot check quests
 
-    game.jarekStatus = SSSTJarekQuestStatus.OnBoard
+    game.jarekStatus = JarekQuestStatus.OnBoard
 
     game2 = this._serializeAndDeserialize(game)
 
     assertEqualGames(game, game2)
     assertEqual(game2.questListDescription(), `Bring Ambassador Jarek to Devidia.`)
 
-		game.wildStatus = SSSTWildQuestStatus.OnBoard
+		game.wildStatus = WildQuestStatus.OnBoard
 
     game2 = this._serializeAndDeserialize(game)
 
@@ -7583,7 +7583,7 @@ export class UnitTests {
     assertEqual(runtime.actionLog.asyncClosureQueue.length, 0)
     closure()
 
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You've managed to escape your opponent.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You've managed to escape your opponent.")
   }
 
   test_auto_flee_interrupt() {
@@ -7625,7 +7625,7 @@ export class UnitTests {
     assertEqual(document.getElementById("ecButton_Flee") !== null, true)
 
     replay.replayEvent("ecButton_Auto_Flee")
-    assertEqual(SSSTAlertViewController.currentAlertTitle(), "You've managed to escape your opponent.")
+    assertEqual(AlertViewController.currentAlertTitle(), "You've managed to escape your opponent.")
   }
 
 // Stress tests
@@ -7695,7 +7695,7 @@ export class UnitTests {
 
   _performStressTest(testName, randSeed, initialLog, numActionsToPerform, avoidGalacticChart, prioritizeBlastOff) {
     // Use a deterministic random number generator that is not the one used by the game (so I can take a log that hit an issue and replay it in index.html)
-    const testRand = new MAGameRand(randSeed)
+    const testRand = new GameRand(randSeed)
 
     // Hook into runtime.actionLog to remember the id of every element registered
     let seenElementIDs = []
@@ -7811,12 +7811,12 @@ export class UnitTests {
   _runReplayLog(replayLog, hackHandler, registerEventHandler) {
     let gameDiv = document.getElementById("game")
     gameDiv.innerHTML = ''
-    SSSTAlertViewController.clearAlerts()
+    AlertViewController.clearAlerts()
 
     const randSeed = Date.now()
-    runtime.gameRand = new MAGameRand(randSeed)
-    runtime.actionLog = new SSSTActionLogger(randSeed)
-    runtime.stLocalStorage = new SSSTMockLocalStorage()
+    runtime.gameRand = new GameRand(randSeed)
+    runtime.actionLog = new ActionLogger(randSeed)
+    runtime.stLocalStorage = new MockLocalStorage()
 
     if (registerEventHandler) {
       runtime.actionLog.registerEventHandler = registerEventHandler
@@ -7825,7 +7825,7 @@ export class UnitTests {
     const spaceTraderGame = new SpaceTraderGame(gameDiv, false)
     spaceTraderGame.main()
 
-    let replay = new SSSTActionLogReplay(replayLog, spaceTraderGame, hackHandler)
+    let replay = new ActionLogReplay(replayLog, spaceTraderGame, hackHandler)
     replay.replay()
 
     return replay
@@ -7882,28 +7882,28 @@ export class UnitTests {
     let passCount = 0
     for (let method of methods) {
       if (testNameCheck(method)) {
-        MALog.log("=== Invoking " + method + " ===")
+        Log.log("=== Invoking " + method + " ===")
         console.log("=== Invoking " + method + " ===")
         this[method]();
 
         let gameDiv = document.getElementById("game")
         gameDiv.innerHTML = ''
 
-        SSSTAlertViewController.clearAlerts()
+        AlertViewController.clearAlerts()
 
         if (caughtError) {
-          MALog.log("Failed test: hit exception captured by window.onerror.\n" + caughtError + "\n" + caughtError.stack)
+          Log.log("Failed test: hit exception captured by window.onerror.\n" + caughtError + "\n" + caughtError.stack)
           throw caughtError
         }
 
         passCount++
       }
     }
-    MALog.log(passCount + " tests and " + assertionCount + " assertions passed successfully!")
-    MALog.log(pLog.summaryString())
+    Log.log(passCount + " tests and " + assertionCount + " assertions passed successfully!")
+    Log.log(pLog.summaryString())
     const endTime = Date.now()
     const runTimeSec = Math.round((endTime - startTime) / 1000)
-    MALog.log(`Completed in ${runTimeSec} seconds`)
+    Log.log(`Completed in ${runTimeSec} seconds`)
   }
 
   run() {

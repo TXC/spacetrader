@@ -1,28 +1,28 @@
 // @ts-nocheck
-import { SSSTAlertActionType, SSSTAlertViewController } from './AlertViewController.ts'
-import { SSSTGame, SSSTGameEndStatus } from '../game/Game.ts'
+import { AlertActionType, AlertViewController } from './AlertViewController.ts'
+import { Game, GameEndStatus } from '../game/Game.ts'
 import { DIFFICULTY_STR } from '../game/SolarSystem.types.ts'
-import { MAUtils, pLog } from '../game/Utilities.ts'
+import { Utils, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
 export const MAX_HIGH_SCORES = 6;
 
 export function END_STATUS_STR(x) {
   switch (x) {
-    case SSSTGameEndStatus.None:
+    case GameEndStatus.None:
       return "is still playing";
-    case SSSTGameEndStatus.Retired:
+    case GameEndStatus.Retired:
       return "retired";
-    case SSSTGameEndStatus.Killed:
+    case GameEndStatus.Killed:
       return "was killed";
-    case SSSTGameEndStatus.Moon:
+    case GameEndStatus.Moon:
       return "claimed a moon";
     default:
       return "retired";
   }
 }
 
-export class SSSTEndGameViewController {
+export class EndGameViewController {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
   constructor(div, game, inProgress) {
     this.div = div
@@ -36,7 +36,7 @@ export class SSSTEndGameViewController {
 
     if (!this._inProgress) {
       const title = "Game Over"
-      const h = MAUtils.createElement('h1', { textContent: title }, containerDiv);
+      const h = Utils.createElement('h1', { textContent: title }, containerDiv);
       h.classList.add('centered')
     }
 
@@ -76,7 +76,7 @@ export class SSSTEndGameViewController {
     }
 
 
-    const hallOfFameTitle = MAUtils.createElement('h3', { textContent: 'Hall of Fame' }, containerDiv);
+    const hallOfFameTitle = Utils.createElement('h3', { textContent: 'Hall of Fame' }, containerDiv);
     hallOfFameTitle.classList.add('centered')
     const scoringGames = this.delegate.highScoringGamesWithinCount(MAX_HIGH_SCORES)
 
@@ -86,7 +86,7 @@ export class SSSTEndGameViewController {
     if (scoringGames.length > 0) {
       for (let g of scoringGames) {
         console.log("serialized state: " + JSON.stringify(g))
-        const game = SSSTGame.fromSerializedState(g)
+        const game = Game.fromSerializedState(g)
         let gameStr = `${game.commander.name} ${END_STATUS_STR(game.endStatus)} after ${game.commander.days} day${game.commander.days === 1 ? '' : 's'}, worth $${game.commander.netWorth()} on ${DIFFICULTY_STR(game.difficulty)} level. Score: ${game.scorePercentageString()}.`;
 
         highScoresStr += comma + gameStr
@@ -111,14 +111,14 @@ export class SSSTEndGameViewController {
       clearHighScoresButton.id = "clearall"
       runtime.actionLog.registerButtonEventListener(clearHighScoresButton, 'click', () => {
 
-        let aC = new SSSTAlertViewController("Clear all high scores? This can't be undone.")
-        aC.addAction("Clear all", SSSTAlertActionType.Destructive, () => {
+        let aC = new AlertViewController("Clear all high scores? This can't be undone.")
+        aC.addAction("Clear all", AlertActionType.Destructive, () => {
           pLog.log(93)
           this.delegate.clearAllHighScoringGames()
           this.presentView()
         })
 
-        aC.addAction("Cancel", SSSTAlertActionType.Cancel, null)
+        aC.addAction("Cancel", AlertActionType.Cancel, null)
 
         aC.presentView()
       });

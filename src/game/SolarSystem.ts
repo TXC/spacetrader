@@ -1,32 +1,32 @@
-import { SSSTCrewMember } from './CrewMember.ts'
-import type { SSSTCrewMemberState } from './CrewMember.ts'
-import { SSSTPolitics, occurrenceStr } from './Politics.ts'
-import { SSSTSpecialEvent, SSSTSystemSize, SYSTEM_SIZE_STR } from './SolarSystem.types.ts'
-import { SSSTTradeItem } from './TradeItem.ts'
-import { RESOURCES_STR, SSSTResource, SSSTStatus, SSSTTechLevel, SSSTTradeItemType, STATUS_STR, TECH_LEVEL_STR } from './TradeItem.types.ts'
-import { MAUtils } from './Utilities.ts'
+import { CrewMember } from './CrewMember.ts'
+import type { CrewMemberState } from './CrewMember.ts'
+import { Politics, occurrenceStr } from './Politics.ts'
+import { SpecialEvent, SystemSize, SYSTEM_SIZE_STR } from './SolarSystem.types.ts'
+import { TradeItem } from './TradeItem.ts'
+import { RESOURCES_STR, Resource, Status, TechLevel, TradeItemType, STATUS_STR, TECH_LEVEL_STR } from './TradeItem.types.ts'
+import { Utils } from './Utilities.ts'
 import { runtime } from './runtime.ts'
 
 // What serializedState() writes into a saved game.
-export type SSSTSolarSystemState = {
+export type SolarSystemState = {
     name: string, techLevel: number, status: number, specialResource: number, size: number,
     specialEvent: number, difficulty: number, politicsType: number, x: number, y: number,
     inventoryReplenishCountdown: number, visited: boolean, wormholeName?: string,
-    mercenary?: SSSTCrewMemberState, tradeItemInventory: number[],
+    mercenary?: CrewMemberState, tradeItemInventory: number[],
 }
 
-export class SSSTSolarSystem {
+export class SolarSystem {
     static declare sSystemNames: string[] | undefined
     declare _name: string
     declare _x: number
     declare _y: number
     declare _difficulty: number
-    declare _mercenary: SSSTCrewMember | null
-    declare _wormhole: SSSTSolarSystem | null
+    declare _mercenary: CrewMember | null
+    declare _wormhole: SolarSystem | null
     declare _specialEvent: number
     declare _visited: boolean
     declare _techLevel: number
-    declare _politics: SSSTPolitics
+    declare _politics: Politics
     declare _specialResource: number
     declare _size: number
     declare _status: number
@@ -38,10 +38,10 @@ export class SSSTSolarSystem {
           return
         }
 
-        MAUtils.ensureType(name, "string")
+        Utils.ensureType(name, "string")
         this._name = name;
 
-        MAUtils.ensureArrayOrNull([x, y, difficulty], "number")
+        Utils.ensureArrayOrNull([x, y, difficulty], "number")
         this._x = x!;
         this._y = y!;
         this._difficulty = difficulty!;
@@ -49,22 +49,22 @@ export class SSSTSolarSystem {
         this._mercenary = null
         this._wormhole = null
 
-        this._specialEvent = SSSTSpecialEvent.None;
+        this._specialEvent = SpecialEvent.None;
         this._visited = false;
 
         // Randomize the other properties
-        this._techLevel = runtime.gameRand.randomIntBelow(SSSTTechLevel.Count);
-        this._politics = SSSTPolitics.randomPoliticsForTechLevel(this._techLevel);
+        this._techLevel = runtime.gameRand.randomIntBelow(TechLevel.Count);
+        this._politics = Politics.randomPoliticsForTechLevel(this._techLevel);
 
         if (runtime.gameRand.randomIntBelow(5) >= 3) {
-            this._specialResource = 1 + runtime.gameRand.randomIntBelow((SSSTResource.Count - 1));
+            this._specialResource = 1 + runtime.gameRand.randomIntBelow((Resource.Count - 1));
         } else {
-            this._specialResource = SSSTResource.None;
+            this._specialResource = Resource.None;
         }
 
-        this._size = runtime.gameRand.randomIntBelow(SSSTSystemSize.Count);
+        this._size = runtime.gameRand.randomIntBelow(SystemSize.Count);
 
-        this._status = SSSTStatus.Uneventful;
+        this._status = Status.Uneventful;
         this.randomizeStatus();
 
         this._inventoryReplenishCountdown = 0;
@@ -92,11 +92,11 @@ export class SSSTSolarSystem {
     }
 
     static indexForSystemName(name: string) {
-        return SSSTSolarSystem.solarSystemNames().indexOf(name);
+        return SolarSystem.solarSystemNames().indexOf(name);
     }
 
-    static solarSystemForName(name: string | null | undefined, solarSystems: SSSTSolarSystem[]) {
-        MAUtils.ensureArrayOrNull(solarSystems, "object")
+    static solarSystemForName(name: string | null | undefined, solarSystems: SolarSystem[]) {
+        Utils.ensureArrayOrNull(solarSystems, "object")
 
         if (!name) return null;
 
@@ -108,8 +108,8 @@ export class SSSTSolarSystem {
         return null;
     }
 
-    static fromSerializedState(serializedState: SSSTSolarSystemState) {
-        const solarSystem = new SSSTSolarSystem()
+    static fromSerializedState(serializedState: SolarSystemState) {
+        const solarSystem = new SolarSystem()
         solarSystem._name = serializedState.name;
         solarSystem._techLevel = serializedState.techLevel;
         solarSystem._status = serializedState.status;
@@ -117,7 +117,7 @@ export class SSSTSolarSystem {
         solarSystem._size = serializedState.size;
         solarSystem._specialEvent = serializedState.specialEvent;
         solarSystem._difficulty = serializedState.difficulty;
-        solarSystem._politics = SSSTPolitics.politicsForType(serializedState.politicsType)!;
+        solarSystem._politics = Politics.politicsForType(serializedState.politicsType)!;
 
         solarSystem._x = serializedState.x;
         solarSystem._y = serializedState.y;
@@ -128,24 +128,24 @@ export class SSSTSolarSystem {
 
         const mercenaryState = serializedState.mercenary;
         if (mercenaryState) {
-            solarSystem._mercenary = SSSTCrewMember.fromSerializedState(mercenaryState);
-            MAUtils.ensureObjectOrNull(solarSystem._mercenary)
+            solarSystem._mercenary = CrewMember.fromSerializedState(mercenaryState);
+            Utils.ensureObjectOrNull(solarSystem._mercenary)
         } else {
             solarSystem._mercenary = null
         }
 
         const tradeItemInventoryArray = serializedState.tradeItemInventory;
-        solarSystem._tradeItemInventory = Array(SSSTTradeItemType.Count).fill(0);
-        for (let tradeItemType = 0; tradeItemType < SSSTTradeItemType.Count; ++tradeItemType) {
+        solarSystem._tradeItemInventory = Array(TradeItemType.Count).fill(0);
+        for (let tradeItemType = 0; tradeItemType < TradeItemType.Count; ++tradeItemType) {
             solarSystem._tradeItemInventory[tradeItemType] = tradeItemInventoryArray[tradeItemType];
         }
 
         return solarSystem
     }
 
-    updateWormholeForSerializedState(serializedState: SSSTSolarSystemState, solarSystems: SSSTSolarSystem[]) {
+    updateWormholeForSerializedState(serializedState: SolarSystemState, solarSystems: SolarSystem[]) {
         const wormholeName = serializedState.wormholeName;
-        this._wormhole = SSSTSolarSystem.solarSystemForName(wormholeName, solarSystems);
+        this._wormhole = SolarSystem.solarSystemForName(wormholeName, solarSystems);
     }
 
     get x() {
@@ -173,13 +173,13 @@ export class SSSTSolarSystem {
 		}
 
     set techLevel(t: number) {
-      if (MAUtils.ensureInteger(t)) {
+      if (Utils.ensureInteger(t)) {
         this._techLevel = t
       }
     }
 
     setVisited(v: boolean) {
-      if (MAUtils.ensureBool(v)) {
+      if (Utils.ensureBool(v)) {
         this._visited = v;
       }
     }
@@ -197,13 +197,13 @@ export class SSSTSolarSystem {
 		}
 
 		set inventoryReplenishCountdown(i: number) {
-      if (MAUtils.ensureInteger(i)) {
+      if (Utils.ensureInteger(i)) {
 				this._inventoryReplenishCountdown = i;
       }
 		}
 
-    setWormhole(sys: SSSTSolarSystem) {
-      if (MAUtils.ensureType(sys, "object")) {
+    setWormhole(sys: SolarSystem) {
+      if (Utils.ensureType(sys, "object")) {
         this._wormhole = sys;
       }
     }
@@ -221,7 +221,7 @@ export class SSSTSolarSystem {
     }
 
     setSpecialEvent(sE: number) {
-      if (MAUtils.ensureInteger(sE)) {
+      if (Utils.ensureInteger(sE)) {
         this._specialEvent = sE;
       }
     }
@@ -238,8 +238,8 @@ export class SSSTSolarSystem {
       this.setSpecialEvent(sE)
     }
 
-    setMercenary(m: SSSTCrewMember) {
-      if (MAUtils.ensureType(m, "object")) {
+    setMercenary(m: CrewMember) {
+      if (Utils.ensureType(m, "object")) {
         this._mercenary = m;
       }
     }
@@ -260,8 +260,8 @@ export class SSSTSolarSystem {
         return this._politics;
     }
 
-    set politics(p: SSSTPolitics) {
-      if (MAUtils.ensureInteger(p.type)) {
+    set politics(p: Politics) {
+      if (Utils.ensureInteger(p.type)) {
         this._politics = p
       }
     }
@@ -281,9 +281,9 @@ export class SSSTSolarSystem {
     }
 
     _initializeInventories() {
-        this._tradeItemInventory = Array(SSSTTradeItemType.Count).fill(0);
-        for (let itemType = 0; itemType < SSSTTradeItemType.Count; ++itemType) {
-            const item = SSSTTradeItem.tradeItemForType(itemType)!;
+        this._tradeItemInventory = Array(TradeItemType.Count).fill(0);
+        for (let itemType = 0; itemType < TradeItemType.Count; ++itemType) {
+            const item = TradeItem.tradeItemForType(itemType)!;
 
             if (!this._canProduceItem(itemType)) {
                 this._tradeItemInventory[itemType] = 0;
@@ -292,23 +292,23 @@ export class SSSTSolarSystem {
 
             this._tradeItemInventory[itemType] = ((9 + runtime.gameRand.randomIntBelow(5)) - Math.abs(item.techLevelMaxProd - this._techLevel)) * (1 + this._size);
 
-            if (itemType === SSSTTradeItemType.Robots || itemType === SSSTTradeItemType.Narcotics) {
+            if (itemType === TradeItemType.Robots || itemType === TradeItemType.Narcotics) {
                 this._tradeItemInventory[itemType] = Math.floor((this._tradeItemInventory[itemType] * (5 - this._difficulty)) / (6 - this._difficulty)) + 1;
             }
 
-            if (item.cheapResource !== SSSTResource.None) {
+            if (item.cheapResource !== Resource.None) {
                 if (this._specialResource === item.cheapResource) {
                     this._tradeItemInventory[itemType] = Math.floor((this._tradeItemInventory[itemType] * 4) / 3);
                 }
             }
 
-            if (item.expensiveResource !== SSSTResource.None) {
+            if (item.expensiveResource !== Resource.None) {
                 if (this._specialResource === item.expensiveResource) {
                     this._tradeItemInventory[itemType] = Math.floor((this._tradeItemInventory[itemType] * 3) / 4);
                 }
             }
 
-            if (item.doublePriceStatus !== SSSTStatus.Uneventful) {
+            if (item.doublePriceStatus !== Status.Uneventful) {
                 if (this._status === item.doublePriceStatus) {
                     this._tradeItemInventory[itemType] = Math.floor(this._tradeItemInventory[itemType] / 5);
                 }
@@ -317,31 +317,31 @@ export class SSSTSolarSystem {
             this._tradeItemInventory[itemType] = this._tradeItemInventory[itemType] - runtime.gameRand.randomIntBelow(10) + runtime.gameRand.randomIntBelow(10);
             this._tradeItemInventory[itemType] = Math.max(this._tradeItemInventory[itemType], 0);
 
-            MAUtils.ensureInteger(this._tradeItemInventory[itemType])
+            Utils.ensureInteger(this._tradeItemInventory[itemType])
         }
     }
 
-    distanceTo(other: SSSTSolarSystem) {
+    distanceTo(other: SolarSystem) {
         return Math.floor(Math.sqrt(this.squaredDistanceTo(other)));
     }
 
-    squaredDistanceTo(other: SSSTSolarSystem) {
+    squaredDistanceTo(other: SolarSystem) {
         return Math.floor(this.squaredDistanceToXY(other._x, other._y));
     }
 
     squaredDistanceToXY(x: number, y: number) {
-      MAUtils.ensureInteger(x)
-      MAUtils.ensureInteger(y)
+      Utils.ensureInteger(x)
+      Utils.ensureInteger(y)
       return Math.floor((this._x - x) ** 2 + (this._y - y) ** 2);
     }
 
     standardPriceForItem(itemType: number) {
-        if ((itemType === SSSTTradeItemType.Narcotics && !this._politics.drugsTradeable) ||
-            (itemType === SSSTTradeItemType.Firearms && !this._politics.firearmsTradeable)) {
+        if ((itemType === TradeItemType.Narcotics && !this._politics.drugsTradeable) ||
+            (itemType === TradeItemType.Firearms && !this._politics.firearmsTradeable)) {
             return 0;
         }
 
-        const item = SSSTTradeItem.tradeItemForType(itemType)!;
+        const item = TradeItem.tradeItemForType(itemType)!;
 
         if (this._techLevel < item.techLevelToUse) {
             return 0;
@@ -356,7 +356,7 @@ export class SSSTSolarSystem {
         price = Math.floor((price * (100 - 2 * this._politics.occurrenceTraders)) / 100);
         price = Math.floor((price * (100 - this._size)) / 100);
 
-        if (this._visited && this._specialResource !== SSSTResource.None) {
+        if (this._visited && this._specialResource !== Resource.None) {
             if (item.cheapResource === this._specialResource) {
                 price = Math.floor((price * 3) / 4);
             }
@@ -366,30 +366,30 @@ export class SSSTSolarSystem {
             }
         }
 
-        MAUtils.ensureInteger(price)
+        Utils.ensureInteger(price)
 
         return Math.max(price, 0);
     }
 
     tradeItemQuantityForType(type: number) {
-        //console.assert(type >= 0 && type < SSSTTradeItemType.Count);
-        MAUtils.ensureInteger(type)
+        //console.assert(type >= 0 && type < TradeItemType.Count);
+        Utils.ensureInteger(type)
         return this._tradeItemInventory[type];
     }
 
     boughtQuantity(quantity: number, type: number) {
-        //console.assert(type >= 0 && type < SSSTTradeItemType.Count);
-        if (MAUtils.ensureInteger(quantity) && MAUtils.ensureInteger(type)) {
+        //console.assert(type >= 0 && type < TradeItemType.Count);
+        if (Utils.ensureInteger(quantity) && Utils.ensureInteger(type)) {
           this._tradeItemInventory[type] -= Math.min(quantity, this._tradeItemInventory[type]);
         }
     }
 
     _canProduceItem(itemType: number) {
-        const item = SSSTTradeItem.tradeItemForType(itemType)!;
+        const item = TradeItem.tradeItemForType(itemType)!;
 
         const cantProduceItem =
-            ((itemType === SSSTTradeItemType.Narcotics) && !this._politics.drugsTradeable) ||
-            ((itemType === SSSTTradeItemType.Firearms) && !this._politics.firearmsTradeable) ||
+            ((itemType === TradeItemType.Narcotics) && !this._politics.drugsTradeable) ||
+            ((itemType === TradeItemType.Firearms) && !this._politics.firearmsTradeable) ||
             (this._techLevel < item.techLevelToProduce);
 
         return !cantProduceItem;
@@ -402,7 +402,7 @@ export class SSSTSolarSystem {
             if (this._inventoryReplenishCountdown <= 0) {
                 this._initializeInventories();
             } else {
-                for (let itemType = 0; itemType < SSSTTradeItemType.Count; ++itemType) {
+                for (let itemType = 0; itemType < TradeItemType.Count; ++itemType) {
                     if (!this._canProduceItem(itemType)) {
                         this._tradeItemInventory[itemType] = 0;
                         continue;
@@ -412,7 +412,7 @@ export class SSSTSolarSystem {
                 }
             }
         } else {
-            for (let itemType = 0; itemType < SSSTTradeItemType.Count; ++itemType) {
+            for (let itemType = 0; itemType < TradeItemType.Count; ++itemType) {
                 if (!this._canProduceItem(itemType)) {
                     this._tradeItemInventory[itemType] = 0;
                     continue;
@@ -422,10 +422,10 @@ export class SSSTSolarSystem {
     }
 
     randomizeStatus() {
-        const hasStatus = this._status !== SSSTStatus.Uneventful;
+        const hasStatus = this._status !== Status.Uneventful;
 
         if (runtime.gameRand.randomIntBelow(100) < 15) {
-            this._status = hasStatus ? SSSTStatus.Uneventful : (1 + runtime.gameRand.randomIntBelow((SSSTStatus.Count - 1)));
+            this._status = hasStatus ? Status.Uneventful : (1 + runtime.gameRand.randomIntBelow((Status.Count - 1)));
         }
     }
 
@@ -436,55 +436,55 @@ export class SSSTSolarSystem {
 
     serializedState() {
         // Filled in field by field below.
-        const state = {} as SSSTSolarSystemState;
+        const state = {} as SolarSystemState;
 
-        MAUtils.ensureType(this._name, "string")
+        Utils.ensureType(this._name, "string")
         state.name = this._name;
 
-        MAUtils.ensureInteger(this._techLevel)
+        Utils.ensureInteger(this._techLevel)
         state.techLevel = this._techLevel;
 
-        MAUtils.ensureInteger(this._status)
+        Utils.ensureInteger(this._status)
         state.status = this._status;
 
-        MAUtils.ensureInteger(this._specialResource)
+        Utils.ensureInteger(this._specialResource)
         state.specialResource = this._specialResource;
 
-        MAUtils.ensureInteger(this._size)
+        Utils.ensureInteger(this._size)
         state.size = this._size;
 
-        MAUtils.ensureInteger(this._specialEvent)
+        Utils.ensureInteger(this._specialEvent)
         state.specialEvent = this._specialEvent;
 
-        MAUtils.ensureInteger(this._difficulty)
+        Utils.ensureInteger(this._difficulty)
         state.difficulty = this._difficulty;
 
-        MAUtils.ensureInteger(this._politics.type)
+        Utils.ensureInteger(this._politics.type)
         state.politicsType = this._politics.type;
 
-        MAUtils.ensureInteger(this._x)
+        Utils.ensureInteger(this._x)
         state.x = this._x;
-        MAUtils.ensureInteger(this._y)
+        Utils.ensureInteger(this._y)
         state.y = this._y;
 
-        MAUtils.ensureInteger(this._inventoryReplenishCountdown)
+        Utils.ensureInteger(this._inventoryReplenishCountdown)
         state.inventoryReplenishCountdown = this._inventoryReplenishCountdown;
 
-        MAUtils.ensureBool(this._visited)
+        Utils.ensureBool(this._visited)
         state.visited = this._visited;
 
-        MAUtils.ensureObjectOrNull(this._wormhole)
+        Utils.ensureObjectOrNull(this._wormhole)
         if (this._wormhole) {
-          MAUtils.ensureType(this._wormhole.name, "string")
+          Utils.ensureType(this._wormhole.name, "string")
           state.wormholeName = this._wormhole.name;
         }
 
-        MAUtils.ensureObjectOrNull(this._mercenary)
+        Utils.ensureObjectOrNull(this._mercenary)
         if (this._mercenary) {
           state.mercenary = this._mercenary.serializedState();
         }
 
-        MAUtils.ensureArrayOrNull(this._tradeItemInventory, "number")
+        Utils.ensureArrayOrNull(this._tradeItemInventory, "number")
         state.tradeItemInventory = this._tradeItemInventory.map(item => item);
 
         return state;
