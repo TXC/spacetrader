@@ -31,8 +31,9 @@ pnpm exec playwright install chromium
 | `src/game/`          | Game rules. No page code and no React.              |
 | `src/ui/`            | The screens, as React components, and the styles.   |
 | `src/ui/canvas/`     | Canvas drawing for the star map and the trip strip. |
-| `src/tests/`         | The recorded tests and other tests that need a page.|
-| `src/tests/support/` | Helpers that let the recorded tests run unchanged.  |
+| `src/tests/`         | Tests that need a page.                             |
+| `src/tests/flows/`   | Flow tests: recorded play sessions, replayed.       |
+| `src/tests/support/` | The replay helper and page helpers for the tests.   |
 | `old/`               | The original JavaScript game. Do not edit.          |
 
 How the pieces fit:
@@ -44,8 +45,9 @@ How the pieces fit:
 - Rules never run while a screen is being drawn.
 
 Plain tests of the rules sit next to them as `src/game/*.test.ts` and
-run in Node. The recorded tests replay real play sessions by element id,
-so every screen keeps the ids the original game used.
+run in Node. The flow tests replay recorded play sessions by clicking
+elements by id. An element's id is therefore something the tests rely
+on: renaming one breaks the recordings that use it.
 
 ## Roadmap
 
@@ -53,9 +55,10 @@ so every screen keeps the ids the original game used.
 2. **Done:** every screen is a React component.
 3. **Done:** a layout that follows the window. One number sets the size
    of everything: the `font-size` on `html` in `src/ui/style.css`.
-4. **Next:** rewrite the recorded tests as flow tests.
-5. **Later:** the debug panel, offline support, a two-pane layout for
-   wide screens, and tidying the carried-over rules code.
+4. **Done:** the recorded tests are ordinary test files.
+5. **Next:** the debug panel, offline support, and tidying the
+   carried-over rules code.
+6. **Later:** a two-pane layout for wide screens.
 
 The designs and plans are in `docs/superpowers/`. The ones for the
 TypeScript step use the file names from before the `SSST` prefix was
