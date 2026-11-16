@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Ship } from '../game/Ship.ts'
+import { ShipPicture } from './ShipPicture.tsx'
 
 type Props = {
   ship: Ship
@@ -35,7 +36,7 @@ export function ShipView({ ship, enemy, fade, leaving, animate }: Props) {
   const fading = fade ? ' battle-opponent-crossfade fade-in' : ''
   return (
     <div className={'battle-opponent' + fading + (visible ? ' visible' : '')}>
-      <img className={'full-width-img' + (enemy ? ' flipped' : '')} src={ship.model.shipImage.generatePNG(3)} />
+      <ShipPicture model={ship.model} flipped={enemy} />
       <div className="hp-container" id={`battle-hpContainer-${side}-${ship.model.name}`} style={{ visibility: ship.model.hullStrength === 0 ? 'hidden' : 'visible' }}>
         <div className={'hp-bar' + slide} id={`battle-hpBar-${side}`} style={{ width: share(ship.hullPercentage()) }} />
       </div>
