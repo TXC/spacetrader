@@ -592,13 +592,13 @@ export const Utils = {
   maintainScrollPosition(block: () => void) {
     const scrollX = window.scrollX
     const scrollY = window.scrollY
-    ma_maintainScrollPositionLevel++
+    maintainScrollPositionLevel++
 
     block()
 
-    ma_maintainScrollPositionLevel--
+    maintainScrollPositionLevel--
 
-    if (ma_maintainScrollPositionLevel === 0) {
+    if (maintainScrollPositionLevel === 0) {
       console.log(`Restoring scroll position ${scrollX} ${scrollY}`)
       // Worked most of the time without setTimeout but failed a small
       // percent of the time. Adding an async retry allows layout to settle.
@@ -611,4 +611,4 @@ export const Utils = {
 }
 Object.freeze(Utils)
 
-export let ma_maintainScrollPositionLevel = 0
+export let maintainScrollPositionLevel = 0
