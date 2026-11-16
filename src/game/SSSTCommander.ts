@@ -1,7 +1,8 @@
-// @ts-nocheck
 import { ACCESSORY_FOR_TYPE } from './SSSTAccessory.ts'
 import { SSSTCrewMember } from './SSSTCrewMember.ts'
+import type { SSSTCrewMemberState } from './SSSTCrewMember.ts'
 import { SSSTShip } from './SSSTShip.ts'
+import type { SSSTShipModel, SSSTShipState } from './SSSTShip.ts'
 import { SSSTSolarSystem } from './SSSTSolarSystem.ts'
 import { MOON_PRICE, SSSTDifficulty } from './SSSTSolarSystem_h.ts'
 import { SSSTTradeItem } from './SSSTTradeItem.ts'
@@ -34,9 +35,10 @@ export const SSSTPoliceRecordScore = {
     Trusted: 10,
     Liked: 25,
     Hero: 75
-};
+} as const;
+export type SSSTPoliceRecordScore = (typeof SSSTPoliceRecordScore)[keyof typeof SSSTPoliceRecordScore];
 
-export function POLICE_RECORD_STR(x) {
+export function POLICE_RECORD_STR(x: number) {
     if (x <= SSSTPoliceRecordScore.Psycho) {
         return "Psycho";
     } else if (x <= SSSTPoliceRecordScore.Villain) {
@@ -60,7 +62,7 @@ export function POLICE_RECORD_STR(x) {
     }
 }
 
-export function POLICE_RECORD_MULTIPLIER(x) {
+export function POLICE_RECORD_MULTIPLIER(x: number) {
     if (x < SSSTPoliceRecordScore.Psycho) {
         return 3;
     } else if (x < SSSTPoliceRecordScore.Villain) {
@@ -80,12 +82,13 @@ export const SSSTReputationScore = {
     Dangerous: 300,
     Deadly: 600,
     Elite: 1500
-};
+} as const;
+export type SSSTReputationScore = (typeof SSSTReputationScore)[keyof typeof SSSTReputationScore];
 
 export let DEFAULT_REPUTATION_SCORE = SSSTReputationScore.Harmless;
 
 
-export function REPUTATION_STR(x) {
+export function REPUTATION_STR(x: number) {
     if (x >= SSSTReputationScore.Elite) {
         return "Elite";
     } else if (x >= SSSTReputationScore.Deadly) {
@@ -108,9 +111,43 @@ export function REPUTATION_STR(x) {
 }
 
 
+// What serializedState() writes into a saved game.
+export type SSSTCommanderState = SSSTCrewMemberState & {
+    credits: number, debt: number, days: number, policeKills: number, traderKills: number,
+    pirateKills: number, policeRecordScore: number, reputationScore: number, noClaim: number,
+    travelClicksRemaining: number, difficulty: number,
+    boughtMoon: boolean, hasEscapePod: boolean, hasInsurance: boolean, raided: boolean,
+    inspected: boolean, litterWarning: boolean, artifactOnBoard: boolean,
+    arrivedViaWormhole: boolean, reserveMoney: boolean,
+    currentSystemName: string, ship: SSSTShipState, basePrices?: number[],
+}
+
 export class SSSTCommander extends SSSTCrewMember {
-    [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
-    constructor(name, engineer = 0, pilot = 0, fighter = 0, trader = 0) {
+    declare _basePrices: number[] | null
+    declare days: number
+    declare _noClaim: number
+    declare policeKills: number
+    declare traderKills: number
+    declare pirateKills: number
+    declare policeRecordScore: number
+    declare _debt: number
+    declare _reputationScore: number
+    declare _travelClicksRemaining: number
+    declare _arrivedViaWormhole: boolean
+    declare artifactOnBoard: boolean
+    declare _litterWarning: boolean
+    declare _inspected: boolean
+    declare _raided: boolean
+    declare _boughtMoon: boolean
+    declare _hasEscapePod: boolean
+    declare _hasInsurance: boolean
+    declare _credits: number
+    declare _difficulty: number
+    declare _reserveMoney: boolean
+    declare _currentSystem: SSSTSolarSystem
+    declare ship: SSSTShip
+
+    constructor(name: string | null, engineer = 0, pilot = 0, fighter = 0, trader = 0) {
 			super(name, engineer, pilot, fighter, trader)
 
       this._basePrices = null
@@ -133,27 +170,30 @@ export class SSSTCommander extends SSSTCrewMember {
       this._hasInsurance = false
 		}
 
-    static fromSerializedState(serializedState, solarSystems) {
+    static fromSerializedState(serializedState: SSSTCommanderState, solarSystems?: SSSTSolarSystem[]) {
         const commander = new SSSTCommander(serializedState.name);
         commander.updateWithSerializedState(serializedState, solarSystems);
         return commander;
     }
 
-    updateWithSerializedState(serializedState, solarSystems) {
+    updateWithSerializedState(serializedState: SSSTCommanderState, solarSystems?: SSSTSolarSystem[]) {
         super.updateWithSerializedState(serializedState);
 
+        // The saved values are numbers; parseInt turns them into text first. Kept as in the old code.
+        const numbers = serializedState as unknown as Record<string, string>
+
         // Integer properties
-        this._credits = parseInt(serializedState.credits, 10);
-        this._debt = parseInt(serializedState.debt, 10);
-        this.days = parseInt(serializedState.days, 10);
-        this.policeKills = parseInt(serializedState.policeKills, 10);
-        this.traderKills = parseInt(serializedState.traderKills, 10);
-        this.pirateKills = parseInt(serializedState.pirateKills, 10);
-        this.policeRecordScore = parseInt(serializedState.policeRecordScore, 10);
-        this._reputationScore = parseInt(serializedState.reputationScore, 10);
-        this._noClaim = parseInt(serializedState.noClaim, 10);
-        this._travelClicksRemaining = parseInt(serializedState.travelClicksRemaining, 10);
-        this._difficulty = parseInt(serializedState.difficulty, 10);
+        this._credits = parseInt(numbers.credits, 10);
+        this._debt = parseInt(numbers.debt, 10);
+        this.days = parseInt(numbers.days, 10);
+        this.policeKills = parseInt(numbers.policeKills, 10);
+        this.traderKills = parseInt(numbers.traderKills, 10);
+        this.pirateKills = parseInt(numbers.pirateKills, 10);
+        this.policeRecordScore = parseInt(numbers.policeRecordScore, 10);
+        this._reputationScore = parseInt(numbers.reputationScore, 10);
+        this._noClaim = parseInt(numbers.noClaim, 10);
+        this._travelClicksRemaining = parseInt(numbers.travelClicksRemaining, 10);
+        this._difficulty = parseInt(numbers.difficulty, 10);
 
         // Boolean properties
         this._boughtMoon = Boolean(serializedState.boughtMoon);
@@ -168,10 +208,10 @@ export class SSSTCommander extends SSSTCrewMember {
 
 
         // Set current system and ship
-        this._currentSystem = SSSTSolarSystem.solarSystemForName(serializedState.currentSystemName, solarSystems)
+        this._currentSystem = SSSTSolarSystem.solarSystemForName(serializedState.currentSystemName, solarSystems!)!
         MAUtils.ensureType(this._currentSystem, "object")
 
-        this.ship = SSSTShip.fromSerializedState(serializedState.ship, solarSystems);
+        this.ship = SSSTShip.fromSerializedState(serializedState.ship, solarSystems!);
 
         // Base prices
         if (serializedState.basePrices) {
@@ -196,7 +236,7 @@ export class SSSTCommander extends SSSTCrewMember {
       }
     }
 
-    setReserveMoney(rM) {
+    setReserveMoney(rM: boolean) {
       if (MAUtils.ensureBool(rM)) {
         this._reserveMoney = rM;
       }
@@ -206,11 +246,11 @@ export class SSSTCommander extends SSSTCrewMember {
         return this._reserveMoney;
     }
 
-    _checkCreditsAmount(c) {
+    _checkCreditsAmount(c: number) {
       return MAUtils.ensureInteger(c)
     }
 
-    setCredits(c) {
+    setCredits(c: number) {
         if (this._checkCreditsAmount(c)) {
           this._credits = c;
         }
@@ -224,7 +264,7 @@ export class SSSTCommander extends SSSTCrewMember {
 				return this._credits;
 		}
 
-		set credits(c) {
+		set credits(c: number) {
       this.setCredits(c)
 		}
 
@@ -306,7 +346,7 @@ export class SSSTCommander extends SSSTCrewMember {
       return this._debt;
     }
 
-    set debt(d) {
+    set debt(d: number) {
       if (this._checkCreditsAmount(d)) {
         this._debt = d;
       }
@@ -332,7 +372,7 @@ export class SSSTCommander extends SSSTCrewMember {
       }
 		}
 
-    setDifficulty(d) {
+    setDifficulty(d: number) {
       if (MAUtils.ensureInteger(d)) {
         this._difficulty = d;
       }
@@ -342,7 +382,7 @@ export class SSSTCommander extends SSSTCrewMember {
       return this._difficulty
     }
 
-    setCurrentSystem(currentSystem) {
+    setCurrentSystem(currentSystem: SSSTSolarSystem) {
       MAUtils.ensureType(currentSystem, "object")
 
       if (this._currentSystem !== currentSystem) {
@@ -365,11 +405,11 @@ export class SSSTCommander extends SSSTCrewMember {
         return this._currentSystem;
     }
 
-    _calculateBasePriceForItem(itemType) {
+    _calculateBasePriceForItem(itemType: number) {
         let price = this._currentSystem.standardPriceForItem(itemType);
         if (price <= 0) return 0;
 
-        const item = SSSTTradeItem.tradeItemForType(itemType);
+        const item = SSSTTradeItem.tradeItemForType(itemType)!;
         if (item.doublePriceStatus !== SSSTStatus.Uneventful && this._currentSystem.status === item.doublePriceStatus) {
             // DoublePriceStatus is a misleading name
             price = Math.floor((price * 3) / 2)
@@ -382,12 +422,12 @@ export class SSSTCommander extends SSSTCrewMember {
         return Math.max(price, 0);
     }
 
-    sellPriceForItem(itemType) {
+    sellPriceForItem(itemType: number) {
       const validState = MAUtils.ensureArrayOrNull(this._basePrices, "number") && MAUtils.ensureType(this._basePrices, "object")
 
       if (!validState) { return 0 }
 
-      let price = this._basePrices[itemType];
+      let price = this._basePrices![itemType];
       if (price <= 0) return 0;
       if (this._hasDubiousPoliceRecord()) {
         // We need to pay off a middleman
@@ -399,8 +439,8 @@ export class SSSTCommander extends SSSTCrewMember {
       return price;
     }
 
-    buyPriceForItem(itemType) {
-        let price = this._basePrices[itemType];
+    buyPriceForItem(itemType: number) {
+        let price = this._basePrices![itemType];
         if (price <= 0) return 0;
         price = Math.floor(price * (103 + (MAX_SKILL_LEVEL - this.ship.crewTraderSkillIncludingCommander(this))) / 100);
         price = Math.max(price, this.sellPriceForItem(itemType) + 1);
@@ -410,8 +450,8 @@ export class SSSTCommander extends SSSTCrewMember {
         return price;
     }
 
-    buyPriceForAccessory(accessoryType) {
-        const accessory = ACCESSORY_FOR_TYPE(accessoryType);
+    buyPriceForAccessory(accessoryType: number) {
+        const accessory = ACCESSORY_FOR_TYPE(accessoryType)!;
         let price = (accessory.techLevel > this._currentSystem.techLevel) ? 0 : Math.floor((accessory.price * (100 - this.ship.crewTraderSkillIncludingCommander(this))) / 100);
 
         MAUtils.ensureInteger(price)
@@ -419,13 +459,13 @@ export class SSSTCommander extends SSSTCrewMember {
         return price;
     }
 
-    sellPriceForAccessory(accessoryType) {
-      const result = Math.floor(ACCESSORY_FOR_TYPE(accessoryType).price * 3 / 4)
+    sellPriceForAccessory(accessoryType: number) {
+      const result = Math.floor(ACCESSORY_FOR_TYPE(accessoryType)!.price * 3 / 4)
       MAUtils.ensureInteger(result)
       return result
     }
 
-    buyPriceForShipModel(shipModel) {
+    buyPriceForShipModel(shipModel: SSSTShipModel) {
       const result = Math.floor(shipModel.price * (100 - this.ship.crewTraderSkillIncludingCommander(this)) / 100)
       MAUtils.ensureInteger(result)
       return result
@@ -475,13 +515,13 @@ export class SSSTCommander extends SSSTCrewMember {
         return value;
     }
 
-    cargoAndShipValuationForInsurance(forInsurance) {
+    cargoAndShipValuationForInsurance(forInsurance: boolean) {
       const result = this.ship.shipValuationForInsurance(forInsurance) + this._cargoValue()
       MAUtils.ensureInteger(result)
       return result
     }
 
-    attemptPurchaseOfFuel(amount) {
+    attemptPurchaseOfFuel(amount: number) {
       if (MAUtils.ensureInteger(amount)) {
         let realAmount = Math.min(this.ship.fuelTankCapacity() - this.ship.fuel, amount);
         realAmount = Math.min(realAmount, Math.floor(this._credits / this.ship.model.costOfFuel));
@@ -490,7 +530,7 @@ export class SSSTCommander extends SSSTCrewMember {
       }
     }
 
-    attemptPurchaseOfRepairs(amount) {
+    attemptPurchaseOfRepairs(amount: number) {
       if (MAUtils.ensureInteger(amount)) {
         let realAmount = Math.min(this.ship.maximumHullStrength() - this.ship.hull, amount);
         realAmount = Math.floor(Math.min(realAmount, this._credits / this.ship.model.repairCosts));
@@ -499,7 +539,7 @@ export class SSSTCommander extends SSSTCrewMember {
       }
     }
 
-    attemptPurchaseOfItem(itemType, quantity) {
+    attemptPurchaseOfItem(itemType: number, quantity: number) {
       if (MAUtils.ensureInteger(itemType) && MAUtils.ensureInteger(quantity)) {
         let actualBuyAmount = Math.min(quantity, this._currentSystem.tradeItemQuantityForType(itemType));
         actualBuyAmount = Math.min(actualBuyAmount, this.ship.freeCargoBays());
@@ -516,7 +556,7 @@ export class SSSTCommander extends SSSTCrewMember {
       }
     }
 
-    attemptSaleOfItem(itemType, quantity, forceDump) {
+    attemptSaleOfItem(itemType: number, quantity: number, forceDump: boolean) {
       if (MAUtils.ensureInteger(itemType) && MAUtils.ensureInteger(quantity) && MAUtils.ensureBool(forceDump)) {
         let actualSellAmount = Math.min(quantity, this.ship.tradeItemQuantityForType(itemType));
 
@@ -536,7 +576,7 @@ export class SSSTCommander extends SSSTCrewMember {
       }
     }
 
-    wormholeTaxToWarpToSystem(destination) {
+    wormholeTaxToWarpToSystem(destination: SSSTSolarSystem) {
       MAUtils.ensureType(destination, "object")
       return (this._currentSystem.wormhole === destination) ? this.ship.costOfFuel() * 25 : 0
     }
@@ -549,11 +589,11 @@ export class SSSTCommander extends SSSTCrewMember {
         this._tweakSkillRandomly(false);
     }
 
-    _tweakSkillRandomly(increase) {
+    _tweakSkillRandomly(increase: boolean) {
         MAUtils.ensureBool(increase)
 
         const skillArray = [];
-        const BOUND_CHECK = (x) => (increase ? x < MAX_SKILL_LEVEL : x > 0);
+        const BOUND_CHECK = (x: number) => (increase ? x < MAX_SKILL_LEVEL : x > 0);
 
         if (BOUND_CHECK(this.pilot)) skillArray.push(0);
         if (BOUND_CHECK(this.fighter)) skillArray.push(1);
@@ -596,7 +636,7 @@ export class SSSTCommander extends SSSTCrewMember {
         }
     }
 
-    timePassed(days) {
+    timePassed(days: number) {
         if (!MAUtils.ensureInteger(days)) { return }
 
         this.days += days;
@@ -616,7 +656,8 @@ export class SSSTCommander extends SSSTCrewMember {
     }
 
     serializedState() {
-        const state = super.serializedState();
+        // The commander's own fields are added below.
+        const state = super.serializedState() as SSSTCommanderState;
 
         // Integer properties
         MAUtils.ensureInteger(this._credits)
