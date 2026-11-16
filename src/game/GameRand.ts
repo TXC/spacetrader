@@ -1,8 +1,13 @@
-// @ts-nocheck
 import { MAUtils } from './Utilities.ts'
 
 export class MAGameRand {
-  constructor(seed) {
+  declare randHigh: number
+  declare randLow: number
+  declare _seed: number
+  declare _numInvocations: number
+  declare _logStackTrace: boolean
+
+  constructor(seed: number) {
     this.randHigh = seed
     this.randLow = seed ^ 0x49616E42
 
@@ -13,7 +18,7 @@ export class MAGameRand {
   }
 
   // Return value >= min && value <= max
-  randomInt(min, max) {
+  randomInt(min: number, max: number) {
     if (this._logStackTrace) {
       MAUtils.logStackTrace()
     }
@@ -26,7 +31,7 @@ export class MAGameRand {
     return (min + n * (max-min+1)) | 0
   }
 
-  randomIntBelow(max) {
+  randomIntBelow(max: number) {
     return this.randomInt(0, max-1)
   }
 }
