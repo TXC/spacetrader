@@ -1,8 +1,5 @@
-import { AlertViewController } from '../legacy-ui/AlertViewController.ts'
-import { ReputationScore } from './Commander.ts'
-import { RareEvent } from './Game.ts'
-import type { Game } from './Game.ts'
-import type { SpaceTraderGame } from '../legacy-ui/main.ts'
+import { AlertViewController } from './alerts.ts'
+import { sanitizedElementID } from './elementId.ts'
 import { runtime } from './runtime.ts'
 
 export const DebugMode = {
@@ -47,7 +44,6 @@ export class ProbeLog {
 
 export const pLog = new ProbeLog()
 
-
 export class MockLocalStorage {
   declare dict: Record<string, string>
 
@@ -67,7 +63,6 @@ export class MockLocalStorage {
     this.dict[k] = v
   }
 }
-
 
 export const Utils = {
   uuidv4: function() {
@@ -136,10 +131,7 @@ export const Utils = {
   },
 
   // Returns a sanitized id string
-  sanitizedElementID: function(str: string) {
-    const buttonTitleSanitized = str.replace(/[^a-zA-Z0-9]/g, "_")
-    return buttonTitleSanitized
-  },
+  sanitizedElementID,
 
   logStackTrace: function() {
     const stackTrace = (new Error()).stack
@@ -277,7 +269,6 @@ export const Utils = {
     return -(Math.cos(Math.PI * x) - 1) / 2;
   },
 
-
   // Color utilities
 
   // Convert RGBA to HexA
@@ -345,7 +336,6 @@ export const Utils = {
     return this.RGBAToHexA(rgba.r, rgba.g, rgba.b, rgba.a)
   },
 
-
   // Base64
   isValidBase64(str: string) {
     const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/
@@ -360,7 +350,6 @@ export const Utils = {
     const missingPadding = (4 - (base64Str.length % 4)) % 4
     return base64Str + '='.repeat(missingPadding)
   },
-
 
   // Simple symmetric string obfuscation inspired by rot13
   obfuscateString(str: string) {
@@ -414,133 +403,6 @@ export const Utils = {
     return result
   },
 
-  eventIsForRegularUserInput(e: Event) {
-    // Ignore DIVs because Safari tries to go into text selection mode when
-    // repeatedly tapping on them which makes game input unreliable.
-    const target = e.target as HTMLElement
-    return target.id.endsWith("_input") || target.tagName === "A" || target.tagName === "DIV"
-  },
-
-  createElement(type: string, attributes: Record<string, unknown>, parent?: Node) {
-    const element = document.createElement(type)
-    for (const key in attributes) {
-      (element as unknown as Record<string, unknown>)[key] = attributes[key]
-    }
-    if (parent) {
-      parent.appendChild(element)
-    }
-    return element
-  },
-
-  createBaysCreditsElement(game: Game) {
-    const container = document.createElement('div')
-    container.classList.add('bays-credits')
-
-		const totalBays = game.commander.ship.totalCargoBays()
-		const freeBays = game.commander.ship.freeCargoBays()
-    const baysSpan = document.createElement('span')
-    baysSpan.textContent = `Bays: ${totalBays - freeBays}/${totalBays}`
-		container.appendChild(baysSpan);
-
-    let creditsSpan = document.createElement('span')
-    creditsSpan.textContent = `$${game.commander.getCredits()}`
-		container.appendChild(creditsSpan);
-
-    return container
-  },
-
-  installCheats(div: HTMLElement, sTG: SpaceTraderGame) {
-    div.innerHTML = ''
-
-    const moneyButton = document.createElement('button');
-    moneyButton.innerText = "Free Money"
-    moneyButton.id = "cheat_freeMoney"
-
-    runtime.actionLog.registerButtonEventListener(moneyButton, 'click', () => {
-        if (!sTG) { return }
-        if (!sTG.viewController) { return }
-        if (!sTG.viewController._game) { return }
-        if (!sTG.viewController._game.commander) { return }
-
-        const commander = sTG.viewController._game.commander
-        commander.credits = 1000000
-    });
-
-    div.appendChild(moneyButton);
-
-
-    const singularityButton = document.createElement('button');
-    singularityButton.innerText = "Free Singularity"
-    singularityButton.id = "cheat_freeSingularity"
-
-    runtime.actionLog.registerButtonEventListener(singularityButton, 'click', () => {
-        sTG.viewController._game.canSuperWarp = true
-    });
-
-    div.appendChild(singularityButton);
-
-
-    const specialButton = document.createElement('button');
-    specialButton.innerText = "Show Special"
-    specialButton.id = "cheat_showSpecial"
-
-    runtime.actionLog.registerButtonEventListener(specialButton, 'click', () => {
-        sTG.viewController._game.showSpecialSystems = true
-    });
-
-    div.appendChild(specialButton);
-
-
-    {
-      const b = document.createElement('button');
-      b.innerText = "Average reputationScore"
-      b.id = "cheat_averageReputation"
-
-      runtime.actionLog.registerButtonEventListener(b, 'click', () => {
-          sTG.viewController._game.commander.reputationScore = ReputationScore.Average
-      });
-
-      div.appendChild(b);
-    }
-
-    {
-      const b = document.createElement('button');
-      b.innerText = "Fighter 15"
-      b.id = "cheat_fighter15"
-
-      runtime.actionLog.registerButtonEventListener(b, 'click', () => {
-          sTG.viewController._game.commander.fighter = 15
-      });
-
-      div.appendChild(b);
-    }
-
-
-
-    const rareEvents = [
-      "Marie Celeste",
-      "Captain Ahab",
-      "Captain Conrad",
-      "Captain Huie",
-      "Old Bottle",
-      "Good Bottle",
-    ]
-
-    for (let rareEvent = 0; rareEvent < RareEvent.Count; rareEvent++) {
-      const eventButton = document.createElement('button');
-      eventButton.innerText = "Encounter " + rareEvents[rareEvent]
-      eventButton.id = "cheat_" + Utils.sanitizedElementID(eventButton.innerText)
-
-      runtime.actionLog.registerButtonEventListener(eventButton, 'click', () => {
-        sTG.viewController._game.forceRareEvent = true
-        // Note: this overwrites pending rare events
-        sTG.viewController._game._remainingRareEvents = [ rareEvent ]
-      });
-
-      div.appendChild(eventButton);
-    }
-  },
-
   prettyTimeStringForTimestamp(timestamp: number, now: number) {
     if (!timestamp || !now) {
       return null
@@ -589,26 +451,6 @@ export const Utils = {
     return str
   },
 
-  maintainScrollPosition(block: () => void) {
-    const scrollX = window.scrollX
-    const scrollY = window.scrollY
-    maintainScrollPositionLevel++
-
-    block()
-
-    maintainScrollPositionLevel--
-
-    if (maintainScrollPositionLevel === 0) {
-      console.log(`Restoring scroll position ${scrollX} ${scrollY}`)
-      // Worked most of the time without setTimeout but failed a small
-      // percent of the time. Adding an async retry allows layout to settle.
-      window.scrollTo(scrollX, scrollY)
-      setTimeout(() => {
-        window.scrollTo(scrollX, scrollY)
-      }, 0)
-    }
-  },
 }
 Object.freeze(Utils)
 
-export let maintainScrollPositionLevel = 0

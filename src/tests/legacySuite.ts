@@ -1,8 +1,8 @@
 import { afterEach, beforeAll, test } from 'vitest'
 import { runtime } from '../game/runtime.ts'
 import { DebugMode } from '../game/Utilities.ts'
-import { AlertViewController } from '../legacy-ui/AlertViewController.ts'
-import '../legacy-ui/style.css'
+import { AlertViewController } from '../game/alerts.ts'
+import { unmountAll } from './support/SpaceTraderGame.ts'
 import { UnitTests } from './UnitTests.ts'
 
 // Registers every old UnitTests method starting with `prefix` as a Vitest test,
@@ -20,6 +20,7 @@ export function registerLegacyTests(prefix: string): string[] {
     window.addEventListener('error', (event) => { handlerError ??= event.error ?? event.message })
   })
   afterEach(() => {
+    unmountAll()
     document.getElementById('game')!.innerHTML = ''
     AlertViewController.clearAlerts()
     const error = handlerError

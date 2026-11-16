@@ -1,5 +1,5 @@
 import { AccessoryType } from './Accessory.ts'
-import { AlertViewController } from '../legacy-ui/AlertViewController.ts'
+import { AlertViewController } from './alerts.ts'
 import { PoliceRecordScore, ReputationScore } from './Commander.ts'
 import { CrewMember } from './CrewMember.ts'
 import { GameEndStatus } from './Game.ts'
@@ -8,11 +8,11 @@ import { TradeItem } from './TradeItem.ts'
 import { TradeItemType } from './TradeItem.types.ts'
 import { pLog } from './Utilities.ts'
 import type { Game } from './Game.ts'
-import type { SystemLandingViewController } from '../legacy-ui/SystemLandingViewController.ts'
 import { runtime } from './runtime.ts'
 
 type ShouldHideBlock = (game: Game) => boolean
-type ActionBlock = (game: Game, viewController: SystemLandingViewController) => void
+// The second argument lets an event end the game (buying the moon does).
+type ActionBlock = (game: Game, viewController: { gameDidEndWithStatus(status: number): void }) => void
 
 export const FABRIC_RIP_PROBABILITY_INITIAL = 25;
 
