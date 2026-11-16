@@ -6,7 +6,7 @@ import { Bank } from '../ui/Bank.tsx'
 import { mountReact } from '../ui/mountReact.ts'
 import { BuySellCargo } from '../ui/BuySellCargo.tsx'
 import { CommanderStatusViewController } from './CommanderStatusViewController.ts'
-import { EquipmentViewController } from './EquipmentViewController.ts'
+import { Equipment } from '../ui/Equipment.tsx'
 import { GalacticChartViewController } from './GalacticChartViewController.ts'
 import { GalaxyView } from './GalaxyView.ts'
 import { NewsViewController } from './NewsViewController.ts'
@@ -158,8 +158,7 @@ export class SystemLandingViewController {
       viewController.presentView();
     } else if (row === "Equipment") {
       pLog.log(8)
-      const viewController = new EquipmentViewController(contentDiv, this._game);
-      viewController.presentView();
+      this._mountReact(contentDiv, createElement(Equipment, { game: this._game }))
     } else if (row === "Ship Yard") {
       pLog.log(9)
       const viewController = new ShipYardViewController(contentDiv, this._game);
