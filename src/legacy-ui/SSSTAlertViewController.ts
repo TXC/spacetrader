@@ -24,7 +24,7 @@ export const SSSTAlertPresentationStyle = {
 
 export class SSSTAlertViewController {
   [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
-  constructor(alertStr, alertID) {
+  constructor(alertStr, alertID?) { // `?` is type-only: typed rules create alerts without an id
     this._alertTitle = alertStr
     this._actions = []
     this._alertID = alertID ? "-" + alertID : ""
