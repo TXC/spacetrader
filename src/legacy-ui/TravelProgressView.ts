@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { DEBUG_OVERRIDE_SCALE_TO_1, UnvisitedSystemColor, VisitedSystemColor } from './GalaxyView.ts'
+import { DEBUG_OVERRIDE_SCALE_TO_1, UnvisitedSystemColor, VisitedSystemColor } from '../ui/canvas/GalaxyView.ts'
 import { TRAVEL_PROGRESS_DURATION } from './TravelViewController.ts'
 import { Utils } from '../game/Utilities.ts'
 

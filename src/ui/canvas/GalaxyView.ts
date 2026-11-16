@@ -1,8 +1,19 @@
-// @ts-nocheck
-import { GALAXY_HEIGHT, GALAXY_WIDTH } from '../game/Game.ts'
-import { SpecialEvent } from '../game/SolarSystem.types.ts'
-import { Utils } from '../game/Utilities.ts'
-import { runtime } from '../game/runtime.ts'
+import { GALAXY_HEIGHT, GALAXY_WIDTH } from '../../game/Game.ts'
+import { SpecialEvent } from '../../game/SolarSystem.types.ts'
+import { Utils } from '../../game/Utilities.ts'
+import type { Game } from '../../game/Game.ts'
+import type { SolarSystem } from '../../game/SolarSystem.ts'
+import { runtime } from '../../game/runtime.ts'
+
+type Point = { x: number, y: number }
+type Planet = Point & { radius: number, solarSystem: SolarSystem, isWormhole: boolean }
+type ScaleFactors = { xScaleFactor: number, yScaleFactor: number }
+type Bounds = { xMin: number, xMax: number, yMin: number, yMax: number }
+
+// Whoever shows the map is told when a system is picked.
+export type GalaxyViewDelegate = {
+  galaxyViewSelectedSolarSystem(view: GalaxyView, system: SolarSystem, wormhole: boolean): void
+}
 
 export const GalaxyViewEdgeBuffer = 23
 export const DEBUG_OVERRIDE_SCALE_TO_1 = false
@@ -13,8 +24,36 @@ export const WormholeSystemColor = "#FFA500"
 export const SpecialSystemColor = "#66CC85"
 
 export class GalaxyView {
-  [key: string]: any // eslint-disable-line @typescript-eslint/no-explicit-any -- old untyped code: lets typed files read its properties
-  constructor(div, game, selectedSystem, selectedWormhole, zoomed, showNames) {
+  declare div: HTMLElement
+  declare game: Game
+  declare zoomed: boolean
+  declare showNames: boolean
+  declare planets: Planet[]
+  declare selectedSystem: SolarSystem | null
+  declare selectedWormhole: boolean
+  declare selectedPlanet: Planet | null | undefined
+  declare canvasContainer: HTMLDivElement
+  declare canvas: HTMLCanvasElement
+  declare context: CanvasRenderingContext2D
+  declare delegate?: GalaxyViewDelegate | null
+  declare scale: number
+  declare cachedBoundingRect: DOMRect
+  declare animationStartTime: number
+  declare lastInvalidationCheckTimestamp?: number
+  declare _prevXYScaleFactors?: ScaleFactors
+  declare solarSystemBounds?: Bounds
+  private disposed = false
+  private onResize = () => this.resizeCanvasIfNeeded()
+  private onMouseUp = (event: MouseEvent) => this.onInputEnd(event)
+
+  // Stops the drawing loop and stops listening. Call when the map leaves the page.
+  dispose() {
+    this.disposed = true
+    window.removeEventListener('resize', this.onResize)
+    this.canvas.removeEventListener('mouseup', this.onMouseUp)
+  }
+
+  constructor(div: HTMLElement, game: Game, selectedSystem: SolarSystem | null, selectedWormhole: boolean, zoomed: boolean, showNames: boolean) {
     this.div = div
     this.game = game;
     this.zoomed = zoomed;
@@ -30,7 +69,7 @@ export class GalaxyView {
 
     this.canvas = document.createElement('canvas');
     this.canvas.id = zoomed ? "zoomedGalaxyViewCanvas" : "galaxyViewCanvas"
-    this.context = this.canvas.getContext('2d');
+    this.context = this.canvas.getContext('2d')!;
     this.canvasContainer.appendChild(this.canvas);
     this.initCanvas();
     this.initEvents();
@@ -45,16 +84,16 @@ export class GalaxyView {
     })
   }
 
-  animateGalaxy(timestamp) {
+  animateGalaxy(timestamp: number) {
     this.drawGalaxy(timestamp)
 
     // Allow us to get garbage collected if the view is removed from the document
-    let shouldContinueAnimating = true
+    let shouldContinueAnimating = !this.disposed
     if (!this.lastInvalidationCheckTimestamp) {
       this.lastInvalidationCheckTimestamp = timestamp
     }
 
-    if (timestamp - this.lastInvalidationCheckTimestamp > 5000) {
+    if (shouldContinueAnimating && timestamp - this.lastInvalidationCheckTimestamp > 5000) {
       shouldContinueAnimating = document.body.contains(this.canvasContainer)
     }
 
@@ -113,25 +152,25 @@ export class GalaxyView {
   }
 
   initEvents() {
-    this.canvas.addEventListener('mouseup', this.onInputEnd.bind(this));
+    this.canvas.addEventListener('mouseup', this.onMouseUp);
 
     runtime.actionLog.registerNamedEventListener(this, "selectPlanet" + this.eventHandlerName())
 
-    window.addEventListener('resize', this.resizeCanvasIfNeeded.bind(this));
+    window.addEventListener('resize', this.onResize);
   }
 
-  handleNamedEvent(eventName, eventContext) {
+  handleNamedEvent(eventName: string, eventContext: string) {
     if (eventName === "selectPlanet" + this.eventHandlerName()) {
       const splitContext = eventContext.split("~")
       const systemName = splitContext[0]
       const isWormhole = splitContext.length > 1
 
       const s = this.game.solarSystems.find(s => s.name === systemName)
-      this.selectSystem(s, isWormhole);
+      this.selectSystem(s!, isWormhole);
     }
   }
 
-  onInputEnd(event) {
+  onInputEnd(event: MouseEvent) {
     if (!this.delegate) {
       return
     }
@@ -144,7 +183,7 @@ export class GalaxyView {
       let isWormhole = planet.isWormhole === true
       //console.log("Found planet: " + s.name + " wormhole: " + planet.isWormhole)
       if (planet.isWormhole) {
-        s = this.game.solarSystems.find(x => x.wormhole === planet.solarSystem)
+        s = this.game.solarSystems.find(x => x.wormhole === planet.solarSystem)!
       }
 
       //console.log(`selected planet (${planet.x}, ${planet.y})`)
@@ -154,7 +193,7 @@ export class GalaxyView {
     }
   }
 
-  getEventPosition(event) {
+  getEventPosition(event: MouseEvent & { touches?: TouchList }) {
     let ret = { x: event.clientX, y: event.clientY };
 
     if (event.touches && event.touches.length > 0) {
@@ -171,9 +210,9 @@ export class GalaxyView {
     return ret
   }
 
-  getPlanetAtPosition(x, y) {
+  getPlanetAtPosition(x: number, y: number) {
     let closestDistance = Math.sqrt(Math.pow(this.canvas.width/this.scale, 2) + Math.pow(this.canvas.height/this.scale, 2))
-    let closestPlanet = null
+    let closestPlanet: Planet | null = null
 
     for (let planet of this.planets) {
       const dist = Math.sqrt(Math.pow(planet.x - x, 2) + Math.pow(planet.y - y, 2));
@@ -192,10 +231,10 @@ export class GalaxyView {
     return closestPlanet
   }
 
-  selectSystem(s, wormhole) {
+  selectSystem(s: SolarSystem, wormhole: boolean) {
     //console.log(`Selected system: ${s.name} wormhole: ${wormhole}`);
 
-    let planet = null
+    let planet: Planet | null | undefined = null
 
     if (this.planets.length > 0) {
       if (wormhole) {
@@ -222,7 +261,7 @@ export class GalaxyView {
         systemInfoEl.classList.add('gv-system-info')
       }
 
-      const realSystem = wormhole ? s.wormhole : s
+      const realSystem = wormhole ? s.wormhole! : s
       const resourceText = realSystem.visited ? realSystem.systemInfoString() : "system details unknown"
       systemInfoEl.innerText = resourceText
     }
@@ -235,7 +274,7 @@ export class GalaxyView {
     return radius
   }
 
-  drawGalaxy(timestamp) {
+  drawGalaxy(timestamp: number) {
     this.resizeCanvasIfNeeded()
     if (this.canvas.width === 0 || this.canvas.height === 0) {
       //console.log("Canvas is 0 width or height")
@@ -321,7 +360,7 @@ export class GalaxyView {
     }
   }
 
-  drawTrackingRings(timestamp) {
+  drawTrackingRings(timestamp: number) {
     const elapsedTime = timestamp - this.animationStartTime
 
     if (this.selectedPlanet) {
@@ -337,7 +376,7 @@ export class GalaxyView {
     }
   }
 
-  drawTrackingRing(center, color, elapsedTime) {
+  drawTrackingRing(center: Point, color: string, elapsedTime: number) {
     const animationDurationMS = 1500
     let animationProportion = 1
     const elapsedAnimationTimeMS = elapsedTime % animationDurationMS
@@ -424,7 +463,7 @@ export class GalaxyView {
     this.context.stroke()
   }
 
-  squaredDistance(p1, p2) {
+  squaredDistance(p1: Point, p2: Point) {
     return (Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2))
   }
 
@@ -477,7 +516,7 @@ export class GalaxyView {
     return { xScaleFactor: horizontalScale, yScaleFactor: verticalScale }
   }
 
-  getPlanetPosition(solarSystem) {
+  getPlanetPosition(solarSystem: SolarSystem) {
     //console.log("getPlanetPosition: canvas width: " + this.canvas.width)
     const solarSystemBounds = this.getSolarSystemBounds()
 

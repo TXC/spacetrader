@@ -8,8 +8,9 @@ import { BuySellCargo } from '../ui/BuySellCargo.tsx'
 import { CommanderStatus } from '../ui/CommanderStatus.tsx'
 import { GameEndStatus } from '../game/Game.ts'
 import { Equipment } from '../ui/Equipment.tsx'
-import { GalacticChartViewController } from './GalacticChartViewController.ts'
-import { GalaxyView } from './GalaxyView.ts'
+import { present as presentChart } from '../game/Chart.ts'
+import { GalacticChart } from '../ui/GalacticChart.tsx'
+import { GalaxyView } from '../ui/canvas/GalaxyView.ts'
 import { News } from '../game/News.ts'
 import { News as NewsScreen } from '../ui/News.tsx'
 import { Roster } from '../ui/Roster.tsx'
@@ -124,9 +125,9 @@ export class SystemLandingViewController {
 
     if (row === "Chart") {
       pLog.log(0)
-      const viewController = new GalacticChartViewController(contentDiv, this._game)
-      viewController.delegate = this
-      viewController.presentView()
+      presentChart(this._game)
+      const onSingularity = (solarSystem) => this.galacticChartViewControllerWarpViaSingularity(null, solarSystem)
+      this._mountReact(contentDiv, createElement(GalacticChart, { game: this._game, onSingularity }))
     } else if (row === "Buy") {
       pLog.log(1)
       this._mountReact(contentDiv, createElement(BuySellCargo, { game: this._game, buy: true }))
