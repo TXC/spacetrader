@@ -10,7 +10,7 @@ import { Equipment } from '../ui/Equipment.tsx'
 import { GalacticChartViewController } from './GalacticChartViewController.ts'
 import { GalaxyView } from './GalaxyView.ts'
 import { NewsViewController } from './NewsViewController.ts'
-import { PersonnelRosterViewController } from './PersonnelRosterViewController.ts'
+import { Roster } from '../ui/Roster.tsx'
 import { present as presentShipYard } from '../game/ShipYard.ts'
 import { ShipYard } from '../ui/ShipYard.tsx'
 import { SpecialEvent } from '../game/SolarSystem.types.ts'
@@ -166,9 +166,8 @@ export class SystemLandingViewController {
       this._mountReact(contentDiv, createElement(ShipYard, { game: this._game }))
     } else if (row === "For Hire" || row === "Roster") {
       pLog.log(10)
-      const viewController = new PersonnelRosterViewController(contentDiv, this._game);
-      viewController.delegate = this
-      viewController.presentView();
+      const onFired = (crewMember) => this.personnelRosterViewControllerDidFire(null, crewMember)
+      this._mountReact(contentDiv, createElement(Roster, { game: this._game, onFired }))
     } else if (row === "News") {
       pLog.log(11)
       // To avoid the news changing between viewings, use one instance
