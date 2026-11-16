@@ -1,13 +1,14 @@
-// @ts-nocheck
 import { PCEImage } from './PCEImage.ts'
 
 export const PCEImageLibrary = {
-  pceImageForName: function(name) {
+  pceImageForName: function(name: string): PCEImage {
     let keyName = name.toLowerCase().replace(/[\s\-\d]+/g, '')
     if (!Object.keys(this).includes(keyName)) {
       keyName = "news"
     }
-    const imageStr = this[keyName].imageStr
+    // Every other key of this object is an image entry.
+    const images = this as unknown as Record<string, { imageStr: string }>
+    const imageStr = images[keyName].imageStr
     return new PCEImage(imageStr)
   },
 
