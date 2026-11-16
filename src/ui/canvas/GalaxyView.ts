@@ -23,6 +23,11 @@ export const UnvisitedSystemColor = "#414141"
 export const WormholeSystemColor = "#FFA500"
 export const SpecialSystemColor = "#66CC85"
 
+// The size of the labels drawn on a canvas: two thirds of the page's text size.
+export function labelSize(): number {
+  return parseFloat(getComputedStyle(document.documentElement).fontSize) * 2 / 3
+}
+
 export class GalaxyView {
   declare div: HTMLElement
   declare game: Game
@@ -351,7 +356,7 @@ export class GalaxyView {
         this.context.fillStyle = textColor;
         this.context.textAlign = 'center';
         this.context.textBaseline = 'middle';
-        this.context.font = '10px Helvetica, Arial, san-serif';
+        this.context.font = `${labelSize()}px Helvetica, Arial, san-serif`;
         if (!planet.isWormhole) {
           this.context.fillText(planet.solarSystem.name, planet.x, planet.y - planet.radius - namePadding);
         } else {

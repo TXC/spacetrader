@@ -49,9 +49,10 @@ export function NewCommander({ session }: { session: Session }) {
         <img className="landing-page-icon" src={titleImage} />
         <h1 className="centered-div main-title">Space Trader</h1>
         <h1 className="new-commander-title">New Commander</h1>
-        <label>Name: </label>
-        <input type="text" id="nameInput" value={name} onChange={(event) => setName(event.target.value)} />
-        <br />
+        <div>
+          <label htmlFor="nameInput">Name: </label>
+          <input type="text" id="nameInput" value={name} onChange={(event) => setName(event.target.value)} />
+        </div>
         <DifficultyPicker level={level} onLevel={setLevel} />
         <div className="skill-container">
           <table className="skill-table"><tbody>

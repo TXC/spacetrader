@@ -24,10 +24,6 @@ The screen tests need a browser. Install it once with:
 pnpm exec playwright install chromium
 ```
 
-`node scripts/compare-screens.mjs <row>` compares a screen with the same
-screen in `old/` and reports how many pixels differ, for example
-`node scripts/compare-screens.mjs Bank`.
-
 ## Layout
 
 | Folder               | Contents                                            |
@@ -54,10 +50,12 @@ so every screen keeps the ids the original game used.
 ## Roadmap
 
 1. **Done:** the same game in TypeScript.
-2. **Done:** every screen is a React component, with the same look.
-3. **Next:** larger graphics and a roomier layout.
-4. **Later:** rewrite the recorded tests as flow tests, and bring back
-   the debug panel as a React component.
+2. **Done:** every screen is a React component.
+3. **Done:** a layout that follows the window. One number sets the size
+   of everything: the `font-size` on `html` in `src/ui/style.css`.
+4. **Next:** rewrite the recorded tests as flow tests.
+5. **Later:** the debug panel, offline support, a two-pane layout for
+   wide screens, and tidying the carried-over rules code.
 
 The designs and plans are in `docs/superpowers/`. The ones for the
 TypeScript step use the file names from before the `SSST` prefix was

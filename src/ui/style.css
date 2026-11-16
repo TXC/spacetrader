@@ -677,3 +677,47 @@ h4 {
   }
 }
 
+
+/* ---- Layout ---------------------------------------------------------------------- */
+
+/* The game is a column: whatever screen is showing fills the width. */
+#game,
+#systemLandingDiv {
+  display: flex;
+  flex-direction: column;
+}
+
+/* The new-commander form: one centred column. */
+#newCommanderDiv > .centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* The encounter's buttons, one under the other. */
+.battleButtons {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Buttons that belong together sit side by side and wrap when there is no room. */
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.133rem;
+}
+
+/* An item's name and icon stay on one line; the buttons beside them do the wrapping. */
+.tight-table td:has(> .table-row-icon),
+.tight-table-collapse td:has(> .table-row-icon) {
+  white-space: nowrap;
+}
+
+/* Buttons and form fields follow the page's text size instead of the browser's own. */
+button,
+input,
+select {
+  font-family: inherit;
+  font-size: 0.889rem;
+}
