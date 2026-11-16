@@ -24,7 +24,8 @@ The owner asked for the whole conversion in one pull request.
   turns the pixel art into images off-screen, and `Utils` helpers that
   become unused and are deleted.
 - The game looks and plays exactly as before.
-- The recorded test suite still passes: 153 tests, 3,064 assertions.
+- The recorded test suite still passes: the same 153 tests, replaying
+  the same steps and expecting the same game results.
 - `pnpm lint`, `pnpm build`, `pnpm test` and `pnpm test:stress` pass.
 
 ## Non-goals
@@ -42,8 +43,11 @@ The owner asked for the whole conversion in one pull request.
 ## Anti-goals
 
 - A change in game behaviour or in the order of random draws.
-- Editing a recorded test to make it pass. The only edits allowed in
-  `src/tests/UnitTests.ts` are import paths.
+- Editing a recorded test to make it pass. Two kinds of edit are
+  allowed in `src/tests/UnitTests.ts`: import paths, and the one-time
+  rewrite of markup checks described under "Checking meaning, not
+  markup". The recorded steps and the expected game results never
+  change.
 - Game rules that run while React draws. React may draw a component more
   than once, so a rule that runs during drawing would run twice.
 
@@ -259,6 +263,34 @@ session:
 
 Only the import lines of `src/tests/UnitTests.ts` change.
 
+### Checking meaning, not markup
+
+About 100 checks in the recorded tests compare raw markup: the
+encounter text with its `<br>` tags (68 of them), the news, the special
+cargo and quest lists, plunder table cells, a roster row, the repair
+panel, the chart's selected row and the hall of fame.
+
+The owner's decision: these should check what the player sees, not how
+it is built. Is the heading there, is the text the same, does the row
+show the right number, is the checkbox there with its label.
+
+They are rewritten once, before any screen is converted:
+
+- Text checks compare the visible text, with line breaks as line
+  breaks.
+- Structure checks look for the element and its content: a heading with
+  the masthead, a cell with the quantity, a button with its label.
+- A few small helpers in `src/tests/support/` keep the rewritten checks
+  short and uniform.
+
+The rewrite is its own commit and must pass against the old screens.
+That proves the new checks describe today's game before React has to
+meet them. The number of assertions is counted again after that commit,
+and the new count is the baseline for the rest of the work.
+
+Checks on the health bars stay as they are: whether a bar is hidden and
+whether its width changed are already about what the player sees.
+
 ### New tests
 
 The recordings remain the proof for whole flows. New plain tests cover
@@ -286,6 +318,8 @@ the old parent, as in the trial. The reverse also happens: warp is
 converted before travel, so for one step a React screen hosts an old
 one in a plain element it does not draw into.
 
+0. Rewrite the markup checks in the recorded tests, against the old
+   screens.
 1. Shared pieces, the session with nothing in it yet, and the bank.
 2. Alerts, including the trade slider. This also proves the slider
    replay early.
@@ -312,8 +346,6 @@ document, because every later screen opens alerts.
 ## Known risks
 
 - **Slider and dropdown replay** is unproven. Tried in steps 2 and 8.
-- **Exact markup assertions.** A few tests compare `innerHTML`. React
-  must produce the same attribute order and no extra elements there.
 - **Stress tests pick their next step from the order in which ids were
   registered.** That order will differ under React, so the stress tests
   will take different paths. They have no fixed expected result; they
@@ -321,8 +353,8 @@ document, because every later screen opens alerts.
 - **Old bugs on new paths.** A stress test on a new path may hit a
   crash that already exists in the old rules. The rule for that case:
   confirm the crash also happens in `old/`, fix it in its own commit
-  with a test, and list it in the pull request. This is the one case
-  where game behaviour may change. A crash that does not happen in
+  with a test, and list it in the pull request. The owner confirmed
+  this. It is the one case where game behaviour may change. A crash that does not happen in
   `old/` is a conversion mistake and is fixed as such.
 - **Size.** About 4,500 lines of screen code are replaced in one pull
   request.
@@ -347,4 +379,3 @@ document, because every later screen opens alerts.
 - Alerts moved to second in the order of work.
 - `ActionLogReplay` moves to the tests; `PCEImage.ts` stays in
   `src/game/`.
-- Old crashes found by the stress tests are fixed, not worked around.
