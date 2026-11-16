@@ -14,5 +14,6 @@ export default defineConfig({
       instances: [{ browser: 'chromium' }],
     },
     testTimeout: 120_000,
+    restoreMocks: true,
   },
 })
