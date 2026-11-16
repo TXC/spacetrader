@@ -14,6 +14,8 @@ export class Store {
 
   changed(): void {
     this.version++
+    // Nobody watching yet, as when the game starts before its first screen is drawn.
+    if (this.listeners.size === 0) return
     Store.flush(() => this.listeners.forEach((listener) => listener()))
   }
 }

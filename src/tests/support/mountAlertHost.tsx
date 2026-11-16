@@ -1,8 +1,8 @@
-import { AlertHost } from './AlertHost.tsx'
+import { AlertHost } from '../../ui/AlertHost.tsx'
 import { mountReact } from './mountReact.ts'
 
-// Until the root of the game is React, the alert host is mounted by itself, off the page;
-// each alert attaches itself to the page body.
+// In the tests the alert host is mounted once, off the page, and shared by every game a
+// test starts; each alert attaches itself to the page body.
 let mounted = false
 export function mountAlertHost() {
   if (mounted) return

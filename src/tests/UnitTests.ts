@@ -1,7 +1,8 @@
 // @ts-nocheck
 import { GameRand } from '../game/GameRand.ts'
 import { AccessoryType } from '../game/Accessory.ts'
-import { ActionLogReplay, ActionLogger } from '../game/ActionLogger.ts'
+import { ActionLogger } from '../game/ActionLogger.ts'
+import { ActionLogReplay } from './support/ActionLogReplay.ts'
 import { ATTACK_POLICE_SCORE, ATTACK_TRADER_SCORE, KILL_PIRATE_SCORE, PoliceRecordScore } from '../game/Commander.ts'
 import { Game, GameEndStatus, RareEvent } from '../game/Game.ts'
 import { PoliticsType } from '../game/Politics.ts'
@@ -13,8 +14,8 @@ import { Utils, MockLocalStorage, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 import { cellAfter, hasText, rowAfterHeading, textOf } from './support/page.ts'
 import { AlertViewController } from '../game/alerts.ts'
-import { ViewController } from '../legacy-ui/ViewController.ts'
-import { SpaceTraderGame } from '../legacy-ui/main.ts'
+import { ViewController } from './support/SpaceTraderGame.ts'
+import { SpaceTraderGame } from './support/SpaceTraderGame.ts'
 
 class Logger {
   constructor() {

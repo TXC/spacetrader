@@ -6,7 +6,7 @@ import { ReputationScore } from '../game/Commander.ts'
 import { AlertActionType, alertStore, AlertViewController } from '../game/alerts.ts'
 import { runtime } from '../game/runtime.ts'
 import { MockLocalStorage } from '../game/Utilities.ts'
-import { SpaceTraderGame } from '../legacy-ui/main.ts'
+import { SpaceTraderGame } from './support/SpaceTraderGame.ts'
 import ahabEncounter from './fixtures/ahab-encounter.json'
 import oldSave from './fixtures/old-save.json'
 import { registerLegacyTests } from './legacySuite.ts'
@@ -27,7 +27,7 @@ test('a save written by the old code loads', () => {
   for (const [k, v] of Object.entries(oldSave)) storage.setItem(k, JSON.stringify(v))
   runtime.stLocalStorage = storage
   // main() sets viewController; the old screen code is untyped.
-  const stG = new SpaceTraderGame(document.getElementById('game'), true) as SpaceTraderGame & {
+  const stG = new SpaceTraderGame(document.getElementById('game')!, true) as SpaceTraderGame & {
     viewController: { _game: { commander: { name: string } } }
   }
   stG.main()

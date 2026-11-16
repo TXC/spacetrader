@@ -1,12 +1,12 @@
 import { StrictMode, act } from 'react'
 import { createRoot } from 'react-dom/client'
-import { expect, test, vi } from 'vitest'
+import { expect, test } from 'vitest'
 import App from '../App.tsx'
-import { SpaceTraderGame } from '../legacy-ui/main.ts'
 
-test('App starts exactly one game under StrictMode', async () => {
+// React draws twice in development. The game must still start once, and the game on the
+// page must be the one that answers a click.
+test('App starts one game under StrictMode, and it responds', async () => {
   localStorage.clear()
-  const main = vi.spyOn(SpaceTraderGame.prototype, 'main')
   const host = document.createElement('div')
   document.body.appendChild(host)
   const root = createRoot(host)
@@ -17,9 +17,15 @@ test('App starts exactly one game under StrictMode', async () => {
       </StrictMode>,
     )
   })
-  expect(main).toHaveBeenCalledTimes(1)
   expect(document.querySelectorAll('#game').length).toBe(1)
   expect(document.querySelectorAll('#newCommanderDiv').length).toBe(1)
+
+  document.getElementById('createCommander')!.click()
+
+  expect(document.querySelectorAll('#systemLandingDiv').length).toBe(1)
+  expect(document.getElementById('system-info-welcome')!.textContent).toMatch(/^Welcome to /)
+  expect(Object.keys(JSON.parse(localStorage.getItem('games')!)).length).toBe(1)
   root.unmount()
   host.remove()
+  localStorage.clear()
 })

@@ -1,5 +1,4 @@
 import { AlertViewController } from './alerts.ts'
-import type { Game } from './Game.ts'
 import { sanitizedElementID } from './elementId.ts'
 import { runtime } from './runtime.ts'
 
@@ -45,7 +44,6 @@ export class ProbeLog {
 
 export const pLog = new ProbeLog()
 
-
 export class MockLocalStorage {
   declare dict: Record<string, string>
 
@@ -65,7 +63,6 @@ export class MockLocalStorage {
     this.dict[k] = v
   }
 }
-
 
 export const Utils = {
   uuidv4: function() {
@@ -272,7 +269,6 @@ export const Utils = {
     return -(Math.cos(Math.PI * x) - 1) / 2;
   },
 
-
   // Color utilities
 
   // Convert RGBA to HexA
@@ -340,7 +336,6 @@ export const Utils = {
     return this.RGBAToHexA(rgba.r, rgba.g, rgba.b, rgba.a)
   },
 
-
   // Base64
   isValidBase64(str: string) {
     const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/
@@ -355,7 +350,6 @@ export const Utils = {
     const missingPadding = (4 - (base64Str.length % 4)) % 4
     return base64Str + '='.repeat(missingPadding)
   },
-
 
   // Simple symmetric string obfuscation inspired by rot13
   obfuscateString(str: string) {
@@ -409,42 +403,6 @@ export const Utils = {
     return result
   },
 
-  eventIsForRegularUserInput(e: Event) {
-    // Ignore DIVs because Safari tries to go into text selection mode when
-    // repeatedly tapping on them which makes game input unreliable.
-    const target = e.target as HTMLElement
-    return target.id.endsWith("_input") || target.tagName === "A" || target.tagName === "DIV"
-  },
-
-  createElement(type: string, attributes: Record<string, unknown>, parent?: Node) {
-    const element = document.createElement(type)
-    for (const key in attributes) {
-      (element as unknown as Record<string, unknown>)[key] = attributes[key]
-    }
-    if (parent) {
-      parent.appendChild(element)
-    }
-    return element
-  },
-
-  createBaysCreditsElement(game: Game) {
-    const container = document.createElement('div')
-    container.classList.add('bays-credits')
-
-		const totalBays = game.commander.ship.totalCargoBays()
-		const freeBays = game.commander.ship.freeCargoBays()
-    const baysSpan = document.createElement('span')
-    baysSpan.textContent = `Bays: ${totalBays - freeBays}/${totalBays}`
-		container.appendChild(baysSpan);
-
-    let creditsSpan = document.createElement('span')
-    creditsSpan.textContent = `$${game.commander.getCredits()}`
-		container.appendChild(creditsSpan);
-
-    return container
-  },
-
-
   prettyTimeStringForTimestamp(timestamp: number, now: number) {
     if (!timestamp || !now) {
       return null
@@ -493,26 +451,6 @@ export const Utils = {
     return str
   },
 
-  maintainScrollPosition(block: () => void) {
-    const scrollX = window.scrollX
-    const scrollY = window.scrollY
-    maintainScrollPositionLevel++
-
-    block()
-
-    maintainScrollPositionLevel--
-
-    if (maintainScrollPositionLevel === 0) {
-      console.log(`Restoring scroll position ${scrollX} ${scrollY}`)
-      // Worked most of the time without setTimeout but failed a small
-      // percent of the time. Adding an async retry allows layout to settle.
-      window.scrollTo(scrollX, scrollY)
-      setTimeout(() => {
-        window.scrollTo(scrollX, scrollY)
-      }, 0)
-    }
-  },
 }
 Object.freeze(Utils)
 
-export let maintainScrollPositionLevel = 0

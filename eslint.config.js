@@ -22,7 +22,7 @@ export default defineConfig([
   {
     // Code carried over from old/ unchanged: keep the old style, but catch missing imports,
     // which nothing else reports while type checking is off.
-    files: ['src/game/**', 'src/legacy-ui/**', 'src/tests/**', 'src/ui/canvas/**'],
+    files: ['src/game/**', 'src/tests/**', 'src/ui/canvas/**'],
     rules: {
       'no-undef': 'error',
       '@typescript-eslint/ban-ts-comment': 'off',
