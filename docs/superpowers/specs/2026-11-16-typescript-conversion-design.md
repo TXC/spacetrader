@@ -19,7 +19,7 @@ typing them.
    the existing tests.
 2. **Step 1.5:** separate the rules from the alerts, then rewrite the
    tests to drive the rules directly, without a page.
-3. **Step 2:** rebuild the screens in React, bigger.
+3. **Step 2:** rebuild the screens in React.
 
 ## Goals
 
