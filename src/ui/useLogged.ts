@@ -1,4 +1,5 @@
 import { useLayoutEffect } from 'react'
+import { flushSync } from 'react-dom'
 import { runtime } from '../game/runtime.ts'
 
 // What the old register...EventListener calls did, for a React element: announce the id
@@ -13,6 +14,8 @@ export function useLogged<E extends { nativeEvent: Event }>(
   useLayoutEffect(() => runtime.actionLog.register(id, eventName), [id, eventName])
   return (event: E) => {
     runtime.actionLog.record(id, detail ? `${eventName}|${detail(event)}` : eventName)
-    handler(event)
+    // React would otherwise redraw a moment later. The recorded tests, and the old code they
+    // were recorded against, expect the page to be up to date when the click returns.
+    flushSync(() => handler(event))
   }
 }

@@ -1,7 +1,8 @@
 // @ts-nocheck
 import { AccessoryType } from '../game/Accessory.ts'
 import { AlertActionType, AlertViewController } from '../game/alerts.ts'
-import { BuySellCargoViewController } from './BuySellCargoViewController.ts'
+import { createElement } from 'react'
+import { BuySellCargo } from '../ui/BuySellCargo.tsx'
 import { ExperimentQuestStatus, WildQuestStatus } from '../game/SolarSystem.types.ts'
 import { FABRIC_RIP_PROBABILITY_INITIAL } from '../game/SpecialEventSpecifier.ts'
 import { TravelViewController } from './TravelViewController.ts'
@@ -61,8 +62,8 @@ export class WarpViewController {
 
 
 		if (baseSystem) {
-			const buyVC = new BuySellCargoViewController(buyContainerDiv, this._game, true, baseSystem);
-			buyVC.presentView();
+			// The landing screen owns the mount, so it is removed when the player moves on.
+			this._delegate._mountReact(buyContainerDiv, createElement(BuySellCargo, { game: this._game, buy: true, baseSystem }))
 
       const buttonRow = document.createElement('div')
       buttonRow.classList.add('button-row')

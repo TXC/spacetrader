@@ -4,7 +4,7 @@ import { AlertActionType, AlertViewController } from '../game/alerts.ts'
 import { createElement } from 'react'
 import { Bank } from '../ui/Bank.tsx'
 import { mountReact } from '../ui/mountReact.ts'
-import { BuySellCargoViewController } from './BuySellCargoViewController.ts'
+import { BuySellCargo } from '../ui/BuySellCargo.tsx'
 import { CommanderStatusViewController } from './CommanderStatusViewController.ts'
 import { EquipmentViewController } from './EquipmentViewController.ts'
 import { GalacticChartViewController } from './GalacticChartViewController.ts'
@@ -89,10 +89,7 @@ export class SystemLandingViewController {
       this.div.appendChild(contentDiv);
     }
 
-    if (this._unmountReact) {
-      this._unmountReact()
-      this._unmountReact = null
-    }
+    this._removeReact()
     contentDiv.innerHTML = '';
 
     return contentDiv
@@ -100,7 +97,15 @@ export class SystemLandingViewController {
 
   // A sub-screen that is already React is mounted here until this screen is React too.
   _mountReact(contentDiv, element) {
+    this._removeReact()
     this._unmountReact = mountReact(contentDiv, element)
+  }
+
+  _removeReact() {
+    if (this._unmountReact) {
+      this._unmountReact()
+      this._unmountReact = null
+    }
   }
 
   handleRowClick(row) {
@@ -121,12 +126,10 @@ export class SystemLandingViewController {
       viewController.presentView()
     } else if (row === "Buy") {
       pLog.log(1)
-      const viewController = new BuySellCargoViewController(contentDiv, this._game, true);
-      viewController.presentView();
+      this._mountReact(contentDiv, createElement(BuySellCargo, { game: this._game, buy: true }))
     } else if (row === "Sell") {
       pLog.log(2)
-      const viewController = new BuySellCargoViewController(contentDiv, this._game, false);
-      viewController.presentView();
+      this._mountReact(contentDiv, createElement(BuySellCargo, { game: this._game, buy: false }))
     } else if (row === "Warp") {
       pLog.log(3)
       if (!this._galaxyViewSystem) {
@@ -241,6 +244,7 @@ export class SystemLandingViewController {
 
   _presentView() {
     // Clear the div
+    this._removeReact()
     this.div.innerHTML = '';
 
     const contentDiv = document.createElement('div');
