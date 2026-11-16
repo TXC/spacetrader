@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { MAX_SKILL_LEVEL } from '../game/SSSTCommander.ts'
-import { DIFFICULTY_STR, SSSTDifficulty } from '../game/SSSTSolarSystem_h.ts'
+import { MAX_SKILL_LEVEL } from '../game/Commander.ts'
+import { DIFFICULTY_STR, SSSTDifficulty } from '../game/SolarSystem.types.ts'
 import { MAUtils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 

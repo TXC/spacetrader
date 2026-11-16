@@ -1,11 +1,11 @@
-import { SSSTAccessoryType, SSSTGadget, SSSTShield, SSSTWeapon } from './SSSTAccessory.ts'
-import { MAX_SKILL_LEVEL, SSSTPoliceRecordScore } from './SSSTCommander.ts'
-import { SSSTCrewMember } from './SSSTCrewMember.ts'
-import { SSSTShip, SSSTShipModel, SSSTShipModelType } from './SSSTShip.ts'
-import { SSSTDifficulty, SSSTWildQuestStatus } from './SSSTSolarSystem_h.ts'
-import { SSSTTradeItemType } from './SSSTTradeItem_h.ts'
+import { SSSTAccessoryType, SSSTGadget, SSSTShield, SSSTWeapon } from './Accessory.ts'
+import { MAX_SKILL_LEVEL, SSSTPoliceRecordScore } from './Commander.ts'
+import { SSSTCrewMember } from './CrewMember.ts'
+import { SSSTShip, SSSTShipModel, SSSTShipModelType } from './Ship.ts'
+import { SSSTDifficulty, SSSTWildQuestStatus } from './SolarSystem.types.ts'
+import { SSSTTradeItemType } from './TradeItem.types.ts'
 import { MAUtils } from './Utilities.ts'
-import type { SSSTGame } from './SSSTGame.ts'
+import type { SSSTGame } from './Game.ts'
 import { runtime } from './runtime.ts'
 
 export const SSSTOpponentType = {

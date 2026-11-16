@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { PCEImageLibrary } from '../game/Images.ts'
-import { SSSTBattleOpponentView } from './SSSTBattleOpponentView.ts'
+import { SSSTBattleOpponentView } from './BattleOpponentView.ts'
 import { MAUtils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 

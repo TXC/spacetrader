@@ -1,7 +1,7 @@
 // @ts-nocheck
-import { SSSTAlertActionType, SSSTAlertViewController } from './SSSTAlertViewController.ts'
-import { SSSTGame, SSSTGameEndStatus } from '../game/SSSTGame.ts'
-import { DIFFICULTY_STR } from '../game/SSSTSolarSystem_h.ts'
+import { SSSTAlertActionType, SSSTAlertViewController } from './AlertViewController.ts'
+import { SSSTGame, SSSTGameEndStatus } from '../game/Game.ts'
+import { DIFFICULTY_STR } from '../game/SolarSystem.types.ts'
 import { MAUtils, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 

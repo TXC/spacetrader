@@ -1,4 +1,4 @@
-import { SSSTTechLevel, SSSTTradeItemType } from './SSSTTradeItem_h.ts'
+import { SSSTTechLevel, SSSTTradeItemType } from './TradeItem.types.ts'
 import { runtime } from './runtime.ts'
 
 export const SSSTPoliticsType = {

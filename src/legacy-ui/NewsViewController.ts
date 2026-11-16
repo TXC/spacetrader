@@ -1,9 +1,9 @@
 // @ts-nocheck
 import { PCEImageLibrary } from '../game/Images.ts'
-import { SSSTAlertViewController } from './SSSTAlertViewController.ts'
-import { SSSTPoliceRecordScore } from '../game/SSSTCommander.ts'
-import { SSSTDragonflyQuestStatus, SSSTExperimentQuestStatus, SSSTInvasionQuestStatus, SSSTJaporiQuestStatus, SSSTJarekQuestStatus, SSSTMonsterQuestStatus, SSSTScarabQuestStatus, SSSTSpecialEvent, SSSTWildQuestStatus } from '../game/SSSTSolarSystem_h.ts'
-import { SSSTStatus, SSSTTechLevel } from '../game/SSSTTradeItem_h.ts'
+import { SSSTAlertViewController } from './AlertViewController.ts'
+import { SSSTPoliceRecordScore } from '../game/Commander.ts'
+import { SSSTDragonflyQuestStatus, SSSTExperimentQuestStatus, SSSTInvasionQuestStatus, SSSTJaporiQuestStatus, SSSTJarekQuestStatus, SSSTMonsterQuestStatus, SSSTScarabQuestStatus, SSSTSpecialEvent, SSSTWildQuestStatus } from '../game/SolarSystem.types.ts'
+import { SSSTStatus, SSSTTechLevel } from '../game/TradeItem.types.ts'
 import { MAUtils, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 

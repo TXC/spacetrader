@@ -1,9 +1,9 @@
 // @ts-nocheck
-import { SSSTAlertActionType, SSSTAlertViewController } from './SSSTAlertViewController.ts'
-import { POLICE_RECORD_STR, REPUTATION_STR } from '../game/SSSTCommander.ts'
-import { SSSTEndGameViewController } from './SSSTEndGameViewController.ts'
-import { SSSTGameEndStatus } from '../game/SSSTGame.ts'
-import { DIFFICULTY_STR } from '../game/SSSTSolarSystem_h.ts'
+import { SSSTAlertActionType, SSSTAlertViewController } from './AlertViewController.ts'
+import { POLICE_RECORD_STR, REPUTATION_STR } from '../game/Commander.ts'
+import { SSSTEndGameViewController } from './EndGameViewController.ts'
+import { SSSTGameEndStatus } from '../game/Game.ts'
+import { DIFFICULTY_STR } from '../game/SolarSystem.types.ts'
 import { MAUtils, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 

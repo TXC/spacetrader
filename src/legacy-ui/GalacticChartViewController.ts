@@ -1,9 +1,9 @@
 // @ts-nocheck
-import { SSSTAlertActionType, SSSTAlertViewController } from './SSSTAlertViewController.ts'
-import { SSSTGalaxyView } from './SSSTGalaxyView.ts'
-import { SSSTSpecialEvent, SYSTEM_SIZE_STR } from '../game/SSSTSolarSystem_h.ts'
-import { SSSTSpecialEventSpecifier } from '../game/SSSTSpecialEventSpecifier.ts'
-import { TECH_LEVEL_STR } from '../game/SSSTTradeItem_h.ts'
+import { SSSTAlertActionType, SSSTAlertViewController } from './AlertViewController.ts'
+import { SSSTGalaxyView } from './GalaxyView.ts'
+import { SSSTSpecialEvent, SYSTEM_SIZE_STR } from '../game/SolarSystem.types.ts'
+import { SSSTSpecialEventSpecifier } from '../game/SpecialEventSpecifier.ts'
+import { TECH_LEVEL_STR } from '../game/TradeItem.types.ts'
 import { MAUtils, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 

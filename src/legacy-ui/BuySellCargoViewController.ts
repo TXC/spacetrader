@@ -1,8 +1,8 @@
 // @ts-nocheck
 import { PCEImageLibrary } from '../game/Images.ts'
-import { SSSTAlertViewController } from './SSSTAlertViewController.ts'
-import { SSSTTradeItem } from '../game/SSSTTradeItem.ts'
-import { SSSTTradeItemType } from '../game/SSSTTradeItem_h.ts'
+import { SSSTAlertViewController } from './AlertViewController.ts'
+import { SSSTTradeItem } from '../game/TradeItem.ts'
+import { SSSTTradeItemType } from '../game/TradeItem.types.ts'
 import { MAUtils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 

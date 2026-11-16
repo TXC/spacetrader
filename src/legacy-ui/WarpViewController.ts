@@ -1,10 +1,10 @@
 // @ts-nocheck
-import { SSSTAccessoryType } from '../game/SSSTAccessory.ts'
-import { SSSTAlertActionType, SSSTAlertViewController } from './SSSTAlertViewController.ts'
-import { SSSTBuySellCargoViewController } from './SSSTBuySellCargoViewController.ts'
-import { SSSTExperimentQuestStatus, SSSTWildQuestStatus } from '../game/SSSTSolarSystem_h.ts'
-import { FABRIC_RIP_PROBABILITY_INITIAL } from '../game/SSSTSpecialEventSpecifier.ts'
-import { SSSTTravelViewController } from './SSSTTravelViewController.ts'
+import { SSSTAccessoryType } from '../game/Accessory.ts'
+import { SSSTAlertActionType, SSSTAlertViewController } from './AlertViewController.ts'
+import { SSSTBuySellCargoViewController } from './BuySellCargoViewController.ts'
+import { SSSTExperimentQuestStatus, SSSTWildQuestStatus } from '../game/SolarSystem.types.ts'
+import { FABRIC_RIP_PROBABILITY_INITIAL } from '../game/SpecialEventSpecifier.ts'
+import { SSSTTravelViewController } from './TravelViewController.ts'
 import { MAUtils, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 

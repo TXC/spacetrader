@@ -1,9 +1,9 @@
 // @ts-nocheck
 import { PCEImageLibrary } from '../game/Images.ts'
-import { SSSTAlertActionType, SSSTAlertPresentationStyle, SSSTAlertViewController } from './SSSTAlertViewController.ts'
-import { SSSTPoliceRecordScore } from '../game/SSSTCommander.ts'
-import { SSSTTradeItem } from '../game/SSSTTradeItem.ts'
-import { SSSTTradeItemType } from '../game/SSSTTradeItem_h.ts'
+import { SSSTAlertActionType, SSSTAlertPresentationStyle, SSSTAlertViewController } from './AlertViewController.ts'
+import { SSSTPoliceRecordScore } from '../game/Commander.ts'
+import { SSSTTradeItem } from '../game/TradeItem.ts'
+import { SSSTTradeItemType } from '../game/TradeItem.types.ts'
 import { MAUtils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 

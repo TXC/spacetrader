@@ -1,4 +1,4 @@
-import { SSSTTechLevel } from './SSSTTradeItem_h.ts'
+import { SSSTTechLevel } from './TradeItem.types.ts'
 
 export const SSSTAccessoryType = {
     // Gadgets

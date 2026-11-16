@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { GALAXY_HEIGHT, GALAXY_WIDTH } from '../game/SSSTGame.ts'
-import { SSSTSpecialEvent } from '../game/SSSTSolarSystem_h.ts'
+import { GALAXY_HEIGHT, GALAXY_WIDTH } from '../game/Game.ts'
+import { SSSTSpecialEvent } from '../game/SolarSystem.types.ts'
 import { MAUtils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 

@@ -1,4 +1,4 @@
-import { SSSTResource, SSSTStatus, SSSTTechLevel, SSSTTradeItemType } from './SSSTTradeItem_h.ts'
+import { SSSTResource, SSSTStatus, SSSTTechLevel, SSSTTradeItemType } from './TradeItem.types.ts'
 
 export const sItems: Record<number, SSSTTradeItem> = {};
 

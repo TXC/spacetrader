@@ -1,9 +1,9 @@
 // @ts-nocheck
-import { ACCESSORY_FOR_TYPE, SSSTAccessoryType } from '../game/SSSTAccessory.ts'
-import { SSSTAlertActionType, SSSTAlertViewController } from './SSSTAlertViewController.ts'
-import { SSSTBattleOpponentView } from './SSSTBattleOpponentView.ts'
-import { SSSTShip, SSSTShipModel, SSSTShipModelType } from '../game/SSSTShip.ts'
-import { SSSTTradeItemType } from '../game/SSSTTradeItem_h.ts'
+import { ACCESSORY_FOR_TYPE, SSSTAccessoryType } from '../game/Accessory.ts'
+import { SSSTAlertActionType, SSSTAlertViewController } from './AlertViewController.ts'
+import { SSSTBattleOpponentView } from './BattleOpponentView.ts'
+import { SSSTShip, SSSTShipModel, SSSTShipModelType } from '../game/Ship.ts'
+import { SSSTTradeItemType } from '../game/TradeItem.types.ts'
 import { MAUtils, pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 

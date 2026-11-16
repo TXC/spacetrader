@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { DEBUG_OVERRIDE_SCALE_TO_1, UnvisitedSystemColor, VisitedSystemColor } from './SSSTGalaxyView.ts'
-import { TRAVEL_PROGRESS_DURATION } from './SSSTTravelViewController.ts'
+import { DEBUG_OVERRIDE_SCALE_TO_1, UnvisitedSystemColor, VisitedSystemColor } from './GalaxyView.ts'
+import { TRAVEL_PROGRESS_DURATION } from './TravelViewController.ts'
 import { MAUtils } from '../game/Utilities.ts'
 
 export class SSSTTravelProgressView {

@@ -1,9 +1,9 @@
 // @ts-nocheck
-import { SSSTCommander } from '../game/SSSTCommander.ts'
-import { SSSTEndGameViewController } from './SSSTEndGameViewController.ts'
-import { SSSTGame, SSSTGameEndStatus } from '../game/SSSTGame.ts'
-import { SSSTNewCommanderViewController } from './SSSTNewCommanderViewController.ts'
-import { SSSTSystemLandingViewController } from './SSSTSystemLandingViewController.ts'
+import { SSSTCommander } from '../game/Commander.ts'
+import { SSSTEndGameViewController } from './EndGameViewController.ts'
+import { SSSTGame, SSSTGameEndStatus } from '../game/Game.ts'
+import { SSSTNewCommanderViewController } from './NewCommanderViewController.ts'
+import { SSSTSystemLandingViewController } from './SystemLandingViewController.ts'
 import { pLog } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 

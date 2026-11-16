@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { PCEImageLibrary } from '../game/Images.ts'
-import { ACCESSORY_FOR_TYPE, SSSTAccessoryType, SSSTGadget } from '../game/SSSTAccessory.ts'
-import { SSSTAlertActionType, SSSTAlertViewController } from './SSSTAlertViewController.ts'
+import { ACCESSORY_FOR_TYPE, SSSTAccessoryType, SSSTGadget } from '../game/Accessory.ts'
+import { SSSTAlertActionType, SSSTAlertViewController } from './AlertViewController.ts'
 import { MAUtils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 

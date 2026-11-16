@@ -1,7 +1,7 @@
-import { SSSTAlertViewController } from '../legacy-ui/SSSTAlertViewController.ts'
-import { SSSTReputationScore } from './SSSTCommander.ts'
-import { SSSTRareEvent } from './SSSTGame.ts'
-import type { SSSTGame } from './SSSTGame.ts'
+import { SSSTAlertViewController } from '../legacy-ui/AlertViewController.ts'
+import { SSSTReputationScore } from './Commander.ts'
+import { SSSTRareEvent } from './Game.ts'
+import type { SSSTGame } from './Game.ts'
 import type { SpaceTraderGame } from '../legacy-ui/main.ts'
 import { runtime } from './runtime.ts'
 

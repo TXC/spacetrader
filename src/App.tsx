@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { MAGameRand } from './game/GameRand.ts'
 import { runtime } from './game/runtime.ts'
-import { SSSTActionLogger } from './game/SSSTActionLogger.ts'
+import { SSSTActionLogger } from './game/ActionLogger.ts'
 import { MADebugMode } from './game/Utilities.ts'
 import { SpaceTraderGame } from './legacy-ui/main.ts'
 

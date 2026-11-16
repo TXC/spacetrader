@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { SSSTViewController } from './SSSTViewController.ts'
+import { SSSTViewController } from './ViewController.ts'
 import { MAUtils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 import './style.css'

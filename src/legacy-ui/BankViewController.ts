@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { SSSTAlertViewController } from './SSSTAlertViewController.ts'
-import { MAX_SAFE_PILOT_INSURANCE_DISCOUNT } from '../game/SSSTCommander.ts'
+import { SSSTAlertViewController } from './AlertViewController.ts'
+import { MAX_SAFE_PILOT_INSURANCE_DISCOUNT } from '../game/Commander.ts'
 import { MAUtils } from '../game/Utilities.ts'
 import { runtime } from '../game/runtime.ts'
 
