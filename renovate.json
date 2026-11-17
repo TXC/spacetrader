@@ -67,6 +67,19 @@
       "groupSlug": "linting"
     },
     {
+      "description": "React + TypeScript-React toolchain.",
+      "matchPackageNames": [
+        "eslint-plugin-react-**",
+        "react",
+        "react-dom",
+        "@types/react",
+        "@types/react-dom",
+        "@vitejs/plugin-react"
+      ],
+      "groupName": "React",
+      "groupSlug": "react"
+    },
+    {
       "description": "Test toolchain.",
       "matchPackageNames": [
         "vitest",
@@ -76,13 +89,24 @@
       "groupSlug": "testing"
     },
     {
+      "description": "Browser Test toolchain.",
+      "matchPackageNames": [
+        "@vitest/browser**",
+        "playwright"
+      ],
+      "groupName": "Browser Testing",
+      "groupSlug": "browser-testing"
+    },
+    {
       "description": "Collapse all GitHub Actions bumps into a single PR and pin them to commit SHAs.",
       "matchManagers": [
         "github-actions"
       ],
       "groupName": "GitHub Actions",
       "groupSlug": "github-actions",
-      "pinDigests": true
+      "pinDigests": true,
+      "automerge": true,
+      "automergeType": "pr"
     }
   ]
 }
