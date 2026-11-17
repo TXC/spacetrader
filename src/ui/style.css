@@ -37,7 +37,7 @@ html {
 body {
   background: white;
   color: black;
-  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, sans-serif;
   font-size: 1rem;
   margin: 0.667rem;
   margin-top: 0.333rem;
@@ -82,8 +82,8 @@ img {
 }
 
 .battle-opponent {
-	font-size: 0; /* Remove extra space for inline-block children  */
-	text-align: center;
+  font-size: 0; /* Remove extra space for inline-block children  */
+  text-align: center;
 }
 
 .battle-opponent-crossfade {
@@ -112,9 +112,9 @@ img {
 
 .landing-page-icon {
   display: block;
-	width: 10rem;
-	height: 10rem;
-	margin: auto;
+  width: 10rem;
+  height: 10rem;
+  margin: auto;
 }
 
 .table-row-icon {
@@ -127,7 +127,7 @@ img {
 }
 
 .crew-skill-table {
-	margin-left: 1.333rem;
+  margin-left: 1.333rem;
 }
 
 .roster-icon {
@@ -174,7 +174,7 @@ img {
 .battleButtons {
   list-style-type: none;
   padding: 0;
-	margin: 0 auto;
+  margin: 0 auto;
   width: 100%;
 }
 
@@ -197,16 +197,16 @@ img {
 }
 
 #eVC_dialog {
-	display: flex;
-	align-items: center;
-	line-height: 1.5em;
-	min-height: calc(1.5em * 6); /* Ensure the div is at least 6 lines tall */
-	width: 95%;
-	margin: 0 auto;
+  display: flex;
+  align-items: center;
+  line-height: 1.5em;
+  min-height: calc(1.5em * 6); /* Ensure the div is at least 6 lines tall */
+  width: 95%;
+  margin: 0 auto;
 }
 
 #travelProgressView {
-	margin-top: 0.333rem;
+  margin-top: 0.333rem;
 }
 
 .flipped {
@@ -214,11 +214,11 @@ img {
 }
 
 #battleViewsContainer {
-	position: relative;
+  position: relative;
   display: flex;
   justify-content: space-between;
   width: 100%;
-	height: 5rem;
+  height: 5rem;
   margin-top: 0.2rem;
 }
 
@@ -229,7 +229,7 @@ img {
 .crossfade-container {
   position: relative;
   width: 40%;
-	text-align: center;
+  text-align: center;
 }
 
 .fade-in {
@@ -258,7 +258,7 @@ img {
 }
 
 .hp-container {
-	display: block;
+  display: block;
   width: 6.667rem;
   height: 0.2rem;
   background-color: #ccc;
@@ -266,7 +266,7 @@ img {
   overflow: hidden;
   margin-top: 0.2rem;
   margin-bottom: 0;
-	padding: 0;
+  padding: 0;
   margin-left: auto;
   margin-right: auto;
 }
@@ -278,7 +278,7 @@ img {
 }
 
 .shield-container {
-	display: inline-block;
+  display: inline-block;
   width: 6.667rem;
   height: 0.2rem;
   background-color: #ccc;
@@ -286,12 +286,12 @@ img {
   overflow: hidden;
   margin-top: 0.2rem;
   margin-bottom: 0;
-	padding: 0;
+  padding: 0;
 }
 
 .shield-bar {
   height: 100%;
-  background-color: #FFD829;
+  background-color: #ffd829;
   width: 100%;
 }
 
@@ -321,12 +321,20 @@ img {
   left: 50%;
   transform: translate(-50%, calc(-100% - 0.3em));
   pointer-events: none; /* let user interaction pass through */
-  color: #D8F0FF;
-  text-shadow: 1px 1px 2px black, -1px -1px 2px black, 0px 1px 2px black, 1px 0px 2px black, 0px -1px 2px black, -1px 0px 2px black, 1px -1px 2px black, -1px 1px 2px black;
+  color: #d8f0ff;
+  text-shadow:
+    1px 1px 2px black,
+    -1px -1px 2px black,
+    0px 1px 2px black,
+    1px 0px 2px black,
+    0px -1px 2px black,
+    -1px 0px 2px black,
+    1px -1px 2px black,
+    -1px 1px 2px black;
   width: 100%;
   text-align: center;
-	font-size: 0.8em;
-  line-height: 1.0;
+  font-size: 0.8em;
+  line-height: 1;
 }
 
 nav {
@@ -378,32 +386,32 @@ table tr.section-label td {
 .skill-table {
   border-collapse: collapse;
   border-spacing: 2px;
-	margin: auto;
+  margin: auto;
 }
 
 .skill-value-cell {
   text-align: right;
-	width: 1.333rem;
+  width: 1.333rem;
 }
 
 .skill-label-cell {
   text-align: right;
-	padding-right: 0.667rem;
+  padding-right: 0.667rem;
 }
 
 .points {
-	padding-top: 0.333rem;
-	padding-bottom: 1rem;
+  padding-top: 0.333rem;
+  padding-bottom: 1rem;
 }
 
 .difficulty {
-	padding-top: 0.667rem;
-	padding-bottom: 0.333rem;
+  padding-top: 0.667rem;
+  padding-bottom: 0.333rem;
 }
 
 .new-commander-title {
-	padding-top: 0.667rem;
-	padding-bottom: 0.333rem;
+  padding-top: 0.667rem;
+  padding-bottom: 0.333rem;
 }
 
 .commanderTable {
@@ -452,7 +460,7 @@ a {
   color: #007bff;
 }
 
-input[type="checkbox"] {
+input[type='checkbox'] {
   margin-right: 0.333rem;
 }
 
@@ -473,18 +481,18 @@ h4 {
 
 .bays-credits {
   display: flex;
-  justify-content: space-between;  /* Left-aligns the first item, right-aligns the second */
+  justify-content: space-between; /* Left-aligns the first item, right-aligns the second */
 }
 
 /* Styling for the backdrop (overlay) */
 .alert-backdrop {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: rgba(0, 0, 0, 0.5);
-	z-index: 9999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
 }
 
 /* Styling for the alert box */
@@ -493,13 +501,13 @@ h4 {
   top: 30%;
   left: 50%;
   transform: translateX(-50%);
-	background: white;
-	padding: 1.333rem;
-	border-radius: 10px;
-	width: 80%;
-	max-width: 26.667rem;
-	text-align: center;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  background: white;
+  padding: 1.333rem;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 26.667rem;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .alert-box-default {
@@ -512,25 +520,25 @@ h4 {
 
 /* Title styling */
 .alert-title {
-	font-size: 1.1em;
-	margin-bottom: 0.667rem;
+  font-size: 1.1em;
+  margin-bottom: 0.667rem;
 }
 
 /* Container for the action buttons */
 .alert-actions {
-	display: flex;
-	justify-content: center;
-	flex-wrap: wrap;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 /* Styling for two buttons: display side by side */
 .alert-actions.two-buttons .alert-action-button {
-	flex: 1 1 45%;
+  flex: 1 1 45%;
 }
 
 /* For more than two buttons, display them in a list */
 .alert-actions.more-buttons .alert-action-button {
-	flex: 1 1 100%;
+  flex: 1 1 100%;
 }
 
 #zoomedGalaxyViewCanvasContainer {
@@ -574,25 +582,26 @@ h4 {
 
 @media (prefers-color-scheme: dark) {
   body {
-    background: #1C1C1C;
-    color: #F0F0F0;
+    background: #1c1c1c;
+    color: #f0f0f0;
   }
 
-  input[type="text"], textarea {
-    background-color : #121212; 
+  input[type='text'],
+  textarea {
+    background-color: #121212;
     color: #eee;
   }
 
   a {
-    color: #64748B;
+    color: #64748b;
   }
 
   .tight-table td {
-    background-color: #2E2E2E;
+    background-color: #2e2e2e;
   }
 
   .tight-table-collapse td {
-    background-color: #2E2E2E;
+    background-color: #2e2e2e;
   }
 
   #newsStrDiv {
@@ -601,13 +610,11 @@ h4 {
   }
 
   .alert-box {
-    background: #1C1C1C;
-    color: #F0F0F0;
+    background: #1c1c1c;
+    color: #f0f0f0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   }
-
 }
-
 
 /* ---- Layout ---------------------------------------------------------------------- */
 

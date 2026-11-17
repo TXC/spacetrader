@@ -1,107 +1,115 @@
 // Replays a recorded game by finding each recorded element on the page and using it.
 // Only the tests need this, and it works on the page, so it lives with the tests.
-import { GameRand } from '../../game/GameRand.ts'
-import { runtime } from '../../game/runtime.ts'
-import { Utils } from '../../game/Utilities.ts'
-import type { Session } from '../../game/session.ts'
+import { GameRand } from '../../game/GameRand.ts';
+import { runtime } from '../../game/runtime.ts';
+import { Utils } from '../../game/Utilities.ts';
+import type { Session } from '../../game/session.ts';
 
-type HackHandler = (session: Session) => void
+type HackHandler = (session: Session) => void;
 
 export class ActionLogReplay {
-  declare session: Session
-  declare _gameRandSeed: number
-  declare _idLog: string[]
-  declare _eventNameLog: string[]
-  declare _hackHandler: HackHandler | undefined
+  declare session: Session;
+  declare _gameRandSeed: number;
+  declare _idLog: string[];
+  declare _eventNameLog: string[];
+  declare _hackHandler: HackHandler | undefined;
 
   // hackHandler is an optional function that will be invoked before every
   // replayed event, taking the session as an argument.
   constructor(serializedString: string, session: Session, hackHandler?: HackHandler) {
-    const obj = JSON.parse(serializedString)
-    this.session = session
-    this._gameRandSeed = obj.gameRandSeed
-    this._idLog = obj.idLog
-    this._eventNameLog = obj.eventNameLog
-    this._hackHandler = hackHandler
+    const obj = JSON.parse(serializedString);
+    this.session = session;
+    this._gameRandSeed = obj.gameRandSeed;
+    this._idLog = obj.idLog;
+    this._eventNameLog = obj.eventNameLog;
+    this._hackHandler = hackHandler;
   }
 
   replay() {
-    console.log("Starting action log replay")
-    runtime.actionLog._gameRandSeed = this._gameRandSeed
-    runtime.actionLog.replayInProgress = true
-    console.log("Replacing runtime.gameRand instance with action log seed")
-    runtime.gameRand = new GameRand(this._gameRandSeed)
+    console.log('Starting action log replay');
+    runtime.actionLog._gameRandSeed = this._gameRandSeed;
+    runtime.actionLog.replayInProgress = true;
+    console.log('Replacing runtime.gameRand instance with action log seed');
+    runtime.gameRand = new GameRand(this._gameRandSeed);
 
-    const len = this._idLog.length
-    console.log(`Replaying ${len} actions...`)
+    const len = this._idLog.length;
+    console.log(`Replaying ${len} actions...`);
     for (let i = 0; i < len; i++) {
-      const elID = this._idLog[i]
-      const eventName = this._eventNameLog[i]
+      const elID = this._idLog[i];
+      const eventName = this._eventNameLog[i];
 
-      console.log(`Replay[${i}] ${eventName} ${elID}`)
-      this.replayEvent(elID, eventName)
+      console.log(`Replay[${i}] ${eventName} ${elID}`);
+      this.replayEvent(elID, eventName);
     }
-    console.log("Finished action log replay")
-    runtime.actionLog.replayInProgress = false
+    console.log('Finished action log replay');
+    runtime.actionLog.replayInProgress = false;
   }
 
   replayEvent(elementID: string, eventName?: string) {
-    eventName = eventName ? eventName : "click"
-    const replayClass = this.constructor as typeof ActionLogReplay
-    replayClass.replayEvent(elementID, eventName, this.session, this._hackHandler)
+    eventName = eventName ? eventName : 'click';
+    const replayClass = this.constructor as typeof ActionLogReplay;
+    replayClass.replayEvent(elementID, eventName, this.session, this._hackHandler);
   }
 
-  static replayEvent(elementID: string, eventName: string, session: Session, hackHandler?: HackHandler) {
-    runtime.actionLog.replayInProgress = true // force async to happen immediately from now on
+  static replayEvent(
+    elementID: string,
+    eventName: string,
+    session: Session,
+    hackHandler?: HackHandler
+  ) {
+    runtime.actionLog.replayInProgress = true; // force async to happen immediately from now on
 
     if (hackHandler) {
-      hackHandler(session)
+      hackHandler(session);
     }
 
-    if (elementID === "namedEvent") {
+    if (elementID === 'namedEvent') {
       const eventComponents = eventName.split(/\|/);
-      const actualEventName = eventComponents[0]
-      const eventContext = eventComponents[1]
+      const actualEventName = eventComponents[0];
+      const eventContext = eventComponents[1];
 
-      const handlerObj = runtime.actionLog._namedEvents[actualEventName]
-      handlerObj.handleNamedEvent(actualEventName, eventContext)
-      runtime.actionLog.logNamedEvent(actualEventName, eventContext)
+      const handlerObj = runtime.actionLog._namedEvents[actualEventName];
+      handlerObj.handleNamedEvent(actualEventName, eventContext);
+      runtime.actionLog.logNamedEvent(actualEventName, eventContext);
     } else {
       // The replayed element can be a button, link, checkbox, slider or select.
       // The log holds strings, which the page converts when they are assigned.
       const element = document.getElementById(elementID) as unknown as {
-        value: string, selectedIndex: string, checked: boolean,
-        click(): void, dispatchEvent(e: Event): boolean,
-      } | null
+        value: string;
+        selectedIndex: string;
+        checked: boolean;
+        click(): void;
+        dispatchEvent(e: Event): boolean;
+      } | null;
       if (!element) {
-        console.log(`Did not find element for ${elementID}. EventName: ${eventName}`)
-        console.log(`Current replayLog: ${runtime.actionLog.serializedString()}`)
+        console.log(`Did not find element for ${elementID}. EventName: ${eventName}`);
+        console.log(`Current replayLog: ${runtime.actionLog.serializedString()}`);
       }
-      Utils.ensureType(element, "object")
+      Utils.ensureType(element, 'object');
 
-      if (eventName.startsWith("slider")) {
+      if (eventName.startsWith('slider')) {
         const eventComponents = eventName.split(/\|/);
-        const actualEventName = eventComponents[1]
-        const sliderValue = eventComponents[2]
+        const actualEventName = eventComponents[1];
+        const sliderValue = eventComponents[2];
         // React watches the value property, so set it through the browser's own setter,
         // and send an event that bubbles up to where React listens.
-        const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!
-        setValue.call(element, sliderValue)
-        let inputEvent = new Event(actualEventName, { bubbles: true })
-        element!.dispatchEvent(inputEvent)
-      } else if (eventName.startsWith("select")) {
+        const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+        setValue.call(element, sliderValue);
+        let inputEvent = new Event(actualEventName, { bubbles: true });
+        element!.dispatchEvent(inputEvent);
+      } else if (eventName.startsWith('select')) {
         const eventComponents = eventName.split(/\|/);
-        const actualEventName = eventComponents[1]
-        const selectedIndex = eventComponents[2]
-        element!.selectedIndex = selectedIndex
+        const actualEventName = eventComponents[1];
+        const selectedIndex = eventComponents[2];
+        element!.selectedIndex = selectedIndex;
         // The event must bubble to reach React, which listens at the top of the page.
-        let inputEvent = new Event(actualEventName, { bubbles: true })
-        element!.dispatchEvent(inputEvent)
-      } else if (eventName === "click") {
-        element!.click()
-      } else if (eventName === "change") {
+        let inputEvent = new Event(actualEventName, { bubbles: true });
+        element!.dispatchEvent(inputEvent);
+      } else if (eventName === 'click') {
+        element!.click();
+      } else if (eventName === 'change') {
         // A real click toggles the box and fires its change event, for old screens and React alike.
-        element!.click()
+        element!.click();
       }
     }
   }

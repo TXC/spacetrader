@@ -1,0 +1,55 @@
+name: Pull Request
+
+on:
+  pull_request:
+    paths:
+      - "**/*.[jt]sx?"  # .js, .ts, .jsx, .tsx
+      - "**/*.[ecm]js"  # .ejs, .cjs, .mjs
+      - "**/*.json"
+      - "**/*.ya?ml"    # .yml, .yaml
+  # Also run by release.yml, so a release passes the same checks.
+  workflow_call:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Set node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 26.x
+          cache: pnpm
+
+      - name: Install dependencies
+        #run: pnpm install
+        run: pnpm clean-install
+
+      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
+        run: pnpm audit signatures
+
+      - name: Format
+        run: pnpm run format
+
+      - name: Lint
+        run: pnpm run lint
+        
+      - name: Playwright Install
+        run: pnpm exec playwright install
+        
+      - name: Test
+        run: pnpm run test
+
+      - name: Build
+        run: pnpm run build
