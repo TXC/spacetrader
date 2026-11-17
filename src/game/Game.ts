@@ -20,7 +20,10 @@ import {
   SpecialEvent,
   WildQuestStatus,
 } from './SolarSystem.types.ts';
-import { FABRIC_RIP_PROBABILITY_INITIAL, SpecialEventSpecifier } from './SpecialEventSpecifier.ts';
+import {
+  FABRIC_RIP_PROBABILITY_INITIAL,
+  randomOccurrenceEventTypes,
+} from './SpecialEventSpecifier.ts';
 import { TechLevel, TradeItemType } from './TradeItem.types.ts';
 import { Utils, pLog } from './Utilities.ts';
 import { runtime } from './runtime.ts';
@@ -522,7 +525,7 @@ export class Game {
   _setupEventsAndMercenaries() {
     // Setup special events and any hard-coded mercenaries
 
-    const eventsToPlace = SpecialEventSpecifier.randomOccurrenceEventTypes();
+    const eventsToPlace = randomOccurrenceEventTypes();
 
     const kravat = this._findSolarSystem('Kravat')!;
     kravat.setSpecialEvent(SpecialEvent.WildGetsOut);

@@ -4,7 +4,7 @@ import type { Game } from './Game.ts';
 import { session } from './session.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import { SpecialEvent, SYSTEM_SIZE_STR } from './SolarSystem.types.ts';
-import { SpecialEventSpecifier } from './SpecialEventSpecifier.ts';
+import { specialEventForType } from './SpecialEventSpecifier.ts';
 import { TECH_LEVEL_STR } from './TradeItem.types.ts';
 import { pLog } from './Utilities.ts';
 
@@ -21,7 +21,7 @@ export function describe(game: Game, system: SolarSystem): string {
   const distance = `${system.distanceTo(game.commander.currentSystem)} parsecs`;
   if (!game.showSpecialSystems || system.specialEvent == SpecialEvent.None)
     return `${kind}\n${distance}`;
-  const special = SpecialEventSpecifier.specialEventTypeToSpecifier().get(system.specialEvent)!;
+  const special = specialEventForType(system.specialEvent)!;
   return `${kind}\n${distance}\nSpecial: ${special.name}`;
 }
 
