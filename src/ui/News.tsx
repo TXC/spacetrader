@@ -10,7 +10,7 @@ type Props = { game: Game, news: NewsRules }
 function PayLink({ news }: { news: NewsRules }) {
   return (
     <div className="button-item">
-      <LoggedLink id="purchaseNews" className="button-link" onPress={() => news.buy()}>
+      <LoggedLink id="purchaseNews" onPress={() => news.buy()}>
         <Icon name="News" className="button-icon" />
         <span>{`Pay $${news.price()} to read news`}</span>
       </LoggedLink>

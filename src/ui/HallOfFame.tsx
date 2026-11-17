@@ -18,7 +18,7 @@ export function HallOfFame({ game, inProgress, scores, onContinue }: Props) {
       <div id="end-message" className="centered-div centered"><Lines text={scoreMessage(game, inProgress, scores)} /></div>
       {!inProgress && (
         <>
-          <div className="centered-div"><LoggedButton id="endgame" label="End Game and Start Over" onPress={() => onContinue?.()} /></div>
+          <div className="centered-div"><LoggedButton id="endgame" kind="main" label="End Game and Start Over" onPress={() => onContinue?.()} /></div>
           <br />
         </>
       )}

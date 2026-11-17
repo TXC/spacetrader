@@ -27,7 +27,7 @@ function NavLink({ session, link }: { session: Session, link: NavRow }) {
   return (
     <>
       <li className="button-item" />
-      <LoggedLink id={row} className={'button-link' + (session.activeRow === row ? ' active' : '')} onPress={open}>
+      <LoggedLink id={row} className={session.activeRow === row ? 'active' : undefined} onPress={open}>
         <Icon name={icon} className={row === 'Chart' ? 'button-icon-chart' : 'button-icon'} />
         <span>{row}</span>
       </LoggedLink>

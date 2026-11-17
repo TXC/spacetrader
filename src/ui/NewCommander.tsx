@@ -60,7 +60,7 @@ export function NewCommander({ session }: { session: Session }) {
           </tbody></table>
           <div className="points">Skill Points Remaining: <span id="pointsRemaining">{points.remaining}</span> of {MAX_POINTS}</div>
         </div>
-        <LoggedButton id="createCommander" label="Begin Adventure" onPress={() => session.createCommander(name, level, points.skills)} />
+        <LoggedButton id="createCommander" kind="main" label="Begin Adventure" onPress={() => session.createCommander(name, level, points.skills)} />
       </div>
     </div>
   )
