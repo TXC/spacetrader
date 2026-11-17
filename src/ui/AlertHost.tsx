@@ -34,11 +34,12 @@ function Content({ alert }: AlertProps) {
 }
 
 function ActionButton({ alert, action }: AlertProps & { action: AlertAction }) {
-  const destructive = action.actionType === AlertActionType.Destructive ? ' destructive' : ''
+  const destructive = action.actionType === AlertActionType.Destructive
   return (
     <LoggedButton
       id={alert.buttonId(action.title)}
-      className={'alert-action-button' + destructive}
+      className="alert-action-button"
+      kind={destructive ? 'danger' : undefined}
       label={action.title}
       onPress={() => alert.press(action)}
     />

@@ -21,12 +21,13 @@ function trade(game: Game, buy: boolean, type: number, quantity: number) {
   session.changed()
 }
 
+// "Buy 1", "5", "All": only the first button names the action, so three fit on a phone.
 function Amounts({ row, onAmount }: { row: CargoRow, onAmount: (quantity: number) => void }) {
   const button = (amount: string, quantity: number) => (
     <LoggedButton
       key={row.verb + amount}
       id={`cargo_${row.name}${row.verb} ${amount}`}
-      label={`${row.verb} ${amount}`}
+      label={amount === '1' ? `${row.verb} 1` : amount}
       disabled={!row.enabled}
       onPress={() => onAmount(quantity)}
     />

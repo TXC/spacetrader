@@ -18,7 +18,7 @@ function Buttons({ systems, index, onSelect, onBlastOff }: Pick<Props, 'onSelect
   const move = (forward: boolean) => () => onSelect(systems[step(index, systems.length, forward)])
   return (
     <div className="button-row">
-      <LoggedButton id="warpBlastOff" label={`Blast Off to ${systems[index].getName()}`} onPress={() => onBlastOff(systems[index])} />
+      <LoggedButton id="warpBlastOff" kind="main" label={`Blast Off to ${systems[index].getName()}`} onPress={() => onBlastOff(systems[index])} />
       <LoggedButton id="warpPrev" label="Prev" onPress={move(false)} />
       <LoggedButton id="warpNext" label="Next" onPress={move(true)} />
     </div>

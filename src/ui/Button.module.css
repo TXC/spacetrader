@@ -1,0 +1,78 @@
+/* The one look every button and button-like link shares. Its colours, corners and shadow
+   come from the --button-* variables in style.css, so a theme only has to change those. */
+.button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  /* Tall and wide enough for a thumb on a phone; grows with the text on a large screen. */
+  min-height: max(44px, 2.4rem);
+  min-width: 44px;
+  margin: 0.2rem;
+  padding: 0 0.9rem;
+  border: var(--button-border-width) solid var(--button-line);
+  border-radius: var(--button-radius);
+  box-shadow: var(--button-shadow);
+  background: var(--button-fill);
+  color: var(--button-text);
+  /* Its own text size, also inside a heading. */
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--button-accent);
+  outline-offset: 2px;
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* The navigation link of the screen that is open. */
+.button:global(.active) {
+  border-color: var(--button-accent);
+  background: var(--button-accent-soft);
+  color: var(--button-accent-soft-text);
+}
+
+/* The main action of a screen. */
+.main {
+  border-color: var(--button-accent);
+  background: var(--button-accent);
+  color: var(--button-accent-text);
+  font-weight: 600;
+}
+
+/* An action that cannot be undone. */
+.danger {
+  border-color: var(--button-danger);
+  color: var(--button-danger);
+}
+
+/* Several buttons side by side in a table cell: less air, so they stay on one line. */
+:global(.button-group) .button {
+  margin: 0.1rem;
+  padding: 0 0.6rem;
+}
+
+/* The encounter's buttons fill the row, icon first. */
+:global(.battleButtons) .button {
+  justify-content: flex-start;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button:active:not(:disabled) {
+    transform: none;
+  }
+}

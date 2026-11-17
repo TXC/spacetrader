@@ -87,7 +87,7 @@ function ActionButtons({ travel, titles }: Props & { titles: string[] }) {
       {titles.map((title) => (
         <Fragment key={title}>
           <li className="battle-button-item" />
-          <LoggedLink id={sanitizedElementID('ecButton_' + title)} className="battle-button-link" onPress={() => travel.perform(title)}>
+          <LoggedLink id={sanitizedElementID('ecButton_' + title)} onPress={() => travel.perform(title)}>
             <Icon name={title} className="battle-button-icon" />
             <span>{title}</span>
           </LoggedLink>
