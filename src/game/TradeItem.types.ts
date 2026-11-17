@@ -14,7 +14,7 @@ export type TechLevel = (typeof TechLevel)[keyof typeof TechLevel];
 export const TECH_LEVEL_STR = (x: number) => {
   switch (x) {
     case TechLevel.PreAgricultural:
-      return 'Pre-agricultural';
+      return 'Pre-Agricultural';
     case TechLevel.Agricultural:
       return 'Agricultural';
     case TechLevel.Medieval:
@@ -26,9 +26,9 @@ export const TECH_LEVEL_STR = (x: number) => {
     case TechLevel.Industrial:
       return 'Industrial';
     case TechLevel.PostIndustrial:
-      return 'Post-industrial';
+      return 'Post-Industrial';
     case TechLevel.HighTech:
-      return 'High-tech';
+      return 'High-Tech';
     default:
       return '';
   }
