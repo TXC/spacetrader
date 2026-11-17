@@ -1,7 +1,7 @@
-import { AccessoryType, Gadget, Shield, Weapon } from './Accessory.ts';
+import { AccessoryType, gadgetForType, shieldForType, weaponForType } from './Accessory.ts';
 import { MAX_SKILL_LEVEL, PoliceRecordScore } from './Commander.ts';
 import { CrewMember } from './CrewMember.ts';
-import { Ship, ShipModel, ShipModelType } from './Ship.ts';
+import { Ship, shipModelForType, ShipModelType } from './Ship.ts';
 import { Difficulty, WildQuestStatus } from './SolarSystem.types.ts';
 import { TradeItemType } from './TradeItem.types.ts';
 import { Utils } from './Utilities.ts';
@@ -152,7 +152,7 @@ export class Opponent extends CrewMember {
         ];
 
         for (let i = 0; i <= ShipModelType.Best; ++i) {
-          const model = ShipModel.shipModelForType(i);
+          const model = shipModelForType(i);
           if (
             type === OpponentType.Police &&
             (model.police < 0 ||
@@ -184,7 +184,7 @@ export class Opponent extends CrewMember {
         let frequencySum = 0;
         chosenShipType = possibleShipTypes[0];
         for (const shipType of possibleShipTypes) {
-          const model = ShipModel.shipModelForType(shipType);
+          const model = shipModelForType(shipType);
           frequencySum += model.frequency;
           if (frequencySum >= shipChoice) {
             chosenShipType = shipType;
@@ -197,7 +197,7 @@ export class Opponent extends CrewMember {
       Utils.ensureInteger(game.difficulty);
 
       const ship = new Ship(chosenShipType, game.difficulty);
-      const model = ShipModel.shipModelForType(chosenShipType);
+      const model = shipModelForType(chosenShipType);
 
       if (type === OpponentType.Mantis) {
         tries = 1 + game.difficulty;
@@ -240,7 +240,7 @@ export class Opponent extends CrewMember {
           gadgetType <= AccessoryType.GadgetLastBuyable;
           ++gadgetType
         ) {
-          const gadget = Gadget.gadgetForType(gadgetType)!;
+          const gadget = gadgetForType(gadgetType)!;
           gadgetFreqSum += gadget.occurrence;
           Utils.ensureInteger(gadgetFreqSum);
           if (gadgetFreqSum >= gadgetRoll) {
@@ -316,7 +316,7 @@ export class Opponent extends CrewMember {
           weaponType <= AccessoryType.WeaponLastBuyable;
           ++weaponType
         ) {
-          const weapon = Weapon.weaponForType(weaponType)!;
+          const weapon = weaponForType(weaponType)!;
           weaponFreqSum += weapon.occurrence;
           Utils.ensureInteger(weaponFreqSum);
           if (weaponFreqSum >= weaponRoll) {
@@ -352,7 +352,7 @@ export class Opponent extends CrewMember {
           shieldType <= AccessoryType.ShieldLastBuyable;
           ++shieldType
         ) {
-          const shield = Shield.shieldForType(shieldType)!;
+          const shield = shieldForType(shieldType)!;
           shieldFreqSum += shield.occurrence;
           if (shieldFreqSum >= shieldRoll) {
             ship.addShieldOfType(shieldType);

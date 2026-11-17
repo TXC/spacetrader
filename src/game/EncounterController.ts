@@ -30,7 +30,7 @@ import {
   ScarabQuestStatus,
   WildQuestStatus,
 } from './SolarSystem.types.ts';
-import { TradeItem } from './TradeItem.ts';
+import { tradeItemForType } from './TradeItem.ts';
 import { TradeItemType } from './TradeItem.types.ts';
 import { Utils, pLog } from './Utilities.ts';
 import type { Game } from './Game.ts';
@@ -709,7 +709,7 @@ export class EncounterController {
             tradePrice *= runtime.gameRand.randomIntBelow(100) <= 10 ? 0.9 : 1.1;
           }
 
-          const tradeItem = TradeItem.tradeItemForType(itemType)!;
+          const tradeItem = tradeItemForType(itemType);
           itemName = tradeItem.name;
           tradePrice = Math.floor(tradePrice / tradeItem.roundOffPrice);
           tradePrice = (tradePrice + 1) * tradeItem.roundOffPrice;
@@ -734,7 +734,7 @@ export class EncounterController {
             tradePrice *= runtime.gameRand.randomIntBelow(100) <= 10 ? 1.1 : 0.9;
           }
 
-          const tradeItem = TradeItem.tradeItemForType(itemType)!;
+          const tradeItem = tradeItemForType(itemType);
           itemName = tradeItem.name;
           tradePrice = Math.floor(tradePrice / tradeItem.roundOffPrice);
           tradePrice = (tradePrice + 1) * tradeItem.roundOffPrice;
@@ -1768,7 +1768,7 @@ export class EncounterController {
         itemType = runtime.gameRand.randomIntBelow(TradeItemType.Count);
       }
 
-      const alertString = `A canister from the destroyed ship, labelled ${TradeItem.tradeItemForType(itemType)!.name}, drifts within range of your scoops.`;
+      const alertString = `A canister from the destroyed ship, labelled ${tradeItemForType(itemType).name}, drifts within range of your scoops.`;
 
       const aC = new AlertViewController(alertString);
 

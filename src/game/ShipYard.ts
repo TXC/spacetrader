@@ -3,7 +3,8 @@ import { ACCESSORY_FOR_TYPE, AccessoryType } from './Accessory.ts';
 import { AlertActionType, AlertViewController } from './alerts.ts';
 import type { Game } from './Game.ts';
 import { session } from './session.ts';
-import { Ship, ShipModel, ShipModelType } from './Ship.ts';
+import { Ship, shipModelForType, ShipModelType } from './Ship.ts';
+import type { ShipModel } from './Ship.ts';
 import { TradeItemType } from './TradeItem.types.ts';
 import { pLog } from './Utilities.ts';
 
@@ -113,7 +114,7 @@ function shipOffer(game: Game, model: ShipModel): ShipOffer {
 export function shipOffers(game: Game): ShipOffer[] {
   const offers: ShipOffer[] = [];
   for (let type = 0; type <= ShipModelType.Best; type++) {
-    offers.push(shipOffer(game, ShipModel.shipModelForType(type)));
+    offers.push(shipOffer(game, shipModelForType(type)));
   }
   return offers;
 }

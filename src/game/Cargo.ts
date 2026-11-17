@@ -1,7 +1,7 @@
 // What the buy and sell cargo screens show, and what their buttons do.
 import type { Game } from './Game.ts';
 import type { SolarSystem } from './SolarSystem.ts';
-import { TradeItem } from './TradeItem.ts';
+import { tradeItemForType } from './TradeItem.ts';
 import { TradeItemType } from './TradeItem.types.ts';
 
 export type CargoRow = {
@@ -46,7 +46,7 @@ function cargoRow(game: Game, view: CargoView, type: number): CargoRow {
   const shown = view.relative ? price.sell - price.average : view.buy ? price.buy : price.sell;
   return {
     type,
-    name: TradeItem.tradeItemForType(type)!.name,
+    name: tradeItemForType(type).name,
     bold: profitable && (view.buy ? !!view.baseSystem : true),
     quantity,
     cost: costLabel(view.relative, shown, price.sell),

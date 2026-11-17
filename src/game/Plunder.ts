@@ -9,7 +9,7 @@ import { PoliceRecordScore } from './Commander.ts';
 import type { Game } from './Game.ts';
 import type { Opponent } from './Opponent.ts';
 import { runtime } from './runtime.ts';
-import { TradeItem } from './TradeItem.ts';
+import { tradeItemForType } from './TradeItem.ts';
 import { TradeItemType } from './TradeItem.types.ts';
 
 export type PlunderRow = { type: number; name: string; quantity: number };
@@ -69,7 +69,7 @@ export class Plunder {
   rows(): PlunderRow[] {
     return Array.from({ length: TradeItemType.Count }, (_, type) => ({
       type,
-      name: TradeItem.tradeItemForType(type)!.name,
+      name: tradeItemForType(type).name,
       quantity: this.available(type),
     }));
   }

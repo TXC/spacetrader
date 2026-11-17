@@ -3,7 +3,7 @@ import type { CrewMemberState } from './CrewMember.ts';
 import { occurrenceStr, politicsForType, randomPoliticsForTechLevel } from './Politics.ts';
 import type { Politics } from './Politics.ts';
 import { SpecialEvent, SystemSize, SYSTEM_SIZE_STR } from './SolarSystem.types.ts';
-import { TradeItem } from './TradeItem.ts';
+import { tradeItemForType } from './TradeItem.ts';
 import {
   RESOURCES_STR,
   Resource,
@@ -414,7 +414,7 @@ export class SolarSystem {
   _initializeInventories() {
     this._tradeItemInventory = Array(TradeItemType.Count).fill(0);
     for (let itemType = 0; itemType < TradeItemType.Count; ++itemType) {
-      const item = TradeItem.tradeItemForType(itemType)!;
+      const item = tradeItemForType(itemType);
 
       if (!this._canProduceItem(itemType)) {
         this._tradeItemInventory[itemType] = 0;
@@ -488,7 +488,7 @@ export class SolarSystem {
       return 0;
     }
 
-    const item = TradeItem.tradeItemForType(itemType)!;
+    const item = tradeItemForType(itemType);
 
     if (this._techLevel < item.techLevelToUse) {
       return 0;
@@ -532,7 +532,7 @@ export class SolarSystem {
   }
 
   _canProduceItem(itemType: number) {
-    const item = TradeItem.tradeItemForType(itemType)!;
+    const item = tradeItemForType(itemType);
 
     const cantProduceItem =
       (itemType === TradeItemType.Narcotics && !this._politics.drugsTradeable) ||

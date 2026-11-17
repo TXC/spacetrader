@@ -3,7 +3,7 @@
 // project's UnitTests.js; the recordings and expected values are unchanged.
 import { test } from 'vitest';
 import { KILL_PIRATE_SCORE, PoliceRecordScore } from '../../game/Commander.ts';
-import { ShipModel, ShipModelType } from '../../game/Ship.ts';
+import { shipModelForType, ShipModelType } from '../../game/Ship.ts';
 import { TradeItemType } from '../../game/TradeItem.types.ts';
 import { runtime } from '../../game/runtime.ts';
 import { AlertViewController } from '../../game/alerts.ts';
@@ -286,7 +286,7 @@ test('buyShip_debt_upgrade', () => {
   const commander = session.game!.commander;
 
   assertEqual(commander.credits, 6057);
-  assertEqual(ShipModel.shipModelForType(commander.ship.type).name, 'Flea');
+  assertEqual(shipModelForType(commander.ship.type).name, 'Flea');
 
   replay.replayEvent('cheat_freeMoney', 'click');
   replay.replayEvent('Ship Yard', 'click');
@@ -306,7 +306,7 @@ test('buyShip_debt_upgrade', () => {
   replay.replayEvent('alertButton_Yes', 'click');
 
   assertEqual(commander.credits, 991500);
-  assertEqual(ShipModel.shipModelForType(commander.ship.type).name, 'Gnat');
+  assertEqual(shipModelForType(commander.ship.type).name, 'Gnat');
 });
 
 test('buyShip_debt_downgrade', () => {
@@ -318,7 +318,7 @@ test('buyShip_debt_downgrade', () => {
   const commander = session.game!.commander;
 
   assertEqual(commander.credits, 6057);
-  assertEqual(ShipModel.shipModelForType(commander.ship.type).name, 'Flea');
+  assertEqual(shipModelForType(commander.ship.type).name, 'Flea');
 });
 
 test('escapePod', () => {
@@ -331,7 +331,7 @@ test('escapePod', () => {
 
   assertEqual(commander.credits, 997500);
   assertEqual(commander.currentSystem.name, 'Lowry');
-  assertEqual(ShipModel.shipModelForType(commander.ship.type).name, 'Flea');
+  assertEqual(shipModelForType(commander.ship.type).name, 'Flea');
 });
 
 test('autoFlee_withImmediate', () => {

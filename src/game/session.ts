@@ -11,7 +11,8 @@ import { runtime } from './runtime.ts';
 import { present as presentShipYard } from './ShipYard.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import { SpecialEvent } from './SolarSystem.types.ts';
-import { SpecialEventSpecifier } from './SpecialEventSpecifier.ts';
+import { specialEventForType } from './SpecialEventSpecifier.ts';
+import type { SpecialEventSpecifier } from './SpecialEventSpecifier.ts';
 import { Store } from './Store.ts';
 import { Travel } from './Travel.ts';
 import { MockLocalStorage, pLog } from './Utilities.ts';
@@ -224,9 +225,7 @@ export class Session extends Store {
       pLog.log(27);
       hidden.add('For Hire');
     }
-    const special = SpecialEventSpecifier.specialEventTypeToSpecifier().get(
-      system.getSpecialEvent()
-    );
+    const special = specialEventForType(system.getSpecialEvent());
     if (system.getSpecialEvent() === SpecialEvent.None || special?.shouldHideBlock(game)) {
       pLog.log(28);
       hidden.add('Special');
@@ -340,9 +339,7 @@ export class Session extends Store {
 
   private offerSpecial(game: Game): void {
     pLog.log(14);
-    const special = SpecialEventSpecifier.specialEventTypeToSpecifier().get(
-      game.commander.getCurrentSystem().getSpecialEvent()
-    )!;
+    const special = specialEventForType(game.commander.getCurrentSystem().getSpecialEvent())!;
     const alert = new AlertViewController(special.prompt);
     const accept = (probe: number) => () => {
       pLog.log(probe);
