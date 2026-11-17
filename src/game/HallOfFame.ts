@@ -3,7 +3,8 @@ import { AlertActionType, AlertViewController } from './alerts.ts';
 import { Game, GameEndStatus } from './Game.ts';
 import type { GameState } from './Game.ts';
 import { session } from './session.ts';
-import { DIFFICULTY_STR } from './SolarSystem.types.ts';
+import { difficultyName } from './SolarSystem.types.ts';
+import { named } from './texts.ts';
 import { pLog } from './Utilities.ts';
 
 export const MAX_HIGH_SCORES = 6;
@@ -14,18 +15,16 @@ export type Scores = {
   clearHighScores(): void;
 };
 
-export function END_STATUS_STR(x: number): string {
-  switch (x) {
-    case GameEndStatus.None:
-      return 'is still playing';
-    case GameEndStatus.Killed:
-      return 'was killed';
-    case GameEndStatus.Moon:
-      return 'claimed a moon';
-    default:
-      return 'retired';
-  }
-}
+// How a game ended, to finish "<name> ... after 12 days".
+export const endStatusText = named<GameEndStatus>(
+  {
+    [GameEndStatus.None]: 'is still playing',
+    [GameEndStatus.Retired]: 'retired',
+    [GameEndStatus.Killed]: 'was killed',
+    [GameEndStatus.Moon]: 'claimed a moon',
+  },
+  'retired'
+);
 
 function madeTheList(game: Game, scores: Scores): boolean {
   return scores.highScores(MAX_HIGH_SCORES).some(saved => saved.uniqueID === game.uniqueID);
@@ -46,7 +45,7 @@ function entry(saved: GameState): string {
   const game = Game.fromSerializedState(saved);
   const { commander } = game;
   const days = `${commander.days} day${commander.days === 1 ? '' : 's'}`;
-  return `${commander.name} ${END_STATUS_STR(game.endStatus)} after ${days}, worth $${commander.netWorth()} on ${DIFFICULTY_STR(game.difficulty)} level. Score: ${game.scorePercentageString()}.`;
+  return `${commander.name} ${endStatusText(game.endStatus)} after ${days}, worth $${commander.netWorth()} on ${difficultyName(game.difficulty)} level. Score: ${game.scorePercentageString()}.`;
 }
 
 export function hallOfFame(scores: Scores): { text: string; any: boolean } {

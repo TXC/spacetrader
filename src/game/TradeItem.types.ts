@@ -1,15 +1,5 @@
-// The values of a constant object, as a type: 0 | 1 | 2 ...
-type ValueOf<T> = T[keyof T];
-
-// The values that stand for something real, without the `Count` that only says how many
-// there are.
-type Real<T, Count> = Exclude<T, Count>;
-
-// Turns a table of texts into a lookup. The compiler checks that the table has a text for
-// every real value; a number outside the table has no text.
-function named<K extends number>(texts: Record<K, string>): (value: number) => string {
-  return value => texts[value as K] ?? '';
-}
+import { named } from './texts.ts';
+import type { Real, ValueOf } from './texts.ts';
 
 export const TechLevel = {
   PreAgricultural: 0,

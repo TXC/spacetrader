@@ -11,7 +11,7 @@ import {
 } from '../game/NewCommander.ts';
 import type { SkillName } from '../game/NewCommander.ts';
 import type { Session } from '../game/session.ts';
-import { Difficulty, DIFFICULTY_STR } from '../game/SolarSystem.types.ts';
+import { Difficulty, difficultyName } from '../game/SolarSystem.types.ts';
 import { LoggedButton } from './Logged.tsx';
 import { useLogged } from './useLogged.ts';
 
@@ -21,7 +21,7 @@ const LABELS: Record<SkillName, string> = {
   fighter: 'Fighter',
   trader: 'Trader',
 };
-const DIFFICULTIES = Array.from({ length: Difficulty.Count }, (_, level) => DIFFICULTY_STR(level));
+const DIFFICULTIES = Array.from({ length: Difficulty.Count }, (_, level) => difficultyName(level));
 
 type Change = ChangeEvent<HTMLInputElement>;
 
