@@ -1,3 +1,16 @@
+// The values of a constant object, as a type: 0 | 1 | 2 ...
+type ValueOf<T> = T[keyof T];
+
+// The values that stand for something real, without the `Count` that only says how many
+// there are.
+type Real<T, Count> = Exclude<T, Count>;
+
+// Turns a table of texts into a lookup. The compiler checks that the table has a text for
+// every real value; a number outside the table has no text.
+function named<K extends number>(texts: Record<K, string>): (value: number) => string {
+  return value => texts[value as K] ?? '';
+}
+
 export const TechLevel = {
   PreAgricultural: 0,
   Agricultural: 1,
@@ -9,30 +22,19 @@ export const TechLevel = {
   HighTech: 7,
   Count: 8,
 } as const;
-export type TechLevel = (typeof TechLevel)[keyof typeof TechLevel];
+export type TechLevel = ValueOf<typeof TechLevel>;
 
-export const TECH_LEVEL_STR = (x: number) => {
-  switch (x) {
-    case TechLevel.PreAgricultural:
-      return 'Pre-Agricultural';
-    case TechLevel.Agricultural:
-      return 'Agricultural';
-    case TechLevel.Medieval:
-      return 'Medieval';
-    case TechLevel.Renaissance:
-      return 'Renaissance';
-    case TechLevel.EarlyIndustrial:
-      return 'Early Industrial';
-    case TechLevel.Industrial:
-      return 'Industrial';
-    case TechLevel.PostIndustrial:
-      return 'Post-Industrial';
-    case TechLevel.HighTech:
-      return 'High-Tech';
-    default:
-      return '';
-  }
-};
+// The name of a tech level, as shown for a system.
+export const techLevelName = named<Real<TechLevel, typeof TechLevel.Count>>({
+  [TechLevel.PreAgricultural]: 'Pre-Agricultural',
+  [TechLevel.Agricultural]: 'Agricultural',
+  [TechLevel.Medieval]: 'Medieval',
+  [TechLevel.Renaissance]: 'Renaissance',
+  [TechLevel.EarlyIndustrial]: 'Early Industrial',
+  [TechLevel.Industrial]: 'Industrial',
+  [TechLevel.PostIndustrial]: 'Post-Industrial',
+  [TechLevel.HighTech]: 'High-Tech',
+});
 
 export const Status = {
   Uneventful: 0,
@@ -45,30 +47,19 @@ export const Status = {
   LackWorkers: 7,
   Count: 8,
 } as const;
-export type Status = (typeof Status)[keyof typeof Status];
+export type Status = ValueOf<typeof Status>;
 
-export const STATUS_STR = (x: number) => {
-  switch (x) {
-    case Status.Uneventful:
-      return 'under no particular pressure';
-    case Status.AtWar:
-      return 'at war';
-    case Status.Plague:
-      return 'ravaged by a plague';
-    case Status.Drought:
-      return 'suffering from a drought';
-    case Status.Boredom:
-      return 'suffering from extreme boredom';
-    case Status.ColdSpell:
-      return 'suffering from a cold spell';
-    case Status.CropFailure:
-      return 'suffering from crop failure';
-    case Status.LackWorkers:
-      return 'lacking enough workers';
-    default:
-      return '';
-  }
-};
+// What a system in this status is going through, to finish "This system is ...".
+export const statusDescription = named<Real<Status, typeof Status.Count>>({
+  [Status.Uneventful]: 'under no particular pressure',
+  [Status.AtWar]: 'at war',
+  [Status.Plague]: 'ravaged by a plague',
+  [Status.Drought]: 'suffering from a drought',
+  [Status.Boredom]: 'suffering from extreme boredom',
+  [Status.ColdSpell]: 'suffering from a cold spell',
+  [Status.CropFailure]: 'suffering from crop failure',
+  [Status.LackWorkers]: 'lacking enough workers',
+});
 
 export const Resource = {
   None: 0,
@@ -86,40 +77,24 @@ export const Resource = {
   Warlike: 12,
   Count: 13,
 } as const;
-export type Resource = (typeof Resource)[keyof typeof Resource];
+export type Resource = ValueOf<typeof Resource>;
 
-export const RESOURCES_STR = (x: number) => {
-  switch (x) {
-    case Resource.None:
-      return 'Nothing special';
-    case Resource.MineralRich:
-      return 'Mineral rich';
-    case Resource.MineralPoor:
-      return 'Mineral poor';
-    case Resource.Desert:
-      return 'Desert';
-    case Resource.SweetwaterOceans:
-      return 'Sweetwater oceans';
-    case Resource.RichSoil:
-      return 'Rich soil';
-    case Resource.PoorSoil:
-      return 'Poor soil';
-    case Resource.RichFauna:
-      return 'Rich fauna';
-    case Resource.Lifeless:
-      return 'Lifeless';
-    case Resource.WeirdMushrooms:
-      return 'Weird mushrooms';
-    case Resource.SpecialHerbs:
-      return 'Special herbs';
-    case Resource.Artistic:
-      return 'Artistic populace';
-    case Resource.Warlike:
-      return 'Warlike populace';
-    default:
-      return '';
-  }
-};
+// The name of a system's special resource.
+export const resourceName = named<Real<Resource, typeof Resource.Count>>({
+  [Resource.None]: 'Nothing special',
+  [Resource.MineralRich]: 'Mineral rich',
+  [Resource.MineralPoor]: 'Mineral poor',
+  [Resource.Desert]: 'Desert',
+  [Resource.SweetwaterOceans]: 'Sweetwater oceans',
+  [Resource.RichSoil]: 'Rich soil',
+  [Resource.PoorSoil]: 'Poor soil',
+  [Resource.RichFauna]: 'Rich fauna',
+  [Resource.Lifeless]: 'Lifeless',
+  [Resource.WeirdMushrooms]: 'Weird mushrooms',
+  [Resource.SpecialHerbs]: 'Special herbs',
+  [Resource.Artistic]: 'Artistic populace',
+  [Resource.Warlike]: 'Warlike populace',
+});
 
 export const TradeItemType = {
   None: -1,
@@ -138,8 +113,10 @@ export const TradeItemType = {
   FakeQuestCargo: 11,
   FakeQuestCargoReactor: 12,
 } as const;
-export type TradeItemType = (typeof TradeItemType)[keyof typeof TradeItemType];
+export type TradeItemType = ValueOf<typeof TradeItemType>;
 
-export const TRADE_ITEM_IS_ILLEGAL = (x: number) => {
-  return x === TradeItemType.Firearms || x === TradeItemType.Narcotics;
-};
+const ILLEGAL: readonly number[] = [TradeItemType.Firearms, TradeItemType.Narcotics];
+
+export function isIllegalTradeItem(type: number): boolean {
+  return ILLEGAL.includes(type);
+}
