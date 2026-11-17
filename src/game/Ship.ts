@@ -12,7 +12,7 @@ import type { CrewMemberState } from './CrewMember.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import { CrewMember } from './CrewMember.ts';
 import { ADJUST_SKILL_FOR_DIFFICULTY, CLOAK_BONUS, SKILL_BONUS } from './SolarSystem.types.ts';
-import { TechLevel, TradeItemType, TRADE_ITEM_IS_ILLEGAL } from './TradeItem.types.ts';
+import { TechLevel, TradeItemType, isIllegalTradeItem } from './TradeItem.types.ts';
 import { Utils, pLog } from './Utilities.ts';
 import { runtime } from './runtime.ts';
 
@@ -1187,7 +1187,7 @@ export class Ship {
         continue;
       }
 
-      if (onlyIllegal !== TRADE_ITEM_IS_ILLEGAL(tradeItem) && onlyLegalOrIllegal) {
+      if (onlyIllegal !== isIllegalTradeItem(tradeItem) && onlyLegalOrIllegal) {
         continue;
       }
 

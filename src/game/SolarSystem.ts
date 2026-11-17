@@ -5,13 +5,13 @@ import type { Politics } from './Politics.ts';
 import { SpecialEvent, SystemSize, SYSTEM_SIZE_STR } from './SolarSystem.types.ts';
 import { tradeItemForType } from './TradeItem.ts';
 import {
-  RESOURCES_STR,
+  resourceName,
   Resource,
   Status,
   TechLevel,
   TradeItemType,
-  STATUS_STR,
-  TECH_LEVEL_STR,
+  statusDescription,
+  techLevelName,
 } from './TradeItem.types.ts';
 import { Utils } from './Utilities.ts';
 import { runtime } from './runtime.ts';
@@ -584,7 +584,7 @@ export class SolarSystem {
   }
 
   systemInfoString() {
-    const systemInfo = `${SYSTEM_SIZE_STR(this.size).toLowerCase()} ${TECH_LEVEL_STR(this.techLevel).toLowerCase()} ${this.politics.name.toLowerCase()}\n${STATUS_STR(this.status).toLowerCase()}\n${RESOURCES_STR(this._specialResource).toLowerCase()}, ${occurrenceStr(this.politics.occurrencePolice).toLowerCase()} police, ${occurrenceStr(this.politics.occurrencePirates).toLowerCase()} pirates`;
+    const systemInfo = `${SYSTEM_SIZE_STR(this.size).toLowerCase()} ${techLevelName(this.techLevel).toLowerCase()} ${this.politics.name.toLowerCase()}\n${statusDescription(this.status).toLowerCase()}\n${resourceName(this._specialResource).toLowerCase()}, ${occurrenceStr(this.politics.occurrencePolice).toLowerCase()} police, ${occurrenceStr(this.politics.occurrencePirates).toLowerCase()} pirates`;
     return systemInfo;
   }
 

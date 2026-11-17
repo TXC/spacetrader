@@ -5,7 +5,7 @@ import { session } from './session.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import { SpecialEvent, SYSTEM_SIZE_STR } from './SolarSystem.types.ts';
 import { specialEventForType } from './SpecialEventSpecifier.ts';
-import { TECH_LEVEL_STR } from './TradeItem.types.ts';
+import { techLevelName } from './TradeItem.types.ts';
 import { pLog } from './Utilities.ts';
 
 // Opening the chart sorts the game's own list of systems by name, in place. The rest of
@@ -17,7 +17,7 @@ export function present(game: Game): void {
 // The lines under a system's name: what it is like and how far away it is.
 export function describe(game: Game, system: SolarSystem): string {
   const kind =
-    `${SYSTEM_SIZE_STR(system.size)} ${TECH_LEVEL_STR(system.techLevel)} ${system.politics.name}`.toLowerCase();
+    `${SYSTEM_SIZE_STR(system.size)} ${techLevelName(system.techLevel)} ${system.politics.name}`.toLowerCase();
   const distance = `${system.distanceTo(game.commander.currentSystem)} parsecs`;
   if (!game.showSpecialSystems || system.specialEvent == SpecialEvent.None)
     return `${kind}\n${distance}`;
