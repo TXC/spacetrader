@@ -1,4 +1,4 @@
-import { AccessoryType, Gadget, Shield, Weapon } from './Accessory.ts';
+import { AccessoryType, gadgetForType, shieldForType, weaponForType } from './Accessory.ts';
 import { MAX_SKILL_LEVEL, PoliceRecordScore } from './Commander.ts';
 import { CrewMember } from './CrewMember.ts';
 import { Ship, shipModelForType, ShipModelType } from './Ship.ts';
@@ -240,7 +240,7 @@ export class Opponent extends CrewMember {
           gadgetType <= AccessoryType.GadgetLastBuyable;
           ++gadgetType
         ) {
-          const gadget = Gadget.gadgetForType(gadgetType)!;
+          const gadget = gadgetForType(gadgetType)!;
           gadgetFreqSum += gadget.occurrence;
           Utils.ensureInteger(gadgetFreqSum);
           if (gadgetFreqSum >= gadgetRoll) {
@@ -316,7 +316,7 @@ export class Opponent extends CrewMember {
           weaponType <= AccessoryType.WeaponLastBuyable;
           ++weaponType
         ) {
-          const weapon = Weapon.weaponForType(weaponType)!;
+          const weapon = weaponForType(weaponType)!;
           weaponFreqSum += weapon.occurrence;
           Utils.ensureInteger(weaponFreqSum);
           if (weaponFreqSum >= weaponRoll) {
@@ -352,7 +352,7 @@ export class Opponent extends CrewMember {
           shieldType <= AccessoryType.ShieldLastBuyable;
           ++shieldType
         ) {
-          const shield = Shield.shieldForType(shieldType)!;
+          const shield = shieldForType(shieldType)!;
           shieldFreqSum += shield.occurrence;
           if (shieldFreqSum >= shieldRoll) {
             ship.addShieldOfType(shieldType);

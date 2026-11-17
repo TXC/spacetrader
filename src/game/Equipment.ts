@@ -64,7 +64,7 @@ function whyNotBuy(game: Game, type: number, accessory: Accessory): string | nul
     return 'Before you can buy a new ship or new equipment, you must settle your debts at the bank.';
   }
   if (game.commander.ship.freeSlotsForAccessoryType(type) > 0) return null;
-  const category = (accessory.constructor as typeof Accessory).accessoryCategory();
+  const category = accessory.category;
   return `You have no available ${category} slots.`;
 }
 

@@ -43,271 +43,191 @@ export const COUNT_BUYABLE_ACCESSORIES =
   (AccessoryType.WeaponLastBuyable - AccessoryType.WeaponFirst + 1) +
   (AccessoryType.ShieldLastBuyable - AccessoryType.ShieldFirst + 1);
 
-export function ACCESSORY_FOR_TYPE(type: number) {
-  return Gadget.gadgetForType(type) || Weapon.weaponForType(type) || Shield.shieldForType(type);
-}
+type AccessorySpec = {
+  type: number;
+  name: string;
+  price: number;
+  techLevel: TechLevel;
+  occurrence: number;
+};
+type PoweredSpec = AccessorySpec & { power: number };
 
+// A piece of equipment a ship can carry: a gadget, a weapon or a shield.
 export class Accessory {
-  declare _type: number;
-  declare _name: string;
-  declare _price: number;
-  declare _techLevel: TechLevel;
-  declare _occurrence: number;
+  declare readonly type: number;
+  declare readonly name: string;
+  declare readonly price: number;
+  declare readonly techLevel: TechLevel;
+  declare readonly occurrence: number;
 
-  constructor(type: number, name: string, price: number, techLevel: TechLevel, occurrence: number) {
-    this._type = type;
-    this._name = name;
-    this._price = price;
-    this._techLevel = techLevel;
-    this._occurrence = occurrence;
+  constructor(spec: AccessorySpec) {
+    Object.assign(this, spec);
   }
 
-  get type() {
-    return this._type;
-  }
-
-  get name() {
-    return this._name;
-  }
-
-  get price() {
-    return this._price;
-  }
-
-  get techLevel() {
-    return this._techLevel;
-  }
-
-  get occurrence() {
-    return this._occurrence;
-  }
-
-  icon(): string | null {
-    return null;
-  }
-
-  static accessoryCategory() {
+  // The word for this kind of equipment, as in "You have no available gadget slots."
+  get category(): string {
     return 'accessory';
-  }
-
-  isEqual(object: unknown) {
-    if (object instanceof Accessory) {
-      return this._type === object.type;
-    }
-    return this === object;
-  }
-
-  hash() {
-    return this._type;
   }
 }
 
 export class Gadget extends Accessory {
-  declare static sItems: Map<number, Gadget> | undefined;
-  declare _icon: string;
-
-  constructor(
-    type: number,
-    name: string,
-    price: number,
-    techLevel: TechLevel,
-    occurrence: number,
-    icon: string
-  ) {
-    super(type, name, price, techLevel, occurrence);
-    this._icon = icon;
-  }
-
-  static accessoryCategory() {
+  get category() {
     return 'gadget';
   }
 
-  static gadgetForType(type: number) {
-    if (!this.sItems) {
-      this.sItems = new Map();
-    }
-
-    let item = this.sItems.get(type);
-
-    if (!item) {
-      switch (type) {
-        case AccessoryType.GadgetFiveExtraCargoBays:
-          item = new Gadget(type, '5 extra cargo bays', 2500, TechLevel.EarlyIndustrial, 35, '');
-          break;
-
-        case AccessoryType.GadgetAutoRepairSystem:
-          item = new Gadget(type, 'Auto-repair system', 7500, TechLevel.Industrial, 20, '');
-          break;
-
-        case AccessoryType.GadgetNavigationSystem:
-          item = new Gadget(type, 'Navigation system', 15000, TechLevel.PostIndustrial, 20, '');
-          break;
-
-        case AccessoryType.GadgetTargetingSystem:
-          item = new Gadget(type, 'Targeting system', 25000, TechLevel.PostIndustrial, 20, '');
-          break;
-
-        case AccessoryType.GadgetCloakingDevice:
-          item = new Gadget(type, 'Cloaking device', 100000, TechLevel.HighTech, 5, '');
-          break;
-
-        case AccessoryType.GadgetFuelCompactor:
-          item = new Gadget(type, 'Fuel compactor', 30000, TechLevel.Count, 0, '');
-          break;
-
-        default:
-          break;
-      }
-
-      if (item) {
-        this.sItems.set(type, item);
-      }
-    }
-
-    return item;
-  }
-
-  icon() {
-    return this._icon;
-  }
-
   get isBuyable() {
-    return this._type <= AccessoryType.GadgetLastBuyable;
+    return this.type <= AccessoryType.GadgetLastBuyable;
   }
 }
 
 export class Weapon extends Accessory {
-  declare static sItems: Map<number, Weapon> | undefined;
-  declare _power: number;
+  declare readonly power: number;
 
-  constructor(
-    type: number,
-    name: string,
-    price: number,
-    techLevel: TechLevel,
-    occurrence: number,
-    power: number
-  ) {
-    super(type, name, price, techLevel, occurrence);
-    this._power = power;
+  constructor(spec: PoweredSpec) {
+    super(spec);
   }
 
-  get power() {
-    return this._power;
-  }
-
-  static accessoryCategory() {
+  get category() {
     return 'weapon';
   }
 
-  static weaponForType(type: number) {
-    if (!this.sItems) {
-      this.sItems = new Map();
-    }
-
-    let item = this.sItems.get(type);
-
-    if (!item) {
-      switch (type) {
-        case AccessoryType.WeaponPulseLaser:
-          item = new Weapon(type, 'Pulse laser', 2000, TechLevel.Industrial, 50, 15);
-          break;
-
-        case AccessoryType.WeaponBeamLaser:
-          item = new Weapon(type, 'Beam laser', 12500, TechLevel.PostIndustrial, 35, 25);
-          break;
-
-        case AccessoryType.WeaponMilitaryLaser:
-          item = new Weapon(type, 'Military laser', 35000, TechLevel.HighTech, 15, 35);
-          break;
-
-        case AccessoryType.WeaponMorgansLaser:
-          item = new Weapon(type, "Morgan's laser", 50000, TechLevel.Count, 0, 85);
-          break;
-
-        default:
-          break;
-      }
-
-      if (item) {
-        this.sItems.set(type, item);
-      }
-    }
-
-    return item;
-  }
-
   get isBuyable() {
-    return this._type <= AccessoryType.WeaponLastBuyable;
-  }
-
-  icon() {
-    return '';
+    return this.type <= AccessoryType.WeaponLastBuyable;
   }
 }
 
 export class Shield extends Accessory {
-  declare static sItems: Map<number, Shield> | undefined;
-  declare _power: number;
+  declare readonly power: number;
 
-  constructor(
-    type: number,
-    name: string,
-    price: number,
-    techLevel: TechLevel,
-    occurrence: number,
-    power: number
-  ) {
-    super(type, name, price, techLevel, occurrence);
-    this._power = power;
+  constructor(spec: PoweredSpec) {
+    super(spec);
   }
 
-  get power() {
-    return this._power;
-  }
-
-  static accessoryCategory() {
+  get category() {
     return 'shield';
   }
 
-  static shieldForType(type: number) {
-    if (!this.sItems) {
-      this.sItems = new Map();
-    }
-
-    let item = this.sItems.get(type);
-
-    if (!item) {
-      switch (type) {
-        case AccessoryType.ShieldEnergy:
-          item = new Shield(type, 'Energy shield', 5000, TechLevel.Industrial, 70, 100);
-          break;
-
-        case AccessoryType.ShieldReflective:
-          item = new Shield(type, 'Reflective shield', 20000, TechLevel.PostIndustrial, 30, 200);
-          break;
-
-        case AccessoryType.ShieldLightning:
-          item = new Shield(type, 'Lightning shield', 45000, TechLevel.Count, 0, 350);
-          break;
-
-        default:
-          break;
-      }
-
-      if (item) {
-        this.sItems.set(type, item);
-      }
-    }
-
-    return item;
-  }
-
   get isBuyable() {
-    return this._type <= AccessoryType.ShieldLastBuyable;
+    return this.type <= AccessoryType.ShieldLastBuyable;
   }
+}
 
-  icon() {
-    return '';
-  }
+function byType<T extends Accessory>(items: T[]): Map<number, T> {
+  return new Map(items.map(item => [item.type, item]));
+}
+
+const GADGETS = byType([
+  new Gadget({
+    type: AccessoryType.GadgetFiveExtraCargoBays,
+    name: '5 extra cargo bays',
+    price: 2500,
+    techLevel: TechLevel.EarlyIndustrial,
+    occurrence: 35,
+  }),
+  new Gadget({
+    type: AccessoryType.GadgetAutoRepairSystem,
+    name: 'Auto-repair system',
+    price: 7500,
+    techLevel: TechLevel.Industrial,
+    occurrence: 20,
+  }),
+  new Gadget({
+    type: AccessoryType.GadgetNavigationSystem,
+    name: 'Navigation system',
+    price: 15000,
+    techLevel: TechLevel.PostIndustrial,
+    occurrence: 20,
+  }),
+  new Gadget({
+    type: AccessoryType.GadgetTargetingSystem,
+    name: 'Targeting system',
+    price: 25000,
+    techLevel: TechLevel.PostIndustrial,
+    occurrence: 20,
+  }),
+  new Gadget({
+    type: AccessoryType.GadgetCloakingDevice,
+    name: 'Cloaking device',
+    price: 100000,
+    techLevel: TechLevel.HighTech,
+    occurrence: 5,
+  }),
+  new Gadget({
+    type: AccessoryType.GadgetFuelCompactor,
+    name: 'Fuel compactor',
+    price: 30000,
+    techLevel: TechLevel.Count,
+    occurrence: 0,
+  }),
+]);
+
+const WEAPONS = byType([
+  new Weapon({
+    type: AccessoryType.WeaponPulseLaser,
+    name: 'Pulse laser',
+    price: 2000,
+    techLevel: TechLevel.Industrial,
+    occurrence: 50,
+    power: 15,
+  }),
+  new Weapon({
+    type: AccessoryType.WeaponBeamLaser,
+    name: 'Beam laser',
+    price: 12500,
+    techLevel: TechLevel.PostIndustrial,
+    occurrence: 35,
+    power: 25,
+  }),
+  new Weapon({
+    type: AccessoryType.WeaponMilitaryLaser,
+    name: 'Military laser',
+    price: 35000,
+    techLevel: TechLevel.HighTech,
+    occurrence: 15,
+    power: 35,
+  }),
+  new Weapon({
+    type: AccessoryType.WeaponMorgansLaser,
+    name: "Morgan's laser",
+    price: 50000,
+    techLevel: TechLevel.Count,
+    occurrence: 0,
+    power: 85,
+  }),
+]);
+
+const SHIELDS = byType([
+  new Shield({
+    type: AccessoryType.ShieldEnergy,
+    name: 'Energy shield',
+    price: 5000,
+    techLevel: TechLevel.Industrial,
+    occurrence: 70,
+    power: 100,
+  }),
+  new Shield({
+    type: AccessoryType.ShieldReflective,
+    name: 'Reflective shield',
+    price: 20000,
+    techLevel: TechLevel.PostIndustrial,
+    occurrence: 30,
+    power: 200,
+  }),
+  new Shield({
+    type: AccessoryType.ShieldLightning,
+    name: 'Lightning shield',
+    price: 45000,
+    techLevel: TechLevel.Count,
+    occurrence: 0,
+    power: 350,
+  }),
+]);
+
+// Each lookup finds only its own kind of equipment; any other number gives undefined.
+export const gadgetForType = (type: number) => GADGETS.get(type);
+export const weaponForType = (type: number) => WEAPONS.get(type);
+export const shieldForType = (type: number) => SHIELDS.get(type);
+
+export function ACCESSORY_FOR_TYPE(type: number) {
+  return gadgetForType(type) || weaponForType(type) || shieldForType(type);
 }

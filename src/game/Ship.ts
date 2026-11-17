@@ -1,7 +1,13 @@
 import { PCEImageLibrary } from './Images.ts';
 import { PCEImage } from './PCEImage.ts';
-import { ACCESSORY_FOR_TYPE, AccessoryType, Gadget, Shield, Weapon } from './Accessory.ts';
-import type { Accessory } from './Accessory.ts';
+import {
+  ACCESSORY_FOR_TYPE,
+  AccessoryType,
+  gadgetForType,
+  shieldForType,
+  weaponForType,
+} from './Accessory.ts';
+import type { Accessory, Gadget, Shield, Weapon } from './Accessory.ts';
 import type { CrewMemberState } from './CrewMember.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import { CrewMember } from './CrewMember.ts';
@@ -770,7 +776,7 @@ export class Ship {
 
   // Method to check if the ship has a shield of a specific type
   hasShieldOfType(type: number) {
-    return this._shields && this._shields.includes(Shield.shieldForType(type)!);
+    return this._shields && this._shields.includes(shieldForType(type)!);
   }
 
   // Method to check if the ship has any shields
@@ -784,13 +790,13 @@ export class Ship {
     let totalSlots = 0;
     let accessories: Accessory[] = [];
 
-    if (Shield.shieldForType(type)) {
+    if (shieldForType(type)) {
       totalSlots = shipModelForType(this._type).shieldSlots;
       accessories = this._shields;
-    } else if (Gadget.gadgetForType(type)) {
+    } else if (gadgetForType(type)) {
       totalSlots = shipModelForType(this._type).gadgetSlots;
       accessories = this._gadgets;
-    } else if (Weapon.weaponForType(type)) {
+    } else if (weaponForType(type)) {
       totalSlots = shipModelForType(this._type).weaponSlots;
       accessories = this._weapons;
     }
@@ -831,7 +837,7 @@ export class Ship {
 
   // Method to add a shield of a specific type
   addShieldOfType(type: number) {
-    const shield = Shield.shieldForType(type);
+    const shield = shieldForType(type);
 
     if (!shield || this._shields.length >= shipModelForType(this._type).shieldSlots) {
       return false;
@@ -845,7 +851,7 @@ export class Ship {
 
   // Method to add a weapon of a specific type
   addWeaponOfType(type: number) {
-    const weapon = Weapon.weaponForType(type);
+    const weapon = weaponForType(type);
 
     if (!weapon || this._weapons.length >= shipModelForType(this._type).weaponSlots) {
       return false;
@@ -858,7 +864,7 @@ export class Ship {
 
   // Method to add a gadget of a specific type
   addGadgetOfType(type: number) {
-    const gadget = Gadget.gadgetForType(type);
+    const gadget = gadgetForType(type);
 
     if (!gadget || this._gadgets.length >= shipModelForType(this._type).gadgetSlots) {
       return false;
