@@ -59,8 +59,11 @@ export type ShipState = {
 // An opponent or commander together with the ship they fly.
 type ShipOwner = CrewMember & { ship: Ship };
 
+// What the game knows about a ship model: its room, its price and how often each kind of
+// opponent flies it.
+type ShipModelSpec = Omit<ShipModel, 'mercenaryQuarters' | 'shipImage' | '_shipImage'>;
+
 export class ShipModel {
-  declare static shipModelForType: (type: number) => ShipModel;
   declare type: number;
   declare name: string;
   declare cargoBays: number;
@@ -82,46 +85,8 @@ export class ShipModel {
   declare size: number;
   declare _shipImage?: PCEImage;
 
-  constructor(
-    type: number,
-    name: string,
-    cargoBays: number,
-    weaponSlots: number,
-    shieldSlots: number,
-    gadgetSlots: number,
-    crewQuarters: number,
-    fuelTanks: number,
-    minTechLevel: TechLevel,
-    costOfFuel: number,
-    price: number,
-    bounty: number,
-    frequency: number,
-    hullStrength: number,
-    police: number,
-    pirates: number,
-    traders: number,
-    repairCosts: number,
-    size: number
-  ) {
-    this.type = type;
-    this.name = name;
-    this.cargoBays = cargoBays;
-    this.weaponSlots = weaponSlots;
-    this.shieldSlots = shieldSlots;
-    this.gadgetSlots = gadgetSlots;
-    this.crewQuarters = crewQuarters;
-    this.fuelTanks = fuelTanks;
-    this.minTechLevel = minTechLevel;
-    this.costOfFuel = costOfFuel;
-    this.price = price;
-    this.bounty = bounty;
-    this.frequency = frequency;
-    this.hullStrength = hullStrength;
-    this.police = police;
-    this.pirates = pirates;
-    this.traders = traders;
-    this.repairCosts = repairCosts;
-    this.size = size;
+  constructor(spec: ShipModelSpec) {
+    Object.assign(this, spec);
   }
 
   mercenaryQuarters() {
@@ -141,366 +106,330 @@ export class ShipModel {
   }
 }
 
-// Static variable initialization
-export const sModels: Record<number, ShipModel> = {};
-(() => {
-  for (let shipType = 0; shipType < ShipModelType.Count; ++shipType) {
-    switch (shipType) {
-      case ShipModelType.Flea:
-        sModels[shipType] = new ShipModel(
-          shipType,
-          'Flea',
-          10,
-          0,
-          0,
-          0,
-          1,
-          20,
-          TechLevel.EarlyIndustrial,
-          1,
-          2000,
-          5,
-          2,
-          25,
-          -1,
-          -1,
-          0,
-          1,
-          0
-        );
-        break;
-      case ShipModelType.Gnat:
-        sModels[shipType] = new ShipModel(
-          shipType,
-          'Gnat',
-          15,
-          1,
-          0,
-          1,
-          1,
-          14,
-          TechLevel.Industrial,
-          2,
-          10000,
-          50,
-          28,
-          100,
-          0,
-          0,
-          0,
-          1,
-          1
-        );
-        break;
-      case ShipModelType.Firefly:
-        sModels[shipType] = new ShipModel(
-          shipType,
-          'Firefly',
-          20,
-          1,
-          1,
-          1,
-          1,
-          17,
-          TechLevel.Industrial,
-          3,
-          25000,
-          75,
-          20,
-          100,
-          0,
-          0,
-          0,
-          1,
-          1
-        );
-        break;
-      case ShipModelType.Mosquito:
-        sModels[shipType] = new ShipModel(
-          shipType,
-          'Mosquito',
-          15,
-          2,
-          1,
-          1,
-          1,
-          13,
-          TechLevel.Industrial,
-          5,
-          30000,
-          100,
-          20,
-          100,
-          0,
-          1,
-          0,
-          1,
-          1
-        );
-        break;
-      case ShipModelType.Bumblebee:
-        sModels[shipType] = new ShipModel(
-          shipType,
-          'Bumblebee',
-          25,
-          1,
-          2,
-          2,
-          2,
-          15,
-          TechLevel.Industrial,
-          7,
-          60000,
-          125,
-          15,
-          100,
-          1,
-          1,
-          0,
-          1,
-          2
-        );
-        break;
-      case ShipModelType.Beetle:
-        sModels[shipType] = new ShipModel(
-          shipType,
-          'Beetle',
-          50,
-          0,
-          1,
-          1,
-          3,
-          14,
-          TechLevel.Industrial,
-          10,
-          80000,
-          50,
-          3,
-          50,
-          -1,
-          -1,
-          0,
-          1,
-          2
-        );
-        break;
-      case ShipModelType.Hornet:
-        sModels[shipType] = new ShipModel(
-          shipType,
-          'Hornet',
-          20,
-          3,
-          2,
-          1,
-          2,
-          16,
-          TechLevel.PostIndustrial,
-          15,
-          100000,
-          200,
-          6,
-          150,
-          2,
-          3,
-          1,
-          2,
-          3
-        );
-        break;
-      case ShipModelType.Grasshopper:
-        sModels[shipType] = new ShipModel(
-          shipType,
-          'Grasshopper',
-          30,
-          2,
-          2,
-          3,
-          3,
-          15,
-          TechLevel.PostIndustrial,
-          15,
-          150000,
-          300,
-          2,
-          150,
-          3,
-          4,
-          2,
-          3,
-          3
-        );
-        break;
-      case ShipModelType.Termite:
-        sModels[shipType] = new ShipModel(
-          shipType,
-          'Termite',
-          60,
-          1,
-          3,
-          2,
-          3,
-          13,
-          TechLevel.HighTech,
-          20,
-          225000,
-          300,
-          2,
-          200,
-          4,
-          4,
-          3,
-          4,
-          4
-        );
-        break;
-      case ShipModelType.Wasp:
-        sModels[shipType] = new ShipModel(
-          shipType,
-          'Wasp',
-          35,
-          3,
-          2,
-          2,
-          3,
-          14,
-          TechLevel.HighTech,
-          20,
-          300000,
-          500,
-          2,
-          200,
-          5,
-          6,
-          4,
-          5,
-          4
-        );
-        break;
-      case ShipModelType.SpaceMonster:
-        sModels[shipType] = new ShipModel(
-          shipType,
-          'Space Monster',
-          0,
-          3,
-          0,
-          0,
-          1,
-          1,
-          TechLevel.Count,
-          1,
-          500000,
-          0,
-          0,
-          500,
-          8,
-          8,
-          8,
-          1,
-          4
-        );
-        break;
-      case ShipModelType.Dragonfly:
-        sModels[shipType] = new ShipModel(
-          shipType,
-          'Dragonfly',
-          0,
-          2,
-          3,
-          2,
-          1,
-          1,
-          TechLevel.Count,
-          1,
-          500000,
-          0,
-          0,
-          10,
-          8,
-          8,
-          8,
-          1,
-          1
-        );
-        break;
-      case ShipModelType.Mantis:
-        sModels[shipType] = new ShipModel(
-          shipType,
-          'Mantis',
-          0,
-          3,
-          1,
-          3,
-          3,
-          1,
-          TechLevel.Count,
-          1,
-          500000,
-          0,
-          0,
-          300,
-          8,
-          8,
-          8,
-          1,
-          2
-        );
-        break;
-      case ShipModelType.Scarab:
-        sModels[shipType] = new ShipModel(
-          shipType,
-          'Scarab',
-          20,
-          2,
-          0,
-          0,
-          2,
-          1,
-          TechLevel.Count,
-          1,
-          500000,
-          0,
-          0,
-          400,
-          8,
-          8,
-          8,
-          1,
-          3
-        );
-        break;
-      case ShipModelType.Bottle:
-        sModels[shipType] = new ShipModel(
-          shipType,
-          'Bottle',
-          0,
-          0,
-          0,
-          0,
-          0,
-          1,
-          TechLevel.Count,
-          1,
-          100,
-          0,
-          0,
-          0,
-          8,
-          8,
-          8,
-          1,
-          1
-        );
-        break;
-      default:
-        break;
-    }
-  }
-})();
+type Kind = Exclude<ShipModelType, typeof ShipModelType.Count>;
 
-// Method to retrieve ship model by type
-ShipModel.shipModelForType = function (type: number) {
-  return sModels[type];
+const MODELS: Record<Kind, ShipModel> = {
+  [ShipModelType.Flea]: new ShipModel({
+    type: ShipModelType.Flea,
+    name: 'Flea',
+    cargoBays: 10,
+    weaponSlots: 0,
+    shieldSlots: 0,
+    gadgetSlots: 0,
+    crewQuarters: 1,
+    fuelTanks: 20,
+    minTechLevel: TechLevel.EarlyIndustrial,
+    costOfFuel: 1,
+    price: 2000,
+    bounty: 5,
+    frequency: 2,
+    hullStrength: 25,
+    police: -1,
+    pirates: -1,
+    traders: 0,
+    repairCosts: 1,
+    size: 0,
+  }),
+  [ShipModelType.Gnat]: new ShipModel({
+    type: ShipModelType.Gnat,
+    name: 'Gnat',
+    cargoBays: 15,
+    weaponSlots: 1,
+    shieldSlots: 0,
+    gadgetSlots: 1,
+    crewQuarters: 1,
+    fuelTanks: 14,
+    minTechLevel: TechLevel.Industrial,
+    costOfFuel: 2,
+    price: 10000,
+    bounty: 50,
+    frequency: 28,
+    hullStrength: 100,
+    police: 0,
+    pirates: 0,
+    traders: 0,
+    repairCosts: 1,
+    size: 1,
+  }),
+  [ShipModelType.Firefly]: new ShipModel({
+    type: ShipModelType.Firefly,
+    name: 'Firefly',
+    cargoBays: 20,
+    weaponSlots: 1,
+    shieldSlots: 1,
+    gadgetSlots: 1,
+    crewQuarters: 1,
+    fuelTanks: 17,
+    minTechLevel: TechLevel.Industrial,
+    costOfFuel: 3,
+    price: 25000,
+    bounty: 75,
+    frequency: 20,
+    hullStrength: 100,
+    police: 0,
+    pirates: 0,
+    traders: 0,
+    repairCosts: 1,
+    size: 1,
+  }),
+  [ShipModelType.Mosquito]: new ShipModel({
+    type: ShipModelType.Mosquito,
+    name: 'Mosquito',
+    cargoBays: 15,
+    weaponSlots: 2,
+    shieldSlots: 1,
+    gadgetSlots: 1,
+    crewQuarters: 1,
+    fuelTanks: 13,
+    minTechLevel: TechLevel.Industrial,
+    costOfFuel: 5,
+    price: 30000,
+    bounty: 100,
+    frequency: 20,
+    hullStrength: 100,
+    police: 0,
+    pirates: 1,
+    traders: 0,
+    repairCosts: 1,
+    size: 1,
+  }),
+  [ShipModelType.Bumblebee]: new ShipModel({
+    type: ShipModelType.Bumblebee,
+    name: 'Bumblebee',
+    cargoBays: 25,
+    weaponSlots: 1,
+    shieldSlots: 2,
+    gadgetSlots: 2,
+    crewQuarters: 2,
+    fuelTanks: 15,
+    minTechLevel: TechLevel.Industrial,
+    costOfFuel: 7,
+    price: 60000,
+    bounty: 125,
+    frequency: 15,
+    hullStrength: 100,
+    police: 1,
+    pirates: 1,
+    traders: 0,
+    repairCosts: 1,
+    size: 2,
+  }),
+  [ShipModelType.Beetle]: new ShipModel({
+    type: ShipModelType.Beetle,
+    name: 'Beetle',
+    cargoBays: 50,
+    weaponSlots: 0,
+    shieldSlots: 1,
+    gadgetSlots: 1,
+    crewQuarters: 3,
+    fuelTanks: 14,
+    minTechLevel: TechLevel.Industrial,
+    costOfFuel: 10,
+    price: 80000,
+    bounty: 50,
+    frequency: 3,
+    hullStrength: 50,
+    police: -1,
+    pirates: -1,
+    traders: 0,
+    repairCosts: 1,
+    size: 2,
+  }),
+  [ShipModelType.Hornet]: new ShipModel({
+    type: ShipModelType.Hornet,
+    name: 'Hornet',
+    cargoBays: 20,
+    weaponSlots: 3,
+    shieldSlots: 2,
+    gadgetSlots: 1,
+    crewQuarters: 2,
+    fuelTanks: 16,
+    minTechLevel: TechLevel.PostIndustrial,
+    costOfFuel: 15,
+    price: 100000,
+    bounty: 200,
+    frequency: 6,
+    hullStrength: 150,
+    police: 2,
+    pirates: 3,
+    traders: 1,
+    repairCosts: 2,
+    size: 3,
+  }),
+  [ShipModelType.Grasshopper]: new ShipModel({
+    type: ShipModelType.Grasshopper,
+    name: 'Grasshopper',
+    cargoBays: 30,
+    weaponSlots: 2,
+    shieldSlots: 2,
+    gadgetSlots: 3,
+    crewQuarters: 3,
+    fuelTanks: 15,
+    minTechLevel: TechLevel.PostIndustrial,
+    costOfFuel: 15,
+    price: 150000,
+    bounty: 300,
+    frequency: 2,
+    hullStrength: 150,
+    police: 3,
+    pirates: 4,
+    traders: 2,
+    repairCosts: 3,
+    size: 3,
+  }),
+  [ShipModelType.Termite]: new ShipModel({
+    type: ShipModelType.Termite,
+    name: 'Termite',
+    cargoBays: 60,
+    weaponSlots: 1,
+    shieldSlots: 3,
+    gadgetSlots: 2,
+    crewQuarters: 3,
+    fuelTanks: 13,
+    minTechLevel: TechLevel.HighTech,
+    costOfFuel: 20,
+    price: 225000,
+    bounty: 300,
+    frequency: 2,
+    hullStrength: 200,
+    police: 4,
+    pirates: 4,
+    traders: 3,
+    repairCosts: 4,
+    size: 4,
+  }),
+  [ShipModelType.Wasp]: new ShipModel({
+    type: ShipModelType.Wasp,
+    name: 'Wasp',
+    cargoBays: 35,
+    weaponSlots: 3,
+    shieldSlots: 2,
+    gadgetSlots: 2,
+    crewQuarters: 3,
+    fuelTanks: 14,
+    minTechLevel: TechLevel.HighTech,
+    costOfFuel: 20,
+    price: 300000,
+    bounty: 500,
+    frequency: 2,
+    hullStrength: 200,
+    police: 5,
+    pirates: 6,
+    traders: 4,
+    repairCosts: 5,
+    size: 4,
+  }),
+  [ShipModelType.SpaceMonster]: new ShipModel({
+    type: ShipModelType.SpaceMonster,
+    name: 'Space Monster',
+    cargoBays: 0,
+    weaponSlots: 3,
+    shieldSlots: 0,
+    gadgetSlots: 0,
+    crewQuarters: 1,
+    fuelTanks: 1,
+    minTechLevel: TechLevel.Count,
+    costOfFuel: 1,
+    price: 500000,
+    bounty: 0,
+    frequency: 0,
+    hullStrength: 500,
+    police: 8,
+    pirates: 8,
+    traders: 8,
+    repairCosts: 1,
+    size: 4,
+  }),
+  [ShipModelType.Dragonfly]: new ShipModel({
+    type: ShipModelType.Dragonfly,
+    name: 'Dragonfly',
+    cargoBays: 0,
+    weaponSlots: 2,
+    shieldSlots: 3,
+    gadgetSlots: 2,
+    crewQuarters: 1,
+    fuelTanks: 1,
+    minTechLevel: TechLevel.Count,
+    costOfFuel: 1,
+    price: 500000,
+    bounty: 0,
+    frequency: 0,
+    hullStrength: 10,
+    police: 8,
+    pirates: 8,
+    traders: 8,
+    repairCosts: 1,
+    size: 1,
+  }),
+  [ShipModelType.Mantis]: new ShipModel({
+    type: ShipModelType.Mantis,
+    name: 'Mantis',
+    cargoBays: 0,
+    weaponSlots: 3,
+    shieldSlots: 1,
+    gadgetSlots: 3,
+    crewQuarters: 3,
+    fuelTanks: 1,
+    minTechLevel: TechLevel.Count,
+    costOfFuel: 1,
+    price: 500000,
+    bounty: 0,
+    frequency: 0,
+    hullStrength: 300,
+    police: 8,
+    pirates: 8,
+    traders: 8,
+    repairCosts: 1,
+    size: 2,
+  }),
+  [ShipModelType.Scarab]: new ShipModel({
+    type: ShipModelType.Scarab,
+    name: 'Scarab',
+    cargoBays: 20,
+    weaponSlots: 2,
+    shieldSlots: 0,
+    gadgetSlots: 0,
+    crewQuarters: 2,
+    fuelTanks: 1,
+    minTechLevel: TechLevel.Count,
+    costOfFuel: 1,
+    price: 500000,
+    bounty: 0,
+    frequency: 0,
+    hullStrength: 400,
+    police: 8,
+    pirates: 8,
+    traders: 8,
+    repairCosts: 1,
+    size: 3,
+  }),
+  [ShipModelType.Bottle]: new ShipModel({
+    type: ShipModelType.Bottle,
+    name: 'Bottle',
+    cargoBays: 0,
+    weaponSlots: 0,
+    shieldSlots: 0,
+    gadgetSlots: 0,
+    crewQuarters: 0,
+    fuelTanks: 1,
+    minTechLevel: TechLevel.Count,
+    costOfFuel: 1,
+    price: 100,
+    bounty: 0,
+    frequency: 0,
+    hullStrength: 0,
+    police: 8,
+    pirates: 8,
+    traders: 8,
+    repairCosts: 1,
+    size: 1,
+  }),
 };
+
+// The model with this number, as a saved game stores it.
+export function shipModelForType(type: number): ShipModel {
+  return MODELS[type as Kind];
+}
 
 export class Ship {
   declare _type: number;
@@ -523,7 +452,7 @@ export class Ship {
     }
     this._type = type;
     this._difficulty = difficulty!;
-    this._fuel = ShipModel.shipModelForType(type).fuelTanks;
+    this._fuel = shipModelForType(type).fuelTanks;
     this._hull = this._hullStrength();
     this._upgradedHull = false;
     this._currentShieldPower = 0;
@@ -682,15 +611,15 @@ export class Ship {
   }
 
   get gadgetSlots() {
-    return ShipModel.shipModelForType(this._type).gadgetSlots;
+    return shipModelForType(this._type).gadgetSlots;
   }
 
   get weaponSlots() {
-    return ShipModel.shipModelForType(this._type).weaponSlots;
+    return shipModelForType(this._type).weaponSlots;
   }
 
   get shieldSlots() {
-    return ShipModel.shipModelForType(this._type).shieldSlots;
+    return shipModelForType(this._type).shieldSlots;
   }
 
   // Static method to get crew member by name
@@ -712,7 +641,7 @@ export class Ship {
 
   // Method to add a crew member
   addCrewMember(crew: CrewMember) {
-    if (this._crew.length >= ShipModel.shipModelForType(this._type).mercenaryQuarters()) {
+    if (this._crew.length >= shipModelForType(this._type).mercenaryQuarters()) {
       return false;
     }
 
@@ -776,7 +705,7 @@ export class Ship {
 
   // Private method to calculate hull strength
   _hullStrength() {
-    const baseStrength = ShipModel.shipModelForType(this._type).hullStrength;
+    const baseStrength = shipModelForType(this._type).hullStrength;
     const result = baseStrength + (this._upgradedHull ? 50 : 0);
     Utils.ensureInteger(result);
     return result;
@@ -856,13 +785,13 @@ export class Ship {
     let accessories: Accessory[] = [];
 
     if (Shield.shieldForType(type)) {
-      totalSlots = ShipModel.shipModelForType(this._type).shieldSlots;
+      totalSlots = shipModelForType(this._type).shieldSlots;
       accessories = this._shields;
     } else if (Gadget.gadgetForType(type)) {
-      totalSlots = ShipModel.shipModelForType(this._type).gadgetSlots;
+      totalSlots = shipModelForType(this._type).gadgetSlots;
       accessories = this._gadgets;
     } else if (Weapon.weaponForType(type)) {
-      totalSlots = ShipModel.shipModelForType(this._type).weaponSlots;
+      totalSlots = shipModelForType(this._type).weaponSlots;
       accessories = this._weapons;
     }
 
@@ -904,7 +833,7 @@ export class Ship {
   addShieldOfType(type: number) {
     const shield = Shield.shieldForType(type);
 
-    if (!shield || this._shields.length >= ShipModel.shipModelForType(this._type).shieldSlots) {
+    if (!shield || this._shields.length >= shipModelForType(this._type).shieldSlots) {
       return false;
     }
 
@@ -918,7 +847,7 @@ export class Ship {
   addWeaponOfType(type: number) {
     const weapon = Weapon.weaponForType(type);
 
-    if (!weapon || this._weapons.length >= ShipModel.shipModelForType(this._type).weaponSlots) {
+    if (!weapon || this._weapons.length >= shipModelForType(this._type).weaponSlots) {
       return false;
     }
 
@@ -931,7 +860,7 @@ export class Ship {
   addGadgetOfType(type: number) {
     const gadget = Gadget.gadgetForType(type);
 
-    if (!gadget || this._gadgets.length >= ShipModel.shipModelForType(this._type).gadgetSlots) {
+    if (!gadget || this._gadgets.length >= shipModelForType(this._type).gadgetSlots) {
       return false;
     }
 
@@ -943,7 +872,7 @@ export class Ship {
   fuelTankCapacity() {
     return this.hasGadgetOfType(AccessoryType.GadgetFuelCompactor)
       ? 18
-      : ShipModel.shipModelForType(this._type).fuelTanks;
+      : shipModelForType(this._type).fuelTanks;
   }
 
   get currentShieldPower() {
@@ -1059,7 +988,7 @@ export class Ship {
 
   shipValuationForInsurance(insurance: boolean) {
     let value = 0;
-    const model = ShipModel.shipModelForType(this._type);
+    const model = shipModelForType(this._type);
     const SELLDISCOUNT = (x: number) => Math.floor((x * 3) / 4);
 
     value +=
@@ -1087,7 +1016,7 @@ export class Ship {
 
   _enemyShipValuationWithOpponent(opponent: CrewMember) {
     let value = 0;
-    const model = ShipModel.shipModelForType(this._type);
+    const model = shipModelForType(this._type);
     value += model.price;
 
     this._weapons.forEach(weapon => {
@@ -1293,7 +1222,7 @@ export class Ship {
 
   totalCargoBays() {
     const extraCount = this.countGadgetOfType(AccessoryType.GadgetFiveExtraCargoBays, false);
-    const result = ShipModel.shipModelForType(this._type).cargoBays + 5 * extraCount;
+    const result = shipModelForType(this._type).cargoBays + 5 * extraCount;
     Utils.ensureInteger(result);
     return result;
   }
@@ -1316,11 +1245,11 @@ export class Ship {
   }
 
   costOfFuel() {
-    return ShipModel.shipModelForType(this._type).costOfFuel;
+    return shipModelForType(this._type).costOfFuel;
   }
 
   get model() {
-    return ShipModel.shipModelForType(this._type);
+    return shipModelForType(this._type);
   }
 
   hasIllegalGoods() {

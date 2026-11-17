@@ -2,7 +2,7 @@ import { Commander } from './Commander.ts';
 import type { CommanderState } from './Commander.ts';
 import { CrewMember } from './CrewMember.ts';
 import { politicsForType, PoliticsType } from './Politics.ts';
-import { MAX_TRIBBLES, Ship, ShipModel, ShipModelType } from './Ship.ts';
+import { MAX_TRIBBLES, Ship, shipModelForType, ShipModelType } from './Ship.ts';
 import { SolarSystem } from './SolarSystem.ts';
 import type { SolarSystemState } from './SolarSystem.ts';
 import {
@@ -679,7 +679,7 @@ export class Game {
 
     this._warpSystem = this.commander.getCurrentSystem();
     this.remindLoans = true;
-    this._monsterHull = ShipModel.shipModelForType(ShipModelType.SpaceMonster).hullStrength;
+    this._monsterHull = shipModelForType(ShipModelType.SpaceMonster).hullStrength;
 
     if (this.difficulty < Difficulty.Normal) {
       if (this.commander.getCurrentSystem().getSpecialEvent() === SpecialEvent.None) {
@@ -878,7 +878,7 @@ export class Game {
 
   healMonster() {
     this._monsterHull = Math.min(
-      ShipModel.shipModelForType(ShipModelType.SpaceMonster).hullStrength,
+      shipModelForType(ShipModelType.SpaceMonster).hullStrength,
       Math.floor((this._monsterHull * 105) / 100)
     );
     Utils.ensureInteger(this._monsterHull);
