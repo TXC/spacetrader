@@ -2,16 +2,19 @@ import { CrewMember } from './CrewMember.ts';
 import type { CrewMemberState } from './CrewMember.ts';
 import { occurrenceStr, politicsForType, randomPoliticsForTechLevel } from './Politics.ts';
 import type { Politics } from './Politics.ts';
-import { SpecialEvent, SystemSize, systemSizeName } from './SolarSystem.types.ts';
+import { SpecialEvent, systemSizeName, SYSTEM_SIZE_COUNT } from './SolarSystem.types.ts';
 import { tradeItemForType } from './TradeItem.ts';
 import {
   resourceName,
   Resource,
   Status,
-  TechLevel,
   TradeItemType,
   statusDescription,
   techLevelName,
+  RESOURCE_COUNT,
+  STATUS_COUNT,
+  TECH_LEVEL_COUNT,
+  TRADE_ITEM_COUNT,
 } from './TradeItem.types.ts';
 import { Utils } from './Utilities.ts';
 import { runtime } from './runtime.ts';
@@ -73,16 +76,16 @@ export class SolarSystem {
     this._visited = false;
 
     // Randomize the other properties
-    this._techLevel = runtime.gameRand.randomIntBelow(TechLevel.Count);
+    this._techLevel = runtime.gameRand.randomIntBelow(TECH_LEVEL_COUNT);
     this._politics = randomPoliticsForTechLevel(this._techLevel);
 
     if (runtime.gameRand.randomIntBelow(5) >= 3) {
-      this._specialResource = 1 + runtime.gameRand.randomIntBelow(Resource.Count - 1);
+      this._specialResource = 1 + runtime.gameRand.randomIntBelow(RESOURCE_COUNT - 1);
     } else {
       this._specialResource = Resource.None;
     }
 
-    this._size = runtime.gameRand.randomIntBelow(SystemSize.Count);
+    this._size = runtime.gameRand.randomIntBelow(SYSTEM_SIZE_COUNT);
 
     this._status = Status.Uneventful;
     this.randomizeStatus();
@@ -264,8 +267,8 @@ export class SolarSystem {
     }
 
     const tradeItemInventoryArray = serializedState.tradeItemInventory;
-    solarSystem._tradeItemInventory = Array(TradeItemType.Count).fill(0);
-    for (let tradeItemType = 0; tradeItemType < TradeItemType.Count; ++tradeItemType) {
+    solarSystem._tradeItemInventory = Array(TRADE_ITEM_COUNT).fill(0);
+    for (let tradeItemType = 0; tradeItemType < TRADE_ITEM_COUNT; ++tradeItemType) {
       solarSystem._tradeItemInventory[tradeItemType] = tradeItemInventoryArray[tradeItemType];
     }
 
@@ -412,8 +415,8 @@ export class SolarSystem {
   }
 
   _initializeInventories() {
-    this._tradeItemInventory = Array(TradeItemType.Count).fill(0);
-    for (let itemType = 0; itemType < TradeItemType.Count; ++itemType) {
+    this._tradeItemInventory = Array(TRADE_ITEM_COUNT).fill(0);
+    for (let itemType = 0; itemType < TRADE_ITEM_COUNT; ++itemType) {
       const item = tradeItemForType(itemType);
 
       if (!this._canProduceItem(itemType)) {
@@ -519,13 +522,13 @@ export class SolarSystem {
   }
 
   tradeItemQuantityForType(type: number) {
-    //console.assert(type >= 0 && type < TradeItemType.Count);
+    //console.assert(type >= 0 && type < TRADE_ITEM_COUNT);
     Utils.ensureInteger(type);
     return this._tradeItemInventory[type];
   }
 
   boughtQuantity(quantity: number, type: number) {
-    //console.assert(type >= 0 && type < TradeItemType.Count);
+    //console.assert(type >= 0 && type < TRADE_ITEM_COUNT);
     if (Utils.ensureInteger(quantity) && Utils.ensureInteger(type)) {
       this._tradeItemInventory[type] -= Math.min(quantity, this._tradeItemInventory[type]);
     }
@@ -549,7 +552,7 @@ export class SolarSystem {
       if (this._inventoryReplenishCountdown <= 0) {
         this._initializeInventories();
       } else {
-        for (let itemType = 0; itemType < TradeItemType.Count; ++itemType) {
+        for (let itemType = 0; itemType < TRADE_ITEM_COUNT; ++itemType) {
           if (!this._canProduceItem(itemType)) {
             this._tradeItemInventory[itemType] = 0;
             continue;
@@ -564,7 +567,7 @@ export class SolarSystem {
         }
       }
     } else {
-      for (let itemType = 0; itemType < TradeItemType.Count; ++itemType) {
+      for (let itemType = 0; itemType < TRADE_ITEM_COUNT; ++itemType) {
         if (!this._canProduceItem(itemType)) {
           this._tradeItemInventory[itemType] = 0;
           continue;
@@ -579,7 +582,7 @@ export class SolarSystem {
     if (runtime.gameRand.randomIntBelow(100) < 15) {
       this._status = hasStatus
         ? Status.Uneventful
-        : 1 + runtime.gameRand.randomIntBelow(Status.Count - 1);
+        : 1 + runtime.gameRand.randomIntBelow(STATUS_COUNT - 1);
     }
   }
 

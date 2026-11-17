@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest';
-import { shipModelForType, ShipModelType } from './Ship.ts';
+import { shipModelForType, ShipModelType, SHIP_MODEL_COUNT } from './Ship.ts';
 import { TechLevel } from './TradeItem.types.ts';
 
 test('every ship model is in the table under its own number', () => {
-  for (let type = 0; type < ShipModelType.Count; type++) {
+  for (let type = 0; type < SHIP_MODEL_COUNT; type++) {
     expect(shipModelForType(type).type).toBe(type);
   }
 });

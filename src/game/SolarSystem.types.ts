@@ -1,5 +1,5 @@
-import { named } from './texts.ts';
-import type { Real } from './texts.ts';
+import { named, countOf } from './texts.ts';
+import type { ValueOf } from './texts.ts';
 import { Utils } from './Utilities.ts';
 
 // Constants
@@ -14,9 +14,9 @@ export const Difficulty = {
   Normal: 2,
   Hard: 3,
   Absurd: 4,
-  Count: 5,
 } as const;
-export type Difficulty = (typeof Difficulty)[keyof typeof Difficulty];
+export type Difficulty = ValueOf<typeof Difficulty>;
+export const DIFFICULTY_COUNT = countOf(Difficulty);
 
 export const ADJUST_SKILL_FOR_DIFFICULTY = (skill: number, difficulty: number) => {
   Utils.ensureInteger(skill);
@@ -33,7 +33,7 @@ export const ADJUST_SKILL_FOR_DIFFICULTY = (skill: number, difficulty: number) =
 export const SKILL_BONUS = 3;
 export const CLOAK_BONUS = 2;
 
-export const difficultyName = named<Real<Difficulty, typeof Difficulty.Count>>(
+export const difficultyName = named<Difficulty>(
   {
     [Difficulty.Beginner]: 'Beginner',
     [Difficulty.Easy]: 'Easy',
@@ -50,11 +50,11 @@ export const SystemSize = {
   Medium: 2,
   Large: 3,
   Huge: 4,
-  Count: 5,
 } as const;
-export type SystemSize = (typeof SystemSize)[keyof typeof SystemSize];
+export type SystemSize = ValueOf<typeof SystemSize>;
+export const SYSTEM_SIZE_COUNT = countOf(SystemSize);
 
-export const systemSizeName = named<Real<SystemSize, typeof SystemSize.Count>>(
+export const systemSizeName = named<SystemSize>(
   {
     [SystemSize.Tiny]: 'Tiny',
     [SystemSize.Small]: 'Small',
@@ -203,6 +203,5 @@ export const SpecialEvent = {
   GetSpecialLaser: 34,
   Scarab: 35,
   GetHullUpgraded: 36,
-  Count: 37,
 } as const;
-export type SpecialEvent = (typeof SpecialEvent)[keyof typeof SpecialEvent];
+export type SpecialEvent = ValueOf<typeof SpecialEvent>;

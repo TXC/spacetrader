@@ -5,7 +5,7 @@ import type { Game } from './Game.ts';
 import { session } from './session.ts';
 import { Ship, shipModelForType, ShipModelType } from './Ship.ts';
 import type { ShipModel } from './Ship.ts';
-import { TradeItemType } from './TradeItem.types.ts';
+import { FAKE_QUEST_CARGO_REACTOR } from './TradeItem.types.ts';
 import { pLog } from './Utilities.ts';
 
 export const kEscapePodPrice = 2000;
@@ -124,7 +124,7 @@ function whyNoTradeIn(game: Game, price: number): string | null {
     pLog.log(103);
     return 'Before you can buy a new ship or new equipment, you must settle your debts at the bank.';
   }
-  if (game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor) > 0) {
+  if (game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR) > 0) {
     pLog.log(165);
     return "Sorry! We can't take your ship as a trade-in. That Ion Reactor looks dangerous, and we have no way of removing it. Come back when you've gotten rid of it.";
   }

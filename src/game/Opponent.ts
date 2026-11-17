@@ -1,9 +1,11 @@
+import { countOf } from './texts.ts';
+import type { ValueOf } from './texts.ts';
 import { AccessoryType, gadgetForType, shieldForType, weaponForType } from './Accessory.ts';
 import { MAX_SKILL_LEVEL, PoliceRecordScore } from './Commander.ts';
 import { CrewMember } from './CrewMember.ts';
-import { Ship, shipModelForType, ShipModelType } from './Ship.ts';
+import { Ship, shipModelForType, ShipModelType, SHIP_MODEL_COUNT } from './Ship.ts';
 import { Difficulty, WildQuestStatus } from './SolarSystem.types.ts';
-import { TradeItemType } from './TradeItem.types.ts';
+import { TradeItemType, TRADE_ITEM_COUNT } from './TradeItem.types.ts';
 import { Utils } from './Utilities.ts';
 import type { Game } from './Game.ts';
 import { runtime } from './runtime.ts';
@@ -19,10 +21,9 @@ export const OpponentType = {
   MarieCeleste: 7,
   Bottle: 8,
   Mantis: 9,
-
-  Count: 10,
 } as const;
-export type OpponentType = (typeof OpponentType)[keyof typeof OpponentType];
+export type OpponentType = ValueOf<typeof OpponentType>;
+export const OPPONENT_TYPE_COUNT = countOf(OpponentType);
 
 export class Opponent extends CrewMember {
   declare type: number;
@@ -116,7 +117,7 @@ export class Opponent extends CrewMember {
       }
 
       let tries = 1; // We'll roll a die `tries` times and pick the best roll
-      let chosenShipType: number = ShipModelType.Count;
+      let chosenShipType: number = SHIP_MODEL_COUNT;
 
       // Police are more likely to be stronger against worse police records
       if (type === OpponentType.Police) {
@@ -144,7 +145,7 @@ export class Opponent extends CrewMember {
       Utils.ensureInteger(tries);
       Utils.ensureInteger(chosenShipType);
 
-      if (chosenShipType >= ShipModelType.Count) {
+      if (chosenShipType >= SHIP_MODEL_COUNT) {
         const handicap = Math.max(game.difficulty - Difficulty.Normal, 0);
         let totalShipOccurrence = 0;
         const possibleShipTypes = [
@@ -282,8 +283,8 @@ export class Opponent extends CrewMember {
         Utils.ensureInteger(cargoToDistribute);
 
         while (cargoToDistribute > 0) {
-          const itemType = runtime.gameRand.randomIntBelow(TradeItemType.Count);
-          let amount = 1 + runtime.gameRand.randomIntBelow(1 + TradeItemType.Count - itemType); // Give fewer of the better items
+          const itemType = runtime.gameRand.randomIntBelow(TRADE_ITEM_COUNT);
+          let amount = 1 + runtime.gameRand.randomIntBelow(1 + TRADE_ITEM_COUNT - itemType); // Give fewer of the better items
           amount = Math.min(cargoToDistribute, amount);
 
           ship.boughtQuantity(amount, itemType, 0);

@@ -8,8 +8,8 @@ import {
   ReputationScore,
 } from './Commander.ts';
 import { EncounterController, EncounterType } from './EncounterController.ts';
-import { GameEndStatus, RareEvent } from './Game.ts';
-import { Opponent, OpponentType } from './Opponent.ts';
+import { GameEndStatus, RareEvent, RARE_EVENT_COUNT } from './Game.ts';
+import { Opponent, OpponentType, OPPONENT_TYPE_COUNT } from './Opponent.ts';
 import { MAX_TRIBBLES, Ship, ShipModelType } from './Ship.ts';
 import {
   Difficulty,
@@ -132,7 +132,7 @@ export class Travel extends Store {
       repairAmount = this._game.commander.ship.repairHullByAmount(repairAmount)!;
       this._game.commander.ship.rechargeShieldPowerByAmount(2 * repairAmount); // Shields are easier to recharge
 
-      let opponentType: number = OpponentType.Count;
+      let opponentType: number = OPPONENT_TYPE_COUNT;
 
       if (currentClicks === 1 && this._needPostMarieCustomsPolice) {
         opponentType = OpponentType.Police;
@@ -213,7 +213,7 @@ export class Travel extends Store {
 
         Utils.ensureInteger(opponentType);
 
-        if (opponentType >= OpponentType.Count) {
+        if (opponentType >= OPPONENT_TYPE_COUNT) {
           if (this._game.commander.artifactOnBoard && runtime.gameRand.randomIntBelow(20) <= 3) {
             opponentType = OpponentType.Mantis;
           }
@@ -470,7 +470,7 @@ export class Travel extends Store {
 
           const index =
             rareEvents.length > 0 ? runtime.gameRand.randomIntBelow(rareEvents.length) : -1;
-          const rareEvent = index !== -1 ? rareEvents[index] : RareEvent.Count;
+          const rareEvent = index !== -1 ? rareEvents[index] : RARE_EVENT_COUNT;
 
           Utils.ensureInteger(rareEvent);
 

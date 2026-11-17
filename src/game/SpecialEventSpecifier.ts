@@ -19,7 +19,7 @@ import {
   WildQuestStatus,
 } from './SolarSystem.types.ts';
 import { tradeItemForType } from './TradeItem.ts';
-import { TradeItemType } from './TradeItem.types.ts';
+import { FAKE_QUEST_CARGO, FAKE_QUEST_CARGO_REACTOR, TRADE_ITEM_COUNT } from './TradeItem.types.ts';
 import { pLog } from './Utilities.ts';
 import type { Game } from './Game.ts';
 import { runtime } from './runtime.ts';
@@ -148,7 +148,7 @@ const SPECS: Spec[] = [
     },
     action: game => {
       game.japoriQuestStatus = JaporiQuestStatus.Closed;
-      game.commander.ship.soldQuantity(10, TradeItemType.FakeQuestCargo);
+      game.commander.ship.soldQuantity(10, FAKE_QUEST_CARGO);
       game.commander.increaseSkillRandomly();
       game.commander.increaseSkillRandomly();
       RESET_CURRENT_SPECIAL(game);
@@ -320,7 +320,7 @@ const SPECS: Spec[] = [
       return game.commander.ship.freeCargoBays() < 3;
     },
     action: game => {
-      const itemType = runtime.gameRand.randomIntBelow(TradeItemType.Count);
+      const itemType = runtime.gameRand.randomIntBelow(TRADE_ITEM_COUNT);
       game.commander.ship.boughtQuantity(3, itemType, Math.floor(1000 / 3));
 
       AlertViewController.presentAlertWithDismiss(
@@ -378,7 +378,7 @@ const SPECS: Spec[] = [
       } else {
         pLog.log(112);
         alertString = 'Ten of your cargo bays now contain antidote for the Japori system.';
-        game.commander.ship.boughtQuantity(10, TradeItemType.FakeQuestCargo, 0);
+        game.commander.ship.boughtQuantity(10, FAKE_QUEST_CARGO, 0);
         game.japoriQuestStatus = JaporiQuestStatus.HasMedicine;
         RESET_CURRENT_SPECIAL(game);
       }
@@ -613,7 +613,7 @@ const SPECS: Spec[] = [
 
       game.commander.ship.boughtQuantity(
         REACTOR_BAY_COUNT + REACTOR_MAX_FUEL,
-        TradeItemType.FakeQuestCargoReactor,
+        FAKE_QUEST_CARGO_REACTOR,
         0
       );
       game.reactorStatus = ReactorQuestStatus.DaysRemaining._20;
@@ -728,7 +728,7 @@ const SPECS: Spec[] = [
     action: game => {
       game.commander.ship.soldQuantity(
         REACTOR_BAY_COUNT + REACTOR_MAX_FUEL,
-        TradeItemType.FakeQuestCargoReactor
+        FAKE_QUEST_CARGO_REACTOR
       );
       game.commander.currentSystem.setSpecialEvent(SpecialEvent.GetSpecialLaser);
       game.reactorStatus = ReactorQuestStatus.ClosedSaved;
