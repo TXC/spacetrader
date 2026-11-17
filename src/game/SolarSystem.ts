@@ -1,6 +1,7 @@
 import { CrewMember } from './CrewMember.ts';
 import type { CrewMemberState } from './CrewMember.ts';
-import { Politics, occurrenceStr } from './Politics.ts';
+import { occurrenceStr, politicsForType, randomPoliticsForTechLevel } from './Politics.ts';
+import type { Politics } from './Politics.ts';
 import { SpecialEvent, SystemSize, SYSTEM_SIZE_STR } from './SolarSystem.types.ts';
 import { TradeItem } from './TradeItem.ts';
 import {
@@ -73,7 +74,7 @@ export class SolarSystem {
 
     // Randomize the other properties
     this._techLevel = runtime.gameRand.randomIntBelow(TechLevel.Count);
-    this._politics = Politics.randomPoliticsForTechLevel(this._techLevel);
+    this._politics = randomPoliticsForTechLevel(this._techLevel);
 
     if (runtime.gameRand.randomIntBelow(5) >= 3) {
       this._specialResource = 1 + runtime.gameRand.randomIntBelow(Resource.Count - 1);
@@ -245,7 +246,7 @@ export class SolarSystem {
     solarSystem._size = serializedState.size;
     solarSystem._specialEvent = serializedState.specialEvent;
     solarSystem._difficulty = serializedState.difficulty;
-    solarSystem._politics = Politics.politicsForType(serializedState.politicsType)!;
+    solarSystem._politics = politicsForType(serializedState.politicsType);
 
     solarSystem._x = serializedState.x;
     solarSystem._y = serializedState.y;

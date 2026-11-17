@@ -1,7 +1,7 @@
 import { Commander } from './Commander.ts';
 import type { CommanderState } from './Commander.ts';
 import { CrewMember } from './CrewMember.ts';
-import { Politics, PoliticsType } from './Politics.ts';
+import { politicsForType, PoliticsType } from './Politics.ts';
 import { MAX_TRIBBLES, Ship, ShipModel, ShipModelType } from './Ship.ts';
 import { SolarSystem } from './SolarSystem.ts';
 import type { SolarSystemState } from './SolarSystem.ts';
@@ -815,7 +815,7 @@ export class Game {
         const gemulon = this._findSolarSystem('Gemulon')!;
         gemulon.setSpecialEvent(SpecialEvent.GemulonInvaded);
         gemulon.techLevel = TechLevel.PreAgricultural;
-        gemulon.politics = Politics.politicsForType(PoliticsType.Anarchy)!;
+        gemulon.politics = politicsForType(PoliticsType.Anarchy);
         gemulon.updateInventories();
         pLog.log(134);
       }
