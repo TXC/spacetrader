@@ -89,10 +89,9 @@ export const Utils = {
   },
 
   // any: compares arbitrary values, walking whatever keys they have
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isEqualDeep: function (
-    objA: any,
-    objB: any,
+    objA: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    objB: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     inequalityHandler?: (s: string) => void,
     keyName?: string
   ): boolean {
