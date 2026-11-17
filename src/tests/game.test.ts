@@ -1,10 +1,5 @@
 import { expect, test } from 'vitest';
-import {
-  ATTACK_CAPTAIN_NEWS,
-  DESTROY_CAPTAIN_NEWS,
-  EncounterController,
-  EncounterType,
-} from '../game/EncounterController.ts';
+import { captainFor, EncounterController, EncounterType } from '../game/EncounterController.ts';
 import { ActionLogger } from '../game/ActionLogger.ts';
 import { GameRand } from '../game/GameRand.ts';
 import { Opponent, OpponentType } from '../game/Opponent.ts';
@@ -44,7 +39,7 @@ test('destroying a famous captain raises reputation to at least Dangerous', () =
   captain.ship.damageHullByAmount(100000);
   const encounter = new EncounterController(EncounterType.FamousCaptainAhabAttack, game, captain);
   // Choosing to attack a captain posts this news item; the kill then replaces it.
-  game.addBreakingNewsItem(ATTACK_CAPTAIN_NEWS(encounter.type));
+  game.addBreakingNewsItem(captainFor(encounter.type).attackNews);
   encounter._executeAction(false, () => {});
 
   // Every kill also adds a bonus for the size of the destroyed ship.
@@ -52,7 +47,7 @@ test('destroying a famous captain raises reputation to at least Dangerous', () =
   expect(game.commander.reputationScore).toBe(
     Math.max(before + 100, ReputationScore.Dangerous) + killBonus
   );
-  expect(game.breakingNews).toContain(DESTROY_CAPTAIN_NEWS(encounter.type));
+  expect(game.breakingNews).toContain(captainFor(encounter.type).destroyNews);
 });
 
 function fixture(html: string): HTMLElement {

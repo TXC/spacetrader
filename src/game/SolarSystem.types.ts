@@ -1,3 +1,5 @@
+import { named } from './texts.ts';
+import type { Real } from './texts.ts';
 import { Utils } from './Utilities.ts';
 
 // Constants
@@ -31,22 +33,16 @@ export const ADJUST_SKILL_FOR_DIFFICULTY = (skill: number, difficulty: number) =
 export const SKILL_BONUS = 3;
 export const CLOAK_BONUS = 2;
 
-export const DIFFICULTY_STR = (x: number) => {
-  switch (x) {
-    case Difficulty.Beginner:
-      return 'Beginner';
-    case Difficulty.Easy:
-      return 'Easy';
-    case Difficulty.Normal:
-      return 'Normal';
-    case Difficulty.Hard:
-      return 'Hard';
-    case Difficulty.Absurd:
-      return 'Absurd';
-    default:
-      return 'Unknown';
-  }
-};
+export const difficultyName = named<Real<Difficulty, typeof Difficulty.Count>>(
+  {
+    [Difficulty.Beginner]: 'Beginner',
+    [Difficulty.Easy]: 'Easy',
+    [Difficulty.Normal]: 'Normal',
+    [Difficulty.Hard]: 'Hard',
+    [Difficulty.Absurd]: 'Absurd',
+  },
+  'Unknown'
+);
 
 export const SystemSize = {
   Tiny: 0,
@@ -58,22 +54,16 @@ export const SystemSize = {
 } as const;
 export type SystemSize = (typeof SystemSize)[keyof typeof SystemSize];
 
-export const SYSTEM_SIZE_STR = (x: number) => {
-  switch (x) {
-    case SystemSize.Tiny:
-      return 'Tiny';
-    case SystemSize.Small:
-      return 'Small';
-    case SystemSize.Medium:
-      return 'Medium-sized';
-    case SystemSize.Large:
-      return 'Large';
-    case SystemSize.Huge:
-      return 'Huge';
-    default:
-      return 'Unknown';
-  }
-};
+export const systemSizeName = named<Real<SystemSize, typeof SystemSize.Count>>(
+  {
+    [SystemSize.Tiny]: 'Tiny',
+    [SystemSize.Small]: 'Small',
+    [SystemSize.Medium]: 'Medium-sized',
+    [SystemSize.Large]: 'Large',
+    [SystemSize.Huge]: 'Huge',
+  },
+  'Unknown'
+);
 
 // Quest Status Enumerations
 export const JaporiQuestStatus = {

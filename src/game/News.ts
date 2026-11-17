@@ -3,6 +3,7 @@ import { AlertViewController } from './alerts.ts';
 import { PoliceRecordScore } from './Commander.ts';
 import type { Game } from './Game.ts';
 import { runtime } from './runtime.ts';
+import { named } from './texts.ts';
 import { session } from './session.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import {
@@ -21,6 +22,34 @@ import { pLog } from './Utilities.ts';
 
 // One of these lives as long as the landing screen, as the old news screen did: its
 // headlines for a system are built once and shown again on the next visit to the screen.
+// A system in one of these states has something to report; an uneventful one has not.
+type Troubled = Exclude<Status, typeof Status.Count | typeof Status.Uneventful>;
+
+// The headline a system prints about its own state.
+const statusHeadline = named<Troubled>({
+  [Status.AtWar]: 'War News: Offensives Continue!',
+  [Status.Plague]: 'Plague Spreads! Outlook Grim.',
+  [Status.Drought]: 'No Rain in Sight',
+  [Status.Boredom]: "Editors: Won't Someone Entertain Us?",
+  [Status.ColdSpell]: 'Cold Snap Continues!',
+  [Status.CropFailure]: 'Serious Crop Failure! Must We Ration?',
+  [Status.LackWorkers]: 'Jobless Rate at All-Time Low!',
+});
+
+// What other systems' papers call that state, as in "Reports of Severe Drought in the Sol System."
+const statusTrouble = named<Troubled>(
+  {
+    [Status.AtWar]: 'Strife and War',
+    [Status.Plague]: 'Plague Outbreaks',
+    [Status.Drought]: 'Severe Drought',
+    [Status.Boredom]: 'Terrible Boredom',
+    [Status.ColdSpell]: 'Cold Weather',
+    [Status.CropFailure]: 'Crop Failures',
+    [Status.LackWorkers]: 'Labor Shortages',
+  },
+  'Labor Shortages'
+);
+
 export class News {
   private game: Game;
   private cachedNews: string | null = null;
@@ -212,28 +241,7 @@ export class News {
     }
 
     const status = this.game.commander.getCurrentSystem().getStatus();
-    const statusString = (status: number) => {
-      switch (status) {
-        case Status.AtWar:
-          return 'War News: Offensives Continue!';
-        case Status.Plague:
-          return 'Plague Spreads! Outlook Grim.';
-        case Status.Drought:
-          return 'No Rain in Sight';
-        case Status.Boredom:
-          return "Editors: Won't Someone Entertain Us?";
-        case Status.ColdSpell:
-          return 'Cold Snap Continues!';
-        case Status.CropFailure:
-          return 'Serious Crop Failure! Must We Ration?';
-        case Status.LackWorkers:
-          return 'Jobless Rate at All-Time Low!';
-        default:
-          return null;
-      }
-    };
-
-    const statusStr = statusString(status);
+    const statusStr = statusHeadline(status);
     if (statusStr) {
       headlines += comma + statusStr;
       comma = '\n';
@@ -295,26 +303,7 @@ export class News {
             'Evidence Suggests',
           ];
 
-          const HEADLINE_STATUS_STR = (st: number) => {
-            switch (st) {
-              case Status.AtWar:
-                return 'Strife and War';
-              case Status.Plague:
-                return 'Plague Outbreaks';
-              case Status.Drought:
-                return 'Severe Drought';
-              case Status.Boredom:
-                return 'Terrible Boredom';
-              case Status.ColdSpell:
-                return 'Cold Weather';
-              case Status.CropFailure:
-                return 'Crop Failures';
-              default:
-                return 'Labor Shortages';
-            }
-          };
-
-          headlines += `${comma}${storyPrefixes[runtime.gameRand.randomIntBelow(storyPrefixes.length)]} ${HEADLINE_STATUS_STR(solarSystem.getStatus())} in the ${solarSystem.getName()} System.`;
+          headlines += `${comma}${storyPrefixes[runtime.gameRand.randomIntBelow(storyPrefixes.length)]} ${statusTrouble(solarSystem.getStatus())} in the ${solarSystem.getName()} System.`;
           comma = '\n';
           realNews = true;
         }

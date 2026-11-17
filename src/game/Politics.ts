@@ -24,25 +24,11 @@ export const PoliticsType = {
 } as const;
 export type PoliticsType = (typeof PoliticsType)[keyof typeof PoliticsType];
 
-export function occurrenceStr(x: number) {
-  switch (x) {
-    case 0:
-      return 'No';
-    case 1:
-      return 'Minimal';
-    case 2:
-      return 'Few';
-    case 3:
-      return 'Some';
-    case 4:
-      return 'Moderate';
-    case 5:
-      return 'Many';
-    case 6:
-      return 'Abundant';
-    default:
-      return 'Excessive';
-  }
+const OCCURRENCE = ['No', 'Minimal', 'Few', 'Some', 'Moderate', 'Many', 'Abundant'];
+
+// How common police, pirates or traders are, in words. Anything above the list is excessive.
+export function occurrenceStr(x: number): string {
+  return OCCURRENCE[x] ?? 'Excessive';
 }
 
 // One kind of government, and how a system ruled by it behaves.

@@ -105,57 +105,46 @@ export const EncounterType = {
 };
 export type EncounterType = number;
 
-export const CAPTAIN_NAME_STR = (x: number) => {
-  switch (x) {
-    case EncounterType.FamousCaptainAhabEncounter:
-    case EncounterType.FamousCaptainAhabAttack:
-      return 'Ahab';
-    case EncounterType.FamousCaptainConradEncounter:
-    case EncounterType.FamousCaptainConradAttack:
-      return 'Conrad';
-    default:
-      return 'Huie';
-  }
+// A famous captain: what the news says when you attack or destroy them, and what they
+// offer to trade.
+type Captain = { name: string; attackNews: string; destroyNews: string; prompt: string };
+
+const AHAB: Captain = {
+  name: 'Ahab',
+  attackNews: 'Thug Assaults Captain Ahab!',
+  destroyNews: "Destruction of Captain Ahab's Ship Causes Anger!",
+  prompt:
+    'Captain Ahab, one of the greatest pilots of all time, is in need of a shield for an upcoming mission. To save the time it would take to land and find a vendor, Ahab is offering to trade you some piloting lessons in exchange for one reflective shield.',
 };
 
-export const ATTACK_CAPTAIN_NEWS = (x: number) => {
-  switch (x) {
-    case EncounterType.FamousCaptainAhabEncounter:
-    case EncounterType.FamousCaptainAhabAttack:
-      return 'Thug Assaults Captain Ahab!';
-    case EncounterType.FamousCaptainConradEncounter:
-    case EncounterType.FamousCaptainConradAttack:
-      return 'Captain Conrad Comes Under Attack By Criminal!';
-    default:
-      return 'Famed Captain Huie Attacked by Brigand!';
-  }
+const CONRAD: Captain = {
+  name: 'Conrad',
+  attackNews: 'Captain Conrad Comes Under Attack By Criminal!',
+  destroyNews: "Captain Conrad's Ship Destroyed by Villain!",
+  prompt:
+    "Captain Conrad, fleet historian and inventor of the modern warp drive, is in need of a laser to test her new shield design. Unfortunately, she's used up her R&D budget for the year. Instead of cash, she'll trade you some engineering lessons in exchange for one military laser.",
 };
 
-export const DESTROY_CAPTAIN_NEWS = (x: number) => {
-  switch (x) {
-    case EncounterType.FamousCaptainAhabEncounter:
-    case EncounterType.FamousCaptainAhabAttack:
-      return "Destruction of Captain Ahab's Ship Causes Anger!";
-    case EncounterType.FamousCaptainConradEncounter:
-    case EncounterType.FamousCaptainConradAttack:
-      return "Captain Conrad's Ship Destroyed by Villain!";
-    default:
-      return "Citizens Mourn Destruction of Captain Huie's Ship!";
-  }
+const HUIE: Captain = {
+  name: 'Huie',
+  attackNews: 'Famed Captain Huie Attacked by Brigand!',
+  destroyNews: "Citizens Mourn Destruction of Captain Huie's Ship!",
+  prompt:
+    'Captain Huie, former Trade Commissioner of the Galactic Council, is in need of a laser for an upcoming mission. Huie is known for driving a hard bargain and is offering some secrets of doing business in exchange for one military laser.',
 };
 
-export const CAPTAIN_PROMPT_STR = (x: number) => {
-  switch (x) {
-    case EncounterType.FamousCaptainAhabEncounter:
-    case EncounterType.FamousCaptainAhabAttack:
-      return 'Captain Ahab, one of the greatest pilots of all time, is in need of a shield for an upcoming mission. To save the time it would take to land and find a vendor, Ahab is offering to trade you some piloting lessons in exchange for one reflective shield.';
-    case EncounterType.FamousCaptainConradEncounter:
-    case EncounterType.FamousCaptainConradAttack:
-      return "Captain Conrad, fleet historian and inventor of the modern warp drive, is in need of a laser to test her new shield design. Unfortunately, she's used up her R&D budget for the year. Instead of cash, she'll trade you some engineering lessons in exchange for one military laser.";
-    default:
-      return 'Captain Huie, former Trade Commissioner of the Galactic Council, is in need of a laser for an upcoming mission. Huie is known for driving a hard bargain and is offering some secrets of doing business in exchange for one military laser.';
-  }
+const CAPTAINS: Record<number, Captain> = {
+  [EncounterType.FamousCaptainAhabEncounter]: AHAB,
+  [EncounterType.FamousCaptainAhabAttack]: AHAB,
+  [EncounterType.FamousCaptainConradEncounter]: CONRAD,
+  [EncounterType.FamousCaptainConradAttack]: CONRAD,
 };
+
+// The famous captain met in this encounter. As in the original game, any encounter that is
+// not Ahab's or Conrad's is Huie's.
+export function captainFor(type: number): Captain {
+  return CAPTAINS[type] ?? HUIE;
+}
 
 export const ENCOUNTERT = (T: number, TYPE: string) => {
   const ranges: Record<string, number> = EncounterType;
@@ -262,7 +251,7 @@ export class EncounterController {
     }
 
     if (ENCOUNTER(this._type, 'FamousCaptain')) {
-      text += ` the famous Captain ${CAPTAIN_NAME_STR(this._type)}.`;
+      text += ` the famous Captain ${captainFor(this._type).name}.`;
     } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
       text += ' the Customs Police.';
     } else if (this._type === EncounterType.MarieCelesteEncounter) {
@@ -582,7 +571,7 @@ export class EncounterController {
               policeScore = Math.min(policeScore, PoliceRecordScore.Villain) + ATTACK_TRADER_SCORE;
               this._game.commander.policeRecordScore = policeScore;
 
-              this._game.addBreakingNewsItem(ATTACK_CAPTAIN_NEWS(this._type));
+              this._game.addBreakingNewsItem(captainFor(this._type).attackNews);
 
               executeFamousCaptainActionBlock();
             });
@@ -1198,7 +1187,7 @@ export class EncounterController {
 
       plunderBlock();
     } else if (action === 'Meet') {
-      const alertString = CAPTAIN_PROMPT_STR(this._type);
+      const alertString = captainFor(this._type).prompt;
 
       const aC = new AlertViewController(alertString);
 
@@ -1515,8 +1504,8 @@ export class EncounterController {
           ReputationScore.Dangerous
         );
         this._game.replaceNewsContainingString(
-          CAPTAIN_NAME_STR(this._type),
-          DESTROY_CAPTAIN_NEWS(this._type)
+          captainFor(this._type).name,
+          captainFor(this._type).destroyNews
         );
       } else if (ENCOUNTER(this._type, 'Scarab')) {
         this._game.commander.pirateKills++;
