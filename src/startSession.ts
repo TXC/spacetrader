@@ -1,25 +1,25 @@
-import { ActionLogger } from './game/ActionLogger.ts'
-import { GameRand } from './game/GameRand.ts'
-import { runtime } from './game/runtime.ts'
-import { activate, Session } from './game/session.ts'
-import { DebugMode } from './game/Utilities.ts'
+import { ActionLogger } from './game/ActionLogger.ts';
+import { GameRand } from './game/GameRand.ts';
+import { runtime } from './game/runtime.ts';
+import { activate, Session } from './game/session.ts';
+import { DebugMode } from './game/Utilities.ts';
 
 // Debug mode is asked for in the address, as in /?debug. It shows the debug panel and
 // reports errors in the rules as alerts.
 export function debugModeFor(search: string): DebugMode {
-  return new URLSearchParams(search).has('debug') ? DebugMode.Alert : DebugMode.Disabled
+  return new URLSearchParams(search).has('debug') ? DebugMode.Alert : DebugMode.Disabled;
 }
 
 // Sets up what the game needs and starts it, loading a saved game if there is one.
 // Call once, before anything is drawn.
 export function startSession(): Session {
-  const randSeed = Date.now()
-  runtime.debugMode = debugModeFor(location.search)
-  runtime.gameRand = new GameRand(randSeed)
-  runtime.actionLog = new ActionLogger(randSeed)
-  runtime.stLocalStorage = localStorage
-  const session = new Session()
-  activate(session)
-  session.start()
-  return session
+  const randSeed = Date.now();
+  runtime.debugMode = debugModeFor(location.search);
+  runtime.gameRand = new GameRand(randSeed);
+  runtime.actionLog = new ActionLogger(randSeed);
+  runtime.stLocalStorage = localStorage;
+  const session = new Session();
+  activate(session);
+  session.start();
+  return session;
 }

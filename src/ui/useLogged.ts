@@ -1,6 +1,6 @@
-import { useLayoutEffect } from 'react'
-import { flushSync } from 'react-dom'
-import { runtime } from '../game/runtime.ts'
+import { useLayoutEffect } from 'react';
+import { flushSync } from 'react-dom';
+import { runtime } from '../game/runtime.ts';
 
 // What the old register...EventListener calls did, for a React element: announce the id
 // when the element appears, and record the step in the action log when it is used.
@@ -9,13 +9,13 @@ export function useLogged<E extends { nativeEvent: Event }>(
   id: string,
   eventName: string,
   handler: (event: E) => void,
-  detail?: (event: E) => string,
+  detail?: (event: E) => string
 ) {
-  useLayoutEffect(() => runtime.actionLog.register(id, eventName), [id, eventName])
+  useLayoutEffect(() => runtime.actionLog.register(id, eventName), [id, eventName]);
   return (event: E) => {
-    runtime.actionLog.record(id, detail ? `${eventName}|${detail(event)}` : eventName)
+    runtime.actionLog.record(id, detail ? `${eventName}|${detail(event)}` : eventName);
     // React would otherwise redraw a moment later. The recorded tests, and the old code they
     // were recorded against, expect the page to be up to date when the click returns.
-    flushSync(() => handler(event))
-  }
+    flushSync(() => handler(event));
+  };
 }

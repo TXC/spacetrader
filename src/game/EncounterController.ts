@@ -1,149 +1,175 @@
-import { AccessoryType } from './Accessory.ts'
-import { AlertActionType, AlertViewController } from './alerts.ts'
-import type { SliderContent } from './alerts.ts'
-import { ATTACK_POLICE_SCORE, ATTACK_TRADER_SCORE, FLEE_FROM_INSPECTION_SCORE, KILL_PIRATE_SCORE, KILL_POLICE_SCORE, KILL_TRADER_SCORE, MAX_SKILL_LEVEL, PLUNDER_PIRATE_SCORE, PLUNDER_TRADER_SCORE, PoliceRecordScore, ReputationScore, TRAFFICKING_SCORE } from './Commander.ts'
-import { OpponentType } from './Opponent.ts'
-import { Plunder } from './Plunder.ts'
-import { Ship, ShipModelType } from './Ship.ts'
-import { REACTOR_BAY_COUNT, REACTOR_MAX_FUEL, Difficulty, DragonflyQuestStatus, JaporiQuestStatus, JarekQuestStatus, MonsterQuestStatus, ReactorQuestStatus, ScarabQuestStatus, WildQuestStatus } from './SolarSystem.types.ts'
-import { TradeItem } from './TradeItem.ts'
-import { TradeItemType } from './TradeItem.types.ts'
-import { Utils, pLog } from './Utilities.ts'
-import type { Game } from './Game.ts'
-import type { Commander } from './Commander.ts'
-import type { Opponent } from './Opponent.ts'
-import type { Travel } from './Travel.ts'
-import { runtime } from './runtime.ts'
+import { AccessoryType } from './Accessory.ts';
+import { AlertActionType, AlertViewController } from './alerts.ts';
+import type { SliderContent } from './alerts.ts';
+import {
+  ATTACK_POLICE_SCORE,
+  ATTACK_TRADER_SCORE,
+  FLEE_FROM_INSPECTION_SCORE,
+  KILL_PIRATE_SCORE,
+  KILL_POLICE_SCORE,
+  KILL_TRADER_SCORE,
+  MAX_SKILL_LEVEL,
+  PLUNDER_PIRATE_SCORE,
+  PLUNDER_TRADER_SCORE,
+  PoliceRecordScore,
+  ReputationScore,
+  TRAFFICKING_SCORE,
+} from './Commander.ts';
+import { OpponentType } from './Opponent.ts';
+import { Plunder } from './Plunder.ts';
+import { Ship, ShipModelType } from './Ship.ts';
+import {
+  REACTOR_BAY_COUNT,
+  REACTOR_MAX_FUEL,
+  Difficulty,
+  DragonflyQuestStatus,
+  JaporiQuestStatus,
+  JarekQuestStatus,
+  MonsterQuestStatus,
+  ReactorQuestStatus,
+  ScarabQuestStatus,
+  WildQuestStatus,
+} from './SolarSystem.types.ts';
+import { TradeItem } from './TradeItem.ts';
+import { TradeItemType } from './TradeItem.types.ts';
+import { Utils, pLog } from './Utilities.ts';
+import type { Game } from './Game.ts';
+import type { Commander } from './Commander.ts';
+import type { Opponent } from './Opponent.ts';
+import type { Travel } from './Travel.ts';
+import { runtime } from './runtime.ts';
 
 export const EncounterType = {
-    None: 0,
+  None: 0,
 
-    PoliceInspection: 1,
-    PoliceIgnore: 2,
-    PoliceAttack: 3,
-    PoliceFlee: 4,
+  PoliceInspection: 1,
+  PoliceIgnore: 2,
+  PoliceAttack: 3,
+  PoliceFlee: 4,
 
-    PoliceStart: 1,
-    PoliceEnd: 4,
+  PoliceStart: 1,
+  PoliceEnd: 4,
 
-    PirateIgnore: 5,
-    PirateAttack: 6,
-    PirateFlee: 7,
-    PirateSurrender: 8,
+  PirateIgnore: 5,
+  PirateAttack: 6,
+  PirateFlee: 7,
+  PirateSurrender: 8,
 
-    PirateStart: 5,
-    PirateEnd: 8,
+  PirateStart: 5,
+  PirateEnd: 8,
 
-    TraderIgnore: 9,
-    TraderAttack: 10,
-    TraderFlee: 11,
-    TraderSurrender: 12,
-    TraderSell: 13,
-    TraderBuy: 14,
-    TraderNoTrade: 15,
+  TraderIgnore: 9,
+  TraderAttack: 10,
+  TraderFlee: 11,
+  TraderSurrender: 12,
+  TraderSell: 13,
+  TraderBuy: 14,
+  TraderNoTrade: 15,
 
-    TraderStart: 9,
-    TraderEnd: 15,
+  TraderStart: 9,
+  TraderEnd: 15,
 
-    FamousCaptainAhabEncounter: 16,
-    FamousCaptainAhabAttack: 17,
-    FamousCaptainConradEncounter: 18,
-    FamousCaptainConradAttack: 19,
-    FamousCaptainHuieEncounter: 20,
-    FamousCaptainHuieAttack: 21,
+  FamousCaptainAhabEncounter: 16,
+  FamousCaptainAhabAttack: 17,
+  FamousCaptainConradEncounter: 18,
+  FamousCaptainConradAttack: 19,
+  FamousCaptainHuieEncounter: 20,
+  FamousCaptainHuieAttack: 21,
 
-    FamousCaptainStart: 16,
-    FamousCaptainEnd: 21,
+  FamousCaptainStart: 16,
+  FamousCaptainEnd: 21,
 
-    MarieCelesteEncounter: 22,
-    PostMarieCelestePoliceEncounter: 23,
+  MarieCelesteEncounter: 22,
+  PostMarieCelestePoliceEncounter: 23,
 
-    BottleGood: 24,
-    BottleOld: 25,
+  BottleGood: 24,
+  BottleOld: 25,
 
-    ScarabIgnore: 26,
-    ScarabAttack: 27,
+  ScarabIgnore: 26,
+  ScarabAttack: 27,
 
-    ScarabStart: 26,
-    ScarabEnd: 27,
+  ScarabStart: 26,
+  ScarabEnd: 27,
 
-    MonsterIgnore: 28,
-    MonsterAttack: 29,
+  MonsterIgnore: 28,
+  MonsterAttack: 29,
 
-    MonsterStart: 28,
-    MonsterEnd: 29,
+  MonsterStart: 28,
+  MonsterEnd: 29,
 
-    DragonflyIgnore: 30,
-    DragonflyAttack: 31,
+  DragonflyIgnore: 30,
+  DragonflyAttack: 31,
 
-    DragonflyStart: 30,
-    DragonflyEnd: 31,
+  DragonflyStart: 30,
+  DragonflyEnd: 31,
 };
 export type EncounterType = number;
 
 export const CAPTAIN_NAME_STR = (x: number) => {
-    switch (x) {
-        case EncounterType.FamousCaptainAhabEncounter:
-        case EncounterType.FamousCaptainAhabAttack:
-            return "Ahab";
-        case EncounterType.FamousCaptainConradEncounter:
-        case EncounterType.FamousCaptainConradAttack:
-            return "Conrad";
-        default:
-            return "Huie";
-    }
+  switch (x) {
+    case EncounterType.FamousCaptainAhabEncounter:
+    case EncounterType.FamousCaptainAhabAttack:
+      return 'Ahab';
+    case EncounterType.FamousCaptainConradEncounter:
+    case EncounterType.FamousCaptainConradAttack:
+      return 'Conrad';
+    default:
+      return 'Huie';
+  }
 };
 
 export const ATTACK_CAPTAIN_NEWS = (x: number) => {
-    switch (x) {
-        case EncounterType.FamousCaptainAhabEncounter:
-        case EncounterType.FamousCaptainAhabAttack:
-            return "Thug Assaults Captain Ahab!";
-        case EncounterType.FamousCaptainConradEncounter:
-        case EncounterType.FamousCaptainConradAttack:
-            return "Captain Conrad Comes Under Attack By Criminal!";
-        default:
-            return "Famed Captain Huie Attacked by Brigand!";
-    }
+  switch (x) {
+    case EncounterType.FamousCaptainAhabEncounter:
+    case EncounterType.FamousCaptainAhabAttack:
+      return 'Thug Assaults Captain Ahab!';
+    case EncounterType.FamousCaptainConradEncounter:
+    case EncounterType.FamousCaptainConradAttack:
+      return 'Captain Conrad Comes Under Attack By Criminal!';
+    default:
+      return 'Famed Captain Huie Attacked by Brigand!';
+  }
 };
 
 export const DESTROY_CAPTAIN_NEWS = (x: number) => {
-    switch (x) {
-        case EncounterType.FamousCaptainAhabEncounter:
-        case EncounterType.FamousCaptainAhabAttack:
-            return "Destruction of Captain Ahab's Ship Causes Anger!";
-        case EncounterType.FamousCaptainConradEncounter:
-        case EncounterType.FamousCaptainConradAttack:
-            return "Captain Conrad's Ship Destroyed by Villain!";
-        default:
-            return "Citizens Mourn Destruction of Captain Huie's Ship!";
-    }
+  switch (x) {
+    case EncounterType.FamousCaptainAhabEncounter:
+    case EncounterType.FamousCaptainAhabAttack:
+      return "Destruction of Captain Ahab's Ship Causes Anger!";
+    case EncounterType.FamousCaptainConradEncounter:
+    case EncounterType.FamousCaptainConradAttack:
+      return "Captain Conrad's Ship Destroyed by Villain!";
+    default:
+      return "Citizens Mourn Destruction of Captain Huie's Ship!";
+  }
 };
 
 export const CAPTAIN_PROMPT_STR = (x: number) => {
-    switch (x) {
-        case EncounterType.FamousCaptainAhabEncounter:
-        case EncounterType.FamousCaptainAhabAttack:
-            return "Captain Ahab, one of the greatest pilots of all time, is in need of a shield for an upcoming mission. To save the time it would take to land and find a vendor, Ahab is offering to trade you some piloting lessons in exchange for one reflective shield.";
-        case EncounterType.FamousCaptainConradEncounter:
-        case EncounterType.FamousCaptainConradAttack:
-            return "Captain Conrad, fleet historian and inventor of the modern warp drive, is in need of a laser to test her new shield design. Unfortunately, she's used up her R&D budget for the year. Instead of cash, she'll trade you some engineering lessons in exchange for one military laser.";
-        default:
-            return "Captain Huie, former Trade Commissioner of the Galactic Council, is in need of a laser for an upcoming mission. Huie is known for driving a hard bargain and is offering some secrets of doing business in exchange for one military laser.";
-    }
+  switch (x) {
+    case EncounterType.FamousCaptainAhabEncounter:
+    case EncounterType.FamousCaptainAhabAttack:
+      return 'Captain Ahab, one of the greatest pilots of all time, is in need of a shield for an upcoming mission. To save the time it would take to land and find a vendor, Ahab is offering to trade you some piloting lessons in exchange for one reflective shield.';
+    case EncounterType.FamousCaptainConradEncounter:
+    case EncounterType.FamousCaptainConradAttack:
+      return "Captain Conrad, fleet historian and inventor of the modern warp drive, is in need of a laser to test her new shield design. Unfortunately, she's used up her R&D budget for the year. Instead of cash, she'll trade you some engineering lessons in exchange for one military laser.";
+    default:
+      return 'Captain Huie, former Trade Commissioner of the Galactic Council, is in need of a laser for an upcoming mission. Huie is known for driving a hard bargain and is offering some secrets of doing business in exchange for one military laser.';
+  }
 };
 
 export const ENCOUNTERT = (T: number, TYPE: string) => {
-    const ranges: Record<string, number> = EncounterType;
-    return T >= ranges[`${TYPE}Start`] && T <= ranges[`${TYPE}End`];
+  const ranges: Record<string, number> = EncounterType;
+  return T >= ranges[`${TYPE}Start`] && T <= ranges[`${TYPE}End`];
 };
 export const ENCOUNTER = (type: number, TYPE: string) => ENCOUNTERT(type, TYPE);
 
 // Update these with the other attack/ignore/flee types when they're added:
-export const ENCOUNTERT_FLEE = (T: number) => [EncounterType.PoliceFlee, EncounterType.PirateFlee, EncounterType.TraderFlee].includes(T);
+export const ENCOUNTERT_FLEE = (T: number) =>
+  [EncounterType.PoliceFlee, EncounterType.PirateFlee, EncounterType.TraderFlee].includes(T);
 export const ENCOUNTER_FLEE = (type: number) => ENCOUNTERT_FLEE(type);
 
-export const ENCOUNTER_ATTACK = (type: number) => [
+export const ENCOUNTER_ATTACK = (type: number) =>
+  [
     EncounterType.PoliceAttack,
     EncounterType.PirateAttack,
     EncounterType.TraderAttack,
@@ -152,1673 +178,1899 @@ export const ENCOUNTER_ATTACK = (type: number) => [
     EncounterType.FamousCaptainHuieAttack,
     EncounterType.ScarabAttack,
     EncounterType.MonsterAttack,
-    EncounterType.DragonflyAttack
-].includes(type);
+    EncounterType.DragonflyAttack,
+  ].includes(type);
 
-export const ENCOUNTER_IGNORE = (type: number) => [
+export const ENCOUNTER_IGNORE = (type: number) =>
+  [
     EncounterType.PoliceIgnore,
     EncounterType.PirateIgnore,
     EncounterType.TraderIgnore,
     EncounterType.ScarabIgnore,
     EncounterType.MonsterIgnore,
-    EncounterType.DragonflyIgnore
-].includes(type);
+    EncounterType.DragonflyIgnore,
+  ].includes(type);
 
-export const ENCOUNTER_SURRENDER = (type: number) => [
-    EncounterType.PirateSurrender,
-    EncounterType.TraderSurrender
-].includes(type);
+export const ENCOUNTER_SURRENDER = (type: number) =>
+  [EncounterType.PirateSurrender, EncounterType.TraderSurrender].includes(type);
 
-export const FAMOUS_ATTACK_TYPE = (type: number) => ENCOUNTER_ATTACK(type) ? type : type + 1;
+export const FAMOUS_ATTACK_TYPE = (type: number) => (ENCOUNTER_ATTACK(type) ? type : type + 1);
 
 export const EncounterMode = {
-    Manual: 0,
-    AutoAttack: 1,
-    AutoFlee: 2,
+  Manual: 0,
+  AutoAttack: 1,
+  AutoFlee: 2,
 };
 export type EncounterMode = number;
 
-export const ENCOUNTER_MODE_AUTO = (encounterMode: number) => [EncounterMode.AutoAttack, EncounterMode.AutoFlee].includes(encounterMode);
-
+export const ENCOUNTER_MODE_AUTO = (encounterMode: number) =>
+  [EncounterMode.AutoAttack, EncounterMode.AutoFlee].includes(encounterMode);
 
 export class EncounterController {
-    declare _type: number
-    declare _game: Game
-    declare _opponent: Opponent
-    declare _encounterActionUpdate: string | null
-    declare _actionTaken: boolean
-    declare _encounterMode: number
-    declare _autoEncounterSession: number
-    declare delegate: Travel | null
+  declare _type: number;
+  declare _game: Game;
+  declare _opponent: Opponent;
+  declare _encounterActionUpdate: string | null;
+  declare _actionTaken: boolean;
+  declare _encounterMode: number;
+  declare _autoEncounterSession: number;
+  declare delegate: Travel | null;
 
-    constructor(type: number, game: Game, opponent: Opponent) {
-        Utils.ensureInteger(type)
-        Utils.ensureType(game, "object")
-        Utils.ensureType(opponent, "object")
+  constructor(type: number, game: Game, opponent: Opponent) {
+    Utils.ensureInteger(type);
+    Utils.ensureType(game, 'object');
+    Utils.ensureType(opponent, 'object');
 
-        this._type = type;
-        this._game = game;
-        this._opponent = opponent;
-        this._encounterActionUpdate = null;
-        this._actionTaken = false;
-        this._encounterMode = 0;
-        this._autoEncounterSession = 0;
-        this.delegate = null;
+    this._type = type;
+    this._game = game;
+    this._opponent = opponent;
+    this._encounterActionUpdate = null;
+    this._actionTaken = false;
+    this._encounterMode = 0;
+    this._autoEncounterSession = 0;
+    this.delegate = null;
+  }
+
+  get type() {
+    return this._type;
+  }
+
+  get opponent() {
+    return this._opponent;
+  }
+
+  encounterText() {
+    let text = '';
+
+    const clicks = this._game.commander.travelClicksRemaining;
+    text += `At ${clicks} click${clicks === 1 ? '' : 's'} from ${this._game.commander.currentSystem.name} you encounter`;
+
+    if (ENCOUNTER(this._type, 'Police')) {
+      text += ' a police ';
+    } else if (ENCOUNTER(this._type, 'Pirate')) {
+      if (this._opponent.ship.type === ShipModelType.Mantis) {
+        text += ' an alien ';
+      } else {
+        text += ' a pirate ';
+      }
+    } else if (ENCOUNTER(this._type, 'Trader')) {
+      text += ' a trader ';
+    } else if (ENCOUNTER(this._type, 'Scarab') || ENCOUNTER(this._type, 'Dragonfly')) {
+      text += ' a stolen ';
+    } else if (ENCOUNTER(this._type, 'Monster')) {
+      text += ' the terrifying ';
     }
 
-    get type() {
-      return this._type
+    if (ENCOUNTER(this._type, 'FamousCaptain')) {
+      text += ` the famous Captain ${CAPTAIN_NAME_STR(this._type)}.`;
+    } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
+      text += ' the Customs Police.';
+    } else if (this._type === EncounterType.MarieCelesteEncounter) {
+      text += ' a drifting ship.';
+    } else if (this._type === EncounterType.BottleGood || this._type === EncounterType.BottleOld) {
+      text += ' a floating bottle.';
+    } else {
+      text += `${this._opponent.ship.model.name}.`;
     }
 
-    get opponent() {
-      return this._opponent
+    text += '\n\n';
+
+    if (this._type === EncounterType.PoliceInspection) {
+      text += 'The police summon you to submit to an inspection.';
+    } else if (
+      !this._actionTaken &&
+      this._type === EncounterType.PoliceAttack &&
+      this._game.commander.policeRecordScore > PoliceRecordScore.Criminal
+    ) {
+      text += 'The police hail that they want you to surrender.';
+    } else if (ENCOUNTER_FLEE(this._type)) {
+      text += 'Your opponent is fleeing.';
+    } else if (ENCOUNTER_ATTACK(this._type)) {
+      text += 'Your opponent attacks.';
+    } else if (ENCOUNTER_IGNORE(this._type)) {
+      if (
+        this._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(
+          this._game.commander,
+          this._opponent
+        )
+      ) {
+        text += "It doesn't notice you.";
+      } else {
+        text += 'It ignores you.';
+      }
+    } else if (this._type === EncounterType.TraderSell || this._type === EncounterType.TraderBuy) {
+      text += 'You are hailed with an offer to trade goods.';
+    } else if (
+      this._type === EncounterType.TraderSurrender ||
+      this._type === EncounterType.PirateSurrender
+    ) {
+      text += 'Your opponent hails to surrender to you.';
+    } else if (ENCOUNTER(this._type, 'FamousCaptain') && !ENCOUNTER_ATTACK(this._type)) {
+      text += 'The captain requests a brief meeting with you.';
+    } else if (this._type === EncounterType.MarieCelesteEncounter) {
+      text += 'The Marie Celeste appears to be completely abandoned.';
+    } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
+      text +=
+        'The police hail with a warning, "We know you removed illegal goods from the Marie Celeste. You must give them up at once!"';
+    } else if (this._type === EncounterType.BottleGood || this._type === EncounterType.BottleOld) {
+      text += "It appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!";
     }
 
-    encounterText() {
-        let text = "";
-
-        const clicks = this._game.commander.travelClicksRemaining;
-        text += `At ${clicks} click${clicks === 1 ? "" : "s"} from ${this._game.commander.currentSystem.name} you encounter`;
-
-        if (ENCOUNTER(this._type, "Police")) {
-            text += " a police ";
-        } else if (ENCOUNTER(this._type, "Pirate")) {
-            if (this._opponent.ship.type === ShipModelType.Mantis) {
-                text += " an alien ";
-            } else {
-                text += " a pirate ";
-            }
-        } else if (ENCOUNTER(this._type, "Trader")) {
-            text += " a trader ";
-        } else if (ENCOUNTER(this._type, "Scarab") || ENCOUNTER(this._type, "Dragonfly")) {
-            text += " a stolen ";
-        } else if (ENCOUNTER(this._type, "Monster")) {
-            text += " the terrifying ";
-        }
-
-        if (ENCOUNTER(this._type, "FamousCaptain")) {
-            text += ` the famous Captain ${CAPTAIN_NAME_STR(this._type)}.`;
-        } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
-            text += " the Customs Police.";
-        } else if (this._type === EncounterType.MarieCelesteEncounter) {
-            text += " a drifting ship.";
-        } else if (this._type === EncounterType.BottleGood || this._type === EncounterType.BottleOld) {
-            text += " a floating bottle.";
-        } else {
-            text += `${this._opponent.ship.model.name}.`;
-        }
-
-        text += "\n\n";
-
-        if (this._type === EncounterType.PoliceInspection) {
-            text += "The police summon you to submit to an inspection.";
-        } else if (!this._actionTaken && this._type === EncounterType.PoliceAttack && this._game.commander.policeRecordScore > PoliceRecordScore.Criminal) {
-            text += "The police hail that they want you to surrender.";
-        } else if (ENCOUNTER_FLEE(this._type)) {
-            text += "Your opponent is fleeing.";
-        } else if (ENCOUNTER_ATTACK(this._type)) {
-            text += "Your opponent attacks.";
-        } else if (ENCOUNTER_IGNORE(this._type)) {
-            if (this._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(this._game.commander, this._opponent)) {
-                text += "It doesn't notice you.";
-            } else {
-                text += "It ignores you.";
-            }
-        } else if (this._type === EncounterType.TraderSell || this._type === EncounterType.TraderBuy) {
-            text += "You are hailed with an offer to trade goods.";
-        } else if (this._type === EncounterType.TraderSurrender || this._type === EncounterType.PirateSurrender) {
-            text += "Your opponent hails to surrender to you.";
-        } else if (ENCOUNTER(this._type, "FamousCaptain") && !ENCOUNTER_ATTACK(this._type)) {
-            text += "The captain requests a brief meeting with you.";
-        } else if (this._type === EncounterType.MarieCelesteEncounter) {
-            text += "The Marie Celeste appears to be completely abandoned.";
-        } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
-            text += 'The police hail with a warning, "We know you removed illegal goods from the Marie Celeste. You must give them up at once!"';
-        } else if (this._type === EncounterType.BottleGood || this._type === EncounterType.BottleOld) {
-            text += "It appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!";
-        }
-
-        if (this._encounterActionUpdate) {
-            if (!text.endsWith("\n")) {
-                text += "\n";
-            }
-            text += this._encounterActionUpdate;
-        }
-
-        return text;
+    if (this._encounterActionUpdate) {
+      if (!text.endsWith('\n')) {
+        text += '\n';
+      }
+      text += this._encounterActionUpdate;
     }
 
-    encounterButtons() {
-        const buttons = [];
+    return text;
+  }
 
-        Utils.ensureInteger(this._encounterMode)
+  encounterButtons() {
+    const buttons = [];
 
-        if (ENCOUNTER_MODE_AUTO(this._encounterMode)) {
-            buttons.push("Interrupt");
-        }
+    Utils.ensureInteger(this._encounterMode);
 
-        if (this._type === EncounterType.PoliceInspection) {
-            buttons.push("Attack", "Flee", "Submit", "Bribe");
-        } else if ([EncounterType.PoliceFlee, EncounterType.TraderFlee, EncounterType.PirateFlee].includes(this._type)) {
-            buttons.push("Attack", "Ignore");
-        } else if ([EncounterType.PirateAttack, EncounterType.PoliceAttack, EncounterType.ScarabAttack].includes(this._type)) {
-            buttons.push("Attack", "Flee", "Surrender");
-        } else if ([EncounterType.TraderAttack, EncounterType.MonsterAttack, EncounterType.DragonflyAttack].includes(this._type) || (ENCOUNTER(this._type, "FamousCaptain") && ENCOUNTER_ATTACK(this._type))) {
-            buttons.push("Attack", "Flee");
-        } else if ([EncounterType.TraderIgnore, EncounterType.PoliceIgnore, EncounterType.PirateIgnore, EncounterType.ScarabIgnore, EncounterType.MonsterIgnore, EncounterType.DragonflyIgnore].includes(this._type)) {
-            buttons.push("Attack", "Ignore");
-        } else if ([EncounterType.TraderSurrender, EncounterType.PirateSurrender].includes(this._type)) {
-            buttons.push("Attack", "Plunder");
-        } else if ([EncounterType.TraderSell, EncounterType.TraderBuy].includes(this._type)) {
-            buttons.push("Attack", "Ignore", "Trade");
-        } else if (ENCOUNTER(this._type, "FamousCaptain") && !ENCOUNTER_ATTACK(this._type)) {
-            buttons.push("Attack", "Ignore", "Meet");
-        } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
-            buttons.push("Attack", "Flee", "Yield", "Bribe");
-        } else if (this._type === EncounterType.MarieCelesteEncounter) {
-            buttons.push("Board", "Ignore");
-        } else if ([EncounterType.BottleGood, EncounterType.BottleOld].includes(this._type)) {
-            buttons.push("Drink", "Ignore");
-        }
-
-        const encounterClass = this.constructor as typeof EncounterController;
-        encounterClass._addAutoFor("Attack", buttons);
-        encounterClass._addAutoFor("Flee", buttons);
-
-        encounterClass._pruneActionsFor(
-            this._encounterMode === EncounterMode.AutoFlee ? "Flee" :
-            this._encounterMode === EncounterMode.AutoAttack ? "Attack" : null,
-            buttons
-        );
-
-        return buttons;
+    if (ENCOUNTER_MODE_AUTO(this._encounterMode)) {
+      buttons.push('Interrupt');
     }
 
-    static _pruneActionsFor(toPrune: string | null, buttons: string[]) {
-        if (!toPrune) {
-            return;
-        }
-
-        const toRemoveIndexes: number[] = [];
-        buttons.forEach((label, idx) => {
-            if (label.endsWith(toPrune)) {
-                toRemoveIndexes.push(idx);
-            }
-        });
-
-        for (let i = toRemoveIndexes.length - 1; i >= 0; i--) {
-            buttons.splice(toRemoveIndexes[i], 1);
-        }
+    if (this._type === EncounterType.PoliceInspection) {
+      buttons.push('Attack', 'Flee', 'Submit', 'Bribe');
+    } else if (
+      [EncounterType.PoliceFlee, EncounterType.TraderFlee, EncounterType.PirateFlee].includes(
+        this._type
+      )
+    ) {
+      buttons.push('Attack', 'Ignore');
+    } else if (
+      [EncounterType.PirateAttack, EncounterType.PoliceAttack, EncounterType.ScarabAttack].includes(
+        this._type
+      )
+    ) {
+      buttons.push('Attack', 'Flee', 'Surrender');
+    } else if (
+      [
+        EncounterType.TraderAttack,
+        EncounterType.MonsterAttack,
+        EncounterType.DragonflyAttack,
+      ].includes(this._type) ||
+      (ENCOUNTER(this._type, 'FamousCaptain') && ENCOUNTER_ATTACK(this._type))
+    ) {
+      buttons.push('Attack', 'Flee');
+    } else if (
+      [
+        EncounterType.TraderIgnore,
+        EncounterType.PoliceIgnore,
+        EncounterType.PirateIgnore,
+        EncounterType.ScarabIgnore,
+        EncounterType.MonsterIgnore,
+        EncounterType.DragonflyIgnore,
+      ].includes(this._type)
+    ) {
+      buttons.push('Attack', 'Ignore');
+    } else if (
+      [EncounterType.TraderSurrender, EncounterType.PirateSurrender].includes(this._type)
+    ) {
+      buttons.push('Attack', 'Plunder');
+    } else if ([EncounterType.TraderSell, EncounterType.TraderBuy].includes(this._type)) {
+      buttons.push('Attack', 'Ignore', 'Trade');
+    } else if (ENCOUNTER(this._type, 'FamousCaptain') && !ENCOUNTER_ATTACK(this._type)) {
+      buttons.push('Attack', 'Ignore', 'Meet');
+    } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
+      buttons.push('Attack', 'Flee', 'Yield', 'Bribe');
+    } else if (this._type === EncounterType.MarieCelesteEncounter) {
+      buttons.push('Board', 'Ignore');
+    } else if ([EncounterType.BottleGood, EncounterType.BottleOld].includes(this._type)) {
+      buttons.push('Drink', 'Ignore');
     }
 
-    static _addAutoFor(label: string, buttons: string[]) {
-        let addIndex = -1;
-        buttons.forEach((buttonLabel, idx) => {
-            if (buttonLabel === label) {
-                addIndex = idx;
-            }
-        });
+    const encounterClass = this.constructor as typeof EncounterController;
+    encounterClass._addAutoFor('Attack', buttons);
+    encounterClass._addAutoFor('Flee', buttons);
 
-        if (addIndex !== -1) {
-            buttons.splice(addIndex + 1, 0, `Auto-${label}`);
-        }
+    encounterClass._pruneActionsFor(
+      this._encounterMode === EncounterMode.AutoFlee
+        ? 'Flee'
+        : this._encounterMode === EncounterMode.AutoAttack
+          ? 'Attack'
+          : null,
+      buttons
+    );
+
+    return buttons;
+  }
+
+  static _pruneActionsFor(toPrune: string | null, buttons: string[]) {
+    if (!toPrune) {
+      return;
     }
 
-    invalidate() {
-        this.delegate = null;
-        this._endAutoEncounters();
+    const toRemoveIndexes: number[] = [];
+    buttons.forEach((label, idx) => {
+      if (label.endsWith(toPrune)) {
+        toRemoveIndexes.push(idx);
+      }
+    });
+
+    for (let i = toRemoveIndexes.length - 1; i >= 0; i--) {
+      buttons.splice(toRemoveIndexes[i], 1);
+    }
+  }
+
+  static _addAutoFor(label: string, buttons: string[]) {
+    let addIndex = -1;
+    buttons.forEach((buttonLabel, idx) => {
+      if (buttonLabel === label) {
+        addIndex = idx;
+      }
+    });
+
+    if (addIndex !== -1) {
+      buttons.splice(addIndex + 1, 0, `Auto-${label}`);
+    }
+  }
+
+  invalidate() {
+    this.delegate = null;
+    this._endAutoEncounters();
+  }
+
+  performAction(action: string) {
+    Utils.ensureType(action, 'string');
+    Utils.ensureInteger(this._encounterMode);
+
+    this._actionTaken = true;
+
+    // End auto-encounters before the action is performed and our delegate is called to update the UI
+    if (this._encounterMode === EncounterMode.AutoAttack && !action.endsWith('Attack')) {
+      pLog.log(48);
+      this._endAutoEncounters();
+    } else if (this._encounterMode === EncounterMode.AutoFlee && !action.endsWith('Flee')) {
+      pLog.log(49);
+      this._endAutoEncounters();
     }
 
-    performAction(action: string) {
-        Utils.ensureType(action, "string")
-        Utils.ensureInteger(this._encounterMode)
+    if (action === 'Auto-Attack') {
+      this._encounterMode = EncounterMode.AutoAttack;
+      this.performAction('Attack');
+      pLog.log(50);
+      return;
+    } else if (action === 'Auto-Flee') {
+      this._encounterMode = EncounterMode.AutoFlee;
+      this.performAction('Flee');
+      pLog.log(51);
+      return;
+    } else if (action === 'Attack') {
+      const performAttack = () => {
+        const executeActionBlock = () => {
+          Utils.ensureInteger(this._type);
 
-        this._actionTaken = true;
+          this._executeAction(false, fightContinues => {
+            Utils.ensureBool(fightContinues);
+            fightContinues = fightContinues && this._game.commander.ship.hull > 0;
+            this.delegate!.encounterControllerEncounterContinues(this, fightContinues);
+          });
+        };
 
-        // End auto-encounters before the action is performed and our delegate is called to update the UI
-        if ((this._encounterMode === EncounterMode.AutoAttack) && !action.endsWith("Attack")) {
-            pLog.log(48)
-            this._endAutoEncounters();
-        } else if ((this._encounterMode === EncounterMode.AutoFlee) && !action.endsWith("Flee")) {
-            pLog.log(49)
-            this._endAutoEncounters();
-        }
-
-        if (action === "Auto-Attack") {
-            this._encounterMode = EncounterMode.AutoAttack;
-            this.performAction("Attack");
-            pLog.log(50)
-            return;
-        } else if (action === "Auto-Flee") {
-            this._encounterMode = EncounterMode.AutoFlee;
-            this.performAction("Flee");
-            pLog.log(51)
-            return;
-        } else if (action === "Attack") {
-            const performAttack = () => {
-                const executeActionBlock = () => {
-                    Utils.ensureInteger(this._type)
-
-                    this._executeAction(false, (fightContinues) => {
-                        Utils.ensureBool(fightContinues)
-                        fightContinues = fightContinues && (this._game.commander.ship.hull > 0);
-                        this.delegate!.encounterControllerEncounterContinues(this, fightContinues);
-                    });
-                };
-
-                if (ENCOUNTER(this._type, "Police") || this._type === EncounterType.PostMarieCelestePoliceEncounter) {
-                    const executePoliceActionBlock = () => {
-                        if (this._game.commander.policeRecordScore > PoliceRecordScore.Criminal) {
-                            this._game.commander.policeRecordScore = PoliceRecordScore.Criminal;
-                        }
-
-                        this._game.commander.policeRecordScore = this._game.commander.policeRecordScore + ATTACK_POLICE_SCORE;
-
-                        if (this._type !== EncounterType.PoliceFlee) {
-                            this._type = EncounterType.PoliceAttack;
-                        }
-
-                        executeActionBlock();
-                    };
-
-                    if (this._game.commander.policeRecordScore > PoliceRecordScore.Criminal) {
-                      const alertString = "Are you sure you wish to attack the police? This will turn you into a criminal!";
-
-                      const aC = new AlertViewController(alertString)
-                      aC.addAction("Ok, I won't.", AlertActionType.Default, null)
-
-                      aC.addAction("Attack", AlertActionType.Destructive, () => {
-                        executePoliceActionBlock();
-                      })
-
-                      this._presentAlertController(aC);
-
-                      return;
-                    }
-
-                    executePoliceActionBlock();
-                    return;
-
-                } else if (ENCOUNTER(this._type, "Pirate")) {
-                    if (this._type === EncounterType.PirateIgnore) {
-                        this._type = EncounterType.PirateAttack;
-                    }
-                } else if (ENCOUNTER(this._type, "Trader")) {
-                    const executeTraderActionBlock = () => {
-                        if (this._type !== EncounterType.TraderFlee) {
-                            if (this._opponent.ship.weapons.length <= 0) {
-                                this._type = EncounterType.TraderFlee;
-                            } else if (runtime.gameRand.randomIntBelow(ReputationScore.Elite) <= (this._game.commander.reputationScore * 10 / (1 + this._opponent.ship.type))) {
-                                this._type = EncounterType.TraderFlee;
-                            } else {
-                                this._type = EncounterType.TraderAttack;
-                            }
-                        }
-
-                        executeActionBlock();
-                    };
-
-                    if ([EncounterType.TraderIgnore, EncounterType.TraderBuy, EncounterType.TraderSell].includes(this._type)) {
-                        if (this._game.commander.policeRecordScore >= PoliceRecordScore.Clean) {
-                            const alertString = "Are you sure you wish to attack the trader? This will make the police suspicious of you!";
-
-
-
-
-                            const aC = new AlertViewController(alertString)
-                            aC.addAction("Ok, I won't.", AlertActionType.Default, null)
-
-                            aC.addAction("Attack", AlertActionType.Destructive, () => {
-                                this._game.commander.policeRecordScore = PoliceRecordScore.Dubious;
-
-                                executeTraderActionBlock();
-                            })
-
-                            this._presentAlertController(aC);
-
-                            return;
-
-                        } else {
-                            this._game.commander.policeRecordScore = this._game.commander.policeRecordScore + ATTACK_TRADER_SCORE;
-                        }
-                    }
-
-                    executeTraderActionBlock();
-                    return;
-                } else if (ENCOUNTER(this._type, "FamousCaptain")) {
-                    const executeFamousCaptainActionBlock = () => {
-                        this._type = FAMOUS_ATTACK_TYPE(this._type);
-                        executeActionBlock();
-                    };
-
-                    if (!ENCOUNTER_ATTACK(this._type)) {
-                        const alertString = "Famous captains get famous by, among other things, destroying everyone who attacks them. Do you really want to attack?";
-
-
-
-                        const aC = new AlertViewController(alertString)
-                        aC.addAction("Ok, I won't.", AlertActionType.Default, null)
-
-                        aC.addAction("Attack", AlertActionType.Destructive, () => {
-                            pLog.log(104)
-                            let policeScore = this._game.commander.policeRecordScore;
-                            policeScore = Math.min(policeScore, PoliceRecordScore.Villain) + ATTACK_TRADER_SCORE;
-                            this._game.commander.policeRecordScore = policeScore;
-
-                            this._game.addBreakingNewsItem(ATTACK_CAPTAIN_NEWS(this._type));
-
-                            executeFamousCaptainActionBlock();
-                        })
-
-                        this._presentAlertController(aC);
-                        return;
-                    }
-
-                    executeFamousCaptainActionBlock();
-                    return;
-                } else if (ENCOUNTER(this._type, "Scarab")) {
-                    if (this._type === EncounterType.ScarabIgnore) {
-                        this._type = EncounterType.ScarabAttack;
-                    }
-                } else if (ENCOUNTER(this._type, "Monster")) {
-                    if (this._type === EncounterType.MonsterIgnore) {
-                        this._type = EncounterType.MonsterAttack;
-                    }
-                } else if (ENCOUNTER(this._type, "Dragonfly")) {
-                    if (this._type === EncounterType.DragonflyIgnore) {
-                        this._type = EncounterType.DragonflyAttack;
-                    }
-                }
-
-                executeActionBlock();
-            };
-
-            if (this._type === EncounterType.PoliceInspection &&
-                this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Firearms) <= 0 &&
-                this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics) <= 0) {
-                const alertString = "Are you sure you want to attack? You're not carrying illegal goods so it should be safe to submit.";
-
-                const aC = new AlertViewController(alertString)
-                aC.addAction("Ok, I won't.", AlertActionType.Default, null)
-
-                aC.addAction("Attack", AlertActionType.Destructive, () => {
-                    performAttack();
-                })
-
-                this._presentAlertController(aC);
-                return;
+        if (
+          ENCOUNTER(this._type, 'Police') ||
+          this._type === EncounterType.PostMarieCelestePoliceEncounter
+        ) {
+          const executePoliceActionBlock = () => {
+            if (this._game.commander.policeRecordScore > PoliceRecordScore.Criminal) {
+              this._game.commander.policeRecordScore = PoliceRecordScore.Criminal;
             }
 
-            performAttack();
+            this._game.commander.policeRecordScore =
+              this._game.commander.policeRecordScore + ATTACK_POLICE_SCORE;
 
-
-
-        } else if (action === "Flee") {
-            const performFlee = () => {
-                if (this._type === EncounterType.PoliceInspection) {
-                    this._type = EncounterType.PoliceAttack;
-
-                    if (this._game.commander.policeRecordScore > PoliceRecordScore.Dubious) {
-                        this._game.commander.policeRecordScore = PoliceRecordScore.Dubious - (this._game.difficulty < Difficulty.Normal ? 0 : 1);
-                    } else {
-                        this._game.commander.policeRecordScore = this._game.commander.policeRecordScore + FLEE_FROM_INSPECTION_SCORE;
-                    }
-                } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
-                    this._type = EncounterType.PoliceAttack;
-                    this._game.commander.policeRecordScore = Math.min(PoliceRecordScore.Criminal, this._game.commander.policeRecordScore + ATTACK_POLICE_SCORE);
-                }
-
-                this._executeAction(true, (fightContinues) => {
-                    fightContinues = fightContinues && (this._game.commander.ship.hull > 0);
-                    this.delegate!.encounterControllerEncounterContinues(this, fightContinues);
-                });
-            };
-
-            let alertString = null;
-            if (
-                this._type === EncounterType.PoliceInspection &&
-                !this._game.commander.ship.hasIllegalGoods() &&
-                this._game.wildStatus !== WildQuestStatus.OnBoard
-            ) {
-                alertString = "Are you sure you want to flee? You're not carrying illegal goods so it should be safe to submit.";
-            } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
-                alertString = "Are you sure you want to flee? The Customs Police know you have engaged in criminal activity and your police record will reflect this fact.";
+            if (this._type !== EncounterType.PoliceFlee) {
+              this._type = EncounterType.PoliceAttack;
             }
 
-            if (alertString) {
-                const aC = new AlertViewController(alertString)
-                aC.addAction("Ok, I won't.", AlertActionType.Default, null)
-
-                aC.addAction("Flee", AlertActionType.Destructive, () => {
-                  performFlee();
-                })
-
-                this._presentAlertController(aC);
-                return;
-            }
-
-            performFlee();
-        }
-
-
-        else if (action === "Ignore") {
-            this.delegate!.encounterControllerEncounterContinues(this, false);
-        }
-
-
-        else if (action === "Trade") {
-            let itemType: number = TradeItemType.None;
-            const onlyIllegal = this._game.commander.policeRecordScore < PoliceRecordScore.Dubious;
-            let tradePrice = 0;
-            let maxUnits = 0;
-            let comparisonPrice = 0;
-            let itemName = null;
-
-            if (this._type === EncounterType.TraderBuy) {
-                itemType = this._game.commander.ship.randomTradeableItemForSystem(this._game.commander.currentSystem, onlyIllegal);
-                Utils.ensureInteger(itemType)
-
-                if (itemType !== TradeItemType.None) {
-                    tradePrice = this._game.commander.sellPriceForItem(itemType);
-                    Utils.ensureInteger(tradePrice)
-
-                    if (onlyIllegal) {
-                        tradePrice *= runtime.gameRand.randomIntBelow(100) <= 45 ? 0.8 : 1.1;
-                    } else {
-                        tradePrice *= runtime.gameRand.randomIntBelow(100) <= 10 ? 0.9 : 1.1;
-                    }
-
-                    const tradeItem = TradeItem.tradeItemForType(itemType)!;
-                    itemName = tradeItem.name;
-                    tradePrice = Math.floor(tradePrice / tradeItem.roundOffPrice)
-                    tradePrice = (tradePrice + 1) * tradeItem.roundOffPrice
-                    tradePrice = Math.max(tradePrice, tradeItem.minTradePrice);
-                    tradePrice = Math.min(tradePrice, tradeItem.maxTradePrice);
-
-                    maxUnits = this._game.commander.ship.tradeItemQuantityForType(itemType);
-                    comparisonPrice = this._game.commander.ship.tradeItemAverageBuyingPriceForType(itemType);
-                }
-            } else if (this._type === EncounterType.TraderSell) {
-                itemType = this._opponent.ship.randomTradeableItemForSystem(this._game.commander.currentSystem, onlyIllegal);
-
-                if (itemType !== TradeItemType.None) {
-                    tradePrice = this._game.commander.buyPriceForItem(itemType);
-
-                    if (onlyIllegal) {
-                        tradePrice *= runtime.gameRand.randomIntBelow(100) <= 45 ? 1.1 : 0.8;
-                    } else {
-                        tradePrice *= runtime.gameRand.randomIntBelow(100) <= 10 ? 1.1 : 0.9;
-                    }
-
-                    const tradeItem = TradeItem.tradeItemForType(itemType)!;
-                    itemName = tradeItem.name;
-                    tradePrice = Math.floor(tradePrice / tradeItem.roundOffPrice)
-                    tradePrice = (tradePrice + 1) * tradeItem.roundOffPrice
-                    tradePrice = Math.max(tradePrice, tradeItem.minTradePrice);
-                    tradePrice = Math.min(tradePrice, tradeItem.maxTradePrice);
-                    const freeCargoBays = this._game.commander.ship.freeCargoBays()
-                    maxUnits = Math.min(freeCargoBays, Math.floor(this._game.commander.credits / tradePrice));
-                }
-            }
-
-            if (itemType !== TradeItemType.None) {
-              this._presentTradeAlert(itemName, itemType, tradePrice, maxUnits, comparisonPrice, this._type === EncounterType.TraderSell)
-            }
-        }
-
-
-        else if (action === "Surrender" || action === "Yield") {
-            let surrenderAllowed: boolean;
-            let surrenderPrompt = null;
-            let surrenderBlock = null;
-
-            if (this._opponent.type === OpponentType.Mantis) {
-                if (this._game.commander.artifactOnBoard) {
-                    surrenderAllowed = true;
-                    surrenderPrompt = "If you surrender to the aliens, they will steal the artifact. Are you sure you wish to do that?";
-                    surrenderBlock = () => {
-                        pLog.log(55)
-                        this._game.commander.artifactOnBoard = false;
-
-                        const artifactStolenString = "The aliens have taken the artifact from you. Well, it's rightfully theirs, so you probably shouldn't complain. You won't receive any reward from Professor Berger, though.";
-
-                        const aC = new AlertViewController(artifactStolenString)
-                        aC.addAction("Dismiss", AlertActionType.Default, () => {
-                            this.delegate!.encounterControllerEncounterContinues(this, false);
-                        })
-
-                        this._presentAlertController(aC);
-                    };
-                } else {
-                    surrenderAllowed = false;
-                    surrenderPrompt = "Surrender? Ha! We want your HEAD!";
-                }
-            } else if (ENCOUNTER(this._type, "Police") || this._type === EncounterType.PostMarieCelestePoliceEncounter) {
-                if (this._type !== EncounterType.PostMarieCelestePoliceEncounter && this._game.commander.policeRecordScore <= PoliceRecordScore.Psycho) {
-                    pLog.log(56)
-                    surrenderAllowed = false;
-                    surrenderPrompt = "Surrender? Ha! We want your HEAD!";
-                } else {
-                    surrenderAllowed = true;
-
-                    const hasReactor = this._game.reactorStatus > ReactorQuestStatus.Open && this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate;
-                    const hasWild = this._game.wildStatus === WildQuestStatus.OnBoard;
-                    if (this._type !== EncounterType.PostMarieCelestePoliceEncounter || hasReactor || hasWild) {
-                        let extraString = hasReactor ? " Additionally, the police will destroy the Ion Reactor." : "";
-                        if (hasWild) {
-                            extraString += " Wild will be arrested, too.";
-                        }
-
-                        surrenderPrompt = `If you surrender, you will spend some time in prison and will have to pay a hefty fine.${extraString} Are you sure you want to do that?`;
-                        surrenderBlock = () => {
-                            pLog.log(57)
-                            this._processArrest();
-                        };
-                    } else {
-                        surrenderBlock = () => {
-                            pLog.log(58)
-                            const numNarcotics = this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics);
-                            const numFirearms = this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Firearms);
-
-                            let yieldAlertString = "The Customs Police find nothing illegal in your cargo holds and apologize for the inconvenience."
-
-                            if (numNarcotics + numFirearms > 0) {
-                              pLog.log(102)
-                              this._game.commander.policeRecordScore = Math.min(this._game.commander.policeRecordScore, PoliceRecordScore.Dubious);
-
-                              this._game.commander.ship.soldQuantity(numNarcotics, TradeItemType.Narcotics);
-                              this._game.commander.ship.soldQuantity(numFirearms, TradeItemType.Firearms);
-
-                              yieldAlertString = "The Customs Police confiscated all of your illegal cargo. For being cooperative, you avoided stronger fines or penalties.";
-                            }
-
-
-                            const aC = new AlertViewController(yieldAlertString)
-
-                            aC.addAction("Dismiss", AlertActionType.Default, () => {
-                                this.delegate!.encounterControllerEncounterContinues(this, false);
-                            })
-
-                            this._presentAlertController(aC);
-                        };
-                    }
-                }
-            } else {
-                surrenderAllowed = true;
-
-                surrenderBlock = () => {
-                    let wildString = null;
-                    if (this._game.wildStatus === WildQuestStatus.OnBoard) {
-                        if (this._opponent.ship.model.mercenaryQuarters() > 0) {
-                            this._game.wildStatus = WildQuestStatus.Closed;
-                            this._game.commander.ship.removeCrewMemberWithName("Jonathan Wild");
-                            wildString = " The pirate captain turns out to be an old associate of Jonathan Wild. He invites Wild to go to Kravat aboard the pirate ship. Wild accepts the offer and thanks you for the ride.";
-                        } else {
-                            wildString = " The pirate captain turns out to be an old associate of Jonathan Wild. They talk about old times, and you get the feeling that Wild would switch ships if the Pirates had any quarters available.";
-                        }
-                    }
-
-                    let questString = "";
-                    if (this._game.reactorStatus > ReactorQuestStatus.Open && this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate) {
-                        questString = " They also poke around the Ion Reactor while trying to figure out if it's valuable. They finally conclude that the reactor is worthless, not to mention dangerous, and leave it on your ship.";
-                    }
-
-                    this._game.commander.raided = true;
-
-                    const totalCargo = this._game.commander.ship.totalCargoBays() - this._game.commander.ship.freeCargoBays();
-
-                    Utils.ensureInteger(totalCargo)
-
-                    if (totalCargo <= 0) {
-                        const blackmail = Math.min(25000, Math.max(500, Math.floor(this._game.commander.netWorth() / 20)));
-                        Utils.ensureInteger(blackmail)
-
-                        let credits = this._game.commander.credits;
-                        let debt = this._game.commander.debt;
-                        if (credits >= blackmail) {
-                            credits -= blackmail;
-                        } else {
-                            debt += (blackmail - credits);
-                            credits = 0;
-                        }
-                        pLog.log(59)
-                        this._game.commander.setCredits(credits);
-                        this._game.commander.debt = debt;
-
-                        const alertString = `The pirates are upset that they found no cargo on your ship. To save yourself, you have no choice but to pay them 5% of your current net worth.${questString}${wildString || ""}`;
-
-                        const aC = new AlertViewController(alertString)
-
-                        aC.addAction("Dismiss", AlertActionType.Default, () => {
-                            this.delegate!.encounterControllerEncounterContinues(this, false);
-                        })
-
-                        this._presentAlertController(aC);
-
-                    } else {
-                        let freePirateBays = this._opponent.ship.freeCargoBays();
-                        Utils.ensureInteger(freePirateBays)
-
-                        do {
-                            const itemType = this._game.commander.ship.randomTradeableItem();
-                            if (itemType === TradeItemType.None) {
-                                break;
-                            }
-
-                            this._game.commander.ship.soldQuantity(1, itemType);
-                            freePirateBays--;
-                        } while (freePirateBays > 0);
-
-                        pLog.log(60)
-
-                        const alertString = `The pirates board your ship and transfer as much of your cargo to their own ship as their cargo bays can hold.${questString}${wildString || ""}`;
-
-                        const aC = new AlertViewController(alertString)
-
-                        aC.addAction("Dismiss", AlertActionType.Default, () => {
-                            this.delegate!.encounterControllerEncounterContinues(this, false);
-                        })
-
-                        this._presentAlertController(aC);
-                    }
-                };
-            }
-
-            Utils.ensureBool(surrenderAllowed)
-
-            if (surrenderAllowed) {
-                if (surrenderPrompt) {
-                    const aC = new AlertViewController(surrenderPrompt)
-
-                    aC.addAction("Surrender", AlertActionType.Destructive, () => {
-                        if (surrenderBlock) {
-                            surrenderBlock();
-                        }
-                    })
-
-                    aC.addAction("Cancel", AlertActionType.Cancel, null)
-
-                    this._presentAlertController(aC);
-
-                } else if (surrenderBlock) {
-                    surrenderBlock();
-                }
-            } else {
-
-                const aC = new AlertViewController(surrenderPrompt!)
-
-                aC.addAction("Dismiss", AlertActionType.Default, null)
-
-                this._presentAlertController(aC);
-
-                return;
-            }
-        }
-
-
-        else if (action === "Bribe") {
-            let cantBribeAlertString = null;
-            if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
-              cantBribeAlertString = "We'd love to take your money, but Space Command already knows you've got illegal goods onboard.";
-            } else if (this._game.commander.currentSystem.politics.bribeWillingness <= 0) {
-              cantBribeAlertString = `The incorruptible police of ${this._game.commander.currentSystem.name} cannot be bribed.`;
-            }
-
-            if (cantBribeAlertString) {
-                const aC = new AlertViewController(cantBribeAlertString)
-                aC.addAction("Dismiss", AlertActionType.Default, null)
-
-                this._presentAlertController(aC);
-                return;
-            }
-
-            const bribeBlock = () => {
-                let bribe = this._game.commander.netWorth() / ((10 + 5 * (Difficulty.Absurd - this._game.difficulty)) * this._game.commander.currentSystem.politics.bribeWillingness);
-
-                bribe = Math.ceil(bribe / 100) * 100; // round up to the next 100
-                Utils.ensureInteger(bribe)
-
-                if (this._game.wildStatus === WildQuestStatus.OnBoard || (this._game.reactorStatus > ReactorQuestStatus.Open && this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate)) {
-                    pLog.log(126)
-                    bribe *= this._game.difficulty <= Difficulty.Normal ? 2 : 3;
-                }
-
-                bribe = Math.max(100, Math.min(bribe, 10000));
-                Utils.ensureInteger(bribe)
-
-                if (this._game.commander.credits < bribe) {
-                    const alertString = "You don't have enough cash for a bribe.";
-
-                    const aC = new AlertViewController(alertString)
-                    aC.addAction("Dismiss", AlertActionType.Default, null)
-
-                    this._presentAlertController(aC);
-                } else {
-                    const alertString = `These police officers are willing to forego inspection for $${bribe}.`;
-
-                    const aC = new AlertViewController(alertString)
-
-                    aC.addAction("Offer bribe", AlertActionType.Default, () => {
-                        this._game.commander.setCredits(this._game.commander.credits - bribe);
-                        this.delegate!.encounterControllerEncounterContinues(this, false);
-                    })
-
-                    aC.addAction("Forget it", AlertActionType.Cancel, null)
-
-                    this._presentAlertController(aC);
-                }
-            };
-
-            if (this._type === EncounterType.PoliceInspection && !this._game.commander.ship.hasIllegalGoods() && this._game.wildStatus !== WildQuestStatus.OnBoard) {
-                const alertString = "Are you sure you want to bribe the police? You are not carrying illegal goods, so you have nothing to fear!";
-
-                const aC = new AlertViewController(alertString)
-
-                aC.addAction("Yes, I still want to", AlertActionType.Destructive, () => {
-                    bribeBlock();
-                })
-
-                aC.addAction("Ok, I won't", AlertActionType.Cancel, null)
-
-                this._presentAlertController(aC);
-
-            } else {
-                bribeBlock();
-            }
-        }
-
-
-        else if (action === "Submit") {
-            const submitBlock = () => {
-                if (this._game.reactorStatus > ReactorQuestStatus.Open && this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate) {
-
-                    this._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
-                    this._game.commander.ship.soldQuantity(REACTOR_BAY_COUNT + REACTOR_MAX_FUEL, TradeItemType.FakeQuestCargoReactor);
-
-                    const alertString = "The police confiscate the Ion Reactor as evidence of your dealings with unsavory characters. The bad news is that you've lost the Ion Reactor. The good news is that you no longer have to worry about managing its depleting fuel store."
-
-
-                    const aC = new AlertViewController(alertString)
-
-                    aC.addAction("Dismiss", AlertActionType.Default, () => {
-                        this.delegate!.encounterControllerEncounterContinues(this, false);
-                    })
-
-                    this._presentAlertController(aC);
-
-                } else if (this._game.wildStatus === WildQuestStatus.OnBoard) {
-                    this._processArrest();
-                } else if (this._game.commander.ship.hasIllegalGoods()) {
-                    const numNarcotics = this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics);
-                    const numFirearms = this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Firearms);
-                    this._game.commander.ship.soldQuantity(numNarcotics, TradeItemType.Narcotics);
-                    this._game.commander.ship.soldQuantity(numFirearms, TradeItemType.Firearms);
-
-                    let fine = this._game.commander.netWorth() / ((Difficulty.Absurd + 2 - this._game.difficulty) * 10);
-                    Utils.ensureNumber(fine)
-                    fine = Math.ceil(fine / 50) * 50; // Round up to the nearest 50
-                    fine = Math.max(100, Math.min(fine, 10000));
-
-                    Utils.ensureInteger(fine)
-
-                    let credits = this._game.commander.credits;
-                    let debt = this._game.commander.debt;
-
-                    if (credits >= fine) {
-                        credits -= fine;
-                    } else {
-                        debt += (fine - credits);
-                        credits = 0;
-                    }
-                    this._game.commander.setCredits(credits);
-                    this._game.commander.debt = debt;
-
-                    this._game.commander.policeRecordScore = this._game.commander.policeRecordScore + TRAFFICKING_SCORE;
-
-                    const alertString = `The police discover illegal goods in your cargo holds. These goods are confiscated and you are fined $${fine}`
-
-                    const aC = new AlertViewController(alertString)
-
-                    aC.addAction("Dismiss", AlertActionType.Default, () => {
-                        this.delegate!.encounterControllerEncounterContinues(this, false);
-                    })
-
-                    this._presentAlertController(aC);
-
-                } else {
-                    // Improve your police record score
-                    this._game.commander.policeRecordScore = this._game.commander.policeRecordScore - TRAFFICKING_SCORE;
-
-                    const alertString = "The police find nothing illegal in your cargo holds and apologize for the inconvenience."
-
-                    const aC = new AlertViewController(alertString)
-
-                    aC.addAction("Dismiss", AlertActionType.Default, () => {
-                        this.delegate!.encounterControllerEncounterContinues(this, false);
-                    })
-
-                    this._presentAlertController(aC);
-                }
-            };
-
-            if (this._type === EncounterType.PoliceInspection && (this._game.commander.ship.hasIllegalGoods() || this._game.wildStatus === WildQuestStatus.OnBoard)) {
-                let alertString = "Are you sure you want to let the police search you? You are carrying illegal goods or crew!";
-                if (this._game.wildStatus === WildQuestStatus.OnBoard) {
-                    alertString = `${alertString} You and Wild will be arrested!`;
-                }
-
-
-                const aC = new AlertViewController(alertString)
-
-                aC.addAction("Yes, I still want to", AlertActionType.Destructive, () => {
-                    submitBlock();
-                })
-
-                aC.addAction("Nevermind!", AlertActionType.Cancel, null)
-
-                this._presentAlertController(aC);
-            } else {
-                submitBlock();
-            }
-        }
-
-
-        else if (action === "Plunder" || action === "Board") {
-
-          const plunderBlock = () => {
-            const plunderLabel = (this._type === EncounterType.MarieCelesteEncounter) ? "Take" : "Plunder";
-
-            const plunderVC = new Plunder(this._game, this._opponent, plunderLabel)
-            plunderVC.delegate = this
-            plunderVC.presentView()
+            executeActionBlock();
           };
 
-          if (this._type === EncounterType.MarieCelesteEncounter) {
-            const alertString = "The Marie Celeste is completely abandoned and drifting through space. The ship's log is unremarkable except for a tribble infestation a few months ago shortly after visiting Lowry. The crew's quarters are in good shape, with no signs of struggle. Other than being abandoned, the ship is completely normal. By Intergalactic Salvage Law, you can claim the remaining cargo. Do you wish to?";
+          if (this._game.commander.policeRecordScore > PoliceRecordScore.Criminal) {
+            const alertString =
+              'Are you sure you wish to attack the police? This will turn you into a criminal!';
 
+            const aC = new AlertViewController(alertString);
+            aC.addAction("Ok, I won't.", AlertActionType.Default, null);
 
-            const aC = new AlertViewController(alertString)
-
-            aC.addAction("Yes, take cargo", AlertActionType.Default, () => {
-              plunderBlock();
-            })
-
-            aC.addAction("Leave it", AlertActionType.Cancel, () => {
-              this.delegate!.encounterControllerEncounterContinues(this, false);
-            })
+            aC.addAction('Attack', AlertActionType.Destructive, () => {
+              executePoliceActionBlock();
+            });
 
             this._presentAlertController(aC);
 
             return;
-
-          } else if (ENCOUNTER(this._type, "Trader")) {
-            this._game.commander.policeRecordScore = this._game.commander.policeRecordScore + PLUNDER_TRADER_SCORE;
-          } else {
-            this._game.commander.policeRecordScore = this._game.commander.policeRecordScore + PLUNDER_PIRATE_SCORE;
           }
 
-          plunderBlock();
-        }
-
-
-        else if (action === "Meet") {
-            const alertString = CAPTAIN_PROMPT_STR(this._type);
-
-            const aC = new AlertViewController(alertString)
-
-            aC.addAction("Yes, trade!", AlertActionType.Default, () => {
-                if (this._type === EncounterType.FamousCaptainAhabEncounter) {
-                    this._game.commander.ship.removeAccessoryOfType(AccessoryType.ShieldReflective);
-                    this._game.commander.pilot = Math.min(MAX_SKILL_LEVEL, this._game.commander.pilot + (this._game.difficulty < Difficulty.Hard ? 2 : 1));
-                } else if (this._type === EncounterType.FamousCaptainConradEncounter) {
-                    this._game.commander.ship.removeAccessoryOfType(AccessoryType.WeaponMilitaryLaser);
-                    this._game.commander.engineer = Math.min(MAX_SKILL_LEVEL, this._game.commander.engineer + (this._game.difficulty < Difficulty.Hard ? 2 : 1));
-                } else if (this._type === EncounterType.FamousCaptainHuieEncounter) {
-                    this._game.commander.ship.removeAccessoryOfType(AccessoryType.WeaponMilitaryLaser);
-                    this._game.commander.trader = Math.min(MAX_SKILL_LEVEL, this._game.commander.trader + (this._game.difficulty < Difficulty.Hard ? 2 : 1));
-                }
-
-
-
-                const trainStr = "After a few hours of training with a top expert, you feel your abilities have improved significantly."
-                const aC2 = new AlertViewController(trainStr)
-
-                aC2.addAction("Dismiss", AlertActionType.Default, () => {
-                    this.delegate!.encounterControllerEncounterContinues(this, false);
-                })
-
-                this._presentAlertController(aC2);
-            })
-
-            aC.addAction("No thanks!", AlertActionType.Cancel, () => {
-                this.delegate!.encounterControllerEncounterContinues(this, false);
-            })
-
-            this._presentAlertController(aC);
-        }
-
-        else if (action === "Drink") {
-            let alertString: string;
-            let consumedString = null;
-            let drinkAction = null;
-
-            if (this._type === EncounterType.BottleGood) {
-                alertString = "This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. In the old days, this stuff went for thousands of credits a bottle since people reported significant gains in their abilities after quaffing a bottle. Would you like to drink it?";
-                consumedString = "Mmmmm. Captain Marmoset's Amazing Skill Tonic not only fills you with energy, but tastes like a fine single-malt. You feel a slight tingling in your fingertips.";
-                drinkAction = () => {
-                    pLog.log(105)
-                    this._game.commander.increaseSkillRandomly();
-                    if (this._game.difficulty < Difficulty.Hard) {
-                        this._game.commander.increaseSkillRandomly();
-                    }
-                };
-            } else {
-                alertString = "This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. The \"best used by\" date stamped on the bottle has become illegible. The tonic might still be good. Then again, it's not clear what happens when the Tonic breaks down...";
-                consumedString = "While you don't know what it was supposed to taste like, you get the feeling that this dose of tonic was a bit off. This bottle tasted very strange, like slightly salty red wine. You feel a bit dizzy and your teeth itch for a while.";
-                drinkAction = () => {
-                    pLog.log(106)
-                    this._game.commander.increaseSkillRandomly();
-                    this._game.commander.decreaseSkillRandomly();
-                    if (this._game.difficulty >= Difficulty.Hard) {
-                        this._game.commander.increaseSkillRandomly();
-                        this._game.commander.decreaseSkillRandomly();
-                        this._game.commander.decreaseSkillRandomly();
-                    }
-                };
-            }
-
-            const aC = new AlertViewController(alertString)
-
-            aC.addAction("Yes, drink it", AlertActionType.Default, () => {
-                pLog.log(108)
-                drinkAction();
-
-                const aC2 = new AlertViewController(consumedString)
-
-                aC2.addAction("Dismiss", AlertActionType.Default, () => {
-                    this.delegate!.encounterControllerEncounterContinues(this, false);
-                })
-
-                this._presentAlertController(aC2);
-            })
-
-            aC.addAction("I'll pass", AlertActionType.Cancel, () => {
-                pLog.log(107)
-                this.delegate!.encounterControllerEncounterContinues(this, false);
-            })
-
-            this._presentAlertController(aC);
-        }
-
-
-        else if (action === "Interrupt") {
-            pLog.log(52)
-            this._endAutoEncounters();
-            this.delegate!.encounterControllerEncounterContinues(this, true);
-        }
-
-
-        if (ENCOUNTER_MODE_AUTO(this._encounterMode)) {
-          Utils.ensureInteger(this._autoEncounterSession)
-
-          const sessionID = this._game.uniqueID + "-" + this._autoEncounterSession;
-          const actionType = this._encounterMode === EncounterMode.AutoAttack ? "Attack" : "Flee";
-
-          runtime.actionLog.performAsync(() => {
-              if (sessionID === (this._game.uniqueID + "-" + this._autoEncounterSession)) {
-                  console.log(`Auto-${actionType} action fired -- performed`);
-                  pLog.log(53)
-                  this.performAction(actionType);
+          executePoliceActionBlock();
+          return;
+        } else if (ENCOUNTER(this._type, 'Pirate')) {
+          if (this._type === EncounterType.PirateIgnore) {
+            this._type = EncounterType.PirateAttack;
+          }
+        } else if (ENCOUNTER(this._type, 'Trader')) {
+          const executeTraderActionBlock = () => {
+            if (this._type !== EncounterType.TraderFlee) {
+              if (this._opponent.ship.weapons.length <= 0) {
+                this._type = EncounterType.TraderFlee;
+              } else if (
+                runtime.gameRand.randomIntBelow(ReputationScore.Elite) <=
+                (this._game.commander.reputationScore * 10) / (1 + this._opponent.ship.type)
+              ) {
+                this._type = EncounterType.TraderFlee;
               } else {
-                  console.log(`Auto-${actionType} action fired -- ignored`);
+                this._type = EncounterType.TraderAttack;
               }
-          }, 1500);
-        }
-    } // END OF performAction
-
-
-    _endAutoEncounters() {
-        this._autoEncounterSession++;
-        this._encounterMode = EncounterMode.Manual;
-        if (this.delegate) {
-          this.delegate!.encounterControllerHasUpdatedButtons();
-        }
-    }
-
-    _presentAlertController(alertController: AlertViewController) {
-        this._endAutoEncounters();
-        alertController.presentView();
-    }
-
-    _presentTradeAlert(itemName: string | null, itemType: number, tradePrice: number, maxUnits: number, comparisonPrice: number, traderSell: boolean) {
-      Utils.ensureType(itemName, "string")
-      Utils.ensureInteger(itemType)
-      Utils.ensureInteger(tradePrice)
-      Utils.ensureInteger(maxUnits)
-      Utils.ensureInteger(comparisonPrice)
-      Utils.ensureBool(traderSell)
-
-      let needsDismiss: boolean
-      let needsAll = false
-      let needsNone = false
-      let needsSelected = false
-
-      let text: string;
-      if (traderSell) {
-        const canAfford = maxUnits > 0
-        text = `The trader wants to sell ${itemName} for $${tradePrice} each. ${!canAfford ? "Unfortunately, you can't afford any." : "How many do you wish to buy?"}`;
-
-        needsDismiss = !canAfford
-        needsAll = canAfford
-        needsNone = canAfford
-        needsSelected = canAfford
-      } else {
-        if (maxUnits > 0) {
-          text = `The trader wants to buy ${itemName} and offers $${tradePrice} each. You paid about $${comparisonPrice}/unit. How many do you wish to sell?`;
-
-          needsDismiss = false
-          needsAll = true
-          needsNone = true
-          needsSelected = true
-        } else {
-          text = `The trader wants to buy ${itemName} and offers $${tradePrice} each. Unfortunately, you don't have any.`;
-
-          needsDismiss = true
-        }
-      }
-
-      const aC = new AlertViewController(text)
-
-      if (needsDismiss) {
-        aC.addAction("Dismiss", AlertActionType.Default, () => {
-          this._performTradeWithAmount(0, itemType, tradePrice, traderSell)
-        })
-      }
-
-      if (needsNone) {
-        aC.addAction("None", AlertActionType.Default, () => {
-          this._performTradeWithAmount(0, itemType, tradePrice, traderSell)
-        })
-      }
-
-      if (needsSelected) {
-        aC.addAction("Selected", AlertActionType.Default, () => {
-          const amount = (aC.content as SliderContent).value
-          if (amount > 0) {
-            aC.completionHandler = () => {
-              this._presentThanksForTheTrade(() => {
-                this._performTradeWithAmount(amount, itemType, tradePrice, traderSell)
-              })
             }
-          }
-        })
-      }
 
-      if (needsAll) {
-        aC.addAction("All", AlertActionType.Default, () => {
-          const amount = maxUnits
-          if (amount > 0) {
-            aC.completionHandler = () => {
-              this._presentThanksForTheTrade(() => {
-                this._performTradeWithAmount(amount, itemType, tradePrice, traderSell)
-              })
-            }
-          }
-        })
-      }
+            executeActionBlock();
+          };
 
-      if (needsSelected) {
-        const slider: SliderContent = { kind: 'slider', id: 'tradeslider', min: 0, max: maxUnits, value: Math.floor(maxUnits/2) }
-        aC.content = slider
-      }
+          if (
+            [
+              EncounterType.TraderIgnore,
+              EncounterType.TraderBuy,
+              EncounterType.TraderSell,
+            ].includes(this._type)
+          ) {
+            if (this._game.commander.policeRecordScore >= PoliceRecordScore.Clean) {
+              const alertString =
+                'Are you sure you wish to attack the trader? This will make the police suspicious of you!';
 
-      aC.presentView()
-    }
+              const aC = new AlertViewController(alertString);
+              aC.addAction("Ok, I won't.", AlertActionType.Default, null);
 
-    _executeAction(commanderFlees: boolean, completionBlock: (fightContinues: boolean) => void) {
-        Utils.ensureBool(commanderFlees)
+              aC.addAction('Attack', AlertActionType.Destructive, () => {
+                this._game.commander.policeRecordScore = PoliceRecordScore.Dubious;
 
-        const opponentHull = this._opponent.ship.hull;
-        Utils.ensureInteger(opponentHull)
-        const commanderHull = this._game.commander.ship.hull;
-        Utils.ensureInteger(commanderHull)
-        let commanderGotHit = false;
+                executeTraderActionBlock();
+              });
 
-        if (ENCOUNTER_ATTACK(this._type) || this._type === EncounterType.PostMarieCelestePoliceEncounter) {
-            commanderGotHit = this._executeAttackWithAttacker(this._opponent, this._game.commander, commanderFlees);
-        }
+              this._presentAlertController(aC);
 
-        let opponentGotHit = false;
-
-        if (!commanderFlees) {
-            opponentGotHit = this._executeAttackWithAttacker(this._game.commander, this._opponent, ENCOUNTER_FLEE(this._type));
-        }
-
-        if (this._game.commander.ship.hull <= 0 && this._opponent.ship.hull <= 0) {
-            if (this._game.commander.hasEscapePod) {
-                this._performPodEscape();
-                return;
+              return;
             } else {
-                const alertString = "You and your opponent have managed to destroy each other."
-                const aC = new AlertViewController(alertString)
-
-                aC.addAction("Dismiss", AlertActionType.Default, () => {
-                    this.delegate!.encounterControllerDidCompleteWithDestruction();
-                })
-
-                this._presentAlertController(aC);
-
-                return;
+              this._game.commander.policeRecordScore =
+                this._game.commander.policeRecordScore + ATTACK_TRADER_SCORE;
             }
-        } else if (this._opponent.ship.hull <= 0) {
-            let getBounty = false;
-            let alertString = "You have destroyed your opponent.";
-            if (ENCOUNTER(this._type, "Pirate") && this._opponent.ship.type !== ShipModelType.Mantis && this._game.commander.policeRecordScore >= PoliceRecordScore.Dubious) {
-                pLog.log(54)
-                getBounty = true;
-                alertString = `You earned a bounty of $${this._opponent.ship.bountyForEnemyShipWithOpponent(this._opponent)}.`;
-            }
+          }
 
-            let attemptScoop = false;
+          executeTraderActionBlock();
+          return;
+        } else if (ENCOUNTER(this._type, 'FamousCaptain')) {
+          const executeFamousCaptainActionBlock = () => {
+            this._type = FAMOUS_ATTACK_TYPE(this._type);
+            executeActionBlock();
+          };
 
-            if (ENCOUNTER(this._type, "Police")) {
-                this._game.commander.policeKills++;
-                this._game.commander.policeRecordScore += KILL_POLICE_SCORE;
-            } else if (ENCOUNTER(this._type, "Pirate")) {
-                if (this._opponent.ship.type !== ShipModelType.Mantis) {
-                    if (getBounty) {
-                        const bounty = this._opponent.ship.bountyForEnemyShipWithOpponent(this._opponent);
-                        this._game.commander.credits += bounty;
-                    }
-                    this._game.commander.policeRecordScore += KILL_PIRATE_SCORE;
+          if (!ENCOUNTER_ATTACK(this._type)) {
+            const alertString =
+              'Famous captains get famous by, among other things, destroying everyone who attacks them. Do you really want to attack?';
 
-                    attemptScoop = true;
-                }
-                this._game.commander.pirateKills++;
-            } else if (ENCOUNTER(this._type, "Trader")) {
-                this._game.commander.traderKills++;
-                this._game.commander.policeRecordScore += KILL_TRADER_SCORE;
+            const aC = new AlertViewController(alertString);
+            aC.addAction("Ok, I won't.", AlertActionType.Default, null);
 
-                attemptScoop = true;
-            } else if (ENCOUNTER(this._type, "FamousCaptain")) {
-                this._game.commander.reputationScore = Math.max(this._game.commander.reputationScore + 100, ReputationScore.Dangerous);
-                this._game.replaceNewsContainingString(CAPTAIN_NAME_STR(this._type), DESTROY_CAPTAIN_NEWS(this._type));
-            } else if (ENCOUNTER(this._type, "Scarab")) {
-                this._game.commander.pirateKills++;
-                this._game.commander.policeRecordScore += KILL_PIRATE_SCORE;
+            aC.addAction('Attack', AlertActionType.Destructive, () => {
+              pLog.log(104);
+              let policeScore = this._game.commander.policeRecordScore;
+              policeScore = Math.min(policeScore, PoliceRecordScore.Villain) + ATTACK_TRADER_SCORE;
+              this._game.commander.policeRecordScore = policeScore;
 
-                this._game.scarabStatus = ScarabQuestStatus.ScarabDestroyed;
-                pLog.log(166)
-            } else if (ENCOUNTER(this._type, "Monster")) {
-                this._game.commander.pirateKills++;
-                this._game.commander.policeRecordScore += KILL_PIRATE_SCORE;
+              this._game.addBreakingNewsItem(ATTACK_CAPTAIN_NEWS(this._type));
 
-                this._game.monsterStatus = MonsterQuestStatus.ClosedMonsterDestroyed;
-            } else if (ENCOUNTER(this._type, "Dragonfly")) {
-                this._game.commander.pirateKills++;
-                this._game.commander.policeRecordScore += KILL_PIRATE_SCORE;
-
-                this._game.dragonflyStatus = DragonflyQuestStatus.ClosedDragonflyDestroyed;
-            }
-
-            this._game.commander.reputationScore += 1 + Math.floor(this._opponent.ship.type / 2);
-
-
-
-            const aC = new AlertViewController(alertString)
-
-            aC.addAction("Dismiss", AlertActionType.Default, () => {
-                if (attemptScoop) {
-                    this._scoopWithCompletion(() => {
-                        completionBlock(false);
-                    });
-                } else {
-                    completionBlock(false);
-                }
-            })
+              executeFamousCaptainActionBlock();
+            });
 
             this._presentAlertController(aC);
             return;
-
-        } else if (this._game.commander.ship.hull <= 0) {
-            this.delegate!.encounterControllerHasUpdatedHP()
-
-            if (this._game.commander.hasEscapePod) {
-                this._performPodEscape();
-                return;
-            } else {
-
-                const alertString = "Your ship has been destroyed by your opponent."
-                const aC = new AlertViewController(alertString)
-
-                aC.addAction("Dismiss", AlertActionType.Default, () => {
-                    pLog.log(65)
-                    this.delegate!.encounterControllerDidCompleteWithDestruction();
-                })
-
-                this._presentAlertController(aC);
-                return;
-            }
-        }
-
-        if (commanderFlees) {
-            let escapeString = null;
-            if (this._game.difficulty === Difficulty.Beginner) {
-                escapeString = "You've managed to escape your opponent.";
-            } else if (2 * (runtime.gameRand.randomIntBelow(7) + Math.floor(this._game.commander.ship.crewPilotSkillIncludingCommander(this._game.commander) / 3)) >=
-                       runtime.gameRand.randomIntBelow((this._opponent.ship.crewPilotSkillIncludingCommander(this._opponent) * (2 + this._game.difficulty)))) {
-                escapeString = "You've managed to escape your opponent.";
-                if (commanderGotHit) {
-                    escapeString = "You got hit but still managed to escape.";
-                }
-            }
-
-            if (escapeString) {
-                if (ENCOUNTER(this._type, "Monster")) {
-                    this._game.monsterHull = this._opponent.ship.hull;
-                    Utils.ensureInteger(this._game.monsterHull)
-                    pLog.log(143)
-                }
-
-                const aC = new AlertViewController(escapeString)
-
-                aC.addAction("Dismiss", AlertActionType.Default, () => {
-                    completionBlock(false);
-                })
-
-                this._presentAlertController(aC);
-
-                return;
-            }
-        } else if (ENCOUNTER_SURRENDER(this._type) || ENCOUNTER_FLEE(this._type)) {
-            if (4 * runtime.gameRand.randomIntBelow(this._game.commander.ship.crewPilotSkillIncludingCommander(this._game.commander)) <=
-                2 * runtime.gameRand.randomIntBelow((7 + Math.floor(this._opponent.ship.crewPilotSkillIncludingCommander(this._opponent) / 3)))) {
-
-                const alertString = "Your opponent has managed to escape."
-
-                const aC = new AlertViewController(alertString)
-
-                aC.addAction("Dismiss", AlertActionType.Default, () => {
-                    completionBlock(false);
-                })
-
-                this._presentAlertController(aC);
-
-                return;
-            }
-        }
-
-        const prevType = this._type;
-
-        if (this._opponent.ship.hull < opponentHull) {
-            if (ENCOUNTER(this._type, "Police")) {
-                if (this._opponent.ship.hull < opponentHull / 2) {
-                    if (this._game.commander.ship.hull < commanderHull / 2) {
-                        this._type = (runtime.gameRand.randomIntBelow(10) > 5) ? EncounterType.PoliceFlee : this._type;
-                    } else {
-                        this._type = EncounterType.PoliceFlee;
-                    }
-                }
-            } else if (ENCOUNTER(this._type, "Pirate")) {
-                if (this._opponent.ship.hull < 2 * opponentHull / 3) {
-                    if (this._game.commander.ship.hull < 2 * commanderHull / 3) {
-                        this._type = (runtime.gameRand.randomIntBelow(10) > 3) ? EncounterType.PirateFlee : this._type;
-                    } else {
-                        this._type = (runtime.gameRand.randomIntBelow(10) > 8 && this._opponent.ship.type <= ShipModelType.Best) ? EncounterType.PirateSurrender : EncounterType.PirateFlee;
-                    }
-                }
-            } else if (ENCOUNTER(this._type, "Trader")) {
-                if (this._opponent.ship.hull < 2 * opponentHull / 3) {
-                    this._type = (runtime.gameRand.randomIntBelow(10) > 3) ? EncounterType.TraderSurrender : EncounterType.TraderFlee;
-                } else if (this._opponent.ship.hull < 9 * opponentHull / 10) {
-                    if (this._game.commander.ship.hull < 2 * commanderHull / 3) {
-                        // If you get damaged a lot, the trader keeps attacking
-                        this._type = (runtime.gameRand.randomIntBelow(10) > 7) ? EncounterType.TraderFlee : this._type;
-                    } else if (this._game.commander.ship.hull < 9 * commanderHull / 10) {
-                        this._type = (runtime.gameRand.randomIntBelow(10) > 3) ? EncounterType.TraderFlee : this._type;
-                    } else {
-                        this._type = EncounterType.TraderFlee;
-                    }
-                }
-            } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
-                this._type = EncounterType.PoliceAttack;
-            }
-        }
-
-        Utils.ensureInteger(this._type)
-
-        if (prevType !== this._type) {
-            if (!ENCOUNTER_FLEE(this._type) && this._encounterMode === EncounterMode.AutoAttack) {
-                this._encounterMode = EncounterMode.Manual;
-            } else if (this._encounterMode === EncounterMode.AutoFlee) {
-                this._encounterMode = EncounterMode.Manual;
-            }
-        }
-
-        this._encounterActionUpdate = "";
-
-        let shipString = null;
-
-        if (ENCOUNTERT(prevType, "Police")) {
-            shipString = "police ship";
-        } else if (ENCOUNTERT(prevType, "Pirate")) {
-            shipString = (this._opponent.ship.type === ShipModelType.Mantis) ? "alien ship" : "pirate ship";
-        } else if (ENCOUNTERT(prevType, "Trader")) {
-            shipString = "trader ship";
-        } else if (ENCOUNTERT(prevType, "FamousCaptain")) {
-            shipString = "captain";
-        } else if (ENCOUNTERT(prevType, "Scarab")) {
-            shipString = "Scarab";
-        } else if (ENCOUNTERT(prevType, "Monster")) {
-            shipString = "monster";
-        } else if (ENCOUNTERT(prevType, "Dragonfly")) {
-            shipString = "Dragonfly";
-        }
-
-        let delimit = "";
-        if (commanderGotHit) {
-            this._encounterActionUpdate += `The ${shipString} hits you.`;
-            delimit = "\n";
-        }
-
-        if (!ENCOUNTERT_FLEE(prevType) && !commanderGotHit) {
-            this._encounterActionUpdate += `${delimit}The ${shipString} missed you.`;
-            delimit = "\n";
-        }
-
-        if (opponentGotHit) {
-            this._encounterActionUpdate += `${delimit}You hit the ${shipString}.`;
-            delimit = "\n";
-        }
-
-        if (!commanderFlees && !opponentGotHit) {
-            const hasWeapons = (this._game.commander.ship.weapons.length > 0);
-            if (hasWeapons) {
-                this._encounterActionUpdate += `${delimit}You missed the ${shipString}.`;
-            } else {
-                this._encounterActionUpdate += `${delimit}You have no weapons!`;
-            }
-            delimit = "\n";
-        }
-
-        if (ENCOUNTERT_FLEE(prevType)) {
-            this._encounterActionUpdate += `${delimit}The ${shipString} didn't get away.`;
-            delimit = "\n";
-        }
-
-        if (commanderFlees) {
-            this._encounterActionUpdate += `${delimit}The ${shipString} is still following you.`;
-        }
-
-        completionBlock(true);
-    }
-
-    _performPodEscape() {
-        this.delegate!.encounterControllerDidCompleteWithDestruction();
-    }
-
-    _scoopWithCompletion(completion: () => void) {
-        let canScoop = (this._game.commander.ship.freeCargoBays() > 0);
-        canScoop = canScoop && (this._game.difficulty < Difficulty.Normal || runtime.gameRand.randomIntBelow(this._game.difficulty) === 1);
-
-        if (canScoop) {
-            let itemType = runtime.gameRand.randomIntBelow(TradeItemType.Count);
-            if (itemType >= TradeItemType.Firearms) {
-                itemType = runtime.gameRand.randomIntBelow(TradeItemType.Count);
-            }
-
-            const alertString = `A canister from the destroyed ship, labelled ${TradeItem.tradeItemForType(itemType)!.name}, drifts within range of your scoops.`;
-
-            const aC = new AlertViewController(alertString)
-
-            aC.addAction("Pick it up!", AlertActionType.Default, () => {
-                this._game.commander.ship.boughtQuantity(1, itemType, 0);
-                completion();
-            })
-
-            aC.addAction("Let it go", AlertActionType.Cancel, () => {
-                completion();
-            })
-
-            this._presentAlertController(aC);
-
-            return;
-        }
-
-        completion();
-    }
-
-
-    _executeAttackWithAttacker(attacker: Commander | Opponent, defender: Commander | Opponent, defenderIsFleeing: boolean) {
-        Utils.ensureType(attacker, "object")
-        Utils.ensureType(defender, "object")
-        Utils.ensureBool(defenderIsFleeing)
-
-        const commanderUnderAttack = (defender === this._game.commander);
-
-        if (this._game.difficulty === Difficulty.Beginner && commanderUnderAttack && defenderIsFleeing) {
-            return false; // Escape unharmed
-        }
-
-        const attackDiceRoll = runtime.gameRand.randomIntBelow((attacker.ship.crewFighterSkillIncludingCommander(attacker) + defender.ship.model.size));
-        Utils.ensureInteger(attackDiceRoll)
-
-        const dodgeDiceRoll = (defenderIsFleeing ? 2 : 1) * runtime.gameRand.randomIntBelow((5 + Math.floor(defender.ship.crewPilotSkillIncludingCommander(defender) / 2)));
-        Utils.ensureInteger(dodgeDiceRoll)
-
-        if (attackDiceRoll < dodgeDiceRoll) {
-            return false; // Defender dodged
-        }
-
-        // Ensure we truncate to integer wherever this factor is used
-        const ATTACK_SCALE = (100 + 2 * attacker.ship.crewEngineerSkillIncludingCommander(attacker)) / 100;
-        Utils.ensureNumber(ATTACK_SCALE)
-
-        let damage: number;
-        if (attacker.ship.weapons.length <= 0) {
-            damage = 0;
-        } else if (defender.ship.type === ShipModelType.Scarab) {
-            const pulsePower = attacker.ship.weaponPowerBetweenMinMaxInclusive(AccessoryType.WeaponPulseLaser, AccessoryType.WeaponPulseLaser);
-            Utils.ensureInteger(pulsePower)
-
-            const morganPower = attacker.ship.weaponPowerBetweenMinMaxInclusive(AccessoryType.WeaponMorgansLaser, AccessoryType.WeaponMorgansLaser);
-            Utils.ensureInteger(morganPower)
-
-            if (pulsePower + morganPower <= 0) {
-                damage = 0;
-                pLog.log(167)
-            } else {
-                damage = runtime.gameRand.randomIntBelow((pulsePower + morganPower) * ATTACK_SCALE);
-                pLog.log(168)
-            }
-        } else {
-            const weaponPower = attacker.ship.weaponPowerBetweenMinMaxInclusive(AccessoryType.WeaponFirst, AccessoryType.WeaponLast);
-            Utils.ensureInteger(weaponPower)
-
-            damage = runtime.gameRand.randomIntBelow(weaponPower * ATTACK_SCALE);
-        }
-
-        Utils.ensureInteger(damage)
-        if (damage <= 0) {
-            return false;
-        }
-
-        // Reactor weakens our hull and shields
-        if (commanderUnderAttack && this._game.reactorStatus > ReactorQuestStatus.Open && this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate) {
-            damage *= Math.floor(1 + (this._game.difficulty + 1) * (this._game.difficulty < Difficulty.Normal ? 0.25 : 0.33));
-        }
-
-        Utils.ensureInteger(damage)
-        damage = defender.ship.damageShieldsByAmount(damage)!;
-        Utils.ensureInteger(damage)
-
-        if (damage > 0) {
-            damage -= runtime.gameRand.randomIntBelow(defender.ship.crewEngineerSkillIncludingCommander(defender));
-            damage = Math.max(1, damage);
-
-            // Our ship will survive at least 2 shots on Normal, 3 on Easy, 4 on Beginner, etc. Opponents survive at least 2.
-            const scaleFactor = commanderUnderAttack ? Math.max(1, Difficulty.Absurd - this._game.difficulty) : 2;
-            Utils.ensureInteger(scaleFactor)
-
-            damage = Math.min(damage, Math.floor(defender.ship.maximumHullStrength() / scaleFactor));
-
-            Utils.ensureInteger(damage)
-
-            defender.ship.damageHullByAmount(damage);
-        }
-
-        return true;
-    }
-
-
-    _processArrest() {
-        let fine = (1 + Math.floor((this._game.commander.netWorth() * Math.min(80, -this._game.commander.policeRecordScore)) / 100 / 500)) * 500;
-        Utils.ensureInteger(fine)
-
-        if (this._game.wildStatus === WildQuestStatus.OnBoard) {
-            fine = Math.floor(fine * 1.05);
-        }
-
-        const imprisonment = Math.max(30, -this._game.commander.policeRecordScore);
-        Utils.ensureInteger(imprisonment)
-
-        let alertString = `You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to ${imprisonment} days in prison and a fine of $${fine}.`;
-
-        const numNarcotics = this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics);
-        const numFirearms = this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Firearms);
-        if (numFirearms > 0 || numNarcotics > 0) {
-            alertString += "\nThe police impounded all of the illegal goods you had on board.";
-            this._game.commander.ship.soldQuantity(numNarcotics, TradeItemType.Narcotics);
-            this._game.commander.ship.soldQuantity(numFirearms, TradeItemType.Firearms);
-        }
-
-        if (this._game.commander.hasInsurance) {
-            alertString += "\nSince you can't pay your insurance while you're in prison, your insurance contract has been voided.";
-            this._game.commander.hasInsurance = false;
-            this._game.commander.noClaim = 0;
-        }
-
-        if (this._game.commander.ship.crewCount() > 0) {
-          if (this._game.commander.ship.crew.filter(x => !x.forQuest).length > 0) {
-            alertString += "\nYour hired mercenaries have left.";
-            pLog.log(141)
           }
-          this._game.commander.ship.removeAllCrewMembers();
+
+          executeFamousCaptainActionBlock();
+          return;
+        } else if (ENCOUNTER(this._type, 'Scarab')) {
+          if (this._type === EncounterType.ScarabIgnore) {
+            this._type = EncounterType.ScarabAttack;
+          }
+        } else if (ENCOUNTER(this._type, 'Monster')) {
+          if (this._type === EncounterType.MonsterIgnore) {
+            this._type = EncounterType.MonsterAttack;
+          }
+        } else if (ENCOUNTER(this._type, 'Dragonfly')) {
+          if (this._type === EncounterType.DragonflyIgnore) {
+            this._type = EncounterType.DragonflyAttack;
+          }
         }
 
-        if (this._game.japoriQuestStatus === JaporiQuestStatus.HasMedicine) {
-            alertString += "\nThe Space Corps removed the antidote for Japori from your ship and delivered it, fulfilling your assignment.";
-            this._game.japoriQuestStatus = JaporiQuestStatus.Closed;
-            this._game.commander.ship.soldQuantity(10, TradeItemType.FakeQuestCargo);
-        }
+        executeActionBlock();
+      };
 
-        if (this._game.reactorStatus > ReactorQuestStatus.Open && this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate) {
-            alertString += "\nThe police confiscated the Ion Reactor as evidence of your dealings with unsavory characters. The bad news is that you've lost the Ion Reactor. The good news is that you no longer have to worry about managing its depleting fuel store.";
-            this._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
-            this._game.commander.ship.soldQuantity(REACTOR_BAY_COUNT + REACTOR_MAX_FUEL, TradeItemType.FakeQuestCargoReactor);
-            pLog.log(164)
-        }
+      if (
+        this._type === EncounterType.PoliceInspection &&
+        this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Firearms) <= 0 &&
+        this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics) <= 0
+      ) {
+        const alertString =
+          "Are you sure you want to attack? You're not carrying illegal goods so it should be safe to submit.";
 
-        if (this._game.jarekStatus === JarekQuestStatus.OnBoard) {
-            alertString += "\nThe Space Corps decides to give Ambassador Jarek a lift home to Devidia.";
-            this._game.jarekStatus = JarekQuestStatus.Closed;
-            pLog.log(140)
-        }
+        const aC = new AlertViewController(alertString);
+        aC.addAction("Ok, I won't.", AlertActionType.Default, null);
 
-        if (this._game.wildStatus === WildQuestStatus.OnBoard) {
-            alertString += "\nJonathan Wild is arrested and taken away to stand trial.";
-            this._game.wildStatus = WildQuestStatus.Closed;
-            this._game.addBreakingNewsItem("Notorious Criminal Jonathan Wild Arrested!");
-            pLog.log(127)
-        }
-
-        this._game.handleArrival();
-        this._game.timePassed(imprisonment);
-
-        let credits = this._game.commander.credits;
-        if (credits >= fine) {
-            credits = credits - fine;
-        } else {
-            pLog.log(42)
-            credits += this._game.commander.cargoAndShipValuationForInsurance(true);
-            credits = Math.max(credits - fine, 0);
-
-            alertString += "\nTo pay your fine, your ship had to be sold at auction. The police have given you a second-hand Flea so you can continue your travels.";
-
-            const ship = Ship.createFromPreviousShip(ShipModelType.Flea, this._game.commander.ship)
-            this._game.commander.ship = ship;
-        }
-
-        this._game.commander.policeRecordScore = PoliceRecordScore.Dubious;
-
-        let debt = this._game.commander.debt;
-        if (debt > 0) {
-            if (credits >= debt) {
-                credits -= debt;
-                debt = 0;
-            } else {
-                debt -= credits;
-                credits = 0;
-            }
-        }
-
-        this._game.commander.credits = credits;
-        this._game.commander.debt = debt;
-
-        for (let i = 0; i < imprisonment; i++) {
-            this._game.commander.payInterest();
-        }
-
-
-        const aC = new AlertViewController(alertString)
-
-        aC.addAction("Dismiss", AlertActionType.Default, () => {
-            this.delegate!.encounterControllerDidCompleteWithArrest();
-        })
+        aC.addAction('Attack', AlertActionType.Destructive, () => {
+          performAttack();
+        });
 
         this._presentAlertController(aC);
-    }
-
-    _presentThanksForTheTrade(completion: () => void) {
-      const aC = new AlertViewController("Thanks for the trade!")
-      aC.addAction("Dismiss", AlertActionType.Default, completion)
-      aC.presentView()
-    }
-
-    _performTradeWithAmount(amount: number, itemType: number, tradePrice: number, traderSell: boolean) {
-        Utils.ensureInteger(amount)
-        Utils.ensureInteger(itemType)
-        Utils.ensureInteger(tradePrice)
-        Utils.ensureBool(traderSell)
-
-        if (amount > 0) {
-            const credits = this._game.commander.credits;
-            if (traderSell) {
-                const actualAmount = this._game.commander.ship.boughtQuantity(
-                    amount,
-                    itemType,
-                    tradePrice
-                );
-                this._game.commander.setCredits(credits - actualAmount * tradePrice);
-            } else {
-                this._game.commander.setCredits(credits + amount * tradePrice);
-                this._game.commander.ship.soldQuantity(amount, itemType);
-            }
-        }
-
-        this.delegate!.encounterControllerEncounterContinues(this, false);
-    }
-
-// #pragma mark - PlunderViewControllerDelegate
-
-    plunderViewControllerDidFinishPlundering(controller: Plunder) {
-      Utils.ensureBool(controller.plundered)
-
-      if (controller.plundered) {
-        this.delegate!.encounterControllerDidPlunder(this, controller.plundered);
+        return;
       }
 
+      performAttack();
+    } else if (action === 'Flee') {
+      const performFlee = () => {
+        if (this._type === EncounterType.PoliceInspection) {
+          this._type = EncounterType.PoliceAttack;
+
+          if (this._game.commander.policeRecordScore > PoliceRecordScore.Dubious) {
+            this._game.commander.policeRecordScore =
+              PoliceRecordScore.Dubious - (this._game.difficulty < Difficulty.Normal ? 0 : 1);
+          } else {
+            this._game.commander.policeRecordScore =
+              this._game.commander.policeRecordScore + FLEE_FROM_INSPECTION_SCORE;
+          }
+        } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
+          this._type = EncounterType.PoliceAttack;
+          this._game.commander.policeRecordScore = Math.min(
+            PoliceRecordScore.Criminal,
+            this._game.commander.policeRecordScore + ATTACK_POLICE_SCORE
+          );
+        }
+
+        this._executeAction(true, fightContinues => {
+          fightContinues = fightContinues && this._game.commander.ship.hull > 0;
+          this.delegate!.encounterControllerEncounterContinues(this, fightContinues);
+        });
+      };
+
+      let alertString = null;
+      if (
+        this._type === EncounterType.PoliceInspection &&
+        !this._game.commander.ship.hasIllegalGoods() &&
+        this._game.wildStatus !== WildQuestStatus.OnBoard
+      ) {
+        alertString =
+          "Are you sure you want to flee? You're not carrying illegal goods so it should be safe to submit.";
+      } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
+        alertString =
+          'Are you sure you want to flee? The Customs Police know you have engaged in criminal activity and your police record will reflect this fact.';
+      }
+
+      if (alertString) {
+        const aC = new AlertViewController(alertString);
+        aC.addAction("Ok, I won't.", AlertActionType.Default, null);
+
+        aC.addAction('Flee', AlertActionType.Destructive, () => {
+          performFlee();
+        });
+
+        this._presentAlertController(aC);
+        return;
+      }
+
+      performFlee();
+    } else if (action === 'Ignore') {
       this.delegate!.encounterControllerEncounterContinues(this, false);
+    } else if (action === 'Trade') {
+      let itemType: number = TradeItemType.None;
+      const onlyIllegal = this._game.commander.policeRecordScore < PoliceRecordScore.Dubious;
+      let tradePrice = 0;
+      let maxUnits = 0;
+      let comparisonPrice = 0;
+      let itemName = null;
+
+      if (this._type === EncounterType.TraderBuy) {
+        itemType = this._game.commander.ship.randomTradeableItemForSystem(
+          this._game.commander.currentSystem,
+          onlyIllegal
+        );
+        Utils.ensureInteger(itemType);
+
+        if (itemType !== TradeItemType.None) {
+          tradePrice = this._game.commander.sellPriceForItem(itemType);
+          Utils.ensureInteger(tradePrice);
+
+          if (onlyIllegal) {
+            tradePrice *= runtime.gameRand.randomIntBelow(100) <= 45 ? 0.8 : 1.1;
+          } else {
+            tradePrice *= runtime.gameRand.randomIntBelow(100) <= 10 ? 0.9 : 1.1;
+          }
+
+          const tradeItem = TradeItem.tradeItemForType(itemType)!;
+          itemName = tradeItem.name;
+          tradePrice = Math.floor(tradePrice / tradeItem.roundOffPrice);
+          tradePrice = (tradePrice + 1) * tradeItem.roundOffPrice;
+          tradePrice = Math.max(tradePrice, tradeItem.minTradePrice);
+          tradePrice = Math.min(tradePrice, tradeItem.maxTradePrice);
+
+          maxUnits = this._game.commander.ship.tradeItemQuantityForType(itemType);
+          comparisonPrice = this._game.commander.ship.tradeItemAverageBuyingPriceForType(itemType);
+        }
+      } else if (this._type === EncounterType.TraderSell) {
+        itemType = this._opponent.ship.randomTradeableItemForSystem(
+          this._game.commander.currentSystem,
+          onlyIllegal
+        );
+
+        if (itemType !== TradeItemType.None) {
+          tradePrice = this._game.commander.buyPriceForItem(itemType);
+
+          if (onlyIllegal) {
+            tradePrice *= runtime.gameRand.randomIntBelow(100) <= 45 ? 1.1 : 0.8;
+          } else {
+            tradePrice *= runtime.gameRand.randomIntBelow(100) <= 10 ? 1.1 : 0.9;
+          }
+
+          const tradeItem = TradeItem.tradeItemForType(itemType)!;
+          itemName = tradeItem.name;
+          tradePrice = Math.floor(tradePrice / tradeItem.roundOffPrice);
+          tradePrice = (tradePrice + 1) * tradeItem.roundOffPrice;
+          tradePrice = Math.max(tradePrice, tradeItem.minTradePrice);
+          tradePrice = Math.min(tradePrice, tradeItem.maxTradePrice);
+          const freeCargoBays = this._game.commander.ship.freeCargoBays();
+          maxUnits = Math.min(freeCargoBays, Math.floor(this._game.commander.credits / tradePrice));
+        }
+      }
+
+      if (itemType !== TradeItemType.None) {
+        this._presentTradeAlert(
+          itemName,
+          itemType,
+          tradePrice,
+          maxUnits,
+          comparisonPrice,
+          this._type === EncounterType.TraderSell
+        );
+      }
+    } else if (action === 'Surrender' || action === 'Yield') {
+      let surrenderAllowed: boolean;
+      let surrenderPrompt = null;
+      let surrenderBlock = null;
+
+      if (this._opponent.type === OpponentType.Mantis) {
+        if (this._game.commander.artifactOnBoard) {
+          surrenderAllowed = true;
+          surrenderPrompt =
+            'If you surrender to the aliens, they will steal the artifact. Are you sure you wish to do that?';
+          surrenderBlock = () => {
+            pLog.log(55);
+            this._game.commander.artifactOnBoard = false;
+
+            const artifactStolenString =
+              "The aliens have taken the artifact from you. Well, it's rightfully theirs, so you probably shouldn't complain. You won't receive any reward from Professor Berger, though.";
+
+            const aC = new AlertViewController(artifactStolenString);
+            aC.addAction('Dismiss', AlertActionType.Default, () => {
+              this.delegate!.encounterControllerEncounterContinues(this, false);
+            });
+
+            this._presentAlertController(aC);
+          };
+        } else {
+          surrenderAllowed = false;
+          surrenderPrompt = 'Surrender? Ha! We want your HEAD!';
+        }
+      } else if (
+        ENCOUNTER(this._type, 'Police') ||
+        this._type === EncounterType.PostMarieCelestePoliceEncounter
+      ) {
+        if (
+          this._type !== EncounterType.PostMarieCelestePoliceEncounter &&
+          this._game.commander.policeRecordScore <= PoliceRecordScore.Psycho
+        ) {
+          pLog.log(56);
+          surrenderAllowed = false;
+          surrenderPrompt = 'Surrender? Ha! We want your HEAD!';
+        } else {
+          surrenderAllowed = true;
+
+          const hasReactor =
+            this._game.reactorStatus > ReactorQuestStatus.Open &&
+            this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate;
+          const hasWild = this._game.wildStatus === WildQuestStatus.OnBoard;
+          if (
+            this._type !== EncounterType.PostMarieCelestePoliceEncounter ||
+            hasReactor ||
+            hasWild
+          ) {
+            let extraString = hasReactor
+              ? ' Additionally, the police will destroy the Ion Reactor.'
+              : '';
+            if (hasWild) {
+              extraString += ' Wild will be arrested, too.';
+            }
+
+            surrenderPrompt = `If you surrender, you will spend some time in prison and will have to pay a hefty fine.${extraString} Are you sure you want to do that?`;
+            surrenderBlock = () => {
+              pLog.log(57);
+              this._processArrest();
+            };
+          } else {
+            surrenderBlock = () => {
+              pLog.log(58);
+              const numNarcotics = this._game.commander.ship.tradeItemQuantityForType(
+                TradeItemType.Narcotics
+              );
+              const numFirearms = this._game.commander.ship.tradeItemQuantityForType(
+                TradeItemType.Firearms
+              );
+
+              let yieldAlertString =
+                'The Customs Police find nothing illegal in your cargo holds and apologize for the inconvenience.';
+
+              if (numNarcotics + numFirearms > 0) {
+                pLog.log(102);
+                this._game.commander.policeRecordScore = Math.min(
+                  this._game.commander.policeRecordScore,
+                  PoliceRecordScore.Dubious
+                );
+
+                this._game.commander.ship.soldQuantity(numNarcotics, TradeItemType.Narcotics);
+                this._game.commander.ship.soldQuantity(numFirearms, TradeItemType.Firearms);
+
+                yieldAlertString =
+                  'The Customs Police confiscated all of your illegal cargo. For being cooperative, you avoided stronger fines or penalties.';
+              }
+
+              const aC = new AlertViewController(yieldAlertString);
+
+              aC.addAction('Dismiss', AlertActionType.Default, () => {
+                this.delegate!.encounterControllerEncounterContinues(this, false);
+              });
+
+              this._presentAlertController(aC);
+            };
+          }
+        }
+      } else {
+        surrenderAllowed = true;
+
+        surrenderBlock = () => {
+          let wildString = null;
+          if (this._game.wildStatus === WildQuestStatus.OnBoard) {
+            if (this._opponent.ship.model.mercenaryQuarters() > 0) {
+              this._game.wildStatus = WildQuestStatus.Closed;
+              this._game.commander.ship.removeCrewMemberWithName('Jonathan Wild');
+              wildString =
+                ' The pirate captain turns out to be an old associate of Jonathan Wild. He invites Wild to go to Kravat aboard the pirate ship. Wild accepts the offer and thanks you for the ride.';
+            } else {
+              wildString =
+                ' The pirate captain turns out to be an old associate of Jonathan Wild. They talk about old times, and you get the feeling that Wild would switch ships if the Pirates had any quarters available.';
+            }
+          }
+
+          let questString = '';
+          if (
+            this._game.reactorStatus > ReactorQuestStatus.Open &&
+            this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate
+          ) {
+            questString =
+              " They also poke around the Ion Reactor while trying to figure out if it's valuable. They finally conclude that the reactor is worthless, not to mention dangerous, and leave it on your ship.";
+          }
+
+          this._game.commander.raided = true;
+
+          const totalCargo =
+            this._game.commander.ship.totalCargoBays() - this._game.commander.ship.freeCargoBays();
+
+          Utils.ensureInteger(totalCargo);
+
+          if (totalCargo <= 0) {
+            const blackmail = Math.min(
+              25000,
+              Math.max(500, Math.floor(this._game.commander.netWorth() / 20))
+            );
+            Utils.ensureInteger(blackmail);
+
+            let credits = this._game.commander.credits;
+            let debt = this._game.commander.debt;
+            if (credits >= blackmail) {
+              credits -= blackmail;
+            } else {
+              debt += blackmail - credits;
+              credits = 0;
+            }
+            pLog.log(59);
+            this._game.commander.setCredits(credits);
+            this._game.commander.debt = debt;
+
+            const alertString = `The pirates are upset that they found no cargo on your ship. To save yourself, you have no choice but to pay them 5% of your current net worth.${questString}${wildString || ''}`;
+
+            const aC = new AlertViewController(alertString);
+
+            aC.addAction('Dismiss', AlertActionType.Default, () => {
+              this.delegate!.encounterControllerEncounterContinues(this, false);
+            });
+
+            this._presentAlertController(aC);
+          } else {
+            let freePirateBays = this._opponent.ship.freeCargoBays();
+            Utils.ensureInteger(freePirateBays);
+
+            do {
+              const itemType = this._game.commander.ship.randomTradeableItem();
+              if (itemType === TradeItemType.None) {
+                break;
+              }
+
+              this._game.commander.ship.soldQuantity(1, itemType);
+              freePirateBays--;
+            } while (freePirateBays > 0);
+
+            pLog.log(60);
+
+            const alertString = `The pirates board your ship and transfer as much of your cargo to their own ship as their cargo bays can hold.${questString}${wildString || ''}`;
+
+            const aC = new AlertViewController(alertString);
+
+            aC.addAction('Dismiss', AlertActionType.Default, () => {
+              this.delegate!.encounterControllerEncounterContinues(this, false);
+            });
+
+            this._presentAlertController(aC);
+          }
+        };
+      }
+
+      Utils.ensureBool(surrenderAllowed);
+
+      if (surrenderAllowed) {
+        if (surrenderPrompt) {
+          const aC = new AlertViewController(surrenderPrompt);
+
+          aC.addAction('Surrender', AlertActionType.Destructive, () => {
+            if (surrenderBlock) {
+              surrenderBlock();
+            }
+          });
+
+          aC.addAction('Cancel', AlertActionType.Cancel, null);
+
+          this._presentAlertController(aC);
+        } else if (surrenderBlock) {
+          surrenderBlock();
+        }
+      } else {
+        const aC = new AlertViewController(surrenderPrompt!);
+
+        aC.addAction('Dismiss', AlertActionType.Default, null);
+
+        this._presentAlertController(aC);
+
+        return;
+      }
+    } else if (action === 'Bribe') {
+      let cantBribeAlertString = null;
+      if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
+        cantBribeAlertString =
+          "We'd love to take your money, but Space Command already knows you've got illegal goods onboard.";
+      } else if (this._game.commander.currentSystem.politics.bribeWillingness <= 0) {
+        cantBribeAlertString = `The incorruptible police of ${this._game.commander.currentSystem.name} cannot be bribed.`;
+      }
+
+      if (cantBribeAlertString) {
+        const aC = new AlertViewController(cantBribeAlertString);
+        aC.addAction('Dismiss', AlertActionType.Default, null);
+
+        this._presentAlertController(aC);
+        return;
+      }
+
+      const bribeBlock = () => {
+        let bribe =
+          this._game.commander.netWorth() /
+          ((10 + 5 * (Difficulty.Absurd - this._game.difficulty)) *
+            this._game.commander.currentSystem.politics.bribeWillingness);
+
+        bribe = Math.ceil(bribe / 100) * 100; // round up to the next 100
+        Utils.ensureInteger(bribe);
+
+        if (
+          this._game.wildStatus === WildQuestStatus.OnBoard ||
+          (this._game.reactorStatus > ReactorQuestStatus.Open &&
+            this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate)
+        ) {
+          pLog.log(126);
+          bribe *= this._game.difficulty <= Difficulty.Normal ? 2 : 3;
+        }
+
+        bribe = Math.max(100, Math.min(bribe, 10000));
+        Utils.ensureInteger(bribe);
+
+        if (this._game.commander.credits < bribe) {
+          const alertString = "You don't have enough cash for a bribe.";
+
+          const aC = new AlertViewController(alertString);
+          aC.addAction('Dismiss', AlertActionType.Default, null);
+
+          this._presentAlertController(aC);
+        } else {
+          const alertString = `These police officers are willing to forego inspection for $${bribe}.`;
+
+          const aC = new AlertViewController(alertString);
+
+          aC.addAction('Offer bribe', AlertActionType.Default, () => {
+            this._game.commander.setCredits(this._game.commander.credits - bribe);
+            this.delegate!.encounterControllerEncounterContinues(this, false);
+          });
+
+          aC.addAction('Forget it', AlertActionType.Cancel, null);
+
+          this._presentAlertController(aC);
+        }
+      };
+
+      if (
+        this._type === EncounterType.PoliceInspection &&
+        !this._game.commander.ship.hasIllegalGoods() &&
+        this._game.wildStatus !== WildQuestStatus.OnBoard
+      ) {
+        const alertString =
+          'Are you sure you want to bribe the police? You are not carrying illegal goods, so you have nothing to fear!';
+
+        const aC = new AlertViewController(alertString);
+
+        aC.addAction('Yes, I still want to', AlertActionType.Destructive, () => {
+          bribeBlock();
+        });
+
+        aC.addAction("Ok, I won't", AlertActionType.Cancel, null);
+
+        this._presentAlertController(aC);
+      } else {
+        bribeBlock();
+      }
+    } else if (action === 'Submit') {
+      const submitBlock = () => {
+        if (
+          this._game.reactorStatus > ReactorQuestStatus.Open &&
+          this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate
+        ) {
+          this._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
+          this._game.commander.ship.soldQuantity(
+            REACTOR_BAY_COUNT + REACTOR_MAX_FUEL,
+            TradeItemType.FakeQuestCargoReactor
+          );
+
+          const alertString =
+            "The police confiscate the Ion Reactor as evidence of your dealings with unsavory characters. The bad news is that you've lost the Ion Reactor. The good news is that you no longer have to worry about managing its depleting fuel store.";
+
+          const aC = new AlertViewController(alertString);
+
+          aC.addAction('Dismiss', AlertActionType.Default, () => {
+            this.delegate!.encounterControllerEncounterContinues(this, false);
+          });
+
+          this._presentAlertController(aC);
+        } else if (this._game.wildStatus === WildQuestStatus.OnBoard) {
+          this._processArrest();
+        } else if (this._game.commander.ship.hasIllegalGoods()) {
+          const numNarcotics = this._game.commander.ship.tradeItemQuantityForType(
+            TradeItemType.Narcotics
+          );
+          const numFirearms = this._game.commander.ship.tradeItemQuantityForType(
+            TradeItemType.Firearms
+          );
+          this._game.commander.ship.soldQuantity(numNarcotics, TradeItemType.Narcotics);
+          this._game.commander.ship.soldQuantity(numFirearms, TradeItemType.Firearms);
+
+          let fine =
+            this._game.commander.netWorth() /
+            ((Difficulty.Absurd + 2 - this._game.difficulty) * 10);
+          Utils.ensureNumber(fine);
+          fine = Math.ceil(fine / 50) * 50; // Round up to the nearest 50
+          fine = Math.max(100, Math.min(fine, 10000));
+
+          Utils.ensureInteger(fine);
+
+          let credits = this._game.commander.credits;
+          let debt = this._game.commander.debt;
+
+          if (credits >= fine) {
+            credits -= fine;
+          } else {
+            debt += fine - credits;
+            credits = 0;
+          }
+          this._game.commander.setCredits(credits);
+          this._game.commander.debt = debt;
+
+          this._game.commander.policeRecordScore =
+            this._game.commander.policeRecordScore + TRAFFICKING_SCORE;
+
+          const alertString = `The police discover illegal goods in your cargo holds. These goods are confiscated and you are fined $${fine}`;
+
+          const aC = new AlertViewController(alertString);
+
+          aC.addAction('Dismiss', AlertActionType.Default, () => {
+            this.delegate!.encounterControllerEncounterContinues(this, false);
+          });
+
+          this._presentAlertController(aC);
+        } else {
+          // Improve your police record score
+          this._game.commander.policeRecordScore =
+            this._game.commander.policeRecordScore - TRAFFICKING_SCORE;
+
+          const alertString =
+            'The police find nothing illegal in your cargo holds and apologize for the inconvenience.';
+
+          const aC = new AlertViewController(alertString);
+
+          aC.addAction('Dismiss', AlertActionType.Default, () => {
+            this.delegate!.encounterControllerEncounterContinues(this, false);
+          });
+
+          this._presentAlertController(aC);
+        }
+      };
+
+      if (
+        this._type === EncounterType.PoliceInspection &&
+        (this._game.commander.ship.hasIllegalGoods() ||
+          this._game.wildStatus === WildQuestStatus.OnBoard)
+      ) {
+        let alertString =
+          'Are you sure you want to let the police search you? You are carrying illegal goods or crew!';
+        if (this._game.wildStatus === WildQuestStatus.OnBoard) {
+          alertString = `${alertString} You and Wild will be arrested!`;
+        }
+
+        const aC = new AlertViewController(alertString);
+
+        aC.addAction('Yes, I still want to', AlertActionType.Destructive, () => {
+          submitBlock();
+        });
+
+        aC.addAction('Nevermind!', AlertActionType.Cancel, null);
+
+        this._presentAlertController(aC);
+      } else {
+        submitBlock();
+      }
+    } else if (action === 'Plunder' || action === 'Board') {
+      const plunderBlock = () => {
+        const plunderLabel =
+          this._type === EncounterType.MarieCelesteEncounter ? 'Take' : 'Plunder';
+
+        const plunderVC = new Plunder(this._game, this._opponent, plunderLabel);
+        plunderVC.delegate = this;
+        plunderVC.presentView();
+      };
+
+      if (this._type === EncounterType.MarieCelesteEncounter) {
+        const alertString =
+          "The Marie Celeste is completely abandoned and drifting through space. The ship's log is unremarkable except for a tribble infestation a few months ago shortly after visiting Lowry. The crew's quarters are in good shape, with no signs of struggle. Other than being abandoned, the ship is completely normal. By Intergalactic Salvage Law, you can claim the remaining cargo. Do you wish to?";
+
+        const aC = new AlertViewController(alertString);
+
+        aC.addAction('Yes, take cargo', AlertActionType.Default, () => {
+          plunderBlock();
+        });
+
+        aC.addAction('Leave it', AlertActionType.Cancel, () => {
+          this.delegate!.encounterControllerEncounterContinues(this, false);
+        });
+
+        this._presentAlertController(aC);
+
+        return;
+      } else if (ENCOUNTER(this._type, 'Trader')) {
+        this._game.commander.policeRecordScore =
+          this._game.commander.policeRecordScore + PLUNDER_TRADER_SCORE;
+      } else {
+        this._game.commander.policeRecordScore =
+          this._game.commander.policeRecordScore + PLUNDER_PIRATE_SCORE;
+      }
+
+      plunderBlock();
+    } else if (action === 'Meet') {
+      const alertString = CAPTAIN_PROMPT_STR(this._type);
+
+      const aC = new AlertViewController(alertString);
+
+      aC.addAction('Yes, trade!', AlertActionType.Default, () => {
+        if (this._type === EncounterType.FamousCaptainAhabEncounter) {
+          this._game.commander.ship.removeAccessoryOfType(AccessoryType.ShieldReflective);
+          this._game.commander.pilot = Math.min(
+            MAX_SKILL_LEVEL,
+            this._game.commander.pilot + (this._game.difficulty < Difficulty.Hard ? 2 : 1)
+          );
+        } else if (this._type === EncounterType.FamousCaptainConradEncounter) {
+          this._game.commander.ship.removeAccessoryOfType(AccessoryType.WeaponMilitaryLaser);
+          this._game.commander.engineer = Math.min(
+            MAX_SKILL_LEVEL,
+            this._game.commander.engineer + (this._game.difficulty < Difficulty.Hard ? 2 : 1)
+          );
+        } else if (this._type === EncounterType.FamousCaptainHuieEncounter) {
+          this._game.commander.ship.removeAccessoryOfType(AccessoryType.WeaponMilitaryLaser);
+          this._game.commander.trader = Math.min(
+            MAX_SKILL_LEVEL,
+            this._game.commander.trader + (this._game.difficulty < Difficulty.Hard ? 2 : 1)
+          );
+        }
+
+        const trainStr =
+          'After a few hours of training with a top expert, you feel your abilities have improved significantly.';
+        const aC2 = new AlertViewController(trainStr);
+
+        aC2.addAction('Dismiss', AlertActionType.Default, () => {
+          this.delegate!.encounterControllerEncounterContinues(this, false);
+        });
+
+        this._presentAlertController(aC2);
+      });
+
+      aC.addAction('No thanks!', AlertActionType.Cancel, () => {
+        this.delegate!.encounterControllerEncounterContinues(this, false);
+      });
+
+      this._presentAlertController(aC);
+    } else if (action === 'Drink') {
+      let alertString: string;
+      let consumedString = null;
+      let drinkAction = null;
+
+      if (this._type === EncounterType.BottleGood) {
+        alertString =
+          'This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. In the old days, this stuff went for thousands of credits a bottle since people reported significant gains in their abilities after quaffing a bottle. Would you like to drink it?';
+        consumedString =
+          "Mmmmm. Captain Marmoset's Amazing Skill Tonic not only fills you with energy, but tastes like a fine single-malt. You feel a slight tingling in your fingertips.";
+        drinkAction = () => {
+          pLog.log(105);
+          this._game.commander.increaseSkillRandomly();
+          if (this._game.difficulty < Difficulty.Hard) {
+            this._game.commander.increaseSkillRandomly();
+          }
+        };
+      } else {
+        alertString =
+          'This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. The "best used by" date stamped on the bottle has become illegible. The tonic might still be good. Then again, it\'s not clear what happens when the Tonic breaks down...';
+        consumedString =
+          "While you don't know what it was supposed to taste like, you get the feeling that this dose of tonic was a bit off. This bottle tasted very strange, like slightly salty red wine. You feel a bit dizzy and your teeth itch for a while.";
+        drinkAction = () => {
+          pLog.log(106);
+          this._game.commander.increaseSkillRandomly();
+          this._game.commander.decreaseSkillRandomly();
+          if (this._game.difficulty >= Difficulty.Hard) {
+            this._game.commander.increaseSkillRandomly();
+            this._game.commander.decreaseSkillRandomly();
+            this._game.commander.decreaseSkillRandomly();
+          }
+        };
+      }
+
+      const aC = new AlertViewController(alertString);
+
+      aC.addAction('Yes, drink it', AlertActionType.Default, () => {
+        pLog.log(108);
+        drinkAction();
+
+        const aC2 = new AlertViewController(consumedString);
+
+        aC2.addAction('Dismiss', AlertActionType.Default, () => {
+          this.delegate!.encounterControllerEncounterContinues(this, false);
+        });
+
+        this._presentAlertController(aC2);
+      });
+
+      aC.addAction("I'll pass", AlertActionType.Cancel, () => {
+        pLog.log(107);
+        this.delegate!.encounterControllerEncounterContinues(this, false);
+      });
+
+      this._presentAlertController(aC);
+    } else if (action === 'Interrupt') {
+      pLog.log(52);
+      this._endAutoEncounters();
+      this.delegate!.encounterControllerEncounterContinues(this, true);
     }
 
+    if (ENCOUNTER_MODE_AUTO(this._encounterMode)) {
+      Utils.ensureInteger(this._autoEncounterSession);
+
+      const sessionID = this._game.uniqueID + '-' + this._autoEncounterSession;
+      const actionType = this._encounterMode === EncounterMode.AutoAttack ? 'Attack' : 'Flee';
+
+      runtime.actionLog.performAsync(() => {
+        if (sessionID === this._game.uniqueID + '-' + this._autoEncounterSession) {
+          console.log(`Auto-${actionType} action fired -- performed`);
+          pLog.log(53);
+          this.performAction(actionType);
+        } else {
+          console.log(`Auto-${actionType} action fired -- ignored`);
+        }
+      }, 1500);
+    }
+  } // END OF performAction
+
+  _endAutoEncounters() {
+    this._autoEncounterSession++;
+    this._encounterMode = EncounterMode.Manual;
+    if (this.delegate) {
+      this.delegate!.encounterControllerHasUpdatedButtons();
+    }
+  }
+
+  _presentAlertController(alertController: AlertViewController) {
+    this._endAutoEncounters();
+    alertController.presentView();
+  }
+
+  _presentTradeAlert(
+    itemName: string | null,
+    itemType: number,
+    tradePrice: number,
+    maxUnits: number,
+    comparisonPrice: number,
+    traderSell: boolean
+  ) {
+    Utils.ensureType(itemName, 'string');
+    Utils.ensureInteger(itemType);
+    Utils.ensureInteger(tradePrice);
+    Utils.ensureInteger(maxUnits);
+    Utils.ensureInteger(comparisonPrice);
+    Utils.ensureBool(traderSell);
+
+    let needsDismiss: boolean;
+    let needsAll = false;
+    let needsNone = false;
+    let needsSelected = false;
+
+    let text: string;
+    if (traderSell) {
+      const canAfford = maxUnits > 0;
+      text = `The trader wants to sell ${itemName} for $${tradePrice} each. ${!canAfford ? "Unfortunately, you can't afford any." : 'How many do you wish to buy?'}`;
+
+      needsDismiss = !canAfford;
+      needsAll = canAfford;
+      needsNone = canAfford;
+      needsSelected = canAfford;
+    } else {
+      if (maxUnits > 0) {
+        text = `The trader wants to buy ${itemName} and offers $${tradePrice} each. You paid about $${comparisonPrice}/unit. How many do you wish to sell?`;
+
+        needsDismiss = false;
+        needsAll = true;
+        needsNone = true;
+        needsSelected = true;
+      } else {
+        text = `The trader wants to buy ${itemName} and offers $${tradePrice} each. Unfortunately, you don't have any.`;
+
+        needsDismiss = true;
+      }
+    }
+
+    const aC = new AlertViewController(text);
+
+    if (needsDismiss) {
+      aC.addAction('Dismiss', AlertActionType.Default, () => {
+        this._performTradeWithAmount(0, itemType, tradePrice, traderSell);
+      });
+    }
+
+    if (needsNone) {
+      aC.addAction('None', AlertActionType.Default, () => {
+        this._performTradeWithAmount(0, itemType, tradePrice, traderSell);
+      });
+    }
+
+    if (needsSelected) {
+      aC.addAction('Selected', AlertActionType.Default, () => {
+        const amount = (aC.content as SliderContent).value;
+        if (amount > 0) {
+          aC.completionHandler = () => {
+            this._presentThanksForTheTrade(() => {
+              this._performTradeWithAmount(amount, itemType, tradePrice, traderSell);
+            });
+          };
+        }
+      });
+    }
+
+    if (needsAll) {
+      aC.addAction('All', AlertActionType.Default, () => {
+        const amount = maxUnits;
+        if (amount > 0) {
+          aC.completionHandler = () => {
+            this._presentThanksForTheTrade(() => {
+              this._performTradeWithAmount(amount, itemType, tradePrice, traderSell);
+            });
+          };
+        }
+      });
+    }
+
+    if (needsSelected) {
+      const slider: SliderContent = {
+        kind: 'slider',
+        id: 'tradeslider',
+        min: 0,
+        max: maxUnits,
+        value: Math.floor(maxUnits / 2),
+      };
+      aC.content = slider;
+    }
+
+    aC.presentView();
+  }
+
+  _executeAction(commanderFlees: boolean, completionBlock: (fightContinues: boolean) => void) {
+    Utils.ensureBool(commanderFlees);
+
+    const opponentHull = this._opponent.ship.hull;
+    Utils.ensureInteger(opponentHull);
+    const commanderHull = this._game.commander.ship.hull;
+    Utils.ensureInteger(commanderHull);
+    let commanderGotHit = false;
+
+    if (
+      ENCOUNTER_ATTACK(this._type) ||
+      this._type === EncounterType.PostMarieCelestePoliceEncounter
+    ) {
+      commanderGotHit = this._executeAttackWithAttacker(
+        this._opponent,
+        this._game.commander,
+        commanderFlees
+      );
+    }
+
+    let opponentGotHit = false;
+
+    if (!commanderFlees) {
+      opponentGotHit = this._executeAttackWithAttacker(
+        this._game.commander,
+        this._opponent,
+        ENCOUNTER_FLEE(this._type)
+      );
+    }
+
+    if (this._game.commander.ship.hull <= 0 && this._opponent.ship.hull <= 0) {
+      if (this._game.commander.hasEscapePod) {
+        this._performPodEscape();
+        return;
+      } else {
+        const alertString = 'You and your opponent have managed to destroy each other.';
+        const aC = new AlertViewController(alertString);
+
+        aC.addAction('Dismiss', AlertActionType.Default, () => {
+          this.delegate!.encounterControllerDidCompleteWithDestruction();
+        });
+
+        this._presentAlertController(aC);
+
+        return;
+      }
+    } else if (this._opponent.ship.hull <= 0) {
+      let getBounty = false;
+      let alertString = 'You have destroyed your opponent.';
+      if (
+        ENCOUNTER(this._type, 'Pirate') &&
+        this._opponent.ship.type !== ShipModelType.Mantis &&
+        this._game.commander.policeRecordScore >= PoliceRecordScore.Dubious
+      ) {
+        pLog.log(54);
+        getBounty = true;
+        alertString = `You earned a bounty of $${this._opponent.ship.bountyForEnemyShipWithOpponent(this._opponent)}.`;
+      }
+
+      let attemptScoop = false;
+
+      if (ENCOUNTER(this._type, 'Police')) {
+        this._game.commander.policeKills++;
+        this._game.commander.policeRecordScore += KILL_POLICE_SCORE;
+      } else if (ENCOUNTER(this._type, 'Pirate')) {
+        if (this._opponent.ship.type !== ShipModelType.Mantis) {
+          if (getBounty) {
+            const bounty = this._opponent.ship.bountyForEnemyShipWithOpponent(this._opponent);
+            this._game.commander.credits += bounty;
+          }
+          this._game.commander.policeRecordScore += KILL_PIRATE_SCORE;
+
+          attemptScoop = true;
+        }
+        this._game.commander.pirateKills++;
+      } else if (ENCOUNTER(this._type, 'Trader')) {
+        this._game.commander.traderKills++;
+        this._game.commander.policeRecordScore += KILL_TRADER_SCORE;
+
+        attemptScoop = true;
+      } else if (ENCOUNTER(this._type, 'FamousCaptain')) {
+        this._game.commander.reputationScore = Math.max(
+          this._game.commander.reputationScore + 100,
+          ReputationScore.Dangerous
+        );
+        this._game.replaceNewsContainingString(
+          CAPTAIN_NAME_STR(this._type),
+          DESTROY_CAPTAIN_NEWS(this._type)
+        );
+      } else if (ENCOUNTER(this._type, 'Scarab')) {
+        this._game.commander.pirateKills++;
+        this._game.commander.policeRecordScore += KILL_PIRATE_SCORE;
+
+        this._game.scarabStatus = ScarabQuestStatus.ScarabDestroyed;
+        pLog.log(166);
+      } else if (ENCOUNTER(this._type, 'Monster')) {
+        this._game.commander.pirateKills++;
+        this._game.commander.policeRecordScore += KILL_PIRATE_SCORE;
+
+        this._game.monsterStatus = MonsterQuestStatus.ClosedMonsterDestroyed;
+      } else if (ENCOUNTER(this._type, 'Dragonfly')) {
+        this._game.commander.pirateKills++;
+        this._game.commander.policeRecordScore += KILL_PIRATE_SCORE;
+
+        this._game.dragonflyStatus = DragonflyQuestStatus.ClosedDragonflyDestroyed;
+      }
+
+      this._game.commander.reputationScore += 1 + Math.floor(this._opponent.ship.type / 2);
+
+      const aC = new AlertViewController(alertString);
+
+      aC.addAction('Dismiss', AlertActionType.Default, () => {
+        if (attemptScoop) {
+          this._scoopWithCompletion(() => {
+            completionBlock(false);
+          });
+        } else {
+          completionBlock(false);
+        }
+      });
+
+      this._presentAlertController(aC);
+      return;
+    } else if (this._game.commander.ship.hull <= 0) {
+      this.delegate!.encounterControllerHasUpdatedHP();
+
+      if (this._game.commander.hasEscapePod) {
+        this._performPodEscape();
+        return;
+      } else {
+        const alertString = 'Your ship has been destroyed by your opponent.';
+        const aC = new AlertViewController(alertString);
+
+        aC.addAction('Dismiss', AlertActionType.Default, () => {
+          pLog.log(65);
+          this.delegate!.encounterControllerDidCompleteWithDestruction();
+        });
+
+        this._presentAlertController(aC);
+        return;
+      }
+    }
+
+    if (commanderFlees) {
+      let escapeString = null;
+      if (this._game.difficulty === Difficulty.Beginner) {
+        escapeString = "You've managed to escape your opponent.";
+      } else if (
+        2 *
+          (runtime.gameRand.randomIntBelow(7) +
+            Math.floor(
+              this._game.commander.ship.crewPilotSkillIncludingCommander(this._game.commander) / 3
+            )) >=
+        runtime.gameRand.randomIntBelow(
+          this._opponent.ship.crewPilotSkillIncludingCommander(this._opponent) *
+            (2 + this._game.difficulty)
+        )
+      ) {
+        escapeString = "You've managed to escape your opponent.";
+        if (commanderGotHit) {
+          escapeString = 'You got hit but still managed to escape.';
+        }
+      }
+
+      if (escapeString) {
+        if (ENCOUNTER(this._type, 'Monster')) {
+          this._game.monsterHull = this._opponent.ship.hull;
+          Utils.ensureInteger(this._game.monsterHull);
+          pLog.log(143);
+        }
+
+        const aC = new AlertViewController(escapeString);
+
+        aC.addAction('Dismiss', AlertActionType.Default, () => {
+          completionBlock(false);
+        });
+
+        this._presentAlertController(aC);
+
+        return;
+      }
+    } else if (ENCOUNTER_SURRENDER(this._type) || ENCOUNTER_FLEE(this._type)) {
+      if (
+        4 *
+          runtime.gameRand.randomIntBelow(
+            this._game.commander.ship.crewPilotSkillIncludingCommander(this._game.commander)
+          ) <=
+        2 *
+          runtime.gameRand.randomIntBelow(
+            7 + Math.floor(this._opponent.ship.crewPilotSkillIncludingCommander(this._opponent) / 3)
+          )
+      ) {
+        const alertString = 'Your opponent has managed to escape.';
+
+        const aC = new AlertViewController(alertString);
+
+        aC.addAction('Dismiss', AlertActionType.Default, () => {
+          completionBlock(false);
+        });
+
+        this._presentAlertController(aC);
+
+        return;
+      }
+    }
+
+    const prevType = this._type;
+
+    if (this._opponent.ship.hull < opponentHull) {
+      if (ENCOUNTER(this._type, 'Police')) {
+        if (this._opponent.ship.hull < opponentHull / 2) {
+          if (this._game.commander.ship.hull < commanderHull / 2) {
+            this._type =
+              runtime.gameRand.randomIntBelow(10) > 5 ? EncounterType.PoliceFlee : this._type;
+          } else {
+            this._type = EncounterType.PoliceFlee;
+          }
+        }
+      } else if (ENCOUNTER(this._type, 'Pirate')) {
+        if (this._opponent.ship.hull < (2 * opponentHull) / 3) {
+          if (this._game.commander.ship.hull < (2 * commanderHull) / 3) {
+            this._type =
+              runtime.gameRand.randomIntBelow(10) > 3 ? EncounterType.PirateFlee : this._type;
+          } else {
+            this._type =
+              runtime.gameRand.randomIntBelow(10) > 8 &&
+              this._opponent.ship.type <= ShipModelType.Best
+                ? EncounterType.PirateSurrender
+                : EncounterType.PirateFlee;
+          }
+        }
+      } else if (ENCOUNTER(this._type, 'Trader')) {
+        if (this._opponent.ship.hull < (2 * opponentHull) / 3) {
+          this._type =
+            runtime.gameRand.randomIntBelow(10) > 3
+              ? EncounterType.TraderSurrender
+              : EncounterType.TraderFlee;
+        } else if (this._opponent.ship.hull < (9 * opponentHull) / 10) {
+          if (this._game.commander.ship.hull < (2 * commanderHull) / 3) {
+            // If you get damaged a lot, the trader keeps attacking
+            this._type =
+              runtime.gameRand.randomIntBelow(10) > 7 ? EncounterType.TraderFlee : this._type;
+          } else if (this._game.commander.ship.hull < (9 * commanderHull) / 10) {
+            this._type =
+              runtime.gameRand.randomIntBelow(10) > 3 ? EncounterType.TraderFlee : this._type;
+          } else {
+            this._type = EncounterType.TraderFlee;
+          }
+        }
+      } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
+        this._type = EncounterType.PoliceAttack;
+      }
+    }
+
+    Utils.ensureInteger(this._type);
+
+    if (prevType !== this._type) {
+      if (!ENCOUNTER_FLEE(this._type) && this._encounterMode === EncounterMode.AutoAttack) {
+        this._encounterMode = EncounterMode.Manual;
+      } else if (this._encounterMode === EncounterMode.AutoFlee) {
+        this._encounterMode = EncounterMode.Manual;
+      }
+    }
+
+    this._encounterActionUpdate = '';
+
+    let shipString = null;
+
+    if (ENCOUNTERT(prevType, 'Police')) {
+      shipString = 'police ship';
+    } else if (ENCOUNTERT(prevType, 'Pirate')) {
+      shipString = this._opponent.ship.type === ShipModelType.Mantis ? 'alien ship' : 'pirate ship';
+    } else if (ENCOUNTERT(prevType, 'Trader')) {
+      shipString = 'trader ship';
+    } else if (ENCOUNTERT(prevType, 'FamousCaptain')) {
+      shipString = 'captain';
+    } else if (ENCOUNTERT(prevType, 'Scarab')) {
+      shipString = 'Scarab';
+    } else if (ENCOUNTERT(prevType, 'Monster')) {
+      shipString = 'monster';
+    } else if (ENCOUNTERT(prevType, 'Dragonfly')) {
+      shipString = 'Dragonfly';
+    }
+
+    let delimit = '';
+    if (commanderGotHit) {
+      this._encounterActionUpdate += `The ${shipString} hits you.`;
+      delimit = '\n';
+    }
+
+    if (!ENCOUNTERT_FLEE(prevType) && !commanderGotHit) {
+      this._encounterActionUpdate += `${delimit}The ${shipString} missed you.`;
+      delimit = '\n';
+    }
+
+    if (opponentGotHit) {
+      this._encounterActionUpdate += `${delimit}You hit the ${shipString}.`;
+      delimit = '\n';
+    }
+
+    if (!commanderFlees && !opponentGotHit) {
+      const hasWeapons = this._game.commander.ship.weapons.length > 0;
+      if (hasWeapons) {
+        this._encounterActionUpdate += `${delimit}You missed the ${shipString}.`;
+      } else {
+        this._encounterActionUpdate += `${delimit}You have no weapons!`;
+      }
+      delimit = '\n';
+    }
+
+    if (ENCOUNTERT_FLEE(prevType)) {
+      this._encounterActionUpdate += `${delimit}The ${shipString} didn't get away.`;
+      delimit = '\n';
+    }
+
+    if (commanderFlees) {
+      this._encounterActionUpdate += `${delimit}The ${shipString} is still following you.`;
+    }
+
+    completionBlock(true);
+  }
+
+  _performPodEscape() {
+    this.delegate!.encounterControllerDidCompleteWithDestruction();
+  }
+
+  _scoopWithCompletion(completion: () => void) {
+    let canScoop = this._game.commander.ship.freeCargoBays() > 0;
+    canScoop =
+      canScoop &&
+      (this._game.difficulty < Difficulty.Normal ||
+        runtime.gameRand.randomIntBelow(this._game.difficulty) === 1);
+
+    if (canScoop) {
+      let itemType = runtime.gameRand.randomIntBelow(TradeItemType.Count);
+      if (itemType >= TradeItemType.Firearms) {
+        itemType = runtime.gameRand.randomIntBelow(TradeItemType.Count);
+      }
+
+      const alertString = `A canister from the destroyed ship, labelled ${TradeItem.tradeItemForType(itemType)!.name}, drifts within range of your scoops.`;
+
+      const aC = new AlertViewController(alertString);
+
+      aC.addAction('Pick it up!', AlertActionType.Default, () => {
+        this._game.commander.ship.boughtQuantity(1, itemType, 0);
+        completion();
+      });
+
+      aC.addAction('Let it go', AlertActionType.Cancel, () => {
+        completion();
+      });
+
+      this._presentAlertController(aC);
+
+      return;
+    }
+
+    completion();
+  }
+
+  _executeAttackWithAttacker(
+    attacker: Commander | Opponent,
+    defender: Commander | Opponent,
+    defenderIsFleeing: boolean
+  ) {
+    Utils.ensureType(attacker, 'object');
+    Utils.ensureType(defender, 'object');
+    Utils.ensureBool(defenderIsFleeing);
+
+    const commanderUnderAttack = defender === this._game.commander;
+
+    if (
+      this._game.difficulty === Difficulty.Beginner &&
+      commanderUnderAttack &&
+      defenderIsFleeing
+    ) {
+      return false; // Escape unharmed
+    }
+
+    const attackDiceRoll = runtime.gameRand.randomIntBelow(
+      attacker.ship.crewFighterSkillIncludingCommander(attacker) + defender.ship.model.size
+    );
+    Utils.ensureInteger(attackDiceRoll);
+
+    const dodgeDiceRoll =
+      (defenderIsFleeing ? 2 : 1) *
+      runtime.gameRand.randomIntBelow(
+        5 + Math.floor(defender.ship.crewPilotSkillIncludingCommander(defender) / 2)
+      );
+    Utils.ensureInteger(dodgeDiceRoll);
+
+    if (attackDiceRoll < dodgeDiceRoll) {
+      return false; // Defender dodged
+    }
+
+    // Ensure we truncate to integer wherever this factor is used
+    const ATTACK_SCALE =
+      (100 + 2 * attacker.ship.crewEngineerSkillIncludingCommander(attacker)) / 100;
+    Utils.ensureNumber(ATTACK_SCALE);
+
+    let damage: number;
+    if (attacker.ship.weapons.length <= 0) {
+      damage = 0;
+    } else if (defender.ship.type === ShipModelType.Scarab) {
+      const pulsePower = attacker.ship.weaponPowerBetweenMinMaxInclusive(
+        AccessoryType.WeaponPulseLaser,
+        AccessoryType.WeaponPulseLaser
+      );
+      Utils.ensureInteger(pulsePower);
+
+      const morganPower = attacker.ship.weaponPowerBetweenMinMaxInclusive(
+        AccessoryType.WeaponMorgansLaser,
+        AccessoryType.WeaponMorgansLaser
+      );
+      Utils.ensureInteger(morganPower);
+
+      if (pulsePower + morganPower <= 0) {
+        damage = 0;
+        pLog.log(167);
+      } else {
+        damage = runtime.gameRand.randomIntBelow((pulsePower + morganPower) * ATTACK_SCALE);
+        pLog.log(168);
+      }
+    } else {
+      const weaponPower = attacker.ship.weaponPowerBetweenMinMaxInclusive(
+        AccessoryType.WeaponFirst,
+        AccessoryType.WeaponLast
+      );
+      Utils.ensureInteger(weaponPower);
+
+      damage = runtime.gameRand.randomIntBelow(weaponPower * ATTACK_SCALE);
+    }
+
+    Utils.ensureInteger(damage);
+    if (damage <= 0) {
+      return false;
+    }
+
+    // Reactor weakens our hull and shields
+    if (
+      commanderUnderAttack &&
+      this._game.reactorStatus > ReactorQuestStatus.Open &&
+      this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate
+    ) {
+      damage *= Math.floor(
+        1 + (this._game.difficulty + 1) * (this._game.difficulty < Difficulty.Normal ? 0.25 : 0.33)
+      );
+    }
+
+    Utils.ensureInteger(damage);
+    damage = defender.ship.damageShieldsByAmount(damage)!;
+    Utils.ensureInteger(damage);
+
+    if (damage > 0) {
+      damage -= runtime.gameRand.randomIntBelow(
+        defender.ship.crewEngineerSkillIncludingCommander(defender)
+      );
+      damage = Math.max(1, damage);
+
+      // Our ship will survive at least 2 shots on Normal, 3 on Easy, 4 on Beginner, etc. Opponents survive at least 2.
+      const scaleFactor = commanderUnderAttack
+        ? Math.max(1, Difficulty.Absurd - this._game.difficulty)
+        : 2;
+      Utils.ensureInteger(scaleFactor);
+
+      damage = Math.min(damage, Math.floor(defender.ship.maximumHullStrength() / scaleFactor));
+
+      Utils.ensureInteger(damage);
+
+      defender.ship.damageHullByAmount(damage);
+    }
+
+    return true;
+  }
+
+  _processArrest() {
+    let fine =
+      (1 +
+        Math.floor(
+          (this._game.commander.netWorth() *
+            Math.min(80, -this._game.commander.policeRecordScore)) /
+            100 /
+            500
+        )) *
+      500;
+    Utils.ensureInteger(fine);
+
+    if (this._game.wildStatus === WildQuestStatus.OnBoard) {
+      fine = Math.floor(fine * 1.05);
+    }
+
+    const imprisonment = Math.max(30, -this._game.commander.policeRecordScore);
+    Utils.ensureInteger(imprisonment);
+
+    let alertString = `You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to ${imprisonment} days in prison and a fine of $${fine}.`;
+
+    const numNarcotics = this._game.commander.ship.tradeItemQuantityForType(
+      TradeItemType.Narcotics
+    );
+    const numFirearms = this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Firearms);
+    if (numFirearms > 0 || numNarcotics > 0) {
+      alertString += '\nThe police impounded all of the illegal goods you had on board.';
+      this._game.commander.ship.soldQuantity(numNarcotics, TradeItemType.Narcotics);
+      this._game.commander.ship.soldQuantity(numFirearms, TradeItemType.Firearms);
+    }
+
+    if (this._game.commander.hasInsurance) {
+      alertString +=
+        "\nSince you can't pay your insurance while you're in prison, your insurance contract has been voided.";
+      this._game.commander.hasInsurance = false;
+      this._game.commander.noClaim = 0;
+    }
+
+    if (this._game.commander.ship.crewCount() > 0) {
+      if (this._game.commander.ship.crew.filter(x => !x.forQuest).length > 0) {
+        alertString += '\nYour hired mercenaries have left.';
+        pLog.log(141);
+      }
+      this._game.commander.ship.removeAllCrewMembers();
+    }
+
+    if (this._game.japoriQuestStatus === JaporiQuestStatus.HasMedicine) {
+      alertString +=
+        '\nThe Space Corps removed the antidote for Japori from your ship and delivered it, fulfilling your assignment.';
+      this._game.japoriQuestStatus = JaporiQuestStatus.Closed;
+      this._game.commander.ship.soldQuantity(10, TradeItemType.FakeQuestCargo);
+    }
+
+    if (
+      this._game.reactorStatus > ReactorQuestStatus.Open &&
+      this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate
+    ) {
+      alertString +=
+        "\nThe police confiscated the Ion Reactor as evidence of your dealings with unsavory characters. The bad news is that you've lost the Ion Reactor. The good news is that you no longer have to worry about managing its depleting fuel store.";
+      this._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
+      this._game.commander.ship.soldQuantity(
+        REACTOR_BAY_COUNT + REACTOR_MAX_FUEL,
+        TradeItemType.FakeQuestCargoReactor
+      );
+      pLog.log(164);
+    }
+
+    if (this._game.jarekStatus === JarekQuestStatus.OnBoard) {
+      alertString += '\nThe Space Corps decides to give Ambassador Jarek a lift home to Devidia.';
+      this._game.jarekStatus = JarekQuestStatus.Closed;
+      pLog.log(140);
+    }
+
+    if (this._game.wildStatus === WildQuestStatus.OnBoard) {
+      alertString += '\nJonathan Wild is arrested and taken away to stand trial.';
+      this._game.wildStatus = WildQuestStatus.Closed;
+      this._game.addBreakingNewsItem('Notorious Criminal Jonathan Wild Arrested!');
+      pLog.log(127);
+    }
+
+    this._game.handleArrival();
+    this._game.timePassed(imprisonment);
+
+    let credits = this._game.commander.credits;
+    if (credits >= fine) {
+      credits = credits - fine;
+    } else {
+      pLog.log(42);
+      credits += this._game.commander.cargoAndShipValuationForInsurance(true);
+      credits = Math.max(credits - fine, 0);
+
+      alertString +=
+        '\nTo pay your fine, your ship had to be sold at auction. The police have given you a second-hand Flea so you can continue your travels.';
+
+      const ship = Ship.createFromPreviousShip(ShipModelType.Flea, this._game.commander.ship);
+      this._game.commander.ship = ship;
+    }
+
+    this._game.commander.policeRecordScore = PoliceRecordScore.Dubious;
+
+    let debt = this._game.commander.debt;
+    if (debt > 0) {
+      if (credits >= debt) {
+        credits -= debt;
+        debt = 0;
+      } else {
+        debt -= credits;
+        credits = 0;
+      }
+    }
+
+    this._game.commander.credits = credits;
+    this._game.commander.debt = debt;
+
+    for (let i = 0; i < imprisonment; i++) {
+      this._game.commander.payInterest();
+    }
+
+    const aC = new AlertViewController(alertString);
+
+    aC.addAction('Dismiss', AlertActionType.Default, () => {
+      this.delegate!.encounterControllerDidCompleteWithArrest();
+    });
+
+    this._presentAlertController(aC);
+  }
+
+  _presentThanksForTheTrade(completion: () => void) {
+    const aC = new AlertViewController('Thanks for the trade!');
+    aC.addAction('Dismiss', AlertActionType.Default, completion);
+    aC.presentView();
+  }
+
+  _performTradeWithAmount(
+    amount: number,
+    itemType: number,
+    tradePrice: number,
+    traderSell: boolean
+  ) {
+    Utils.ensureInteger(amount);
+    Utils.ensureInteger(itemType);
+    Utils.ensureInteger(tradePrice);
+    Utils.ensureBool(traderSell);
+
+    if (amount > 0) {
+      const credits = this._game.commander.credits;
+      if (traderSell) {
+        const actualAmount = this._game.commander.ship.boughtQuantity(amount, itemType, tradePrice);
+        this._game.commander.setCredits(credits - actualAmount * tradePrice);
+      } else {
+        this._game.commander.setCredits(credits + amount * tradePrice);
+        this._game.commander.ship.soldQuantity(amount, itemType);
+      }
+    }
+
+    this.delegate!.encounterControllerEncounterContinues(this, false);
+  }
+
+  // #pragma mark - PlunderViewControllerDelegate
+
+  plunderViewControllerDidFinishPlundering(controller: Plunder) {
+    Utils.ensureBool(controller.plundered);
+
+    if (controller.plundered) {
+      this.delegate!.encounterControllerDidPlunder(this, controller.plundered);
+    }
+
+    this.delegate!.encounterControllerEncounterContinues(this, false);
+  }
 }
