@@ -5,7 +5,7 @@ import { Ship } from './Ship.ts';
 import type { ShipModel, ShipState } from './Ship.ts';
 import { SolarSystem } from './SolarSystem.ts';
 import { MOON_PRICE, Difficulty } from './SolarSystem.types.ts';
-import { TradeItem } from './TradeItem.ts';
+import { tradeItemForType } from './TradeItem.ts';
 import { Status, TradeItemType } from './TradeItem.types.ts';
 import { Utils } from './Utilities.ts';
 import { runtime } from './runtime.ts';
@@ -427,7 +427,7 @@ export class Commander extends CrewMember {
     let price = this._currentSystem.standardPriceForItem(itemType);
     if (price <= 0) return 0;
 
-    const item = TradeItem.tradeItemForType(itemType)!;
+    const item = tradeItemForType(itemType);
     if (
       item.doublePriceStatus !== Status.Uneventful &&
       this._currentSystem.status === item.doublePriceStatus

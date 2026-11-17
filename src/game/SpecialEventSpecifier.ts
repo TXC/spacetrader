@@ -18,7 +18,7 @@ import {
   SpecialEvent,
   WildQuestStatus,
 } from './SolarSystem.types.ts';
-import { TradeItem } from './TradeItem.ts';
+import { tradeItemForType } from './TradeItem.ts';
 import { TradeItemType } from './TradeItem.types.ts';
 import { pLog } from './Utilities.ts';
 import type { Game } from './Game.ts';
@@ -386,7 +386,7 @@ export class SpecialEventSpecifier {
           game.commander.ship.boughtQuantity(3, itemType, Math.floor(1000 / 3));
 
           AlertViewController.presentAlertWithDismiss(
-            `The canisters contain ${TradeItem.tradeItemForType(itemType)!.name.toLowerCase()}.`
+            `The canisters contain ${tradeItemForType(itemType).name.toLowerCase()}.`
           );
 
           RESET_CURRENT_SPECIAL(game);
