@@ -2,7 +2,7 @@
 import type { Game } from './Game.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import { tradeItemForType } from './TradeItem.ts';
-import { TradeItemType } from './TradeItem.types.ts';
+import { TRADE_ITEM_COUNT } from './TradeItem.types.ts';
 
 export type CargoRow = {
   type: number;
@@ -56,7 +56,7 @@ function cargoRow(game: Game, view: CargoView, type: number): CargoRow {
 }
 
 export function cargoRows(game: Game, view: CargoView): CargoRow[] {
-  return Array.from({ length: TradeItemType.Count }, (_, type) => cargoRow(game, view, type));
+  return Array.from({ length: TRADE_ITEM_COUNT }, (_, type) => cargoRow(game, view, type));
 }
 
 export function buyCargo(game: Game, type: number, quantity: number): 'ok' | 'debtTooLarge' {

@@ -3,7 +3,13 @@ import { captainFor, EncounterType } from './EncounterController.ts';
 import { GameEndStatus } from './Game.ts';
 import { endStatusText } from './HallOfFame.ts';
 import { occurrenceStr } from './Politics.ts';
-import { Difficulty, difficultyName, SystemSize, systemSizeName } from './SolarSystem.types.ts';
+import {
+  Difficulty,
+  difficultyName,
+  SystemSize,
+  systemSizeName,
+  DIFFICULTY_COUNT,
+} from './SolarSystem.types.ts';
 import { named } from './texts.ts';
 
 test('a lookup gives the text for a value and the fallback for anything else', () => {
@@ -15,7 +21,7 @@ test('a lookup gives the text for a value and the fallback for anything else', (
 test('difficulty, system size and end status keep their texts', () => {
   expect(difficultyName(Difficulty.Beginner)).toBe('Beginner');
   expect(difficultyName(Difficulty.Absurd)).toBe('Absurd');
-  expect(difficultyName(Difficulty.Count)).toBe('Unknown');
+  expect(difficultyName(DIFFICULTY_COUNT)).toBe('Unknown');
   expect(systemSizeName(SystemSize.Medium)).toBe('Medium-sized');
   expect(systemSizeName(99)).toBe('Unknown');
   expect(endStatusText(GameEndStatus.None)).toBe('is still playing');

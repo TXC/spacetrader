@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest';
 import { tradeItemForType } from './TradeItem.ts';
-import { Resource, Status, TechLevel, TradeItemType } from './TradeItem.types.ts';
+import { Resource, Status, TechLevel, TradeItemType, TRADE_ITEM_COUNT } from './TradeItem.types.ts';
 
 test('every trade item is in the table under its own number', () => {
-  for (let type = 0; type < TradeItemType.Count; type++) {
+  for (let type = 0; type < TRADE_ITEM_COUNT; type++) {
     expect(tradeItemForType(type).type).toBe(type);
   }
 });

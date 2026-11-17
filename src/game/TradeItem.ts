@@ -19,10 +19,7 @@ export type TradeItem = {
   readonly expensiveResource: Resource;
 };
 
-// The kinds that can be traded: Water (0) to Robots (9).
-type Kind = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
-
-const ITEMS: Record<Kind, TradeItem> = {
+const ITEMS: Record<TradeItemType, TradeItem> = {
   [TradeItemType.Water]: {
     type: TradeItemType.Water,
     name: 'Water',
@@ -187,5 +184,5 @@ const ITEMS: Record<Kind, TradeItem> = {
 
 // The trade item with this number. Only the ten kinds that can be traded have one.
 export function tradeItemForType(type: number): TradeItem {
-  return ITEMS[type as Kind];
+  return ITEMS[type as TradeItemType];
 }

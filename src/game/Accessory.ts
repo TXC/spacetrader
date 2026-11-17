@@ -1,4 +1,4 @@
-import { TechLevel } from './TradeItem.types.ts';
+import { TechLevel, NOT_FOR_SALE } from './TradeItem.types.ts';
 
 export const AccessoryType = {
   // Gadgets
@@ -47,7 +47,7 @@ type AccessorySpec = {
   type: number;
   name: string;
   price: number;
-  techLevel: TechLevel;
+  techLevel: TechLevel | typeof NOT_FOR_SALE;
   occurrence: number;
 };
 type PoweredSpec = AccessorySpec & { power: number };
@@ -57,7 +57,7 @@ export class Accessory {
   declare readonly type: number;
   declare readonly name: string;
   declare readonly price: number;
-  declare readonly techLevel: TechLevel;
+  declare readonly techLevel: TechLevel | typeof NOT_FOR_SALE;
   declare readonly occurrence: number;
 
   constructor(spec: AccessorySpec) {
@@ -156,7 +156,7 @@ const GADGETS = byType([
     type: AccessoryType.GadgetFuelCompactor,
     name: 'Fuel compactor',
     price: 30000,
-    techLevel: TechLevel.Count,
+    techLevel: NOT_FOR_SALE,
     occurrence: 0,
   }),
 ]);
@@ -190,7 +190,7 @@ const WEAPONS = byType([
     type: AccessoryType.WeaponMorgansLaser,
     name: "Morgan's laser",
     price: 50000,
-    techLevel: TechLevel.Count,
+    techLevel: NOT_FOR_SALE,
     occurrence: 0,
     power: 85,
   }),
@@ -217,7 +217,7 @@ const SHIELDS = byType([
     type: AccessoryType.ShieldLightning,
     name: 'Lightning shield',
     price: 45000,
-    techLevel: TechLevel.Count,
+    techLevel: NOT_FOR_SALE,
     occurrence: 0,
     power: 350,
   }),

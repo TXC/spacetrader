@@ -1,4 +1,6 @@
-import { TechLevel, TradeItemType } from './TradeItem.types.ts';
+import { countOf } from './texts.ts';
+import type { ValueOf } from './texts.ts';
+import { TechLevel, TradeItemType, NO_TRADE_ITEM } from './TradeItem.types.ts';
 import { runtime } from './runtime.ts';
 
 export const PoliticsType = {
@@ -19,10 +21,9 @@ export const PoliticsType = {
   Satori: 14,
   Technocracy: 15,
   Theocracy: 16,
-
-  Count: 17,
 } as const;
-export type PoliticsType = (typeof PoliticsType)[keyof typeof PoliticsType];
+export type PoliticsType = ValueOf<typeof PoliticsType>;
+export const POLITICS_COUNT = countOf(PoliticsType);
 
 const OCCURRENCE = ['No', 'Minimal', 'Few', 'Some', 'Moderate', 'Many', 'Abundant'];
 
@@ -46,12 +47,10 @@ export type Politics = {
   readonly bribeWillingness: number;
   readonly drugsTradeable: boolean;
   readonly firearmsTradeable: boolean;
-  readonly mostDesiredTradeItem: TradeItemType;
+  readonly mostDesiredTradeItem: TradeItemType | typeof NO_TRADE_ITEM;
 };
 
-type Kind = Exclude<PoliticsType, typeof PoliticsType.Count>;
-
-const POLITICS: Record<Kind, Politics> = {
+const POLITICS: Record<PoliticsType, Politics> = {
   [PoliticsType.Anarchy]: {
     type: PoliticsType.Anarchy,
     name: 'Anarchist State',
@@ -113,7 +112,7 @@ const POLITICS: Record<Kind, Politics> = {
     bribeWillingness: 5,
     drugsTradeable: true,
     firearmsTradeable: true,
-    mostDesiredTradeItem: TradeItemType.None,
+    mostDesiredTradeItem: NO_TRADE_ITEM,
   },
   [PoliticsType.Confederacy]: {
     type: PoliticsType.Confederacy,
@@ -218,7 +217,7 @@ const POLITICS: Record<Kind, Politics> = {
     bribeWillingness: 2,
     drugsTradeable: true,
     firearmsTradeable: true,
-    mostDesiredTradeItem: TradeItemType.None,
+    mostDesiredTradeItem: NO_TRADE_ITEM,
   },
   [PoliticsType.Fascist]: {
     type: PoliticsType.Fascist,
@@ -323,7 +322,7 @@ const POLITICS: Record<Kind, Politics> = {
     bribeWillingness: 1,
     drugsTradeable: true,
     firearmsTradeable: false,
-    mostDesiredTradeItem: TradeItemType.None,
+    mostDesiredTradeItem: NO_TRADE_ITEM,
   },
   [PoliticsType.Socialist]: {
     type: PoliticsType.Socialist,
@@ -344,7 +343,7 @@ const POLITICS: Record<Kind, Politics> = {
     bribeWillingness: 6,
     drugsTradeable: true,
     firearmsTradeable: true,
-    mostDesiredTradeItem: TradeItemType.None,
+    mostDesiredTradeItem: NO_TRADE_ITEM,
   },
   [PoliticsType.Satori]: {
     type: PoliticsType.Satori,
@@ -360,7 +359,7 @@ const POLITICS: Record<Kind, Politics> = {
     bribeWillingness: 0,
     drugsTradeable: false,
     firearmsTradeable: false,
-    mostDesiredTradeItem: TradeItemType.None,
+    mostDesiredTradeItem: NO_TRADE_ITEM,
   },
   [PoliticsType.Technocracy]: {
     type: PoliticsType.Technocracy,
@@ -408,13 +407,13 @@ const POLITICS: Record<Kind, Politics> = {
 
 // The government with this number, as a saved game stores it.
 export function politicsForType(type: number): Politics {
-  return POLITICS[type as Kind];
+  return POLITICS[type as PoliticsType];
 }
 
 // A government picked at random among those that can exist at this tech level.
 export function randomPoliticsForTechLevel(techLevel: number): Politics {
   while (true) {
-    const politics = politicsForType(runtime.gameRand.randomIntBelow(PoliticsType.Count));
+    const politics = politicsForType(runtime.gameRand.randomIntBelow(POLITICS_COUNT));
     if (politics.minTechLevel <= techLevel && politics.maxTechLevel >= techLevel) {
       return politics;
     }

@@ -8,6 +8,7 @@ import {
   TechLevel,
   techLevelName,
   TradeItemType,
+  TECH_LEVEL_COUNT,
 } from './TradeItem.types.ts';
 
 test('every tech level, status and resource has its text', () => {
@@ -20,7 +21,7 @@ test('every tech level, status and resource has its text', () => {
 });
 
 test('a number that is not a real value has no text', () => {
-  expect(techLevelName(TechLevel.Count)).toBe('');
+  expect(techLevelName(TECH_LEVEL_COUNT)).toBe('');
   expect(statusDescription(-1)).toBe('');
   expect(resourceName(99)).toBe('');
 });

@@ -1,3 +1,5 @@
+import { countOf } from './texts.ts';
+import type { ValueOf } from './texts.ts';
 import { PCEImageLibrary } from './Images.ts';
 import { PCEImage } from './PCEImage.ts';
 import {
@@ -12,7 +14,16 @@ import type { CrewMemberState } from './CrewMember.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import { CrewMember } from './CrewMember.ts';
 import { ADJUST_SKILL_FOR_DIFFICULTY, CLOAK_BONUS, SKILL_BONUS } from './SolarSystem.types.ts';
-import { TechLevel, TradeItemType, isIllegalTradeItem } from './TradeItem.types.ts';
+import {
+  TechLevel,
+  TradeItemType,
+  isIllegalTradeItem,
+  FAKE_QUEST_CARGO_REACTOR,
+  FAKE_QUEST_CARGO_START,
+  NO_TRADE_ITEM,
+  NOT_FOR_SALE,
+  TRADE_ITEM_COUNT,
+} from './TradeItem.types.ts';
 import { Utils, pLog } from './Utilities.ts';
 import { runtime } from './runtime.ts';
 
@@ -36,10 +47,9 @@ export const ShipModelType = {
   Mantis: 12,
   Scarab: 13,
   Bottle: 14,
-
-  Count: 15,
 } as const;
-export type ShipModelType = (typeof ShipModelType)[keyof typeof ShipModelType];
+export type ShipModelType = ValueOf<typeof ShipModelType>;
+export const SHIP_MODEL_COUNT = countOf(ShipModelType);
 
 export const MAX_TRIBBLES = 100000;
 
@@ -78,7 +88,7 @@ export class ShipModel {
   declare gadgetSlots: number;
   declare crewQuarters: number;
   declare fuelTanks: number;
-  declare minTechLevel: TechLevel;
+  declare minTechLevel: TechLevel | typeof NOT_FOR_SALE;
   declare costOfFuel: number;
   declare price: number;
   declare bounty: number;
@@ -112,9 +122,7 @@ export class ShipModel {
   }
 }
 
-type Kind = Exclude<ShipModelType, typeof ShipModelType.Count>;
-
-const MODELS: Record<Kind, ShipModel> = {
+const MODELS: Record<ShipModelType, ShipModel> = {
   [ShipModelType.Flea]: new ShipModel({
     type: ShipModelType.Flea,
     name: 'Flea',
@@ -334,7 +342,7 @@ const MODELS: Record<Kind, ShipModel> = {
     gadgetSlots: 0,
     crewQuarters: 1,
     fuelTanks: 1,
-    minTechLevel: TechLevel.Count,
+    minTechLevel: NOT_FOR_SALE,
     costOfFuel: 1,
     price: 500000,
     bounty: 0,
@@ -355,7 +363,7 @@ const MODELS: Record<Kind, ShipModel> = {
     gadgetSlots: 2,
     crewQuarters: 1,
     fuelTanks: 1,
-    minTechLevel: TechLevel.Count,
+    minTechLevel: NOT_FOR_SALE,
     costOfFuel: 1,
     price: 500000,
     bounty: 0,
@@ -376,7 +384,7 @@ const MODELS: Record<Kind, ShipModel> = {
     gadgetSlots: 3,
     crewQuarters: 3,
     fuelTanks: 1,
-    minTechLevel: TechLevel.Count,
+    minTechLevel: NOT_FOR_SALE,
     costOfFuel: 1,
     price: 500000,
     bounty: 0,
@@ -397,7 +405,7 @@ const MODELS: Record<Kind, ShipModel> = {
     gadgetSlots: 0,
     crewQuarters: 2,
     fuelTanks: 1,
-    minTechLevel: TechLevel.Count,
+    minTechLevel: NOT_FOR_SALE,
     costOfFuel: 1,
     price: 500000,
     bounty: 0,
@@ -418,7 +426,7 @@ const MODELS: Record<Kind, ShipModel> = {
     gadgetSlots: 0,
     crewQuarters: 0,
     fuelTanks: 1,
-    minTechLevel: TechLevel.Count,
+    minTechLevel: NOT_FOR_SALE,
     costOfFuel: 1,
     price: 100,
     bounty: 0,
@@ -434,7 +442,7 @@ const MODELS: Record<Kind, ShipModel> = {
 
 // The model with this number, as a saved game stores it.
 export function shipModelForType(type: number): ShipModel {
-  return MODELS[type as Kind];
+  return MODELS[type as ShipModelType];
 }
 
 export class Ship {
@@ -453,7 +461,7 @@ export class Ship {
   declare tribbles: number;
 
   constructor(type: number, difficulty?: number) {
-    if (type >= ShipModelType.Count) {
+    if (type >= SHIP_MODEL_COUNT) {
       return;
     }
     this._type = type;
@@ -508,7 +516,7 @@ export class Ship {
           break;
         }
       }
-      for (let itemType = TradeItemType.Count - 1; itemType >= 0; itemType--) {
+      for (let itemType = TRADE_ITEM_COUNT - 1; itemType >= 0; itemType--) {
         const quantity = previousShip.tradeItemQuantityForType(itemType);
         Utils.ensureInteger(quantity);
         if (quantity > 0) {
@@ -529,7 +537,7 @@ export class Ship {
   }
 
   static fromSerializedState(serializedState: ShipState, solarSystems: SolarSystem[]) {
-    const ship = new Ship(ShipModelType.Count);
+    const ship = new Ship(SHIP_MODEL_COUNT);
 
     ship._upgradedHull = serializedState.upgradedHull || false;
     ship._type = serializedState.type || 0;
@@ -1183,7 +1191,7 @@ export class Ship {
         continue;
       }
 
-      if (tradeItem >= TradeItemType.FakeQuestCargoStart) {
+      if (tradeItem >= FAKE_QUEST_CARGO_START) {
         continue;
       }
 
@@ -1209,7 +1217,7 @@ export class Ship {
   randomTradeableItemForSystem(solarSystem: SolarSystem | null, onlyIllegal: boolean) {
     const items = this._tradeableItemsForSystem(solarSystem, onlyIllegal, true, this._cargo.size);
     if (items.length <= 0) {
-      return TradeItemType.None;
+      return NO_TRADE_ITEM;
     }
 
     const randomIndex = runtime.gameRand.randomIntBelow(items.length);
@@ -1219,7 +1227,7 @@ export class Ship {
   randomTradeableItem() {
     const items = this._tradeableItemsForSystem(null, false, false, this._cargo.size);
     if (items.length <= 0) {
-      return TradeItemType.None;
+      return NO_TRADE_ITEM;
     }
 
     const randomIndex = runtime.gameRand.randomIntBelow(items.length);
@@ -1262,7 +1270,7 @@ export class Ship {
     return (
       this.tradeItemQuantityForType(TradeItemType.Firearms) > 0 ||
       this.tradeItemQuantityForType(TradeItemType.Narcotics) > 0 ||
-      this.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor) > 0
+      this.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR) > 0
     );
   }
 

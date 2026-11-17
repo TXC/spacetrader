@@ -1,3 +1,5 @@
+import { countOf } from './texts.ts';
+import type { ValueOf } from './texts.ts';
 import { Commander } from './Commander.ts';
 import type { CommanderState } from './Commander.ts';
 import { CrewMember } from './CrewMember.ts';
@@ -24,7 +26,7 @@ import {
   FABRIC_RIP_PROBABILITY_INITIAL,
   randomOccurrenceEventTypes,
 } from './SpecialEventSpecifier.ts';
-import { TechLevel, TradeItemType } from './TradeItem.types.ts';
+import { TechLevel, FAKE_QUEST_CARGO_REACTOR } from './TradeItem.types.ts';
 import { Utils, pLog } from './Utilities.ts';
 import { runtime } from './runtime.ts';
 
@@ -48,10 +50,9 @@ export const RareEvent = {
   CaptainHuie: 3,
   BottleOld: 4,
   BottleGood: 5,
-
-  Count: 6,
 } as const;
-export type RareEvent = (typeof RareEvent)[keyof typeof RareEvent];
+export type RareEvent = ValueOf<typeof RareEvent>;
+export const RARE_EVENT_COUNT = countOf(RareEvent);
 
 export const MIN_DISTANCE = 6;
 
@@ -670,7 +671,7 @@ export class Game {
   }
 
   _setupInitialGameState() {
-    for (let i = 0; i < RareEvent.Count; ++i) {
+    for (let i = 0; i < RARE_EVENT_COUNT; ++i) {
       this.addRemainingRareEvents([i]);
     }
     this.addRemainingRareEvents([
@@ -830,15 +831,14 @@ export class Game {
     ) {
       this.reactorStatus = Math.min(ReactorQuestStatus.DaysRemaining._1, this.reactorStatus + days);
 
-      const currentQuantity = this.commander.ship.tradeItemQuantityForType(
-        TradeItemType.FakeQuestCargoReactor
-      );
+      const currentQuantity =
+        this.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR);
       const desiredQuantity =
         REACTOR_BAY_COUNT + REACTOR_MAX_FUEL - Math.floor((this.reactorStatus - 1) / 2);
       if (desiredQuantity < currentQuantity) {
         this.commander.ship.soldQuantity(
           currentQuantity - desiredQuantity,
-          TradeItemType.FakeQuestCargoReactor
+          FAKE_QUEST_CARGO_REACTOR
         );
       }
     }
@@ -930,8 +930,7 @@ export class Game {
       cargoList += comma;
       const numFuelBays = Math.max(
         0,
-        this.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor) -
-          REACTOR_BAY_COUNT
+        this.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR) - REACTOR_BAY_COUNT
       );
       cargoList += `An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up ${numFuelBays} bay${numFuelBays === 1 ? '' : 's'}.`;
       comma = '\n';

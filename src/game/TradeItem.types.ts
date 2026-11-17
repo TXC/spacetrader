@@ -1,5 +1,5 @@
-import { named } from './texts.ts';
-import type { Real, ValueOf } from './texts.ts';
+import { named, countOf } from './texts.ts';
+import type { ValueOf } from './texts.ts';
 
 export const TechLevel = {
   PreAgricultural: 0,
@@ -10,12 +10,15 @@ export const TechLevel = {
   Industrial: 5,
   PostIndustrial: 6,
   HighTech: 7,
-  Count: 8,
 } as const;
 export type TechLevel = ValueOf<typeof TechLevel>;
+export const TECH_LEVEL_COUNT = countOf(TechLevel);
+
+// The "tech level" of ships and equipment that no system sells: one above the highest.
+export const NOT_FOR_SALE = 8;
 
 // The name of a tech level, as shown for a system.
-export const techLevelName = named<Real<TechLevel, typeof TechLevel.Count>>({
+export const techLevelName = named<TechLevel>({
   [TechLevel.PreAgricultural]: 'Pre-Agricultural',
   [TechLevel.Agricultural]: 'Agricultural',
   [TechLevel.Medieval]: 'Medieval',
@@ -35,12 +38,12 @@ export const Status = {
   ColdSpell: 5,
   CropFailure: 6,
   LackWorkers: 7,
-  Count: 8,
 } as const;
 export type Status = ValueOf<typeof Status>;
+export const STATUS_COUNT = countOf(Status);
 
 // What a system in this status is going through, to finish "This system is ...".
-export const statusDescription = named<Real<Status, typeof Status.Count>>({
+export const statusDescription = named<Status>({
   [Status.Uneventful]: 'under no particular pressure',
   [Status.AtWar]: 'at war',
   [Status.Plague]: 'ravaged by a plague',
@@ -65,12 +68,12 @@ export const Resource = {
   SpecialHerbs: 10,
   Artistic: 11,
   Warlike: 12,
-  Count: 13,
 } as const;
 export type Resource = ValueOf<typeof Resource>;
+export const RESOURCE_COUNT = countOf(Resource);
 
 // The name of a system's special resource.
-export const resourceName = named<Real<Resource, typeof Resource.Count>>({
+export const resourceName = named<Resource>({
   [Resource.None]: 'Nothing special',
   [Resource.MineralRich]: 'Mineral rich',
   [Resource.MineralPoor]: 'Mineral poor',
@@ -87,7 +90,6 @@ export const resourceName = named<Real<Resource, typeof Resource.Count>>({
 });
 
 export const TradeItemType = {
-  None: -1,
   Water: 0,
   Furs: 1,
   Food: 2,
@@ -98,12 +100,18 @@ export const TradeItemType = {
   Machines: 7,
   Narcotics: 8,
   Robots: 9,
-  Count: 10,
-  FakeQuestCargoStart: 11,
-  FakeQuestCargo: 11,
-  FakeQuestCargoReactor: 12,
 } as const;
 export type TradeItemType = ValueOf<typeof TradeItemType>;
+export const TRADE_ITEM_COUNT = countOf(TradeItemType);
+
+// "No trade item", where one is optional.
+export const NO_TRADE_ITEM = -1;
+
+// Quest cargo takes up bays like goods do, but cannot be traded. Its numbers start above
+// the goods.
+export const FAKE_QUEST_CARGO_START = 11;
+export const FAKE_QUEST_CARGO = 11; // the antidote for Japori
+export const FAKE_QUEST_CARGO_REACTOR = 12;
 
 const ILLEGAL: readonly number[] = [TradeItemType.Firearms, TradeItemType.Narcotics];
 

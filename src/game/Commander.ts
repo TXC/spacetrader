@@ -6,7 +6,7 @@ import type { ShipModel, ShipState } from './Ship.ts';
 import { SolarSystem } from './SolarSystem.ts';
 import { MOON_PRICE, Difficulty } from './SolarSystem.types.ts';
 import { tradeItemForType } from './TradeItem.ts';
-import { Status, TradeItemType } from './TradeItem.types.ts';
+import { Status, TRADE_ITEM_COUNT } from './TradeItem.types.ts';
 import { Utils } from './Utilities.ts';
 import { runtime } from './runtime.ts';
 
@@ -408,7 +408,7 @@ export class Commander extends CrewMember {
       this._currentSystem.setVisited(true);
 
       const basePrices = [];
-      for (let item = 0; item < TradeItemType.Count; ++item) {
+      for (let item = 0; item < TRADE_ITEM_COUNT; ++item) {
         basePrices.push(this._calculateBasePriceForItem(item));
       }
       this._basePrices = basePrices;
@@ -558,7 +558,7 @@ export class Commander extends CrewMember {
 
   _cargoValue() {
     let value = 0;
-    for (let item = 0; item < TradeItemType.Count; ++item) {
+    for (let item = 0; item < TRADE_ITEM_COUNT; ++item) {
       const quantity = this.ship.tradeItemQuantityForType(item);
       value += quantity * this.sellPriceForItem(item);
     }

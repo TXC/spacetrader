@@ -19,7 +19,12 @@ import {
   WildQuestStatus,
 } from '../../game/SolarSystem.types.ts';
 import { FABRIC_RIP_PROBABILITY_INITIAL } from '../../game/SpecialEventSpecifier.ts';
-import { TechLevel, TradeItemType } from '../../game/TradeItem.types.ts';
+import {
+  TechLevel,
+  TradeItemType,
+  FAKE_QUEST_CARGO,
+  FAKE_QUEST_CARGO_REACTOR,
+} from '../../game/TradeItem.types.ts';
 import { AlertViewController } from '../../game/alerts.ts';
 import './setup.ts';
 import {
@@ -380,10 +385,7 @@ test('ionReactor', () => {
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(
-    game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
 
   assertEqual(
@@ -395,10 +397,7 @@ test('ionReactor', () => {
   let game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
   assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(
-    game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
   assertEqual(
     game2.specialCargoDescription(),
@@ -440,7 +439,7 @@ test('ionReactor', () => {
     assertEqual(game.reactorStatus, prevReactorStatus + 1);
     const reactorFuelRemaining = expectedFuel[loopCycles];
     assertEqual(
-      game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
+      game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR),
       5 + reactorFuelRemaining
     );
     const baysStr = reactorFuelRemaining === 1 ? 'bay' : 'bays';
@@ -457,7 +456,7 @@ test('ionReactor', () => {
     assertEqualGames(game, game2);
     assertEqual(game2.reactorStatus, prevReactorStatus + 1);
     assertEqual(
-      game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
+      game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR),
       5 + reactorFuelRemaining
     );
     assertEqual(
@@ -496,7 +495,7 @@ test('ionReactor', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.GetSpecialLaser);
   assertEqual(game.reactorStatus, ReactorQuestStatus.ClosedSaved);
-  assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 0);
+  assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 0);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), `Get your special laser at Nix.`);
 
@@ -504,10 +503,7 @@ test('ionReactor', () => {
   assertEqualGames(game, game2);
   assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.GetSpecialLaser);
   assertEqual(game2.reactorStatus, ReactorQuestStatus.ClosedSaved);
-  assertEqual(
-    game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    0
-  );
+  assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 0);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), `Get your special laser at Nix.`);
 
@@ -584,10 +580,7 @@ test('ionReactor_tooLate', () => {
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(
-    game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
 
   assertEqual(
@@ -599,10 +592,7 @@ test('ionReactor_tooLate', () => {
   let game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
   assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(
-    game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
   assertEqual(
     game2.specialCargoDescription(),
@@ -644,7 +634,7 @@ test('ionReactor_tooLate', () => {
     assertEqual(game.reactorStatus, prevReactorStatus + 1);
     const reactorFuelRemaining = expectedFuel[loopCycles];
     assertEqual(
-      game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
+      game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR),
       5 + reactorFuelRemaining
     );
     const baysStr = reactorFuelRemaining === 1 ? 'bay' : 'bays';
@@ -661,7 +651,7 @@ test('ionReactor_tooLate', () => {
     assertEqualGames(game, game2);
     assertEqual(game2.reactorStatus, prevReactorStatus + 1);
     assertEqual(
-      game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
+      game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR),
       5 + reactorFuelRemaining
     );
     assertEqual(
@@ -737,10 +727,7 @@ test('ionReactor_tooLate_escapePod', () => {
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(
-    game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
 
   assertEqual(
@@ -752,10 +739,7 @@ test('ionReactor_tooLate_escapePod', () => {
   let game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
   assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(
-    game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
   assertEqual(
     game2.specialCargoDescription(),
@@ -797,7 +781,7 @@ test('ionReactor_tooLate_escapePod', () => {
     assertEqual(game.reactorStatus, prevReactorStatus + 1);
     const reactorFuelRemaining = expectedFuel[loopCycles];
     assertEqual(
-      game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
+      game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR),
       5 + reactorFuelRemaining
     );
     const baysStr = reactorFuelRemaining === 1 ? 'bay' : 'bays';
@@ -814,7 +798,7 @@ test('ionReactor_tooLate_escapePod', () => {
     assertEqualGames(game, game2);
     assertEqual(game2.reactorStatus, prevReactorStatus + 1);
     assertEqual(
-      game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
+      game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR),
       5 + reactorFuelRemaining
     );
     assertEqual(
@@ -865,17 +849,14 @@ test('ionReactor_tooLate_escapePod', () => {
   );
   replay.replayEvent('alertButton_Dismiss', 'click');
 
-  assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 0);
+  assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 0);
   assertEqual(game.reactorStatus, ReactorQuestStatus.ClosedTooLate);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
   game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
-  assertEqual(
-    game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    0
-  );
+  assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 0);
   assertEqual(game2.reactorStatus, ReactorQuestStatus.ClosedTooLate);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
@@ -908,10 +889,7 @@ test('ionReactor_surrenderToPolice', () => {
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(
-    game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
 
   assertEqual(
@@ -923,10 +901,7 @@ test('ionReactor_surrenderToPolice', () => {
   let game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
   assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(
-    game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
   assertEqual(
     game2.specialCargoDescription(),
@@ -981,17 +956,14 @@ test('ionReactor_surrenderToPolice', () => {
   );
   replay.replayEvent('alertButton_Dismiss', 'click');
 
-  assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 0);
+  assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 0);
   assertEqual(game.reactorStatus, ReactorQuestStatus.ClosedTooLate);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
   game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
-  assertEqual(
-    game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    0
-  );
+  assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 0);
   assertEqual(game2.reactorStatus, ReactorQuestStatus.ClosedTooLate);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
@@ -1102,10 +1074,7 @@ test('ionReactor_early', () => {
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(
-    game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
 
   assertEqual(
@@ -1117,10 +1086,7 @@ test('ionReactor_early', () => {
   let game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
   assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(
-    game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
   assertEqual(
     game2.specialCargoDescription(),
@@ -1162,7 +1128,7 @@ test('ionReactor_early', () => {
     assertEqual(game.reactorStatus, prevReactorStatus + 1);
     const reactorFuelRemaining = expectedFuel[loopCycles];
     assertEqual(
-      game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
+      game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR),
       5 + reactorFuelRemaining
     );
     const baysStr = reactorFuelRemaining === 1 ? 'bay' : 'bays';
@@ -1179,7 +1145,7 @@ test('ionReactor_early', () => {
     assertEqualGames(game, game2);
     assertEqual(game2.reactorStatus, prevReactorStatus + 1);
     assertEqual(
-      game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
+      game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR),
       5 + reactorFuelRemaining
     );
     assertEqual(
@@ -1218,7 +1184,7 @@ test('ionReactor_early', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.GetSpecialLaser);
   assertEqual(game.reactorStatus, ReactorQuestStatus.ClosedSaved);
-  assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 0);
+  assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 0);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), `Get your special laser at Nix.`);
 
@@ -1226,10 +1192,7 @@ test('ionReactor_early', () => {
   assertEqualGames(game, game2);
   assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.GetSpecialLaser);
   assertEqual(game2.reactorStatus, ReactorQuestStatus.ClosedSaved);
-  assertEqual(
-    game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    0
-  );
+  assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 0);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), `Get your special laser at Nix.`);
 
@@ -1312,10 +1275,7 @@ test('ionReactor_notEnoughBays', () => {
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(
-    game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
 
   assertEqual(
@@ -1327,10 +1287,7 @@ test('ionReactor_notEnoughBays', () => {
   let game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
   assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(
-    game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
   assertEqual(
     game2.specialCargoDescription(),
@@ -1360,10 +1317,7 @@ test('ionReactor_cantBuyShip', () => {
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(
-    game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
 
   assertEqual(
@@ -1375,10 +1329,7 @@ test('ionReactor_cantBuyShip', () => {
   let game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
   assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(
-    game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
   assertEqual(
     game2.specialCargoDescription(),
@@ -1406,10 +1357,7 @@ test('ionReactor_cantBuyShip', () => {
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   assertEqual(game.commander.ship.type, ShipModelType.Wasp);
-  assertEqual(
-    game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(
     game.specialCargoDescription(),
     'An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.'
@@ -1422,10 +1370,7 @@ test('ionReactor_cantBuyShip', () => {
   game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
   assertEqual(game2.commander.ship.type, ShipModelType.Wasp);
-  assertEqual(
-    game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(
     game2.specialCargoDescription(),
     'An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.'
@@ -1454,10 +1399,7 @@ test('ionReactor_destroyedInBattle', () => {
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(
-    game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
 
   assertEqual(
@@ -1469,10 +1411,7 @@ test('ionReactor_destroyedInBattle', () => {
   let game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
   assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(
-    game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    15
-  );
+  assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
   assertEqual(
     game2.specialCargoDescription(),
@@ -1519,7 +1458,7 @@ test('ionReactor_destroyedInBattle', () => {
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   assertEqual(game.commander.ship.type, ShipModelType.Flea);
-  assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor), 0);
+  assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 0);
   assertEqual(game.reactorStatus, ReactorQuestStatus.ClosedTooLate);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
@@ -1527,10 +1466,7 @@ test('ionReactor_destroyedInBattle', () => {
   game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
   assertEqual(game2.commander.ship.type, ShipModelType.Flea);
-  assertEqual(
-    game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargoReactor),
-    0
-  );
+  assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 0);
   assertEqual(game2.reactorStatus, ReactorQuestStatus.ClosedTooLate);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
@@ -4266,7 +4202,7 @@ test('japori_hasMedicine', () => {
 
   replay.replayEvent('cargo_WaterBuy_All', 'click');
   assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.Water), 5);
-  assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargo), 10);
+  assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO), 10);
   assertEqual(game.japoriQuestStatus, JaporiQuestStatus.HasMedicine);
 
   let game2 = serializeAndDeserialize(game);
@@ -4275,7 +4211,7 @@ test('japori_hasMedicine', () => {
   assertEqual(game2.commander.ship.freeCargoBays(), 0);
 
   assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Water), 5);
-  assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargo), 10);
+  assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO), 10);
   assertEqual(game2.japoriQuestStatus, JaporiQuestStatus.HasMedicine);
 
   replay.replayEvent('Chart', 'click');
@@ -4313,7 +4249,7 @@ test('japori_hasMedicine', () => {
   assertEqual(specialEl, null);
 
   assertEqual(game.japoriQuestStatus, JaporiQuestStatus.Closed);
-  assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargo), 0);
+  assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO), 0);
   assertEqual(game.commander.pilot, 5);
   assertEqual(game.commander.trader, 6);
   assertEqual(game.commander.engineer, 6);
@@ -4328,7 +4264,7 @@ test('japori_hasMedicine', () => {
   assertEqualGames(game, game2);
 
   assertEqual(game2.japoriQuestStatus, JaporiQuestStatus.Closed);
-  assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.FakeQuestCargo), 0);
+  assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO), 0);
   assertEqual(game2.commander.pilot, 5);
   assertEqual(game2.commander.trader, 6);
   assertEqual(game2.commander.engineer, 6);

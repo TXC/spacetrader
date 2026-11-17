@@ -31,7 +31,13 @@ import {
   WildQuestStatus,
 } from './SolarSystem.types.ts';
 import { tradeItemForType } from './TradeItem.ts';
-import { TradeItemType } from './TradeItem.types.ts';
+import {
+  TradeItemType,
+  FAKE_QUEST_CARGO,
+  FAKE_QUEST_CARGO_REACTOR,
+  NO_TRADE_ITEM,
+  TRADE_ITEM_COUNT,
+} from './TradeItem.types.ts';
 import { Utils, pLog } from './Utilities.ts';
 import type { Game } from './Game.ts';
 import type { Commander } from './Commander.ts';
@@ -674,7 +680,7 @@ export class EncounterController {
     } else if (action === 'Ignore') {
       this.delegate!.encounterControllerEncounterContinues(this, false);
     } else if (action === 'Trade') {
-      let itemType: number = TradeItemType.None;
+      let itemType: number = NO_TRADE_ITEM;
       const onlyIllegal = this._game.commander.policeRecordScore < PoliceRecordScore.Dubious;
       let tradePrice = 0;
       let maxUnits = 0;
@@ -688,7 +694,7 @@ export class EncounterController {
         );
         Utils.ensureInteger(itemType);
 
-        if (itemType !== TradeItemType.None) {
+        if (itemType !== NO_TRADE_ITEM) {
           tradePrice = this._game.commander.sellPriceForItem(itemType);
           Utils.ensureInteger(tradePrice);
 
@@ -714,7 +720,7 @@ export class EncounterController {
           onlyIllegal
         );
 
-        if (itemType !== TradeItemType.None) {
+        if (itemType !== NO_TRADE_ITEM) {
           tradePrice = this._game.commander.buyPriceForItem(itemType);
 
           if (onlyIllegal) {
@@ -734,7 +740,7 @@ export class EncounterController {
         }
       }
 
-      if (itemType !== TradeItemType.None) {
+      if (itemType !== NO_TRADE_ITEM) {
         this._presentTradeAlert(
           itemName,
           itemType,
@@ -911,7 +917,7 @@ export class EncounterController {
 
             do {
               const itemType = this._game.commander.ship.randomTradeableItem();
-              if (itemType === TradeItemType.None) {
+              if (itemType === NO_TRADE_ITEM) {
                 break;
               }
 
@@ -1051,7 +1057,7 @@ export class EncounterController {
           this._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
           this._game.commander.ship.soldQuantity(
             REACTOR_BAY_COUNT + REACTOR_MAX_FUEL,
-            TradeItemType.FakeQuestCargoReactor
+            FAKE_QUEST_CARGO_REACTOR
           );
 
           const alertString =
@@ -1752,9 +1758,9 @@ export class EncounterController {
         runtime.gameRand.randomIntBelow(this._game.difficulty) === 1);
 
     if (canScoop) {
-      let itemType = runtime.gameRand.randomIntBelow(TradeItemType.Count);
+      let itemType = runtime.gameRand.randomIntBelow(TRADE_ITEM_COUNT);
       if (itemType >= TradeItemType.Firearms) {
-        itemType = runtime.gameRand.randomIntBelow(TradeItemType.Count);
+        itemType = runtime.gameRand.randomIntBelow(TRADE_ITEM_COUNT);
       }
 
       const alertString = `A canister from the destroyed ship, labelled ${tradeItemForType(itemType).name}, drifts within range of your scoops.`;
@@ -1943,7 +1949,7 @@ export class EncounterController {
       alertString +=
         '\nThe Space Corps removed the antidote for Japori from your ship and delivered it, fulfilling your assignment.';
       this._game.japoriQuestStatus = JaporiQuestStatus.Closed;
-      this._game.commander.ship.soldQuantity(10, TradeItemType.FakeQuestCargo);
+      this._game.commander.ship.soldQuantity(10, FAKE_QUEST_CARGO);
     }
 
     if (
@@ -1955,7 +1961,7 @@ export class EncounterController {
       this._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
       this._game.commander.ship.soldQuantity(
         REACTOR_BAY_COUNT + REACTOR_MAX_FUEL,
-        TradeItemType.FakeQuestCargoReactor
+        FAKE_QUEST_CARGO_REACTOR
       );
       pLog.log(164);
     }

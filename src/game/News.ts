@@ -17,13 +17,13 @@ import {
   SpecialEvent,
   WildQuestStatus,
 } from './SolarSystem.types.ts';
-import { Status, TechLevel } from './TradeItem.types.ts';
+import { Status, TECH_LEVEL_COUNT } from './TradeItem.types.ts';
 import { pLog } from './Utilities.ts';
 
 // One of these lives as long as the landing screen, as the old news screen did: its
 // headlines for a system are built once and shown again on the next visit to the screen.
 // A system in one of these states has something to report; an uneventful one has not.
-type Troubled = Exclude<Status, typeof Status.Count | typeof Status.Uneventful>;
+type Troubled = Exclude<Status, typeof Status.Uneventful>;
 
 // The headline a system prints about its own state.
 const statusHeadline = named<Troubled>({
@@ -292,7 +292,7 @@ export class News {
       if (solarSystem.status !== Status.Uneventful) {
         if (
           runtime.gameRand.randomIntBelow(100) <=
-          (solarSystem.techLevel * 50) / TechLevel.Count + 10 * (5 - this.game.difficulty)
+          (solarSystem.techLevel * 50) / TECH_LEVEL_COUNT + 10 * (5 - this.game.difficulty)
         ) {
           const storyPrefixes = [
             'Reports of',
