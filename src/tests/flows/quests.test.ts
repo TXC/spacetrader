@@ -1,25 +1,19 @@
-// @ts-nocheck
 // Flow tests: each replays a recorded play session by clicking the recorded elements, then
 // checks what the player sees and what the game holds. Converted from the original
 // project's UnitTests.js; the recordings and expected values are unchanged.
 import { test } from 'vitest'
-import { GameRand } from '../../game/GameRand.ts'
 import { AccessoryType } from '../../game/Accessory.ts'
-import { ActionLogger } from '../../game/ActionLogger.ts'
-import { ATTACK_POLICE_SCORE, ATTACK_TRADER_SCORE, KILL_PIRATE_SCORE, PoliceRecordScore } from '../../game/Commander.ts'
-import { Game, GameEndStatus, RareEvent } from '../../game/Game.ts'
+import { PoliceRecordScore } from '../../game/Commander.ts'
+import { GameEndStatus } from '../../game/Game.ts'
 import { PoliticsType } from '../../game/Politics.ts'
-import { ShipModel, ShipModelType } from '../../game/Ship.ts'
-import { Difficulty, ExperimentQuestStatus, InvasionQuestStatus, JaporiQuestStatus, JarekQuestStatus, MonsterQuestStatus, ReactorQuestStatus, ScarabQuestStatus, SpecialEvent, WildQuestStatus } from '../../game/SolarSystem.types.ts'
+import { ShipModelType } from '../../game/Ship.ts'
+import { ExperimentQuestStatus, InvasionQuestStatus, JaporiQuestStatus, JarekQuestStatus, MonsterQuestStatus, ReactorQuestStatus, ScarabQuestStatus, SpecialEvent, WildQuestStatus } from '../../game/SolarSystem.types.ts'
 import { FABRIC_RIP_PROBABILITY_INITIAL } from '../../game/SpecialEventSpecifier.ts'
 import { TechLevel, TradeItemType } from '../../game/TradeItem.types.ts'
-import { Utils, MockLocalStorage, pLog } from '../../game/Utilities.ts'
-import { runtime } from '../../game/runtime.ts'
 import { AlertViewController } from '../../game/alerts.ts'
-import { Session } from '../../game/session.ts'
 import './setup.ts'
-import { ActionLogReplay, assertEqual, assertEqualArrays, assertEqualDeep, assertEqualFloats, assertEqualGames, assertPixelColor, assertTrue, performStressTest, replaySkipEncounters, runReplayLog, serializeAndDeserialize, show } from './harness.ts'
-import { cellAfter, hasText, rowAfterHeading, textOf } from '../support/page.ts'
+import { assertEqual, assertEqualArrays, assertEqualGames, assertTrue, replaySkipEncounters, runReplayLog, serializeAndDeserialize } from './harness.ts'
+import { button, encounterBox, hasText, news, openQuests, repairs, scoreMessage, specialCargo, systemInfo, tableRow, textOf } from '../support/page.ts'
 
 
 test('questCount', () => {
@@ -27,7 +21,7 @@ test('questCount', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   assertEqual(game.solarSystems.filter(x => x.specialEvent !== SpecialEvent.None).length, 42)
 })
@@ -38,11 +32,11 @@ test('scarab', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   // reputationScore is too low for Special to show up
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.Scarab)
-  let specialEl = document.getElementById("Special")
+  let specialEl = button("Special")
   assertEqual(specialEl, null)
 
   replay.replayEvent("cheat_averageReputation", "click")
@@ -60,7 +54,7 @@ test('scarab', () => {
 
   // Shows up now
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.Scarab)
-  specialEl = document.getElementById("Special")
+  specialEl = button("Special")
   assertEqual(specialEl !== null, true)
 
   replay.replayEvent("Special", "click")
@@ -102,7 +96,7 @@ test('scarab', () => {
   replay.replayEvent("Warp", "click")
   replay.replayEvent("warpBlastOff", "click")
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Khefka you encounter a stolen Scarab.\n\nYour opponent attacks.")
 
   replay.replayEvent("cheat_fighter15", "click") // need more skill to win
@@ -115,7 +109,7 @@ test('scarab', () => {
   replay.replayEvent("News", "click")
   replay.replayEvent("purchaseNews", "click")
 
-  const newsStrDiv = document.getElementById('newsStrDiv')
+  const newsStrDiv = news()
   assertTrue(hasText(newsStrDiv, "h4", "The Daily Worker"), "masthead is a heading")
   assertEqual(textOf(newsStrDiv), "The Daily Worker\nWormhole Traffic Delayed as Stolen Craft Destroyed.\n\nPlague Spreads! Outlook Grim.\n\nParty: Bold New Future Predicted!")
 
@@ -151,9 +145,9 @@ test('scarab', () => {
   replay.replayEvent("alertButton_Dismiss", "click")
 
   replay.replayEvent("Ship Yard", "click")
-  const repairEl = document.getElementById("repairDiv")
+  const repairEl = repairs()
   assertEqual(textOf(repairEl), "Your hull strength is at 100%.\nYour ship has an upgraded hull.\nAutomatically buy repairs upon arrival\n\nBuy an escape pod for $2000")
-  assertTrue(repairEl.querySelector('input#autoRepairCheckbox[type="checkbox"]') !== null, "auto-repair checkbox shown")
+  assertTrue(repairEl!.querySelector('input#autoRepairCheckbox[type="checkbox"]') !== null, "auto-repair checkbox shown")
   assertTrue(hasText(repairEl, 'label[for="autoRepairCheckbox"]', "Automatically buy repairs upon arrival"), "checkbox has its label")
   assertTrue(hasText(repairEl, "button#buy_escape_pod", "Buy an escape pod for $2000"), "escape pod button shown")
 
@@ -184,11 +178,11 @@ test('scarab_militaryBeamDontWork', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   // reputationScore is too low for Special to show up
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.Scarab)
-  let specialEl = document.getElementById("Special")
+  let specialEl = button("Special")
   assertEqual(specialEl, null)
 
   replay.replayEvent("cheat_averageReputation", "click")
@@ -206,7 +200,7 @@ test('scarab_militaryBeamDontWork', () => {
 
   // Shows up now
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.Scarab)
-  specialEl = document.getElementById("Special")
+  specialEl = button("Special")
   assertEqual(specialEl !== null, true)
 
   replay.replayEvent("Special", "click")
@@ -248,38 +242,38 @@ test('scarab_militaryBeamDontWork', () => {
   replay.replayEvent("Warp", "click")
   replay.replayEvent("warpBlastOff", "click")
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Khefka you encounter a stolen Scarab.\n\nYour opponent attacks.")
 
   replay.replayEvent("ecButton_Attack", "click")
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText.includes("You missed the Scarab."), true)
   replay.replayEvent("ecButton_Attack", "click")
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText.includes("You missed the Scarab."), true)
   replay.replayEvent("ecButton_Attack", "click")
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText.includes("You missed the Scarab."), true)
   replay.replayEvent("ecButton_Attack", "click")
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText.includes("You missed the Scarab."), true)
   replay.replayEvent("ecButton_Attack", "click")
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText.includes("You missed the Scarab."), true)
   replay.replayEvent("ecButton_Attack", "click")
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText.includes("You missed the Scarab."), true)
   replay.replayEvent("ecButton_Attack", "click")
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText.includes("You missed the Scarab."), true)
   replay.replayEvent("ecButton_Attack", "click")
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText.includes("You missed the Scarab."), true)
   replay.replayEvent("ecButton_Attack", "click")
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText.includes("You missed the Scarab."), true)
   replay.replayEvent("ecButton_Attack", "click")
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText.includes("You missed the Scarab."), true)
 })
 
@@ -289,7 +283,7 @@ test('ionReactor', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("Special", "click")
 
@@ -447,7 +441,7 @@ test('ionReactor_tooLate', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("Special", "click")
 
@@ -546,7 +540,7 @@ test('ionReactor_tooLate', () => {
   assertEqual(AlertViewController.currentAlertTitle(), "You are destroyed along with your ship as a result of the explosion.");
   replay.replayEvent("alertButton_Dismiss", "click")
 
-  assertEqual(document.getElementById("endgame") !== null, true)
+  assertEqual(button("End Game and Start Over") !== null, true)
   assertEqual(game.endStatus, GameEndStatus.Killed)
 
 
@@ -562,7 +556,7 @@ test('ionReactor_tooLate_escapePod', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("Special", "click")
 
@@ -688,7 +682,7 @@ test('ionReactor_surrenderToPolice', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("Special", "click")
 
@@ -724,7 +718,7 @@ test('ionReactor_surrenderToPolice', () => {
 
 
   const breakConditionFn = () => {
-    const encounterTextEl = document.getElementById('eVC_dialog')
+    const encounterTextEl = encounterBox()
     return encounterTextEl && textOf(encounterTextEl).includes("you encounter a police")
   }
 
@@ -733,7 +727,7 @@ test('ionReactor_surrenderToPolice', () => {
 
   replaySkipEncounters(replay, breakConditionFn)
 
-  let encounterTextEl = document.getElementById('eVC_dialog')
+  let encounterTextEl = encounterBox()
   assertEqual(textOf(encounterTextEl).includes("you encounter a police"), true)
 
   replay.replayEvent("ecButton_Surrender", "click")
@@ -747,7 +741,7 @@ test('ionReactor_surrenderToPolice', () => {
 
   replaySkipEncounters(replay, breakConditionFn)
 
-  encounterTextEl = document.getElementById('eVC_dialog')
+  encounterTextEl = encounterBox()
   assertEqual(textOf(encounterTextEl).includes("you encounter a police"), true)
 
 
@@ -783,12 +777,12 @@ test('ionReactor_tribble', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
 
 
-  assertEqual(textOf("cargoListDiv"), "1 cute, furry tribble.\nAn unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
-  assertEqual(textOf("questListDiv"), "Get rid of those pesky tribbles.\nDeliver the unstable reactor to Nix for Henry Morgan.")
+  assertEqual(textOf(specialCargo()), "1 cute, furry tribble.\nAn unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
+  assertEqual(textOf(openQuests()), "Get rid of those pesky tribbles.\nDeliver the unstable reactor to Nix for Henry Morgan.")
   assertEqual(game.specialCargoDescription(), "1 cute, furry tribble.\nAn unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.")
   assertEqual(game.questListDescription(), "Get rid of those pesky tribbles.\nDeliver the unstable reactor to Nix for Henry Morgan.")
   assertEqual(game.commander.ship.tribbles, 1)
@@ -832,7 +826,7 @@ test('ionReactor_early', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("Special", "click")
 
@@ -990,7 +984,7 @@ test('ionReactor_notEnoughBays', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
 
   replay.replayEvent("Buy", "click")
@@ -1035,7 +1029,7 @@ test('ionReactor_cantBuyShip', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("Special", "click")
   replay.replayEvent("alertButton_Yes", "click")
@@ -1092,7 +1086,7 @@ test('ionReactor_destroyedInBattle', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("Special", "click")
   replay.replayEvent("alertButton_Yes", "click")
@@ -1166,7 +1160,7 @@ test('experiment_early', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("galacticChart_useSingularity_121_Talani", "click")
   replay.replayEvent("alertButton_Warp_", "click")
@@ -1291,7 +1285,7 @@ test('experiment_last_day', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("galacticChart_useSingularity_121_Talani", "click")
   replay.replayEvent("alertButton_Warp_", "click")
@@ -1510,7 +1504,7 @@ test('experiment_fail', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("galacticChart_useSingularity_121_Talani", "click")
   replay.replayEvent("alertButton_Warp_", "click")
@@ -1738,7 +1732,7 @@ test('monster', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("galacticChart_useSingularity_121_Antedi", "click")
   replay.replayEvent("alertButton_Warp_", "click")
@@ -1769,13 +1763,13 @@ test('monster', () => {
   replay.replayEvent("alertButton_Warp_", "click")
 
   const breakConditionFn = () => {
-    const encounterText = textOf('eVC_dialog')
+    const encounterText = textOf(encounterBox())
     return encounterText === "At 1 click from Acamar you encounter the terrifying Space Monster.\n\nYour opponent attacks."
   }
 
   replaySkipEncounters(replay, breakConditionFn)
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 1 click from Acamar you encounter the terrifying Space Monster.\n\nYour opponent attacks.")
 
   replay.replayEvent("ecButton_Attack", "click")
@@ -1791,7 +1785,7 @@ test('monster', () => {
   assertEqual(game.monsterStatus, MonsterQuestStatus.MonsterExists)
   assertEqual(game.specialCargoDescription(), "No special items.")
   assertEqual(game.questListDescription(), "Kill the space monster at Acamar.")
-  let specialEl = document.getElementById("Special")
+  let specialEl = button("Special")
   assertEqual(specialEl, null)
 
   game2 = serializeAndDeserialize(game)
@@ -1814,7 +1808,7 @@ test('monster', () => {
   replaySkipEncounters(replay, breakConditionFn)
 
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 1 click from Acamar you encounter the terrifying Space Monster.\n\nYour opponent attacks.")
 
   replay.replayEvent("ecButton_Attack", "click")
@@ -1854,7 +1848,7 @@ test('monster', () => {
 
   replaySkipEncounters(replay, breakConditionFn)
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 1 click from Acamar you encounter the terrifying Space Monster.\n\nYour opponent attacks.")
   assertEqual(game.monsterHull, 215)
 
@@ -1892,7 +1886,7 @@ test('jarek', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("galacticChart_useSingularity_121_Ashen", "click")
   replay.replayEvent("alertButton_Warp_", "click")
@@ -1935,13 +1929,12 @@ test('jarek', () => {
 
   const crewMember = game.commander.ship.crew[0]
   // We don't show hireFire button
-  assertEqual(document.getElementById(Utils.sanitizedElementID("hireFire_" + crewMember.name)), null)
 
   // He shows up with no cost, no skills
-  const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
-  assertEqual(textOf(personnelRow.cells[0]), "Ambassador Jarek")
-  assertTrue(personnelRow.querySelector("img.roster-icon") !== null, "roster icon shown")
-  assertEqual(personnelRow.querySelectorAll("button").length, 0)
+  const personnelRow = tableRow(crewMember.name!)
+  assertEqual(textOf(personnelRow!.cells[0]), "Ambassador Jarek")
+  assertTrue(personnelRow!.querySelector("img.roster-icon") !== null, "roster icon shown")
+  assertEqual(personnelRow!.querySelectorAll("button").length, 0)
 
   replay.replayEvent("cheat_freeSingularity", "click")
   replay.replayEvent("Chart", "click")
@@ -1987,7 +1980,7 @@ test('jarek_arrested', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("galacticChart_useSingularity_121_Ashen", "click")
   replay.replayEvent("alertButton_Warp_", "click")
@@ -2030,13 +2023,12 @@ test('jarek_arrested', () => {
 
   const crewMember = game.commander.ship.crew[0]
   // We don't show hireFire button
-  assertEqual(document.getElementById(Utils.sanitizedElementID("hireFire_" + crewMember.name)), null)
 
   // He shows up with no cost, no skills
-  const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
-  assertEqual(textOf(personnelRow.cells[0]), "Ambassador Jarek")
-  assertTrue(personnelRow.querySelector("img.roster-icon") !== null, "roster icon shown")
-  assertEqual(personnelRow.querySelectorAll("button").length, 0)
+  const personnelRow = tableRow(crewMember.name!)
+  assertEqual(textOf(personnelRow!.cells[0]), "Ambassador Jarek")
+  assertTrue(personnelRow!.querySelector("img.roster-icon") !== null, "roster icon shown")
+  assertEqual(personnelRow!.querySelectorAll("button").length, 0)
 
   // Get arrested
 
@@ -2071,13 +2063,13 @@ test('jarek_noSlots', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replaySkipEncounters(replay)
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.AmbassadorJarek)
 
-  let specialEl = document.getElementById("Special")
+  let specialEl = button("Special")
   assertEqual(specialEl !== null, true)
 
   replay.replayEvent("Special", "click")
@@ -2089,7 +2081,7 @@ test('jarek_noSlots', () => {
   replay.replayEvent("alertButton_Dismiss", "click")
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.AmbassadorJarek)
 
-  specialEl = document.getElementById("Special")
+  specialEl = button("Special")
   assertEqual(specialEl !== null, true)
 })
 
@@ -2099,7 +2091,7 @@ test('alienArtifact', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replaySkipEncounters(replay)
 
@@ -2128,7 +2120,7 @@ test('alienArtifact', () => {
   replay.replayEvent("galacticChart_useSingularity_121_Krios", "click")
   replay.replayEvent("alertButton_Warp_", "click")
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 16 clicks from Krios you encounter an alien Mantis.\n\nYour opponent attacks.")
 
   replaySkipEncounters(replay)
@@ -2160,7 +2152,7 @@ test('alienArtifact_surrender', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replaySkipEncounters(replay)
 
@@ -2189,7 +2181,7 @@ test('alienArtifact_surrender', () => {
   replay.replayEvent("galacticChart_useSingularity_121_Krios", "click")
   replay.replayEvent("alertButton_Warp_", "click")
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 16 clicks from Krios you encounter an alien Mantis.\n\nYour opponent attacks.")
 
   replay.replayEvent("ecButton_Surrender")
@@ -2219,7 +2211,7 @@ test('gemulon_alienInvasion_fail', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("Special", "click")
 
@@ -2333,7 +2325,7 @@ test('gemulon_alienInvasion_fail', () => {
   assertEqual(game.specialCargoDescription(), "No special items.")
   assertEqual(game.questListDescription(), "No open quests.")
   assertEqual(game.invasionStatus, InvasionQuestStatus.ClosedTooLate)
-  let gemulon = game._findSolarSystem('Gemulon');
+  let gemulon = game._findSolarSystem('Gemulon')!;
   assertEqual(gemulon.specialEvent, SpecialEvent.GemulonInvaded)
   assertEqual(gemulon.techLevel, TechLevel.PreAgricultural)
   assertEqual(gemulon.politics.type, PoliticsType.Anarchy)
@@ -2348,13 +2340,13 @@ test('gemulon_alienInvasion_fail', () => {
   replay.replayEvent("namedEvent", "selectPlanetZoomed|Gemulon")
   replay.replayEvent("warpBlastOff", "click")
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Gemulon you encounter an alien Mantis.\n\nYour opponent attacks.")
 
   replaySkipEncounters(replay)
 
-  const systemInfoEl = document.getElementById('system-info-text')
-  assertEqual(systemInfoEl.innerText, "large pre-agricultural anarchist state\nunder no particular pressure\nnothing special, no police, excessive pirates")
+  const systemInfoEl = systemInfo()
+  assertEqual(textOf(systemInfoEl), "large pre-agricultural anarchist state\nunder no particular pressure\nnothing special, no police, excessive pirates")
 
   replay.replayEvent("Special", "click")
   assertEqual(AlertViewController.currentAlertTitle(), "Alas, Gemulon has been invaded by aliens, which has thrown us back to pre-agricultural times. If only we had known the exact coordinates where they first arrived at our system, we might have prevented this tragedy from happening.")
@@ -2366,7 +2358,7 @@ test('gemulon_alienInvasion_oneDayLate', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("Special", "click")
 
@@ -2480,7 +2472,7 @@ test('gemulon_alienInvasion_oneDayLate', () => {
   assertEqual(game.specialCargoDescription(), "No special items.")
   assertEqual(game.questListDescription(), "No open quests.")
   assertEqual(game.invasionStatus, InvasionQuestStatus.ClosedTooLate)
-  let gemulon = game._findSolarSystem('Gemulon');
+  let gemulon = game._findSolarSystem('Gemulon')!;
   assertEqual(gemulon.specialEvent, SpecialEvent.GemulonInvaded)
   assertEqual(gemulon.techLevel, TechLevel.PreAgricultural)
   assertEqual(gemulon.politics.type, PoliticsType.Anarchy)
@@ -2502,8 +2494,8 @@ test('gemulon_alienInvasion_oneDayLate', () => {
 
   replaySkipEncounters(replay)
 
-  const systemInfoEl = document.getElementById('system-info-text')
-  assertEqual(systemInfoEl.innerText, "large pre-agricultural anarchist state\nunder no particular pressure\nnothing special, no police, excessive pirates")
+  const systemInfoEl = systemInfo()
+  assertEqual(textOf(systemInfoEl), "large pre-agricultural anarchist state\nunder no particular pressure\nnothing special, no police, excessive pirates")
 
   replay.replayEvent("Special", "click")
   assertEqual(AlertViewController.currentAlertTitle(), "Alas, Gemulon has been invaded by aliens, which has thrown us back to pre-agricultural times. If only we had known the exact coordinates where they first arrived at our system, we might have prevented this tragedy from happening.")
@@ -2515,7 +2507,7 @@ test('gemulon_alienInvasion_arriveLastDay', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("Special", "click")
 
@@ -2687,7 +2679,7 @@ test('gemulon_alienInvasion_arriveEarly', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("Special", "click")
 
@@ -2814,7 +2806,7 @@ test('gemulon_alienInvasion_arriveEarly_noSlots', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("Special", "click")
 
@@ -2976,7 +2968,7 @@ test('cargoForSale', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("Special", "click")
 
@@ -3014,11 +3006,11 @@ test('wild_cleanRecord', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.TransportWild)
   // Don't have a police record, special doesn't show
-  let specialEl = document.getElementById("Special")
+  let specialEl = button("Special")
   assertEqual(specialEl, null)
 })
 
@@ -3026,8 +3018,6 @@ test('wild_bribePolice', () => {
   const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","cheat_showSpecial","Chart","galacticChart_useSingularity_121_Exo","alertButton_Warp_","ecButton_Ignore","ecButton_Ignore","ecButton_Attack","alertButton_Attack","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Attack","alertButton_Attack","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Ship Yard","autoFuelCheckbox","Full_repair","autoRepairCheckbox","Warp","namedEvent","warpBlastOff","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Beam_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Reflective_shield","alertButton_Yes","buy_Reflective_shield","alertButton_Yes","namedEvent","warpBlastOff","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Special","alertButton_Yes","alertButton_Dismiss","cheat_freeSingularity","Chart","galacticChart_useSingularity_121_Cestus","alertButton_Warp_","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","alertButton_Dismiss","Special","alertButton_Yes","alertButton_Dismiss","Warp","warpBlastOff","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","namedEvent","warpBlastOff","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","namedEvent","warpBlastOff","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Warp","warpBlastOff","ecButton_Attack","alertButton_Attack","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","alertButton_Dismiss","namedEvent","warpBlastOff"],"eventNameLog":["click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","change","click","change","click","selectPlanetZoomed|Zuul","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Exo","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Bretel","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Iodine","click","click","click","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Courteney","click"],"gameRandSeed":1733627017971}`
   const replay = runReplayLog(replayLog)
 
-  const session = replay.session
-  const game = session.game
 
   replay.replayEvent("ecButton_Bribe", "click")
 
@@ -3035,7 +3025,7 @@ test('wild_bribePolice', () => {
 
   replay.replayEvent("alertButton_Offer_bribe", "click")
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 19 clicks from Courteney you encounter a pirate Bumblebee.\n\nYour opponent attacks.")
 })
 
@@ -3044,11 +3034,11 @@ test('wild_noSlots', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.TransportWild)
 
-  let specialEl = document.getElementById("Special")
+  let specialEl = button("Special")
   assertEqual(specialEl !== null, true)
 
   replay.replayEvent("Special", "click")
@@ -3060,7 +3050,7 @@ test('wild_noSlots', () => {
   replay.replayEvent("alertButton_Dismiss", "click")
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.TransportWild)
 
-  specialEl = document.getElementById("Special")
+  specialEl = button("Special")
   assertEqual(specialEl !== null, true)
 })
 
@@ -3069,7 +3059,7 @@ test('wild_noLaser', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
 
   assertEqual(AlertViewController.currentAlertTitle(), `Jonathan Wild refuses to board unless you're armed with a Beam Laser or better. He'd rather take his chances hiding out here on Exo.`)
@@ -3077,7 +3067,7 @@ test('wild_noLaser', () => {
   replay.replayEvent("alertButton_Dismiss", "click")
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.TransportWild)
 
-  const specialEl = document.getElementById("Special")
+  const specialEl = button("Special")
   assertEqual(specialEl !== null, true)
 })
 
@@ -3087,7 +3077,7 @@ test('wild_onBoard', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   assertEqual(AlertViewController.currentAlertTitle(), "You have taken Jonathan Wild on board.")
 
@@ -3117,13 +3107,12 @@ test('wild_onBoard', () => {
 
   const crewMember = game.commander.ship.crew[0]
   // We don't show hireFire button
-  assertEqual(document.getElementById(Utils.sanitizedElementID("hireFire_" + crewMember.name)), null)
 
   // He shows up with no cost, no skills
-  const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
-  assertEqual(textOf(personnelRow.cells[0]), "Jonathan Wild")
-  assertTrue(personnelRow.querySelector("img.roster-icon") !== null, "roster icon shown")
-  assertEqual(personnelRow.querySelectorAll("button").length, 0)
+  const personnelRow = tableRow(crewMember.name!)
+  assertEqual(textOf(personnelRow!.cells[0]), "Jonathan Wild")
+  assertTrue(personnelRow!.querySelector("img.roster-icon") !== null, "roster icon shown")
+  assertEqual(personnelRow!.querySelectorAll("button").length, 0)
 
   // I need the extra pilot skill to survive the journey to Kravat
   replay.replayEvent("hireFire_Mercedez", "click")
@@ -3210,7 +3199,7 @@ test('wild_surrenderToPirate', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   assertEqual(AlertViewController.currentAlertTitle(), "You have taken Jonathan Wild on board.")
 
@@ -3240,13 +3229,12 @@ test('wild_surrenderToPirate', () => {
 
   const crewMember = game.commander.ship.crew[0]
   // We don't show hireFire button
-  assertEqual(document.getElementById(Utils.sanitizedElementID("hireFire_" + crewMember.name)), null)
 
   // He shows up with no cost, no skills
-  const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
-  assertEqual(textOf(personnelRow.cells[0]), "Jonathan Wild")
-  assertTrue(personnelRow.querySelector("img.roster-icon") !== null, "roster icon shown")
-  assertEqual(personnelRow.querySelectorAll("button").length, 0)
+  const personnelRow = tableRow(crewMember.name!)
+  assertEqual(textOf(personnelRow!.cells[0]), "Jonathan Wild")
+  assertTrue(personnelRow!.querySelector("img.roster-icon") !== null, "roster icon shown")
+  assertEqual(personnelRow!.querySelectorAll("button").length, 0)
 
   replay.replayEvent("Warp", "click")
   replay.replayEvent("warpBlastOff", "click")
@@ -3277,7 +3265,7 @@ test('wild_surrenderToPolice', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   assertEqual(AlertViewController.currentAlertTitle(), "You have taken Jonathan Wild on board.")
 
@@ -3307,13 +3295,12 @@ test('wild_surrenderToPolice', () => {
 
   const crewMember = game.commander.ship.crew[0]
   // We don't show hireFire button
-  assertEqual(document.getElementById(Utils.sanitizedElementID("hireFire_" + crewMember.name)), null)
 
   // He shows up with no cost, no skills
-  const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
-  assertEqual(textOf(personnelRow.cells[0]), "Jonathan Wild")
-  assertTrue(personnelRow.querySelector("img.roster-icon") !== null, "roster icon shown")
-  assertEqual(personnelRow.querySelectorAll("button").length, 0)
+  const personnelRow = tableRow(crewMember.name!)
+  assertEqual(textOf(personnelRow!.cells[0]), "Jonathan Wild")
+  assertTrue(personnelRow!.querySelector("img.roster-icon") !== null, "roster icon shown")
+  assertEqual(personnelRow!.querySelectorAll("button").length, 0)
 
   replay.replayEvent("Warp", "click")
   replay.replayEvent("warpBlastOff", "click")
@@ -3350,7 +3337,7 @@ test('wild_podEscape', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   assertEqual(AlertViewController.currentAlertTitle(), "Jonathan Wild is arrested, and taken away to stand trial.")
 
@@ -3379,7 +3366,7 @@ test('wild_sellWeapons', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   assertEqual(AlertViewController.currentAlertTitle(), "You have taken Jonathan Wild on board.")
 
@@ -3409,13 +3396,12 @@ test('wild_sellWeapons', () => {
 
   const crewMember = game.commander.ship.crew[0]
   // We don't show hireFire button
-  assertEqual(document.getElementById(Utils.sanitizedElementID("hireFire_" + crewMember.name)), null)
 
   // He shows up with no cost, no skills
-  const personnelRow = document.getElementById(`personnelRow-${crewMember.name}`)
-  assertEqual(textOf(personnelRow.cells[0]), "Jonathan Wild")
-  assertTrue(personnelRow.querySelector("img.roster-icon") !== null, "roster icon shown")
-  assertEqual(personnelRow.querySelectorAll("button").length, 0)
+  const personnelRow = tableRow(crewMember.name!)
+  assertEqual(textOf(personnelRow!.cells[0]), "Jonathan Wild")
+  assertTrue(personnelRow!.querySelector("img.roster-icon") !== null, "roster icon shown")
+  assertEqual(personnelRow!.querySelectorAll("button").length, 0)
 
 
   replay.replayEvent("Equipment", "click")
@@ -3433,7 +3419,7 @@ test('wild_sellWeapons', () => {
   replay.replayEvent("alertButton_He_can_stay_", "click")
 
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 18 clicks from Malcoria you encounter a police Firefly.\n\nYour opponent attacks.")
 
   assertEqual(game.wildStatus, WildQuestStatus.Closed)
@@ -3457,7 +3443,7 @@ test('wild_ionReactor', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("Special", "click")
   replay.replayEvent("alertButton_Yes", "click")
@@ -3502,19 +3488,17 @@ test('wild_ionReactor', () => {
   assertEqual(AlertViewController.currentAlertTitle(), "Jonathan Wild doesn't like the looks of that Ion Reactor. He thinks it's too dangerous, and won't get on board.")
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.TransportWild)
 
-  const specialEl = document.getElementById("Special")
+  const specialEl = button("Special")
   assertEqual(specialEl !== null, true)
 })
 
 test('dragonfly_flee', () => {
   const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","Chart","namedEvent","galacticChart_useSingularity_1_Omega","alertButton_Warp_","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Targeting_system","alertButton_Yes","buy_Navigation_system","alertButton_Yes","cheat_freeSingularity","cheat_showSpecial","Chart","galacticChart_useSingularity_121_Quator","alertButton_Warp_","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Special","alertButton_Dismiss","cheat_freeSingularity","Commander","ignoreTradeInOrbit","ignoreTraders","ignorePolice","ignorePirates","Chart","galacticChart_useSingularity_121_Baratas","alertButton_Warp_","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Special","alertButton_Dismiss","cheat_freeSingularity","Chart","galacticChart_useSingularity_121_Melina","alertButton_Warp_","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Special","alertButton_Dismiss","cheat_freeSingularity","Chart","namedEvent","galacticChart_useSingularity_1_Regulas","alertButton_Warp_","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Special","alertButton_Dismiss","cheat_freeSingularity","Chart","galacticChart_useSingularity_121_Zalkon","alertButton_Warp_","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","namedEvent","warpBlastOff","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Ship Yard","fulltank","namedEvent","warpBlastOff"],"eventNameLog":["click","click","click","click","selectPlanet|Omega","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","change","change","change","change","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","selectPlanet|Regulas","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Kaylon","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Zalkon","click"],"gameRandSeed":1733198074014}`
 
-  const replay = runReplayLog(replayLog)
+  runReplayLog(replayLog)
 
-  const session = replay.session
-  const game = session.game
 
-  const encounterText = textOf('eVC_dialog')
+  const encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 1 click from Zalkon you encounter a stolen Dragonfly.\n\nYour opponent attacks.")
 })
 
@@ -3524,7 +3508,7 @@ test('dragonfly', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   assertEqual(game.specialCargoDescription(), "A Portable Singularity.")
   assertEqual(game.questListDescription(), "Follow the Dragonfly to Zalkon.")
@@ -3539,7 +3523,7 @@ test('dragonfly', () => {
   replay.replayEvent("galacticChart_useSingularity_121_Zalkon", "click")
   replay.replayEvent("alertButton_Warp_", "click")
 
-  const encounterText = textOf('eVC_dialog')
+  const encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 1 click from Zalkon you encounter a stolen Dragonfly.\n\nYour opponent attacks.")
 
   replay.replayEvent("ecButton_Auto_Attack", "click")
@@ -3601,17 +3585,15 @@ test('japori_lackMedicine', () => {
 
   const replay = runReplayLog(replayLog)
 
-  const session = replay.session
-  const game = session.game
 
   // Don't have medicine, Special doesn't show
-  let specialEl = document.getElementById("Special")
+  let specialEl = button("Special")
   assertEqual(specialEl, null)
 
   replay.replayEvent("News", "click")
   replay.replayEvent("purchaseNews", "click")
 
-  const newsStrDiv = document.getElementById('newsStrDiv')
+  const newsStrDiv = news()
   assertTrue(hasText(newsStrDiv, "h4", "The Daily Planet"), "masthead is a heading")
   assertEqual(textOf(newsStrDiv), "The Daily Planet\nTravelers Claim Sighting of Ship Materializing in Orbit!\n\nCollector in Styris System Seeks to Purchase Tribbles.\n\nNew Rumors of Severe Drought in the Vandor System.")
 })
@@ -3622,12 +3604,12 @@ test('japori_noCargoSpace', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("News", "click")
   replay.replayEvent("purchaseNews", "click")
 
-  let newsStrDiv = document.getElementById('newsStrDiv')
+  let newsStrDiv = news()
   assertTrue(hasText(newsStrDiv, "h4", "The Loyal Subject"), "masthead is a heading")
   assertEqual(textOf(newsStrDiv), "The Loyal Subject\nTravelers Claim Sighting of Ship Materializing in Orbit!\n\nEditorial: We Must Help Japori!\n\nNotice: Cold Weather in the Ligon System.")
 
@@ -3642,11 +3624,11 @@ test('japori_noCargoSpace', () => {
   replay.replayEvent("alertButton_Dismiss", "click")
 
   replay.replayEvent("Commander", "click")
-  assertEqual(textOf("cargoListDiv"), "A Portable Singularity.")
+  assertEqual(textOf(specialCargo()), "A Portable Singularity.")
   assertEqual(game.specialCargoDescription(), "A Portable Singularity.")
   assertEqual(game.questListDescription(), "No open quests.")
 
-  let specialEl = document.getElementById("Special")
+  let specialEl = button("Special")
   assertEqual(specialEl !== null, true)
 })
 
@@ -3656,12 +3638,12 @@ test('japori_hasMedicine', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("News", "click")
   replay.replayEvent("purchaseNews", "click")
 
-  let newsStrDiv = document.getElementById('newsStrDiv')
+  let newsStrDiv = news()
   assertTrue(hasText(newsStrDiv, "h4", "The Loyal Subject"), "masthead is a heading")
   assertEqual(textOf(newsStrDiv), "The Loyal Subject\nTravelers Claim Sighting of Ship Materializing in Orbit!\n\nEditorial: We Must Help Japori!\n\nNotice: Cold Weather in the Ligon System.")
 
@@ -3672,11 +3654,11 @@ test('japori_hasMedicine', () => {
   replay.replayEvent("alertButton_Dismiss", "click")
 
   replay.replayEvent("Commander", "click")
-  assertEqual(textOf("cargoListDiv"), "10 bays of antidote.\nA Portable Singularity.")
+  assertEqual(textOf(specialCargo()), "10 bays of antidote.\nA Portable Singularity.")
   assertEqual(game.specialCargoDescription(), "10 bays of antidote.\nA Portable Singularity.")
   assertEqual(game.questListDescription(), "Deliver antidote to Japori.")
 
-  let specialEl = document.getElementById("Special")
+  let specialEl = button("Special")
   assertEqual(specialEl, null)
 
   replay.replayEvent("Warp", "click")
@@ -3718,7 +3700,7 @@ test('japori_hasMedicine', () => {
   replay.replayEvent("News", "click")
   replay.replayEvent("purchaseNews", "click")
 
-  newsStrDiv = document.getElementById('newsStrDiv')
+  newsStrDiv = news()
   assertTrue(hasText(newsStrDiv, "h4", "General Report"), "masthead is a heading")
   assertEqual(textOf(newsStrDiv), "General Report\nTravelers Claim Sighting of Ship Materializing in Orbit!\n\nDisease Antidotes Arrive! Health Officials Optimistic.\n\nCollector in Titan System Seeks to Purchase Tribbles.\n\nWeapons Research Increases Kill-Ratio!")
 
@@ -3727,7 +3709,7 @@ test('japori_hasMedicine', () => {
   assertEqual(AlertViewController.currentAlertTitle(), "Thank you for delivering the medicine to us. We don't have any money to reward you, but we do have an alien fast-learning machine with which we will increase your skills.")
   replay.replayEvent("alertButton_Dismiss", "click")
 
-  specialEl = document.getElementById("Special")
+  specialEl = button("Special")
   assertEqual(specialEl, null)
 
   assertEqual(game.japoriQuestStatus, JaporiQuestStatus.Closed)
@@ -3764,10 +3746,10 @@ test('eraseRecord_accept', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   // Don't have a record yet, special doesn't show
-  let specialEl = document.getElementById("Special")
+  let specialEl = button("Special")
   assertEqual(specialEl, null)
 
   replay.replayEvent("Warp", "click")
@@ -3808,7 +3790,7 @@ test('eraseRecord_accept', () => {
   replay.replayEvent("alertButton_Dismiss", "click")
   replay.replayEvent("alertButton_Dismiss", "click")
 
-  specialEl = document.getElementById("Special")
+  specialEl = button("Special")
   assertEqual(specialEl !== null, true)
 
   replay.replayEvent("Special", "click")
@@ -3822,7 +3804,7 @@ test('eraseRecord_accept', () => {
   assertEqual(AlertViewController.currentAlertTitle(), "The hacker resets your police record to be clean.")
   replay.replayEvent("alertButton_Dismiss", "click")
 
-  specialEl = document.getElementById("Special")
+  specialEl = button("Special")
   assertEqual(specialEl, null)
 
   assertEqual(game.commander.credits, creditsBefore - 5000)
@@ -3842,10 +3824,10 @@ test('eraseRecord_decline', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   // Don't have a record yet, special doesn't show
-  let specialEl = document.getElementById("Special")
+  let specialEl = button("Special")
   assertEqual(specialEl, null)
 
   replay.replayEvent("Warp", "click")
@@ -3886,7 +3868,7 @@ test('eraseRecord_decline', () => {
   replay.replayEvent("alertButton_Dismiss", "click")
   replay.replayEvent("alertButton_Dismiss", "click")
 
-  specialEl = document.getElementById("Special")
+  specialEl = button("Special")
   assertEqual(specialEl !== null, true)
 
   replay.replayEvent("Special", "click")
@@ -3897,7 +3879,7 @@ test('eraseRecord_decline', () => {
 
   replay.replayEvent("alertButton_No", "click")
 
-  specialEl = document.getElementById("Special")
+  specialEl = button("Special")
   assertEqual(specialEl !== null, true)
 
   assertEqual(game.commander.credits, creditsBefore)
@@ -3916,7 +3898,7 @@ test('skillIncrease_incidence', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   assertEqual(game.solarSystems.filter(x => x.specialEvent === SpecialEvent.SkillIncrease).length, 3)
 })
@@ -3926,7 +3908,7 @@ test('skillIncrease_decline', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("Special", "click")
 
@@ -3960,7 +3942,7 @@ test('skillIncrease_accept', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("Special", "click")
 
@@ -3994,7 +3976,7 @@ test('lottery_easy', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   const creditsBefore = game.commander.credits
 
@@ -4019,7 +4001,7 @@ test('lottery_beginner', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   const creditsBefore = game.commander.credits
 
@@ -4044,9 +4026,8 @@ test('lottery_normal', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  const creditsBefore = game.commander.credits
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None)
 })
@@ -4057,17 +4038,17 @@ test('retire', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
 
   replay.replayEvent("cheat_freeMoney")
   replay.replayEvent("cheat_freeSingularity")
 
 
-  const target = game.solarSystems.find(x => x.specialEvent === SpecialEvent.MoonForSale)
+  const target = game.solarSystems.find(x => x.specialEvent === SpecialEvent.MoonForSale)!
 
   replay.replayEvent("Chart")
-  replay.replayEvent(`galacticChart_useSingularity_121_${target.name}`)
+  replay.replayEvent(`galacticChart_useSingularity_121_${target!.name}`)
   replay.replayEvent("alertButton_Warp_")
 
   replaySkipEncounters(replay)
@@ -4084,10 +4065,10 @@ test('retire', () => {
 
   replay.replayEvent("cheat_freeSingularity")
 
-  const target2 = game.solarSystems.find(x => x.specialEvent === SpecialEvent.MoonBought)
+  const target2 = game.solarSystems.find(x => x.specialEvent === SpecialEvent.MoonBought)!
 
   replay.replayEvent("Chart")
-  replay.replayEvent(`galacticChart_useSingularity_121_${target2.name}`)
+  replay.replayEvent(`galacticChart_useSingularity_121_${target2!.name}`)
   replay.replayEvent("alertButton_Warp_")
 
   replaySkipEncounters(replay)
@@ -4097,9 +4078,9 @@ test('retire', () => {
   replay.replayEvent("Special", "click")
   replay.replayEvent("alertButton_Yes", "click")
 
-  const endMessage = document.getElementById('end-message').innerText
+  const endMessage = textOf(scoreMessage())
   assertEqual(endMessage.startsWith("You achieved a score"), true)
-  assertTrue(document.getElementById('endgame') !== null, "end game button shows")
+  assertTrue(button("End Game and Start Over") !== null, "end game button shows")
 })
 
 test('tribble', () => {
@@ -4108,7 +4089,7 @@ test('tribble', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const game = session.game
+  const game = session.game!
   const commander = game.commander
 
   assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics), 0)
@@ -4160,8 +4141,7 @@ test('tribble_notEnoughMoney', () => {
   const replay = runReplayLog(replayLog)
   const session = replay.session
 
-  const game = session.game
-  const commander = game.commander
+  const game = session.game!
 
   assertEqual(AlertViewController.currentAlertTitle(), "You don't have enough cash to accept this offer.")
   assertEqual(game.commander.ship.tribbles, 0)

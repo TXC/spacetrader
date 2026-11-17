@@ -62,9 +62,10 @@ How the pieces fit:
 - Rules never run while a screen is being drawn.
 
 Plain tests of the rules sit next to them as `src/game/*.test.ts` and
-run in Node. The flow tests replay recorded play sessions by clicking
-elements by id. An element's id is therefore something the tests rely
-on: renaming one breaks the recordings that use it.
+run in Node. The flow tests replay recorded play sessions. A recording
+names each button, link and input by its id, so renaming one of those
+breaks the recordings that use it. What the tests then check on the
+page they find by role and text, through `src/tests/support/page.ts`.
 
 ## Roadmap
 

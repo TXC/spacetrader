@@ -20,12 +20,9 @@ export default defineConfig([
     },
   },
   {
-    // The flow tests were converted from the original game's test file and keep its style
-    // and loose typing. Missing imports are still caught, since type checking is off there.
+    // The flow tests were converted from the original game's test file and keep its style.
     files: ['src/tests/**'],
     rules: {
-      'no-undef': 'error',
-      '@typescript-eslint/ban-ts-comment': 'off',
       'prefer-const': 'off',
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': 'off',

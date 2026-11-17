@@ -1,25 +1,15 @@
-// @ts-nocheck
 // Flow tests: each replays a recorded play session by clicking the recorded elements, then
 // checks what the player sees and what the game holds. Converted from the original
 // project's UnitTests.js; the recordings and expected values are unchanged.
 import { test } from 'vitest'
-import { GameRand } from '../../game/GameRand.ts'
 import { AccessoryType } from '../../game/Accessory.ts'
-import { ActionLogger } from '../../game/ActionLogger.ts'
-import { ATTACK_POLICE_SCORE, ATTACK_TRADER_SCORE, KILL_PIRATE_SCORE, PoliceRecordScore } from '../../game/Commander.ts'
-import { Game, GameEndStatus, RareEvent } from '../../game/Game.ts'
-import { PoliticsType } from '../../game/Politics.ts'
-import { ShipModel, ShipModelType } from '../../game/Ship.ts'
-import { Difficulty, ExperimentQuestStatus, InvasionQuestStatus, JaporiQuestStatus, JarekQuestStatus, MonsterQuestStatus, ReactorQuestStatus, ScarabQuestStatus, SpecialEvent, WildQuestStatus } from '../../game/SolarSystem.types.ts'
-import { FABRIC_RIP_PROBABILITY_INITIAL } from '../../game/SpecialEventSpecifier.ts'
-import { TechLevel, TradeItemType } from '../../game/TradeItem.types.ts'
-import { Utils, MockLocalStorage, pLog } from '../../game/Utilities.ts'
-import { runtime } from '../../game/runtime.ts'
+import { ATTACK_POLICE_SCORE, ATTACK_TRADER_SCORE, PoliceRecordScore } from '../../game/Commander.ts'
+import { RareEvent } from '../../game/Game.ts'
+import { TradeItemType } from '../../game/TradeItem.types.ts'
 import { AlertViewController } from '../../game/alerts.ts'
-import { Session } from '../../game/session.ts'
 import './setup.ts'
-import { ActionLogReplay, assertEqual, assertEqualArrays, assertEqualDeep, assertEqualFloats, assertEqualGames, assertPixelColor, assertTrue, performStressTest, replaySkipEncounters, runReplayLog, serializeAndDeserialize, show } from './harness.ts'
-import { cellAfter, hasText, rowAfterHeading, textOf } from '../support/page.ts'
+import { assertEqual, assertEqualArrays, assertEqualGames, assertTrue, runReplayLog, serializeAndDeserialize } from './harness.ts'
+import { button, encounterBox, hasText, hullFrame, news, textOf, welcome } from '../support/page.ts'
 
 
 test('BottleGood_Ignore', () => {
@@ -28,14 +18,14 @@ test('BottleGood_Ignore', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.\n\nIt appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
 
   replay.replayEvent("ecButton_Ignore", "click")
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 18 clicks from Tantalos you encounter a police Gnat.\n\nIt ignores you.")
 
   assertEqual(game.commander.pilot, 5)
@@ -59,9 +49,9 @@ test('BottleGood_Pass', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.\n\nIt appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
 
   replay.replayEvent("ecButton_Drink", "click")
@@ -71,7 +61,7 @@ test('BottleGood_Pass', () => {
   replay.replayEvent("alertButton_I_ll_pass", "click")
 
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 18 clicks from Tantalos you encounter a police Gnat.\n\nIt ignores you.")
 
   assertEqual(game.commander.pilot, 5)
@@ -95,13 +85,13 @@ test('BottleGood_Drink', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.\n\nIt appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
 
-  assertEqual(document.getElementById(`battle-hpContainer-self-Gnat`).style.visibility, "visible")
-  assertEqual(document.getElementById(`battle-hpContainer-enemy-Bottle`).style.visibility, "hidden")
+  assertEqual(hullFrame("self", "Gnat")!.style.visibility, "visible")
+  assertEqual(hullFrame("enemy", "Bottle")!.style.visibility, "hidden")
 
   replay.replayEvent("ecButton_Drink", "click")
 
@@ -114,11 +104,11 @@ test('BottleGood_Drink', () => {
   replay.replayEvent("alertButton_Dismiss", "click")
 
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 19 clicks from Tantalos you encounter a police Gnat.\n\nIt ignores you.")
 
-  assertEqual(document.getElementById(`battle-hpContainer-self-Gnat`).style.visibility, "visible")
-  assertEqual(document.getElementById(`battle-hpContainer-enemy-Gnat`).style.visibility, "visible")
+  assertEqual(hullFrame("self", "Gnat")!.style.visibility, "visible")
+  assertEqual(hullFrame("enemy", "Gnat")!.style.visibility, "visible")
 
   assertEqual(game.commander.pilot, 5)
   assertEqual(game.commander.trader, 5)
@@ -141,14 +131,14 @@ test('BottleOld_Ignore', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.\n\nIt appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
 
   replay.replayEvent("ecButton_Ignore", "click")
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 18 clicks from Tantalos you encounter a police Gnat.\n\nIt ignores you.")
 
   assertEqual(game.commander.pilot, 5)
@@ -172,9 +162,9 @@ test('BottleOld_Pass', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.\n\nIt appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
 
   replay.replayEvent("ecButton_Drink", "click")
@@ -184,7 +174,7 @@ test('BottleOld_Pass', () => {
   replay.replayEvent("alertButton_I_ll_pass", "click")
 
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 18 clicks from Tantalos you encounter a police Gnat.\n\nIt ignores you.")
 
   assertEqual(game.commander.pilot, 5)
@@ -208,13 +198,13 @@ test('BottleOld_Drink', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Tantalos you encounter a floating bottle.\n\nIt appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!")
 
-  assertEqual(document.getElementById(`battle-hpContainer-self-Gnat`).style.visibility, "visible")
-  assertEqual(document.getElementById(`battle-hpContainer-enemy-Bottle`).style.visibility, "hidden")
+  assertEqual(hullFrame("self", "Gnat")!.style.visibility, "visible")
+  assertEqual(hullFrame("enemy", "Bottle")!.style.visibility, "hidden")
 
   replay.replayEvent("ecButton_Drink", "click")
 
@@ -227,11 +217,11 @@ test('BottleOld_Drink', () => {
   replay.replayEvent("alertButton_Dismiss", "click")
 
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 19 clicks from Tantalos you encounter a police Gnat.\n\nIt ignores you.")
 
-  assertEqual(document.getElementById(`battle-hpContainer-self-Gnat`).style.visibility, "visible")
-  assertEqual(document.getElementById(`battle-hpContainer-enemy-Gnat`).style.visibility, "visible")
+  assertEqual(hullFrame("self", "Gnat")!.style.visibility, "visible")
+  assertEqual(hullFrame("enemy", "Gnat")!.style.visibility, "visible")
 
   assertEqual(game.commander.pilot, 5)
   assertEqual(game.commander.trader, 5)
@@ -254,9 +244,9 @@ test('Ahab_notEligible', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 15 clicks from Japori you encounter a police Firefly.\n\nIt ignores you.")
 
   assertEqualArrays(game._remainingRareEvents, [RareEvent.CaptainAhab])
@@ -271,9 +261,9 @@ test('Ahab_accept', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Ahab.\n\nThe captain requests a brief meeting with you.")
 
   replay.replayEvent("ecButton_Meet", "click")
@@ -309,9 +299,9 @@ test('Ahab_noThanks', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Ahab.\n\nThe captain requests a brief meeting with you.")
 
   replay.replayEvent("ecButton_Meet", "click")
@@ -323,7 +313,7 @@ test('Ahab_noThanks', () => {
 
   replay.replayEvent("alertButton_No_thanks_", "click")
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.")
 
   const pilotAfter = game.commander.pilot
@@ -346,9 +336,9 @@ test('Ahab_ignore', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Ahab.\n\nThe captain requests a brief meeting with you.")
 
   const pilotBefore = game.commander.pilot
@@ -356,7 +346,7 @@ test('Ahab_ignore', () => {
 
   replay.replayEvent("ecButton_Ignore", "click")
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.")
 
   const pilotAfter = game.commander.pilot
@@ -379,15 +369,14 @@ test('Ahab_attack', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Ahab.\n\nThe captain requests a brief meeting with you.")
 
   const pilotBefore = game.commander.pilot
   assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true)
 
-  const policeRecordScoreBefore = game.commander.policeRecordScore
   replay.replayEvent("ecButton_Attack", "click")
 
   assertEqual(AlertViewController.currentAlertTitle(), "Famous captains get famous by, among other things, destroying everyone who attacks them. Do you really want to attack?")
@@ -434,8 +423,8 @@ test('Ahab_attack', () => {
 
   replay.replayEvent("alertButton_Dismiss", "click") // arrived
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Yew")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Yew")
 
   assertEqualArrays(game._breakingNews, [ "Thug Assaults Captain Ahab!" ])
 
@@ -443,7 +432,7 @@ test('Ahab_attack', () => {
   replay.replayEvent("purchaseNews", "click")
 
 
-  const newsStrDiv = document.getElementById('newsStrDiv')
+  const newsStrDiv = news()
   assertTrue(hasText(newsStrDiv, "h4", "The Command"), "masthead is a heading")
   assertEqual(textOf(newsStrDiv), "The Command\nThug Assaults Captain Ahab!\n\nNotorious Criminal Jean-Luc Sighted in Yew!\n\nInsurrection Crushed: Rebels Executed!")
 
@@ -472,9 +461,9 @@ test('Conrad_notEligible', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 15 clicks from Japori you encounter a police Firefly.\n\nIt ignores you.")
 
   assertEqualArrays(game._remainingRareEvents, [RareEvent.CaptainConrad])
@@ -489,9 +478,9 @@ test('Conrad_accept', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Conrad.\n\nThe captain requests a brief meeting with you.")
 
   replay.replayEvent("ecButton_Meet", "click")
@@ -528,9 +517,9 @@ test('Conrad_noThanks', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Conrad.\n\nThe captain requests a brief meeting with you.")
 
   replay.replayEvent("ecButton_Meet", "click")
@@ -542,7 +531,7 @@ test('Conrad_noThanks', () => {
 
   replay.replayEvent("alertButton_No_thanks_", "click")
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.")
 
   const engAfter = game.commander.engineer
@@ -565,9 +554,9 @@ test('Conrad_ignore', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Conrad.\n\nThe captain requests a brief meeting with you.")
 
   const engBefore = game.commander.engineer
@@ -575,7 +564,7 @@ test('Conrad_ignore', () => {
 
   replay.replayEvent("ecButton_Ignore", "click")
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.")
 
   const engAfter = game.commander.engineer
@@ -598,15 +587,14 @@ test('Conrad_attack', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Conrad.\n\nThe captain requests a brief meeting with you.")
 
   const engBefore = game.commander.engineer
   assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
-  const policeRecordScoreBefore = game.commander.policeRecordScore
   replay.replayEvent("ecButton_Attack", "click")
 
   assertEqual(AlertViewController.currentAlertTitle(), "Famous captains get famous by, among other things, destroying everyone who attacks them. Do you really want to attack?")
@@ -653,8 +641,8 @@ test('Conrad_attack', () => {
 
   replay.replayEvent("alertButton_Dismiss", "click") // arrived
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Yew")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Yew")
 
   assertEqualArrays(game._breakingNews, [ "Captain Conrad Comes Under Attack By Criminal!" ])
 
@@ -662,7 +650,7 @@ test('Conrad_attack', () => {
   replay.replayEvent("purchaseNews", "click")
 
 
-  const newsStrDiv = document.getElementById('newsStrDiv')
+  const newsStrDiv = news()
   assertTrue(hasText(newsStrDiv, "h4", "The Command"), "masthead is a heading")
   assertEqual(textOf(newsStrDiv), "The Command\nCaptain Conrad Comes Under Attack By Criminal!\n\nNotorious Criminal Jean-Luc Sighted in Yew!\n\nInsurrection Crushed: Rebels Executed!")
 
@@ -691,9 +679,9 @@ test('Huie_notEligible', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 15 clicks from Japori you encounter a police Firefly.\n\nIt ignores you.")
 
   assertEqualArrays(game._remainingRareEvents, [RareEvent.CaptainHuie])
@@ -708,9 +696,9 @@ test('Huie_accept', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Huie.\n\nThe captain requests a brief meeting with you.")
 
   replay.replayEvent("ecButton_Meet", "click")
@@ -747,9 +735,9 @@ test('Huie_noThanks', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Huie.\n\nThe captain requests a brief meeting with you.")
 
   replay.replayEvent("ecButton_Meet", "click")
@@ -761,7 +749,7 @@ test('Huie_noThanks', () => {
 
   replay.replayEvent("alertButton_No_thanks_", "click")
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.")
 
   const tradAfter = game.commander.trader
@@ -784,9 +772,9 @@ test('Huie_ignore', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Huie.\n\nThe captain requests a brief meeting with you.")
 
   const tradBefore = game.commander.trader
@@ -794,7 +782,7 @@ test('Huie_ignore', () => {
 
   replay.replayEvent("ecButton_Ignore", "click")
 
-  encounterText = textOf('eVC_dialog')
+  encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.")
 
   const tradAfter = game.commander.trader
@@ -817,15 +805,14 @@ test('Huie_attack', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
-  let encounterText = textOf('eVC_dialog')
+  let encounterText = textOf(encounterBox())
   assertEqual(encounterText, "At 20 clicks from Yew you encounter the famous Captain Huie.\n\nThe captain requests a brief meeting with you.")
 
   const tradBefore = game.commander.trader
   assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true)
 
-  const policeRecordScoreBefore = game.commander.policeRecordScore
   replay.replayEvent("ecButton_Attack", "click")
 
   assertEqual(AlertViewController.currentAlertTitle(), "Famous captains get famous by, among other things, destroying everyone who attacks them. Do you really want to attack?")
@@ -872,8 +859,8 @@ test('Huie_attack', () => {
 
   replay.replayEvent("alertButton_Dismiss", "click") // arrived
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Yew")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Yew")
 
   assertEqualArrays(game._breakingNews, [ "Famed Captain Huie Attacked by Brigand!" ] )
 
@@ -881,7 +868,7 @@ test('Huie_attack', () => {
   replay.replayEvent("purchaseNews", "click")
 
 
-  const newsStrDiv = document.getElementById('newsStrDiv')
+  const newsStrDiv = news()
   assertTrue(hasText(newsStrDiv, "h4", "The Command"), "masthead is a heading")
   assertEqual(textOf(newsStrDiv), "The Command\nFamed Captain Huie Attacked by Brigand!\n\nNotorious Criminal Jean-Luc Sighted in Yew!\n\nInsurrection Crushed: Rebels Executed!")
 
@@ -910,17 +897,17 @@ test('MarieCeleste_ignore', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   for (let i = 0; i < 5; ++i) {
-    assertEqual(document.getElementById("ecButton_Yield"), null) // Not encountering Customs Police
+    assertEqual(button("Yield"), null) // Not encountering Customs Police
     replay.replayEvent("ecButton_Ignore", "click")
   }
 
   replay.replayEvent("alertButton_Dismiss", "click")
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Jason")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Jason")
 
   assertEqualArrays(game._remainingRareEvents, [])
   const game2 = serializeAndDeserialize(game)
@@ -934,21 +921,21 @@ test('MarieCeleste_boardLeave', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("ecButton_Board", "click")
   replay.replayEvent("alertButton_Leave_it", "click")
 
 
   for (let i = 0; i < 4; ++i) {
-    assertEqual(document.getElementById("ecButton_Yield"), null) // Not encountering Customs Police
+    assertEqual(button("Yield"), null) // Not encountering Customs Police
     replay.replayEvent("ecButton_Ignore", "click")
   }
 
   replay.replayEvent("alertButton_Dismiss", "click")
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Jason")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Jason")
 
   assertEqualArrays(game._remainingRareEvents, [])
   const game2 = serializeAndDeserialize(game)
@@ -962,7 +949,7 @@ test('MarieCeleste_boardDontTake', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("ecButton_Board", "click")
   replay.replayEvent("alertButton_Yes__take_cargo", "click")
@@ -971,14 +958,14 @@ test('MarieCeleste_boardDontTake', () => {
   replay.replayEvent("alertButton__Take_plunderDone", "click")
 
   for (let i = 0; i < 4; ++i) {
-    assertEqual(document.getElementById("ecButton_Yield"), null) // Not encountering Customs Police
+    assertEqual(button("Yield"), null) // Not encountering Customs Police
     replay.replayEvent("ecButton_Ignore", "click")
   }
 
   replay.replayEvent("alertButton_Dismiss", "click")
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Jason")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Jason")
 
   assertEqualArrays(game._remainingRareEvents, [])
   const game2 = serializeAndDeserialize(game)
@@ -992,7 +979,7 @@ test('MarieCeleste_boardTakeDumpYield', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("ecButton_Board", "click")
   replay.replayEvent("alertButton_Yes__take_cargo", "click")
@@ -1010,7 +997,7 @@ test('MarieCeleste_boardTakeDumpYield', () => {
 
 
   for (let i = 0; i < 5; ++i) {
-    assertEqual(document.getElementById("ecButton_Yield"), null) // Not encountering Customs Police
+    assertEqual(button("Yield"), null) // Not encountering Customs Police
     replay.replayEvent("ecButton_Ignore", "click")
   }
 
@@ -1022,8 +1009,8 @@ test('MarieCeleste_boardTakeDumpYield', () => {
 
   replay.replayEvent("alertButton_Dismiss", "click")
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Jason")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Jason")
 
   assertEqual(game.commander.policeRecordScore, policeRecordBefore)
   assertEqual(game.commander.reputationScore, reputationBefore)
@@ -1040,19 +1027,18 @@ test('MarieCeleste_boardTakeYield', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("ecButton_Board", "click")
   replay.replayEvent("alertButton_Yes__take_cargo", "click")
   replay.replayEvent("cargo_NarcoticsTake_1", "click")
   replay.replayEvent("alertButton__Take_plunderDone", "click")
 
-  const policeRecordBefore = game.commander.policeRecordScore
   const reputationBefore = game.commander.reputationScore
 
 
   for (let i = 0; i < 4; ++i) {
-    assertEqual(document.getElementById("ecButton_Yield"), null) // Not encountering Customs Police
+    assertEqual(button("Yield"), null) // Not encountering Customs Police
     replay.replayEvent("ecButton_Ignore", "click")
   }
 
@@ -1066,8 +1052,8 @@ test('MarieCeleste_boardTakeYield', () => {
 
   assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics), 0)
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Jason")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Jason")
 
   assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Dubious)
   assertEqual(game.commander.reputationScore, reputationBefore)
@@ -1084,7 +1070,7 @@ test('MarieCeleste_boardTakeBribe', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("ecButton_Board", "click")
   replay.replayEvent("alertButton_Yes__take_cargo", "click")
@@ -1092,14 +1078,14 @@ test('MarieCeleste_boardTakeBribe', () => {
   replay.replayEvent("alertButton__Take_plunderDone", "click")
 
   for (let i = 0; i < 4; ++i) {
-    assertEqual(document.getElementById("ecButton_Yield"), null) // Not encountering Customs Police
+    assertEqual(button("Yield"), null) // Not encountering Customs Police
     replay.replayEvent("ecButton_Ignore", "click")
   }
 
   replay.replayEvent("ecButton_Bribe", "click")
 
   assertEqual(AlertViewController.currentAlertTitle(), "We'd love to take your money, but Space Command already knows you've got illegal goods onboard.")
-  assertTrue(document.getElementById("ecButton_Yield") != null, "yield option available")
+  assertTrue(button("Yield") != null, "yield option available")
 
   assertEqualArrays(game._remainingRareEvents, [])
   const game2 = serializeAndDeserialize(game)
@@ -1113,18 +1099,17 @@ test('MarieCeleste_boardTakeFlee', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("ecButton_Board", "click")
   replay.replayEvent("alertButton_Yes__take_cargo", "click")
   replay.replayEvent("cargo_NarcoticsTake_1", "click")
   replay.replayEvent("alertButton__Take_plunderDone", "click")
 
-  const policeRecordBefore = game.commander.policeRecordScore
   const reputationBefore = game.commander.reputationScore
 
   for (let i = 0; i < 4; ++i) {
-    assertEqual(document.getElementById("ecButton_Yield"), null) // Not encountering Customs Police
+    assertEqual(button("Yield"), null) // Not encountering Customs Police
     replay.replayEvent("ecButton_Ignore", "click")
   }
 
@@ -1140,8 +1125,8 @@ test('MarieCeleste_boardTakeFlee', () => {
 
   assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics), 1)
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Jason")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Jason")
 
   assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Criminal)
   assertEqual(game.commander.reputationScore, reputationBefore)
@@ -1158,18 +1143,17 @@ test('MarieCeleste_boardTakeAttack', () => {
   const replay = runReplayLog(replayLog)
 
   const session = replay.session
-  const game = session.game
+  const game = session.game!
 
   replay.replayEvent("ecButton_Board", "click")
   replay.replayEvent("alertButton_Yes__take_cargo", "click")
   replay.replayEvent("cargo_NarcoticsTake_1", "click")
   replay.replayEvent("alertButton__Take_plunderDone", "click")
 
-  const policeRecordBefore = game.commander.policeRecordScore
   const reputationBefore = game.commander.reputationScore
 
   for (let i = 0; i < 4; ++i) {
-    assertEqual(document.getElementById("ecButton_Yield"), null) // Not encountering Customs Police
+    assertEqual(button("Yield"), null) // Not encountering Customs Police
     replay.replayEvent("ecButton_Ignore", "click")
   }
 
@@ -1187,8 +1171,8 @@ test('MarieCeleste_boardTakeAttack', () => {
 
   assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics), 1)
 
-  const systemInfoHeader = document.getElementById('system-info-welcome')
-  assertEqual(systemInfoHeader.innerText, "Welcome to Jason")
+  const systemInfoHeader = welcome()
+  assertEqual(textOf(systemInfoHeader), "Welcome to Jason")
 
   assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Criminal + ATTACK_POLICE_SCORE)
   assertEqual(game.commander.reputationScore, reputationBefore)
