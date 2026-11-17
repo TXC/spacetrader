@@ -250,9 +250,7 @@ export class TradeItem {
         default:
           return null;
       }
-      if (item) {
-        sItems[tradeItemType] = item;
-      }
+      sItems[tradeItemType] = item;
     }
     return sItems[tradeItemType];
   }

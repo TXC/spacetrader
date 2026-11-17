@@ -628,10 +628,7 @@ export class SpecialEventSpecifier {
         game => {
           let alertString = null;
 
-          if (
-            !alertString &&
-            game.commander.ship.crewCount() >= game.commander.ship.model.mercenaryQuarters()
-          ) {
+          if (game.commander.ship.crewCount() >= game.commander.ship.model.mercenaryQuarters()) {
             pLog.log(121);
             alertString = 'You do not have any crew quarters available for Jonathan Wild.';
           }

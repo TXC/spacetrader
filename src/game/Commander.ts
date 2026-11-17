@@ -436,9 +436,10 @@ export class Commander extends CrewMember {
       price = Math.floor((price * 3) / 2);
     }
 
-    price +=
-      runtime.gameRand.randomIntBelow(item.priceVariance) -
-      runtime.gameRand.randomIntBelow(item.priceVariance);
+    // Two separate draws, in this order: the price moves up by one and down by the other.
+    const up = runtime.gameRand.randomIntBelow(item.priceVariance);
+    const down = runtime.gameRand.randomIntBelow(item.priceVariance);
+    price += up - down;
 
     Utils.ensureInteger(price);
 
