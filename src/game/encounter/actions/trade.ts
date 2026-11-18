@@ -3,7 +3,6 @@ import type { SliderContent } from '../../alerts.ts';
 import { PoliceRecordScore } from '../../Commander.ts';
 import { tradeItemForType } from '../../TradeItem.ts';
 import { NO_TRADE_ITEM } from '../../TradeItem.types.ts';
-import { ensureBool, ensureInteger, ensureType } from '../../ensure.ts';
 import { runtime } from '../../runtime.ts';
 import { EncounterType } from '../types.ts';
 import type { Encounter } from '../Encounter.ts';
@@ -11,7 +10,7 @@ import type { Encounter } from '../Encounter.ts';
 // What a trader offers, to buy or to sell.
 type Offer = {
   itemType: number;
-  itemName: string | null;
+  itemName: string;
   tradePrice: number;
   maxUnits: number;
   comparisonPrice: number;
@@ -23,7 +22,7 @@ export function trade(encounter: Encounter): boolean {
   const onlyIllegal = encounter._game.commander.policeRecordScore < PoliceRecordScore.Dubious;
   let offer: Offer = {
     itemType: NO_TRADE_ITEM,
-    itemName: null,
+    itemName: '',
     tradePrice: 0,
     maxUnits: 0,
     comparisonPrice: 0,
@@ -54,17 +53,15 @@ function offerToBuy(encounter: Encounter, onlyIllegal: boolean): Offer {
   let tradePrice = 0;
   let maxUnits = 0;
   let comparisonPrice = 0;
-  let itemName = null;
+  let itemName = '';
 
   const itemType = encounter._game.commander.ship.randomTradeableItemForSystem(
     encounter._game.commander.currentSystem,
     onlyIllegal
   );
-  ensureInteger(itemType);
 
   if (itemType !== NO_TRADE_ITEM) {
     tradePrice = encounter._game.commander.sellPriceForItem(itemType);
-    ensureInteger(tradePrice);
 
     if (onlyIllegal) {
       tradePrice *= runtime.gameRand.randomIntBelow(100) <= 45 ? 0.8 : 1.1;
@@ -94,7 +91,7 @@ function offerToSell(encounter: Encounter, onlyIllegal: boolean): Offer {
   let tradePrice = 0;
   let maxUnits = 0;
   const comparisonPrice = 0;
-  let itemName = null;
+  let itemName = '';
 
   const itemType = encounter._opponent.ship.randomTradeableItemForSystem(
     encounter._game.commander.currentSystem,
@@ -130,20 +127,13 @@ function offerToSell(encounter: Encounter, onlyIllegal: boolean): Offer {
 
 function presentTradeAlert(
   encounter: Encounter,
-  itemName: string | null,
+  itemName: string,
   itemType: number,
   tradePrice: number,
   maxUnits: number,
   comparisonPrice: number,
   traderSell: boolean
 ) {
-  ensureType(itemName, 'string');
-  ensureInteger(itemType);
-  ensureInteger(tradePrice);
-  ensureInteger(maxUnits);
-  ensureInteger(comparisonPrice);
-  ensureBool(traderSell);
-
   const { text, needsDismiss, needsAll, needsNone, needsSelected } = tradeQuestion(
     itemName,
     tradePrice,
@@ -208,7 +198,7 @@ function presentTradeAlert(
 
 // What the trader asks, and which answers the commander is given.
 function tradeQuestion(
-  itemName: string | null,
+  itemName: string,
   tradePrice: number,
   maxUnits: number,
   comparisonPrice: number,
@@ -259,11 +249,6 @@ export function performTradeWithAmount(
   tradePrice: number,
   traderSell: boolean
 ) {
-  ensureInteger(amount);
-  ensureInteger(itemType);
-  ensureInteger(tradePrice);
-  ensureBool(traderSell);
-
   if (amount > 0) {
     const credits = encounter._game.commander.credits;
     if (traderSell) {
