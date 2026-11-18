@@ -24,12 +24,9 @@ import { pLog } from './Utilities.ts';
 import type { Game } from './Game.ts';
 import { runtime } from './runtime.ts';
 
-type ShouldHideBlock = (game: Game) => boolean;
+type IsHidden = (game: Game) => boolean;
 // The second argument lets an event end the game (buying the moon does).
-type ActionBlock = (
-  game: Game,
-  viewController: { gameDidEndWithStatus(status: number): void }
-) => void;
+type Action = (game: Game, viewController: { gameDidEndWithStatus(status: number): void }) => void;
 
 export const FABRIC_RIP_PROBABILITY_INITIAL = 25;
 
@@ -46,13 +43,13 @@ export type SpecialEventSpecifier = {
   // How many systems get this event when a new galaxy is made.
   randomOccurrence: number;
   messageOnly: boolean;
-  shouldHideBlock: ShouldHideBlock;
-  action: ActionBlock;
+  isHidden: IsHidden;
+  action: Action;
 };
 
 // An event that says nothing else is always shown, and accepting it just clears it.
-type Spec = Omit<SpecialEventSpecifier, 'shouldHideBlock' | 'action'> &
-  Partial<Pick<SpecialEventSpecifier, 'shouldHideBlock' | 'action'>>;
+type Spec = Omit<SpecialEventSpecifier, 'isHidden' | 'action'> &
+  Partial<Pick<SpecialEventSpecifier, 'isHidden' | 'action'>>;
 
 // The order matters: new galaxies place the random events in this order.
 const SPECS: Spec[] = [
@@ -64,7 +61,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 0,
     messageOnly: true,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.dragonflyStatus < DragonflyQuestStatus.ClosedDragonflyDestroyed;
     },
     action: game => {
@@ -80,7 +77,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 0,
     messageOnly: true,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.dragonflyStatus < DragonflyQuestStatus.GoToBaratas;
     },
     action: game => {
@@ -97,7 +94,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 0,
     messageOnly: true,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.dragonflyStatus < DragonflyQuestStatus.GoToMelina;
     },
     action: game => {
@@ -114,7 +111,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 0,
     messageOnly: true,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.dragonflyStatus < DragonflyQuestStatus.GoToRegulas;
     },
     action: game => {
@@ -131,7 +128,7 @@ const SPECS: Spec[] = [
     price: -15000,
     randomOccurrence: 0,
     messageOnly: true,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.monsterStatus < MonsterQuestStatus.ClosedMonsterDestroyed;
     },
   },
@@ -143,7 +140,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 0,
     messageOnly: true,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.japoriQuestStatus !== JaporiQuestStatus.HasMedicine;
     },
     action: game => {
@@ -162,7 +159,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 0,
     messageOnly: false,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return !game.commander.boughtMoon;
     },
     action: (_game, viewController) => {
@@ -178,7 +175,7 @@ const SPECS: Spec[] = [
     price: MOON_PRICE,
     randomOccurrence: 4,
     messageOnly: false,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.commander.boughtMoon || game.commander.netWorth() < (MOON_PRICE * 4) / 5;
     },
     action: game => {
@@ -235,7 +232,7 @@ const SPECS: Spec[] = [
     price: 5000,
     randomOccurrence: 3,
     messageOnly: false,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.commander.policeRecordScore >= PoliceRecordScore.Dubious;
     },
     action: game => {
@@ -257,7 +254,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 3,
     messageOnly: false,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.commander.ship.tribbles <= 0;
     },
     action: game => {
@@ -281,7 +278,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 1,
     messageOnly: true,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.monsterStatus !== MonsterQuestStatus.Open;
     },
     action: game => {
@@ -299,7 +296,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 1,
     messageOnly: true,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.commander.policeRecordScore < PoliceRecordScore.Dubious;
     },
     action: game => {
@@ -316,7 +313,7 @@ const SPECS: Spec[] = [
     price: 1000,
     randomOccurrence: 3,
     messageOnly: false,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.commander.ship.freeCargoBays() < 3;
     },
     action: game => {
@@ -364,7 +361,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 1,
     messageOnly: false,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return (
         game.commander.policeRecordScore < PoliceRecordScore.Dubious ||
         game.japoriQuestStatus !== JaporiQuestStatus.Open
@@ -405,7 +402,7 @@ const SPECS: Spec[] = [
     price: -20000,
     randomOccurrence: 0,
     messageOnly: true,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return !game.commander.artifactOnBoard;
     },
     action: game => {
@@ -423,7 +420,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 0,
     messageOnly: false,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.commander.policeRecordScore < PoliceRecordScore.Dubious;
     },
     action: game => {
@@ -441,7 +438,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 1,
     messageOnly: false,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.commander.policeRecordScore < PoliceRecordScore.Dubious;
     },
     action: game => {
@@ -521,7 +518,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 0,
     messageOnly: true,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.commander.policeRecordScore < PoliceRecordScore.Dubious;
     },
     action: game => {
@@ -539,7 +536,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 1,
     messageOnly: false,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.commander.policeRecordScore >= PoliceRecordScore.Dubious;
     },
     action: game => {
@@ -594,7 +591,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 0,
     messageOnly: false,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return (
         game.commander.policeRecordScore >= PoliceRecordScore.Dubious ||
         game.commander.reputationScore < ReputationScore.Average ||
@@ -660,7 +657,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 1,
     messageOnly: true,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return (
         game.commander.reputationScore < ReputationScore.Average ||
         game.scarabStatus !== ScarabQuestStatus.Open
@@ -680,7 +677,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 0,
     messageOnly: false,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.scarabStatus !== ScarabQuestStatus.ScarabDestroyed;
     },
     action: game => {
@@ -703,7 +700,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 0,
     messageOnly: true,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.scarabStatus !== ScarabQuestStatus.ScarabDestroyed;
     },
     action: game => {
@@ -719,7 +716,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 0,
     messageOnly: true,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return !(
         game.reactorStatus > ReactorQuestStatus.Open &&
         game.reactorStatus < ReactorQuestStatus.ClosedTooLate
@@ -744,7 +741,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 0,
     messageOnly: true,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.jarekStatus !== JarekQuestStatus.OnBoard;
     },
     action: game => {
@@ -764,7 +761,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 0,
     messageOnly: true,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return !(
         game.invasionStatus >= InvasionQuestStatus.DaysUntilInvasion._7 &&
         game.invasionStatus <= InvasionQuestStatus.DaysUntilInvasion._1
@@ -785,7 +782,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 0,
     messageOnly: true,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return !(
         game.experimentStatus >= ExperimentQuestStatus.DaysRemaining._10 &&
         game.experimentStatus <= ExperimentQuestStatus.DaysRemaining._1
@@ -817,7 +814,7 @@ const SPECS: Spec[] = [
     price: 0,
     randomOccurrence: 0,
     messageOnly: true,
-    shouldHideBlock: game => {
+    isHidden: game => {
       return game.wildStatus !== WildQuestStatus.OnBoard;
     },
     action: game => {
@@ -844,7 +841,7 @@ const SPECS: Spec[] = [
 ];
 
 const EVENTS: SpecialEventSpecifier[] = SPECS.map(spec => ({
-  shouldHideBlock: () => false,
+  isHidden: () => false,
   action: clearCurrentSpecial,
   ...spec,
 }));

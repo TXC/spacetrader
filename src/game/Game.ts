@@ -68,7 +68,7 @@ export type { GameState };
 export class Game {
   // `new Game()` with no commander returns an empty shell that fromSerializedState() fills in.
   // `_remainingRareEvents` is typed as always set, but is unset until the game is set up.
-  declare _saveBlock: ((game: Game) => void) | null;
+  declare _onSave: ((game: Game) => void) | null;
   declare _uniqueID: string;
   declare _endStatus: number;
   declare _trackedSystem: SolarSystem | null;
@@ -106,7 +106,7 @@ export class Game {
   declare showSpecialSystems?: boolean;
 
   constructor(difficulty?: number, commander?: Commander) {
-    this._saveBlock = null;
+    this._onSave = null;
 
     if (commander) {
       this._uniqueID = this._generateUniqueID();
@@ -370,13 +370,13 @@ export class Game {
     return state;
   }
 
-  setSaveBlock(saveBlock: ((game: Game) => void) | null) {
-    this._saveBlock = saveBlock;
+  setOnSave(onSave: ((game: Game) => void) | null) {
+    this._onSave = onSave;
   }
 
   save() {
-    if (this._saveBlock) {
-      this._saveBlock(this);
+    if (this._onSave) {
+      this._onSave(this);
     }
   }
 
