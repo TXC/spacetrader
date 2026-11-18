@@ -61,7 +61,7 @@ test('trading in for a smaller ship is offered as a credit', () => {
 // A commander in a Mosquito with all three rare items, and the money for any ship.
 function collector(): Game {
   const game = newGame();
-  const ship = new Ship(Mosquito, game.difficulty);
+  const ship = Ship.create(Mosquito, game.difficulty);
   [ShieldLightning, GadgetFuelCompactor, WeaponMorgansLaser].forEach(type =>
     ship.addAccessoryOfType(type)
   );
@@ -119,7 +119,7 @@ test('rare equipment that cannot be paid for stops the trade', () => {
 
 test('a ship without quarters for the crew is not sold', () => {
   const game = newGame();
-  game.commander.ship = new Ship(Beetle, game.difficulty);
+  game.commander.ship = Ship.create(Beetle, game.difficulty);
   game.commander.ship.addCrewMember(CrewMember.create('Hired Hand', 4, 4, 4, 4));
 
   buyShip(game, shipModelForType(Gnat));
@@ -130,7 +130,7 @@ test('a ship without quarters for the crew is not sold', () => {
 
 test('the crew moves to the new ship', () => {
   const game = newGame();
-  game.commander.ship = new Ship(Beetle, game.difficulty);
+  game.commander.ship = Ship.create(Beetle, game.difficulty);
   const hand = CrewMember.create('Hired Hand', 4, 4, 4, 4);
   game.commander.ship.addCrewMember(hand);
 

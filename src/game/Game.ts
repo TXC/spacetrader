@@ -612,7 +612,7 @@ export class Game {
   _setupCommander() {
     this.commander.credits = STARTING_CREDITS;
 
-    const ship = new Ship(ShipModelType.Gnat, this.difficulty);
+    const ship = Ship.create(ShipModelType.Gnat, this.difficulty);
     this.commander.ship = ship;
 
     this.commander.setCurrentSystem(this.solarSystems[this.solarSystems.length - 1]);

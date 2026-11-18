@@ -79,7 +79,7 @@ test.each([
   ['a Grasshopper attack a feared commander in a Wasp', Grasshopper, ShipModelType.Wasp],
 ])('pirates in %s', (_, model, commanderModel) => {
   const game = feared();
-  game.commander.ship = new Ship(commanderModel, game.difficulty);
+  game.commander.ship = Ship.create(commanderModel, game.difficulty);
 
   expect(pirateReaction(game, model)).toBe(EncounterType.PirateAttack);
 });
