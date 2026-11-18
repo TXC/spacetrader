@@ -4580,7 +4580,7 @@ test('lottery_beginner', () => {
   assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
 });
 
-test('lottery_normal', () => {
+test('lottery_normal_isNotOffered', () => {
   const replayLog = `{"idLog":["createCommander"],"eventNameLog":["click"],"gameRandSeed":1733545440606}`;
   const replay = runReplayLog(replayLog);
 
