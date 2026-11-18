@@ -6,6 +6,7 @@ import { TradeItemType, NO_TRADE_ITEM } from '../../TradeItem.types.ts';
 import { ensureBool, ensureInteger } from '../../ensure.ts';
 import { pLog } from '../../probes.ts';
 import { EncounterType, isEncounterWith } from '../types.ts';
+import { arrest } from '../arrest.ts';
 import type { EncounterController } from '../../EncounterController.ts';
 
 // Whether the opponent accepts a surrender, what the commander is asked first, and what
@@ -134,7 +135,7 @@ function policeTerms(encounter: EncounterController): Terms {
       surrenderPrompt = `If you surrender, you will spend some time in prison and will have to pay a hefty fine.${extraString} Are you sure you want to do that?`;
       surrenderBlock = () => {
         pLog.log(57);
-        encounter._processArrest();
+        arrest(encounter);
       };
     } else {
       surrenderBlock = () => yieldToCustoms(encounter);

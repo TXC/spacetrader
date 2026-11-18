@@ -10,6 +10,7 @@ import {
 import { TradeItemType, FAKE_QUEST_CARGO_REACTOR } from '../../TradeItem.types.ts';
 import { ensureInteger } from '../../ensure.ts';
 import { EncounterType } from '../types.ts';
+import { arrest } from '../arrest.ts';
 import type { EncounterController } from '../../EncounterController.ts';
 
 // The commander lets the police search the ship. Returns whether the automatic action may
@@ -50,7 +51,7 @@ function submitToSearch(encounter: EncounterController): void {
   const wild = encounter._game.wildStatus === WildQuestStatus.OnBoard;
   const done = () => encounter.listener.continues(false);
   const afterCargo = () => {
-    if (wild) encounter._processArrest();
+    if (wild) arrest(encounter);
     else if (encounter._reactorAboard()) confiscateReactor(encounter, done);
     else done();
   };
