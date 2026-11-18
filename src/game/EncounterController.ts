@@ -43,6 +43,7 @@ import type { Opponent } from './Opponent.ts';
 import { runtime } from './runtime.ts';
 import { attack, autoAttack } from './encounter/actions/attack.ts';
 import { autoFlee, flee } from './encounter/actions/flee.ts';
+import { ignore } from './encounter/actions/ignore.ts';
 import { captainFor } from './encounter/captains.ts';
 import {
   EncounterMode,
@@ -404,7 +405,7 @@ export class EncounterController {
     } else if (action === 'Flee') {
       if (!flee(this)) return;
     } else if (action === 'Ignore') {
-      this.listener.continues(false);
+      if (!ignore(this)) return;
     } else if (action === 'Trade') {
       let itemType: number = NO_TRADE_ITEM;
       const onlyIllegal = this._game.commander.policeRecordScore < PoliceRecordScore.Dubious;
