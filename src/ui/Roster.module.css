@@ -1,0 +1,14 @@
+.memberIcon {
+  composes: icon from './shared.module.css';
+  --icon-lift: var(--space-5);
+}
+
+.slotIcon {
+  composes: icon from './shared.module.css';
+  --icon-lift: var(--space-3);
+}
+
+/* A member's skills sit under the name, clear of the icon. */
+.skills {
+  margin-left: var(--space-20);
+}

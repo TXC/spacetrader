@@ -2284,7 +2284,7 @@ test('jarek', () => {
   // He shows up with no cost, no skills
   const personnelRow = tableRow(crewMember.name!);
   assertEqual(textOf(personnelRow!.cells[0]), 'Ambassador Jarek');
-  assertTrue(personnelRow!.querySelector('img.roster-icon') !== null, 'roster icon shown');
+  assertTrue(personnelRow!.querySelector('img') !== null, 'roster icon shown');
   assertEqual(personnelRow!.querySelectorAll('button').length, 0);
 
   replay.replayEvent('cheat_freeSingularity', 'click');
@@ -2388,7 +2388,7 @@ test('jarek_arrested', () => {
   // He shows up with no cost, no skills
   const personnelRow = tableRow(crewMember.name!);
   assertEqual(textOf(personnelRow!.cells[0]), 'Ambassador Jarek');
-  assertTrue(personnelRow!.querySelector('img.roster-icon') !== null, 'roster icon shown');
+  assertTrue(personnelRow!.querySelector('img') !== null, 'roster icon shown');
   assertEqual(personnelRow!.querySelectorAll('button').length, 0);
 
   // Get arrested
@@ -3593,7 +3593,7 @@ test('wild_onBoard', () => {
   // He shows up with no cost, no skills
   const personnelRow = tableRow(crewMember.name!);
   assertEqual(textOf(personnelRow!.cells[0]), 'Jonathan Wild');
-  assertTrue(personnelRow!.querySelector('img.roster-icon') !== null, 'roster icon shown');
+  assertTrue(personnelRow!.querySelector('img') !== null, 'roster icon shown');
   assertEqual(personnelRow!.querySelectorAll('button').length, 0);
 
   // I need the extra pilot skill to survive the journey to Kravat
@@ -3716,7 +3716,7 @@ test('wild_surrenderToPirate', () => {
   // He shows up with no cost, no skills
   const personnelRow = tableRow(crewMember.name!);
   assertEqual(textOf(personnelRow!.cells[0]), 'Jonathan Wild');
-  assertTrue(personnelRow!.querySelector('img.roster-icon') !== null, 'roster icon shown');
+  assertTrue(personnelRow!.querySelector('img') !== null, 'roster icon shown');
   assertEqual(personnelRow!.querySelectorAll('button').length, 0);
 
   replay.replayEvent('Warp', 'click');
@@ -3783,7 +3783,7 @@ test('wild_surrenderToPolice', () => {
   // He shows up with no cost, no skills
   const personnelRow = tableRow(crewMember.name!);
   assertEqual(textOf(personnelRow!.cells[0]), 'Jonathan Wild');
-  assertTrue(personnelRow!.querySelector('img.roster-icon') !== null, 'roster icon shown');
+  assertTrue(personnelRow!.querySelector('img') !== null, 'roster icon shown');
   assertEqual(personnelRow!.querySelectorAll('button').length, 0);
 
   replay.replayEvent('Warp', 'click');
@@ -3889,7 +3889,7 @@ test('wild_sellWeapons', () => {
   // He shows up with no cost, no skills
   const personnelRow = tableRow(crewMember.name!);
   assertEqual(textOf(personnelRow!.cells[0]), 'Jonathan Wild');
-  assertTrue(personnelRow!.querySelector('img.roster-icon') !== null, 'roster icon shown');
+  assertTrue(personnelRow!.querySelector('img') !== null, 'roster icon shown');
   assertEqual(personnelRow!.querySelectorAll('button').length, 0);
 
   replay.replayEvent('Equipment', 'click');
