@@ -9,6 +9,7 @@ import {
   PoliceRecordScore,
 } from '../../game/Commander.ts';
 import { RareEvent } from '../../game/Game.ts';
+import type { Ship } from '../../game/Ship.ts';
 import { TradeItemType } from '../../game/TradeItem.types.ts';
 import { AlertViewController } from '../../game/alerts.ts';
 import {
@@ -29,8 +30,33 @@ import {
   welcome,
 } from '../support/page.ts';
 
-test('BottleGood_Ignore', () => {
-  const replayLog = recording('BottleGood');
+// A fresh bottle of skill tonic and an old one: what the player is told, and the fighter
+// skill after drinking it.
+const BOTTLES: [string, { prompt: string; taste: string; fighter: number }][] = [
+  [
+    'BottleGood',
+    {
+      prompt:
+        'This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. In the old days, this stuff went for thousands of credits a bottle since people reported significant gains in their abilities after quaffing a bottle. Would you like to drink it?',
+      taste:
+        "Mmmmm. Captain Marmoset's Amazing Skill Tonic not only fills you with energy, but tastes like a fine single-malt. You feel a slight tingling in your fingertips.",
+      fighter: 6,
+    },
+  ],
+  [
+    'BottleOld',
+    {
+      prompt:
+        'This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. The "best used by" date stamped on the bottle has become illegible. The tonic might still be good. Then again, it\'s not clear what happens when the Tonic breaks down...',
+      taste:
+        "While you don't know what it was supposed to taste like, you get the feeling that this dose of tonic was a bit off. This bottle tasted very strange, like slightly salty red wine. You feel a bit dizzy and your teeth itch for a while.",
+      fighter: 4,
+    },
+  ],
+];
+
+test.each(BOTTLES)('%s_Ignore', name => {
+  const replayLog = recording(name);
 
   const replay = runReplayLog(replayLog);
 
@@ -60,8 +86,8 @@ test('BottleGood_Ignore', () => {
   assertSurvivesSave(game);
 });
 
-test('BottleGood_Pass', () => {
-  const replayLog = recording('BottleGood');
+test.each(BOTTLES)('%s_Pass', (name, bottle) => {
+  const replayLog = recording(name);
 
   const replay = runReplayLog(replayLog);
 
@@ -76,10 +102,7 @@ test('BottleGood_Pass', () => {
 
   replay.replayEvent('ecButton_Drink', 'click');
 
-  assertEqual(
-    AlertViewController.currentAlertTitle(),
-    'This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. In the old days, this stuff went for thousands of credits a bottle since people reported significant gains in their abilities after quaffing a bottle. Would you like to drink it?'
-  );
+  assertEqual(AlertViewController.currentAlertTitle(), bottle.prompt);
 
   replay.replayEvent('alertButton_I_ll_pass', 'click');
 
@@ -98,8 +121,8 @@ test('BottleGood_Pass', () => {
   assertSurvivesSave(game);
 });
 
-test('BottleGood_Drink', () => {
-  const replayLog = recording('BottleGood');
+test.each(BOTTLES)('%s_Drink', (name, bottle) => {
+  const replayLog = recording(name);
 
   const replay = runReplayLog(replayLog);
 
@@ -117,17 +140,11 @@ test('BottleGood_Drink', () => {
 
   replay.replayEvent('ecButton_Drink', 'click');
 
-  assertEqual(
-    AlertViewController.currentAlertTitle(),
-    'This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. In the old days, this stuff went for thousands of credits a bottle since people reported significant gains in their abilities after quaffing a bottle. Would you like to drink it?'
-  );
+  assertEqual(AlertViewController.currentAlertTitle(), bottle.prompt);
 
   replay.replayEvent('alertButton_Yes__drink_it', 'click');
 
-  assertEqual(
-    AlertViewController.currentAlertTitle(),
-    "Mmmmm. Captain Marmoset's Amazing Skill Tonic not only fills you with energy, but tastes like a fine single-malt. You feel a slight tingling in your fingertips."
-  );
+  assertEqual(AlertViewController.currentAlertTitle(), bottle.taste);
 
   replay.replayEvent('alertButton_Dismiss', 'click');
 
@@ -143,134 +160,58 @@ test('BottleGood_Drink', () => {
   assertEqual(game.commander.pilot, 5);
   assertEqual(game.commander.trader, 5);
   assertEqual(game.commander.engineer, 6);
-  assertEqual(game.commander.fighter, 6);
+  assertEqual(game.commander.fighter, bottle.fighter);
 
   assertEqualArrays(game._remainingRareEvents, []);
   assertSurvivesSave(game);
 });
 
-test('BottleOld_Ignore', () => {
-  const replayLog = recording('BottleOld');
+// The three famous captains: each teaches one skill in exchange for one piece of equipment.
+type Captain = {
+  rareEvent: RareEvent;
+  skill: 'pilot' | 'engineer' | 'trader';
+  hasItem: (ship: Ship) => boolean;
+  offer: string;
+  attackNews: string;
+};
+const CAPTAINS: [string, Captain][] = [
+  [
+    'Ahab',
+    {
+      rareEvent: RareEvent.CaptainAhab,
+      skill: 'pilot',
+      hasItem: ship => ship.hasShieldOfType(AccessoryType.ShieldReflective),
+      offer:
+        'Captain Ahab, one of the greatest pilots of all time, is in need of a shield for an upcoming mission. To save the time it would take to land and find a vendor, Ahab is offering to trade you some piloting lessons in exchange for one reflective shield.',
+      attackNews: 'Thug Assaults Captain Ahab!',
+    },
+  ],
+  [
+    'Conrad',
+    {
+      rareEvent: RareEvent.CaptainConrad,
+      skill: 'engineer',
+      hasItem: ship => ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser),
+      offer:
+        "Captain Conrad, fleet historian and inventor of the modern warp drive, is in need of a laser to test her new shield design. Unfortunately, she's used up her R&D budget for the year. Instead of cash, she'll trade you some engineering lessons in exchange for one military laser.",
+      attackNews: 'Captain Conrad Comes Under Attack By Criminal!',
+    },
+  ],
+  [
+    'Huie',
+    {
+      rareEvent: RareEvent.CaptainHuie,
+      skill: 'trader',
+      hasItem: ship => ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser),
+      offer:
+        'Captain Huie, former Trade Commissioner of the Galactic Council, is in need of a laser for an upcoming mission. Huie is known for driving a hard bargain and is offering some secrets of doing business in exchange for one military laser.',
+      attackNews: 'Famed Captain Huie Attacked by Brigand!',
+    },
+  ],
+];
 
-  const replay = runReplayLog(replayLog);
-
-  const session = replay.session;
-  const game = session.game!;
-
-  let encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    "At 20 clicks from Tantalos you encounter a floating bottle.\n\nIt appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!"
-  );
-
-  replay.replayEvent('ecButton_Ignore', 'click');
-
-  encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    'At 18 clicks from Tantalos you encounter a police Gnat.\n\nIt ignores you.'
-  );
-
-  assertEqual(game.commander.pilot, 5);
-  assertEqual(game.commander.trader, 5);
-  assertEqual(game.commander.engineer, 5);
-  assertEqual(game.commander.fighter, 5);
-
-  assertEqualArrays(game._remainingRareEvents, []);
-  assertSurvivesSave(game);
-});
-
-test('BottleOld_Pass', () => {
-  const replayLog = recording('BottleOld');
-
-  const replay = runReplayLog(replayLog);
-
-  const session = replay.session;
-  const game = session.game!;
-
-  let encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    "At 20 clicks from Tantalos you encounter a floating bottle.\n\nIt appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!"
-  );
-
-  replay.replayEvent('ecButton_Drink', 'click');
-
-  assertEqual(
-    AlertViewController.currentAlertTitle(),
-    'This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. The "best used by" date stamped on the bottle has become illegible. The tonic might still be good. Then again, it\'s not clear what happens when the Tonic breaks down...'
-  );
-
-  replay.replayEvent('alertButton_I_ll_pass', 'click');
-
-  encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    'At 18 clicks from Tantalos you encounter a police Gnat.\n\nIt ignores you.'
-  );
-
-  assertEqual(game.commander.pilot, 5);
-  assertEqual(game.commander.trader, 5);
-  assertEqual(game.commander.engineer, 5);
-  assertEqual(game.commander.fighter, 5);
-
-  assertEqualArrays(game._remainingRareEvents, []);
-  assertSurvivesSave(game);
-});
-
-test('BottleOld_Drink', () => {
-  const replayLog = recording('BottleOld');
-
-  const replay = runReplayLog(replayLog);
-
-  const session = replay.session;
-  const game = session.game!;
-
-  let encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    "At 20 clicks from Tantalos you encounter a floating bottle.\n\nIt appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!"
-  );
-
-  assertEqual(hullFrame('self', 'Gnat')!.style.visibility, 'visible');
-  assertEqual(hullFrame('enemy', 'Bottle')!.style.visibility, 'hidden');
-
-  replay.replayEvent('ecButton_Drink', 'click');
-
-  assertEqual(
-    AlertViewController.currentAlertTitle(),
-    'This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. The "best used by" date stamped on the bottle has become illegible. The tonic might still be good. Then again, it\'s not clear what happens when the Tonic breaks down...'
-  );
-
-  replay.replayEvent('alertButton_Yes__drink_it', 'click');
-
-  assertEqual(
-    AlertViewController.currentAlertTitle(),
-    "While you don't know what it was supposed to taste like, you get the feeling that this dose of tonic was a bit off. This bottle tasted very strange, like slightly salty red wine. You feel a bit dizzy and your teeth itch for a while."
-  );
-
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    'At 19 clicks from Tantalos you encounter a police Gnat.\n\nIt ignores you.'
-  );
-
-  assertEqual(hullFrame('self', 'Gnat')!.style.visibility, 'visible');
-  assertEqual(hullFrame('enemy', 'Gnat')!.style.visibility, 'visible');
-
-  assertEqual(game.commander.pilot, 5);
-  assertEqual(game.commander.trader, 5);
-  assertEqual(game.commander.engineer, 6);
-  assertEqual(game.commander.fighter, 4);
-
-  assertEqualArrays(game._remainingRareEvents, []);
-  assertSurvivesSave(game);
-});
-
-test('Ahab_notEligible', () => {
-  const replayLog = recording('Ahab_notEligible');
+test.each(CAPTAINS)('%s_notEligible', (name, captain) => {
+  const replayLog = recording(`${name}_notEligible`);
 
   const replay = runReplayLog(replayLog);
 
@@ -283,12 +224,12 @@ test('Ahab_notEligible', () => {
     'At 15 clicks from Japori you encounter a police Firefly.\n\nIt ignores you.'
   );
 
-  assertEqualArrays(game._remainingRareEvents, [RareEvent.CaptainAhab]);
+  assertEqualArrays(game._remainingRareEvents, [captain.rareEvent]);
   assertSurvivesSave(game);
 });
 
-test('Ahab_accept', () => {
-  const replayLog = recording('Ahab');
+test.each(CAPTAINS)('%s_accept', (name, captain) => {
+  const replayLog = recording(name);
 
   const replay = runReplayLog(replayLog);
 
@@ -298,18 +239,15 @@ test('Ahab_accept', () => {
   const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
-    'At 20 clicks from Yew you encounter the famous Captain Ahab.\n\nThe captain requests a brief meeting with you.'
+    `At 20 clicks from Yew you encounter the famous Captain ${name}.\n\nThe captain requests a brief meeting with you.`
   );
 
   replay.replayEvent('ecButton_Meet', 'click');
 
-  assertEqual(
-    AlertViewController.currentAlertTitle(),
-    'Captain Ahab, one of the greatest pilots of all time, is in need of a shield for an upcoming mission. To save the time it would take to land and find a vendor, Ahab is offering to trade you some piloting lessons in exchange for one reflective shield.'
-  );
+  assertEqual(AlertViewController.currentAlertTitle(), captain.offer);
 
-  const pilotBefore = game.commander.pilot;
-  assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true);
+  const skillBefore = game.commander[captain.skill];
+  assertEqual(captain.hasItem(game.commander.ship), true);
 
   replay.replayEvent('alertButton_Yes__trade_', 'click');
 
@@ -320,20 +258,20 @@ test('Ahab_accept', () => {
 
   replay.replayEvent('alertButton_Dismiss', 'click');
 
-  const pilotAfter = game.commander.pilot;
-  assertEqual(pilotAfter, pilotBefore + 2);
+  const skillAfter = game.commander[captain.skill];
+  assertEqual(skillAfter, skillBefore + 2);
 
-  assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), false);
+  assertEqual(captain.hasItem(game.commander.ship), false);
 
   assertEqualArrays(game._remainingRareEvents, []);
   const game2 = assertSurvivesSave(game);
-  assertEqual(game2.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), false);
-  const pilotAfter2 = game2.commander.pilot;
-  assertEqual(pilotAfter2, pilotBefore + 2);
+  assertEqual(captain.hasItem(game2.commander.ship), false);
+  const skillAfter2 = game2.commander[captain.skill];
+  assertEqual(skillAfter2, skillBefore + 2);
 });
 
-test('Ahab_noThanks', () => {
-  const replayLog = recording('Ahab');
+test.each(CAPTAINS)('%s_noThanks', (name, captain) => {
+  const replayLog = recording(name);
 
   const replay = runReplayLog(replayLog);
 
@@ -343,18 +281,15 @@ test('Ahab_noThanks', () => {
   let encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
-    'At 20 clicks from Yew you encounter the famous Captain Ahab.\n\nThe captain requests a brief meeting with you.'
+    `At 20 clicks from Yew you encounter the famous Captain ${name}.\n\nThe captain requests a brief meeting with you.`
   );
 
   replay.replayEvent('ecButton_Meet', 'click');
 
-  assertEqual(
-    AlertViewController.currentAlertTitle(),
-    'Captain Ahab, one of the greatest pilots of all time, is in need of a shield for an upcoming mission. To save the time it would take to land and find a vendor, Ahab is offering to trade you some piloting lessons in exchange for one reflective shield.'
-  );
+  assertEqual(AlertViewController.currentAlertTitle(), captain.offer);
 
-  const pilotBefore = game.commander.pilot;
-  assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true);
+  const skillBefore = game.commander[captain.skill];
+  assertEqual(captain.hasItem(game.commander.ship), true);
 
   replay.replayEvent('alertButton_No_thanks_', 'click');
 
@@ -364,20 +299,20 @@ test('Ahab_noThanks', () => {
     'At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.'
   );
 
-  const pilotAfter = game.commander.pilot;
-  assertEqual(pilotAfter, pilotBefore);
+  const skillAfter = game.commander[captain.skill];
+  assertEqual(skillAfter, skillBefore);
 
-  assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true);
+  assertEqual(captain.hasItem(game.commander.ship), true);
 
   assertEqualArrays(game._remainingRareEvents, []);
   const game2 = assertSurvivesSave(game);
-  assertEqual(game2.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true);
-  const pilotAfter2 = game2.commander.pilot;
-  assertEqual(pilotAfter2, pilotBefore);
+  assertEqual(captain.hasItem(game2.commander.ship), true);
+  const skillAfter2 = game2.commander[captain.skill];
+  assertEqual(skillAfter2, skillBefore);
 });
 
-test('Ahab_ignore', () => {
-  const replayLog = recording('Ahab');
+test.each(CAPTAINS)('%s_ignore', (name, captain) => {
+  const replayLog = recording(name);
 
   const replay = runReplayLog(replayLog);
 
@@ -387,11 +322,11 @@ test('Ahab_ignore', () => {
   let encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
-    'At 20 clicks from Yew you encounter the famous Captain Ahab.\n\nThe captain requests a brief meeting with you.'
+    `At 20 clicks from Yew you encounter the famous Captain ${name}.\n\nThe captain requests a brief meeting with you.`
   );
 
-  const pilotBefore = game.commander.pilot;
-  assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true);
+  const skillBefore = game.commander[captain.skill];
+  assertEqual(captain.hasItem(game.commander.ship), true);
 
   replay.replayEvent('ecButton_Ignore', 'click');
 
@@ -401,20 +336,20 @@ test('Ahab_ignore', () => {
     'At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.'
   );
 
-  const pilotAfter = game.commander.pilot;
-  assertEqual(pilotAfter, pilotBefore);
+  const skillAfter = game.commander[captain.skill];
+  assertEqual(skillAfter, skillBefore);
 
-  assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true);
+  assertEqual(captain.hasItem(game.commander.ship), true);
 
   assertEqualArrays(game._remainingRareEvents, []);
   const game2 = assertSurvivesSave(game);
-  assertEqual(game2.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true);
-  const pilotAfter2 = game2.commander.pilot;
-  assertEqual(pilotAfter2, pilotBefore);
+  assertEqual(captain.hasItem(game2.commander.ship), true);
+  const skillAfter2 = game2.commander[captain.skill];
+  assertEqual(skillAfter2, skillBefore);
 });
 
-test('Ahab_attack', () => {
-  const replayLog = recording('Ahab');
+test.each(CAPTAINS)('%s_attack', (name, captain) => {
+  const replayLog = recording(name);
 
   const replay = runReplayLog(replayLog);
 
@@ -424,11 +359,11 @@ test('Ahab_attack', () => {
   const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
-    'At 20 clicks from Yew you encounter the famous Captain Ahab.\n\nThe captain requests a brief meeting with you.'
+    `At 20 clicks from Yew you encounter the famous Captain ${name}.\n\nThe captain requests a brief meeting with you.`
   );
 
-  const pilotBefore = game.commander.pilot;
-  assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true);
+  const skillBefore = game.commander[captain.skill];
+  assertEqual(captain.hasItem(game.commander.ship), true);
 
   replay.replayEvent('ecButton_Attack', 'click');
 
@@ -481,7 +416,7 @@ test('Ahab_attack', () => {
   const systemInfoHeader = welcome();
   assertEqual(textOf(systemInfoHeader), 'Welcome to Yew');
 
-  assertEqualArrays(game._breakingNews, ['Thug Assaults Captain Ahab!']);
+  assertEqualArrays(game._breakingNews, [captain.attackNews]);
 
   replay.replayEvent('News', 'click');
   replay.replayEvent('purchaseNews', 'click');
@@ -490,507 +425,23 @@ test('Ahab_attack', () => {
   assertTrue(hasText(newsStrDiv, 'h4', 'The Command'), 'masthead is a heading');
   assertEqual(
     textOf(newsStrDiv),
-    'The Command\nThug Assaults Captain Ahab!\n\nNotorious Criminal Jean-Luc Sighted in Yew!\n\nInsurrection Crushed: Rebels Executed!'
+    `The Command\n${captain.attackNews}\n\nNotorious Criminal Jean-Luc Sighted in Yew!\n\nInsurrection Crushed: Rebels Executed!`
   );
 
   assertEqual(game._breakingNews, null);
 
   assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Villain + ATTACK_TRADER_SCORE);
 
-  const pilotAfter = game.commander.pilot;
-  assertEqual(pilotAfter, pilotBefore);
+  const skillAfter = game.commander[captain.skill];
+  assertEqual(skillAfter, skillBefore);
 
-  assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true);
-
-  assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = assertSurvivesSave(game);
-  assertEqual(game2.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true);
-  const pilotAfter2 = game2.commander.pilot;
-  assertEqual(pilotAfter2, pilotBefore);
-  assertEqual(game2.commander.policeRecordScore, PoliceRecordScore.Villain + ATTACK_TRADER_SCORE);
-});
-
-test('Conrad_notEligible', () => {
-  const replayLog = recording('Conrad_notEligible');
-
-  const replay = runReplayLog(replayLog);
-
-  const session = replay.session;
-  const game = session.game!;
-
-  const encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    'At 15 clicks from Japori you encounter a police Firefly.\n\nIt ignores you.'
-  );
-
-  assertEqualArrays(game._remainingRareEvents, [RareEvent.CaptainConrad]);
-  assertSurvivesSave(game);
-});
-
-test('Conrad_accept', () => {
-  const replayLog = recording('Conrad');
-
-  const replay = runReplayLog(replayLog);
-
-  const session = replay.session;
-  const game = session.game!;
-
-  const encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    'At 20 clicks from Yew you encounter the famous Captain Conrad.\n\nThe captain requests a brief meeting with you.'
-  );
-
-  replay.replayEvent('ecButton_Meet', 'click');
-
-  assertEqual(
-    AlertViewController.currentAlertTitle(),
-    "Captain Conrad, fleet historian and inventor of the modern warp drive, is in need of a laser to test her new shield design. Unfortunately, she's used up her R&D budget for the year. Instead of cash, she'll trade you some engineering lessons in exchange for one military laser."
-  );
-
-  const engBefore = game.commander.engineer;
-
-  assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-
-  replay.replayEvent('alertButton_Yes__trade_', 'click');
-
-  assertEqual(
-    AlertViewController.currentAlertTitle(),
-    'After a few hours of training with a top expert, you feel your abilities have improved significantly.'
-  );
-
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  const engAfter = game.commander.engineer;
-  assertEqual(engAfter, engBefore + 2);
-
-  assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), false);
+  assertEqual(captain.hasItem(game.commander.ship), true);
 
   assertEqualArrays(game._remainingRareEvents, []);
   const game2 = assertSurvivesSave(game);
-  assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), false);
-  const engAfter2 = game2.commander.engineer;
-  assertEqual(engAfter2, engBefore + 2);
-});
-
-test('Conrad_noThanks', () => {
-  const replayLog = recording('Conrad');
-
-  const replay = runReplayLog(replayLog);
-
-  const session = replay.session;
-  const game = session.game!;
-
-  let encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    'At 20 clicks from Yew you encounter the famous Captain Conrad.\n\nThe captain requests a brief meeting with you.'
-  );
-
-  replay.replayEvent('ecButton_Meet', 'click');
-
-  assertEqual(
-    AlertViewController.currentAlertTitle(),
-    "Captain Conrad, fleet historian and inventor of the modern warp drive, is in need of a laser to test her new shield design. Unfortunately, she's used up her R&D budget for the year. Instead of cash, she'll trade you some engineering lessons in exchange for one military laser."
-  );
-
-  const engBefore = game.commander.engineer;
-  assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-
-  replay.replayEvent('alertButton_No_thanks_', 'click');
-
-  encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    'At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.'
-  );
-
-  const engAfter = game.commander.engineer;
-  assertEqual(engAfter, engBefore);
-
-  assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-
-  assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = assertSurvivesSave(game);
-  assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-  const engAfter2 = game2.commander.engineer;
-  assertEqual(engAfter2, engBefore);
-});
-
-test('Conrad_ignore', () => {
-  const replayLog = recording('Conrad');
-
-  const replay = runReplayLog(replayLog);
-
-  const session = replay.session;
-  const game = session.game!;
-
-  let encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    'At 20 clicks from Yew you encounter the famous Captain Conrad.\n\nThe captain requests a brief meeting with you.'
-  );
-
-  const engBefore = game.commander.engineer;
-  assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-
-  replay.replayEvent('ecButton_Ignore', 'click');
-
-  encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    'At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.'
-  );
-
-  const engAfter = game.commander.engineer;
-  assertEqual(engAfter, engBefore);
-
-  assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-
-  assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = assertSurvivesSave(game);
-  assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-  const engAfter2 = game2.commander.engineer;
-  assertEqual(engAfter2, engBefore);
-});
-
-test('Conrad_attack', () => {
-  const replayLog = recording('Conrad');
-
-  const replay = runReplayLog(replayLog);
-
-  const session = replay.session;
-  const game = session.game!;
-
-  const encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    'At 20 clicks from Yew you encounter the famous Captain Conrad.\n\nThe captain requests a brief meeting with you.'
-  );
-
-  const engBefore = game.commander.engineer;
-  assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-
-  replay.replayEvent('ecButton_Attack', 'click');
-
-  assertEqual(
-    AlertViewController.currentAlertTitle(),
-    'Famous captains get famous by, among other things, destroying everyone who attacks them. Do you really want to attack?'
-  );
-
-  replay.replayEvent('alertButton_Attack', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Ignore', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Ignore', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('alertButton_Dismiss', 'click'); // arrived
-
-  const systemInfoHeader = welcome();
-  assertEqual(textOf(systemInfoHeader), 'Welcome to Yew');
-
-  assertEqualArrays(game._breakingNews, ['Captain Conrad Comes Under Attack By Criminal!']);
-
-  replay.replayEvent('News', 'click');
-  replay.replayEvent('purchaseNews', 'click');
-
-  const newsStrDiv = news();
-  assertTrue(hasText(newsStrDiv, 'h4', 'The Command'), 'masthead is a heading');
-  assertEqual(
-    textOf(newsStrDiv),
-    'The Command\nCaptain Conrad Comes Under Attack By Criminal!\n\nNotorious Criminal Jean-Luc Sighted in Yew!\n\nInsurrection Crushed: Rebels Executed!'
-  );
-
-  assertEqual(game._breakingNews, null);
-
-  assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Villain + ATTACK_TRADER_SCORE);
-
-  const engAfter = game.commander.engineer;
-  assertEqual(engAfter, engBefore);
-
-  assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-
-  assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = assertSurvivesSave(game);
-  assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-  const engAfter2 = game2.commander.engineer;
-  assertEqual(engAfter2, engBefore);
-  assertEqual(game2.commander.policeRecordScore, PoliceRecordScore.Villain + ATTACK_TRADER_SCORE);
-});
-
-test('Huie_notEligible', () => {
-  const replayLog = recording('Huie_notEligible');
-
-  const replay = runReplayLog(replayLog);
-
-  const session = replay.session;
-  const game = session.game!;
-
-  const encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    'At 15 clicks from Japori you encounter a police Firefly.\n\nIt ignores you.'
-  );
-
-  assertEqualArrays(game._remainingRareEvents, [RareEvent.CaptainHuie]);
-  assertSurvivesSave(game);
-});
-
-test('Huie_accept', () => {
-  const replayLog = recording('Huie');
-
-  const replay = runReplayLog(replayLog);
-
-  const session = replay.session;
-  const game = session.game!;
-
-  const encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    'At 20 clicks from Yew you encounter the famous Captain Huie.\n\nThe captain requests a brief meeting with you.'
-  );
-
-  replay.replayEvent('ecButton_Meet', 'click');
-
-  assertEqual(
-    AlertViewController.currentAlertTitle(),
-    'Captain Huie, former Trade Commissioner of the Galactic Council, is in need of a laser for an upcoming mission. Huie is known for driving a hard bargain and is offering some secrets of doing business in exchange for one military laser.'
-  );
-
-  const tradBefore = game.commander.trader;
-
-  assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-
-  replay.replayEvent('alertButton_Yes__trade_', 'click');
-
-  assertEqual(
-    AlertViewController.currentAlertTitle(),
-    'After a few hours of training with a top expert, you feel your abilities have improved significantly.'
-  );
-
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  const tradAfter = game.commander.trader;
-  assertEqual(tradAfter, tradBefore + 2);
-
-  assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), false);
-
-  assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = assertSurvivesSave(game);
-  assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), false);
-  const tradAfter2 = game2.commander.trader;
-  assertEqual(tradAfter2, tradBefore + 2);
-});
-
-test('Huie_noThanks', () => {
-  const replayLog = recording('Huie');
-
-  const replay = runReplayLog(replayLog);
-
-  const session = replay.session;
-  const game = session.game!;
-
-  let encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    'At 20 clicks from Yew you encounter the famous Captain Huie.\n\nThe captain requests a brief meeting with you.'
-  );
-
-  replay.replayEvent('ecButton_Meet', 'click');
-
-  assertEqual(
-    AlertViewController.currentAlertTitle(),
-    'Captain Huie, former Trade Commissioner of the Galactic Council, is in need of a laser for an upcoming mission. Huie is known for driving a hard bargain and is offering some secrets of doing business in exchange for one military laser.'
-  );
-
-  const tradBefore = game.commander.trader;
-  assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-
-  replay.replayEvent('alertButton_No_thanks_', 'click');
-
-  encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    'At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.'
-  );
-
-  const tradAfter = game.commander.trader;
-  assertEqual(tradAfter, tradBefore);
-
-  assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-
-  assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = assertSurvivesSave(game);
-  assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-  const tradAfter2 = game2.commander.trader;
-  assertEqual(tradAfter2, tradBefore);
-});
-
-test('Huie_ignore', () => {
-  const replayLog = recording('Huie');
-
-  const replay = runReplayLog(replayLog);
-
-  const session = replay.session;
-  const game = session.game!;
-
-  let encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    'At 20 clicks from Yew you encounter the famous Captain Huie.\n\nThe captain requests a brief meeting with you.'
-  );
-
-  const tradBefore = game.commander.trader;
-  assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-
-  replay.replayEvent('ecButton_Ignore', 'click');
-
-  encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    'At 13 clicks from Yew you encounter a trader Gnat.\n\nIt ignores you.'
-  );
-
-  const tradAfter = game.commander.trader;
-  assertEqual(tradAfter, tradBefore);
-
-  assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-
-  assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = assertSurvivesSave(game);
-  assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-  const tradAfter2 = game2.commander.trader;
-  assertEqual(tradAfter2, tradBefore);
-});
-
-test('Huie_attack', () => {
-  const replayLog = recording('Huie');
-
-  const replay = runReplayLog(replayLog);
-
-  const session = replay.session;
-  const game = session.game!;
-
-  const encounterText = textOf(encounterBox());
-  assertEqual(
-    encounterText,
-    'At 20 clicks from Yew you encounter the famous Captain Huie.\n\nThe captain requests a brief meeting with you.'
-  );
-
-  const tradBefore = game.commander.trader;
-  assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-
-  replay.replayEvent('ecButton_Attack', 'click');
-
-  assertEqual(
-    AlertViewController.currentAlertTitle(),
-    'Famous captains get famous by, among other things, destroying everyone who attacks them. Do you really want to attack?'
-  );
-
-  replay.replayEvent('alertButton_Attack', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Ignore', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Ignore', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('alertButton_Dismiss', 'click'); // arrived
-
-  const systemInfoHeader = welcome();
-  assertEqual(textOf(systemInfoHeader), 'Welcome to Yew');
-
-  assertEqualArrays(game._breakingNews, ['Famed Captain Huie Attacked by Brigand!']);
-
-  replay.replayEvent('News', 'click');
-  replay.replayEvent('purchaseNews', 'click');
-
-  const newsStrDiv = news();
-  assertTrue(hasText(newsStrDiv, 'h4', 'The Command'), 'masthead is a heading');
-  assertEqual(
-    textOf(newsStrDiv),
-    'The Command\nFamed Captain Huie Attacked by Brigand!\n\nNotorious Criminal Jean-Luc Sighted in Yew!\n\nInsurrection Crushed: Rebels Executed!'
-  );
-
-  assertEqual(game._breakingNews, null);
-
-  assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Villain + ATTACK_TRADER_SCORE);
-
-  const tradAfter = game.commander.trader;
-  assertEqual(tradAfter, tradBefore);
-
-  assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-
-  assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = assertSurvivesSave(game);
-  assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
-  const tradAfter2 = game2.commander.trader;
-  assertEqual(tradAfter2, tradBefore);
+  assertEqual(captain.hasItem(game2.commander.ship), true);
+  const skillAfter2 = game2.commander[captain.skill];
+  assertEqual(skillAfter2, skillBefore);
   assertEqual(game2.commander.policeRecordScore, PoliceRecordScore.Villain + ATTACK_TRADER_SCORE);
 });
 

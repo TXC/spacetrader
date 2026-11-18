@@ -4221,33 +4221,8 @@ test('skillIncrease_accept', () => {
   assertSurvivesSave(game);
 });
 
-test('lottery_easy', () => {
-  const replayLog = recording('lottery_easy');
-  const replay = runReplayLog(replayLog);
-
-  const session = replay.session;
-  const game = session.game!;
-
-  const creditsBefore = game.commander.credits;
-
-  replay.replayEvent('Special', 'click');
-
-  assertEqual(
-    AlertViewController.currentAlertTitle(),
-    'What luck! While docking in the space port, you receive a message that you won $1000 in a lottery. The prize has been added to your account.'
-  );
-
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  assertEqual(game.commander.credits, creditsBefore + 1000);
-
-  assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
-
-  assertSurvivesSave(game);
-});
-
-test('lottery_beginner', () => {
-  const replayLog = recording('lottery_beginner');
+test.each(['easy', 'beginner'])('lottery_%s', difficulty => {
+  const replayLog = recording(`lottery_${difficulty}`);
   const replay = runReplayLog(replayLog);
 
   const session = replay.session;
