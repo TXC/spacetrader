@@ -10,7 +10,8 @@ import { render } from './support/render.tsx';
 // happen while drawing, or they would happen twice.
 test('drawing the news spends nothing and draws no random numbers', () => {
   const log = '{"idLog":["createCommander"],"eventNameLog":["click"],"gameRandSeed":1733543535142}';
-  const game = runReplayLog(log).session.game!;
+  const { session } = runReplayLog(log);
+  const game = session.game!;
   game.autoNews = true;
   const creditsBefore = game.commander.credits;
   const news = new NewsRules(game);
@@ -21,7 +22,8 @@ test('drawing the news spends nothing and draws no random numbers', () => {
   const { host } = render(
     <StrictMode>
       <News game={game} news={news} />
-    </StrictMode>
+    </StrictMode>,
+    session
   );
 
   expect(creditsAfterOpening).toBe(creditsBefore - news.price());

@@ -19,7 +19,7 @@ test('the debug panel shows the action log as it grows, and copies it', () => {
     document.body.insertAdjacentHTML('beforeend', '<div id="cheats" class="hidden"></div>')
   );
   const copied = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
-  const { host } = render(<DebugPanel session={session} />);
+  const { host } = render(<DebugPanel />, session);
 
   host.querySelector<HTMLElement>('#cheat_freeMoney')!.click();
 

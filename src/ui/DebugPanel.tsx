@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { runtime } from '../game/runtime.ts';
-import type { Session } from '../game/session.ts';
 import { Cheats } from './Cheats.tsx';
 import styles from './DebugPanel.module.css';
 
@@ -20,7 +19,7 @@ function useActionLog(): string {
 
 // Shown below the game when the address ends in ?debug: the action log, a button to copy
 // it, and the cheats.
-export function DebugPanel({ session }: { session: Session }) {
+export function DebugPanel() {
   const log = useActionLog();
   return (
     <div id="debug" className={styles.panel}>
@@ -30,7 +29,7 @@ export function DebugPanel({ session }: { session: Session }) {
         </button>
       </div>
       <div id="cheats">
-        <Cheats session={session} />
+        <Cheats />
       </div>
       <div id="debugLog">{log}</div>
     </div>

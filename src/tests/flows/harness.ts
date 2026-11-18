@@ -11,12 +11,13 @@ import { MockLocalStorage } from '../support/MockLocalStorage.ts';
 import { runtime } from '../../game/runtime.ts';
 import { parseSavedGame } from '../../game/savedGame.ts';
 import { AlertViewController } from '../../game/alerts.ts';
-import { Session, activate } from '../../game/session.ts';
+import { Session } from '../../game/session.ts';
 import { Cheats } from '../../ui/Cheats.tsx';
 import { Game as GameScreen } from '../../ui/Game.tsx';
 import { ActionLogReplay } from '../support/ActionLogReplay.ts';
 import { mountAlertHost } from '../support/mountAlertHost.tsx';
 import { mountReact } from '../support/mountReact.ts';
+import { SessionContext } from '../../ui/useStore.ts';
 import { welcome } from '../support/page.ts';
 import type { GalaxyView } from '../../ui/canvas/GalaxyView.ts';
 
@@ -40,12 +41,12 @@ export function unmountAll() {
 
 // Shows a session's game in the page's #game element, with the cheats in #cheats.
 export function show(session: Session) {
-  activate(session);
+  const provided = (screen: ReactNode) => createElement(SessionContext, { value: session }, screen);
   mountAlertHost();
-  mount(document.getElementById('game')!, createElement(GameScreen, { session }));
+  mount(document.getElementById('game')!, provided(createElement(GameScreen)));
   session.start();
   const cheats = document.getElementById('cheats');
-  if (runtime.debugMode && cheats) mount(cheats, createElement(Cheats, { session }));
+  if (runtime.debugMode && cheats) mount(cheats, provided(createElement(Cheats)));
 }
 
 const recordings = import.meta.glob<string>('../fixtures/recordings/*.json', {
