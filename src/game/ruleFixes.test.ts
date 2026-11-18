@@ -92,10 +92,10 @@ test('B3: removing a shield takes its power with it', () => {
   ship.addAccessoryOfType(AccessoryType.ShieldReflective); // 200
 
   ship.removeAccessoryOfType(AccessoryType.ShieldReflective);
-  expect(ship._currentShieldPower).toBe(100);
+  expect(ship.currentShieldPower).toBe(100);
 
   ship.removeAccessoryOfType(AccessoryType.ShieldEnergy);
-  expect(ship._currentShieldPower).toBe(0);
+  expect(ship.currentShieldPower).toBe(0);
 });
 
 test('B4: Wild is asked about first, and too much debt is a message of its own', () => {
