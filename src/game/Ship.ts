@@ -555,7 +555,7 @@ export class Ship {
     });
   }
 
-  static bestShipWithDifficulty() {
+  static bestShip() {
     const ship = Ship.create(ShipModelType.Best);
 
     while (ship.addShieldOfType(AccessoryType.ShieldLastBuyable)) {
