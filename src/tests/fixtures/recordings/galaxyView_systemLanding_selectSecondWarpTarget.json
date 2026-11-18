@@ -1,0 +1,5 @@
+{
+  "idLog": ["createCommander", "Warp", "namedEvent"],
+  "eventNameLog": ["click", "click", "selectPlanetZoomed|Acamar"],
+  "gameRandSeed": 1730277200899
+}

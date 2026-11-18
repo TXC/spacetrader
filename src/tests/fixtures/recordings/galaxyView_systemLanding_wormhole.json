@@ -1,0 +1,5 @@
+{
+  "idLog": ["createCommander", "Warp", "namedEvent"],
+  "eventNameLog": ["click", "click", "selectPlanetZoomed|Kira~wormhole"],
+  "gameRandSeed": 1730277328255
+}

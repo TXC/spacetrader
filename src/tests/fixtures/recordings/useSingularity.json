@@ -1,0 +1,31 @@
+{
+  "idLog": [
+    "createCommander",
+    "Chart",
+    "cheat_freeSingularity",
+    "Chart",
+    "galacticChart_useSingularity_121_Othello",
+    "alertButton_Not_now",
+    "galacticChart_useSingularity_121_Othello",
+    "alertButton_Warp_",
+    "ecButton_Ignore",
+    "ecButton_Ignore",
+    "ecButton_Ignore",
+    "alertButton_Dismiss"
+  ],
+  "eventNameLog": [
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click"
+  ],
+  "gameRandSeed": 1732588693057
+}

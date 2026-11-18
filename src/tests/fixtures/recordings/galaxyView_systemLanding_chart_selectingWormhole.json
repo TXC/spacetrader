@@ -1,0 +1,5 @@
+{
+  "idLog": ["createCommander", "Chart", "namedEvent"],
+  "eventNameLog": ["click", "click", "selectPlanet|Utopia~wormhole"],
+  "gameRandSeed": 1734687673579
+}

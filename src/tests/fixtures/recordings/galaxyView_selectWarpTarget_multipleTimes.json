@@ -1,0 +1,23 @@
+{
+  "idLog": [
+    "createCommander",
+    "Chart",
+    "namedEvent",
+    "Warp",
+    "namedEvent",
+    "namedEvent",
+    "namedEvent",
+    "namedEvent"
+  ],
+  "eventNameLog": [
+    "click",
+    "click",
+    "selectPlanetZoomed|Mintaka",
+    "click",
+    "selectPlanetZoomed|Deneb",
+    "selectPlanetZoomed|Campor",
+    "selectPlanetZoomed|Thera",
+    "selectPlanetZoomed|Penthara"
+  ],
+  "gameRandSeed": 1729657624152
+}

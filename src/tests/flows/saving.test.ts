@@ -16,6 +16,7 @@ import {
   ActionLogReplay,
   assertEqual,
   assertEqualGames,
+  recording,
   runReplayLog,
   serializeAndDeserialize,
   show,
@@ -84,7 +85,7 @@ test('saveLoad', () => {
 });
 
 test('serializationDeserialization_newGame', () => {
-  const replayLog = `{"idLog":["createCommander"],"eventNameLog":["click"],"gameRandSeed":1732421539025}`;
+  const replayLog = recording('serializationDeserialization_newGame');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -160,7 +161,7 @@ test('serializationDeserialization_newGame', () => {
 });
 
 test('serializationDeserialization', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","Chart","namedEvent","galacticChart_useSingularity_1_Omega","alertButton_Warp_","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Reflective_shield","alertButton_Yes","buy_Navigation_system","alertButton_Yes","buy_Targeting_system","alertButton_Yes","cheat_showSpecial","Chart","Warp","cargo_WaterBuy_1","cargo_FoodBuy_1","cargo_FoodBuy_1","cargo_OreBuy_1","cargo_OreBuy_1","cargo_GamesBuy_1","cargo_GamesBuy_1"],"eventNameLog":["click","click","click","click","selectPlanet|Omega","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1733198074014}`;
+  const replayLog = recording('serializationDeserialization');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -244,7 +245,7 @@ test('serializationDeserialization', () => {
 });
 
 test('auto_attack_interrupt', () => {
-  const replayLog = `{"idLog":["createCommander","Warp"],"eventNameLog":["click","click"],"gameRandSeed":1734746929683}`;
+  const replayLog = recording('auto_attack');
 
   const replay = runReplayLog(replayLog);
 
@@ -269,7 +270,7 @@ test('auto_attack_interrupt', () => {
 });
 
 test('auto_attack_flee', () => {
-  const replayLog = `{"idLog":["createCommander","Warp"],"eventNameLog":["click","click"],"gameRandSeed":1734746929683}`;
+  const replayLog = recording('auto_attack');
 
   const replay = runReplayLog(replayLog);
 
@@ -294,7 +295,7 @@ test('auto_attack_flee', () => {
 });
 
 test('auto_attack_surrender', () => {
-  const replayLog = `{"idLog":["createCommander","Warp"],"eventNameLog":["click","click"],"gameRandSeed":1734746929683}`;
+  const replayLog = recording('auto_attack');
 
   const replay = runReplayLog(replayLog);
 
@@ -319,7 +320,7 @@ test('auto_attack_surrender', () => {
 });
 
 test('auto_attack_auto_flee', () => {
-  const replayLog = `{"idLog":["createCommander","Warp"],"eventNameLog":["click","click"],"gameRandSeed":1734746929683}`;
+  const replayLog = recording('auto_attack');
 
   const replay = runReplayLog(replayLog);
 
@@ -350,7 +351,7 @@ test('auto_attack_auto_flee', () => {
 });
 
 test('auto_flee_interrupt', () => {
-  const replayLog = `{"idLog":["createCommander","Warp"],"eventNameLog":["click","click"],"gameRandSeed":1734746929683}`;
+  const replayLog = recording('auto_attack');
 
   const replay = runReplayLog(replayLog);
 

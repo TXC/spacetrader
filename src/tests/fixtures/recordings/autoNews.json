@@ -1,0 +1,5 @@
+{
+  "idLog": ["createCommander", "News", "autoNewsCheckbox", "Sell"],
+  "eventNameLog": ["click", "click", "change", "click"],
+  "gameRandSeed": 1732358737231
+}

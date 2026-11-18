@@ -1,0 +1,33 @@
+{
+  "idLog": [
+    "createCommander",
+    "cheat_freeMoney",
+    "Ship Yard",
+    "buy_escape_pod",
+    "alertButton_Yes",
+    "Bank",
+    "Buy_Insurance_Policy",
+    "Warp",
+    "warpBlastOff",
+    "ecButton_Auto_Attack",
+    "alertButton_Attack",
+    "ecButton_Auto_Attack",
+    "alertButton_Dismiss"
+  ],
+  "eventNameLog": [
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click"
+  ],
+  "gameRandSeed": 1734745362815
+}

@@ -1,0 +1,5 @@
+{
+  "idLog": ["createCommander", "namedEvent"],
+  "eventNameLog": ["click", "selectPlanetZoomed|Tantalos"],
+  "gameRandSeed": 1730259708834
+}

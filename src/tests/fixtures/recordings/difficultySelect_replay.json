@@ -1,0 +1,5 @@
+{
+  "idLog": ["difficultySelect", "engineer"],
+  "eventNameLog": ["select|change|1", "slider|input|6"],
+  "gameRandSeed": 1732270077642
+}

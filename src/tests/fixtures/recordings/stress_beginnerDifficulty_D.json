@@ -1,0 +1,25 @@
+{
+  "idLog": [
+    "difficultySelect",
+    "createCommander",
+    "Special",
+    "alertButton_Dismiss",
+    "cheat_freeMoney",
+    "Ship Yard",
+    "autoFuelCheckbox",
+    "autoRepairCheckbox",
+    "buy_escape_pod"
+  ],
+  "eventNameLog": [
+    "select|change|0",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "change",
+    "change",
+    "click"
+  ],
+  "gameRandSeed": 1732327630785
+}

@@ -1,0 +1,31 @@
+{
+  "idLog": [
+    "createCommander",
+    "Buy",
+    "cargo_WaterBuy_1",
+    "cargo_FursBuy_1",
+    "cargo_FursBuy_1",
+    "cargo_OreBuy_1",
+    "cargo_OreBuy_1",
+    "cargo_FoodBuy_1",
+    "Commander",
+    "Chart",
+    "Warp",
+    "warpBlastOff"
+  ],
+  "eventNameLog": [
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click"
+  ],
+  "gameRandSeed": 1732440726896
+}

@@ -16,6 +16,7 @@ import {
   assertEqualArrays,
   assertEqualGames,
   assertTrue,
+  recording,
   runReplayLog,
   serializeAndDeserialize,
 } from './harness.ts';
@@ -30,7 +31,7 @@ import {
 } from '../support/page.ts';
 
 test('BottleGood_Ignore', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_Encounter_Good_Bottle","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1733543535142}`;
+  const replayLog = recording('BottleGood');
 
   const replay = runReplayLog(replayLog);
 
@@ -67,7 +68,7 @@ test('BottleGood_Ignore', () => {
 });
 
 test('BottleGood_Pass', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_Encounter_Good_Bottle","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1733543535142}`;
+  const replayLog = recording('BottleGood');
 
   const replay = runReplayLog(replayLog);
 
@@ -111,7 +112,7 @@ test('BottleGood_Pass', () => {
 });
 
 test('BottleGood_Drink', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_Encounter_Good_Bottle","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1733543535142}`;
+  const replayLog = recording('BottleGood');
 
   const replay = runReplayLog(replayLog);
 
@@ -168,7 +169,7 @@ test('BottleGood_Drink', () => {
 });
 
 test('BottleOld_Ignore', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_Encounter_Old_Bottle","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1733543535142}`;
+  const replayLog = recording('BottleOld');
 
   const replay = runReplayLog(replayLog);
 
@@ -205,7 +206,7 @@ test('BottleOld_Ignore', () => {
 });
 
 test('BottleOld_Pass', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_Encounter_Old_Bottle","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1733543535142}`;
+  const replayLog = recording('BottleOld');
 
   const replay = runReplayLog(replayLog);
 
@@ -249,7 +250,7 @@ test('BottleOld_Pass', () => {
 });
 
 test('BottleOld_Drink', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_Encounter_Old_Bottle","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1733543535142}`;
+  const replayLog = recording('BottleOld');
 
   const replay = runReplayLog(replayLog);
 
@@ -306,7 +307,7 @@ test('BottleOld_Drink', () => {
 });
 
 test('Ahab_notEligible', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_Encounter_Captain_Ahab","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1733197780168}`;
+  const replayLog = recording('Ahab_notEligible');
 
   const replay = runReplayLog(replayLog);
 
@@ -326,7 +327,7 @@ test('Ahab_notEligible', () => {
 });
 
 test('Ahab_accept', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","Chart","namedEvent","galacticChart_useSingularity_1_Omega","alertButton_Warp_","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","Warp","cheat_Encounter_Captain_Ahab","warpBlastOff"],"eventNameLog":["click","click","click","click","selectPlanet|Omega","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1733198074014}`;
+  const replayLog = recording('Ahab');
 
   const replay = runReplayLog(replayLog);
 
@@ -373,7 +374,7 @@ test('Ahab_accept', () => {
 });
 
 test('Ahab_noThanks', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","Chart","namedEvent","galacticChart_useSingularity_1_Omega","alertButton_Warp_","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","Warp","cheat_Encounter_Captain_Ahab","warpBlastOff"],"eventNameLog":["click","click","click","click","selectPlanet|Omega","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1733198074014}`;
+  const replayLog = recording('Ahab');
 
   const replay = runReplayLog(replayLog);
 
@@ -419,7 +420,7 @@ test('Ahab_noThanks', () => {
 });
 
 test('Ahab_ignore', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","Chart","namedEvent","galacticChart_useSingularity_1_Omega","alertButton_Warp_","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","Warp","cheat_Encounter_Captain_Ahab","warpBlastOff"],"eventNameLog":["click","click","click","click","selectPlanet|Omega","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1733198074014}`;
+  const replayLog = recording('Ahab');
 
   const replay = runReplayLog(replayLog);
 
@@ -458,7 +459,7 @@ test('Ahab_ignore', () => {
 });
 
 test('Ahab_attack', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","Chart","namedEvent","galacticChart_useSingularity_1_Omega","alertButton_Warp_","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","Warp","cheat_Encounter_Captain_Ahab","warpBlastOff"],"eventNameLog":["click","click","click","click","selectPlanet|Omega","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1733198074014}`;
+  const replayLog = recording('Ahab');
 
   const replay = runReplayLog(replayLog);
 
@@ -557,7 +558,7 @@ test('Ahab_attack', () => {
 });
 
 test('Conrad_notEligible', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_Encounter_Captain_Conrad","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1733197780168}`;
+  const replayLog = recording('Conrad_notEligible');
 
   const replay = runReplayLog(replayLog);
 
@@ -577,7 +578,7 @@ test('Conrad_notEligible', () => {
 });
 
 test('Conrad_accept', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","Chart","namedEvent","galacticChart_useSingularity_1_Omega","alertButton_Warp_","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","Warp","cheat_Encounter_Captain_Conrad","warpBlastOff"],"eventNameLog":["click","click","click","click","selectPlanet|Omega","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1733198074014}`;
+  const replayLog = recording('Conrad');
 
   const replay = runReplayLog(replayLog);
 
@@ -625,7 +626,7 @@ test('Conrad_accept', () => {
 });
 
 test('Conrad_noThanks', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","Chart","namedEvent","galacticChart_useSingularity_1_Omega","alertButton_Warp_","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","Warp","cheat_Encounter_Captain_Conrad","warpBlastOff"],"eventNameLog":["click","click","click","click","selectPlanet|Omega","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1733198074014}`;
+  const replayLog = recording('Conrad');
 
   const replay = runReplayLog(replayLog);
 
@@ -671,7 +672,7 @@ test('Conrad_noThanks', () => {
 });
 
 test('Conrad_ignore', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","Chart","namedEvent","galacticChart_useSingularity_1_Omega","alertButton_Warp_","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","Warp","cheat_Encounter_Captain_Conrad","warpBlastOff"],"eventNameLog":["click","click","click","click","selectPlanet|Omega","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1733198074014}`;
+  const replayLog = recording('Conrad');
 
   const replay = runReplayLog(replayLog);
 
@@ -710,7 +711,7 @@ test('Conrad_ignore', () => {
 });
 
 test('Conrad_attack', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","Chart","namedEvent","galacticChart_useSingularity_1_Omega","alertButton_Warp_","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","Warp","cheat_Encounter_Captain_Conrad","warpBlastOff"],"eventNameLog":["click","click","click","click","selectPlanet|Omega","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1733198074014}`;
+  const replayLog = recording('Conrad');
 
   const replay = runReplayLog(replayLog);
 
@@ -809,7 +810,7 @@ test('Conrad_attack', () => {
 });
 
 test('Huie_notEligible', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_Encounter_Captain_Huie","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1733197780168}`;
+  const replayLog = recording('Huie_notEligible');
 
   const replay = runReplayLog(replayLog);
 
@@ -829,7 +830,7 @@ test('Huie_notEligible', () => {
 });
 
 test('Huie_accept', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","Chart","namedEvent","galacticChart_useSingularity_1_Omega","alertButton_Warp_","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","Warp","cheat_Encounter_Captain_Huie","warpBlastOff"],"eventNameLog":["click","click","click","click","selectPlanet|Omega","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1733198074014}`;
+  const replayLog = recording('Huie');
 
   const replay = runReplayLog(replayLog);
 
@@ -877,7 +878,7 @@ test('Huie_accept', () => {
 });
 
 test('Huie_noThanks', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","Chart","namedEvent","galacticChart_useSingularity_1_Omega","alertButton_Warp_","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","Warp","cheat_Encounter_Captain_Huie","warpBlastOff"],"eventNameLog":["click","click","click","click","selectPlanet|Omega","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1733198074014}`;
+  const replayLog = recording('Huie');
 
   const replay = runReplayLog(replayLog);
 
@@ -923,7 +924,7 @@ test('Huie_noThanks', () => {
 });
 
 test('Huie_ignore', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","Chart","namedEvent","galacticChart_useSingularity_1_Omega","alertButton_Warp_","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","Warp","cheat_Encounter_Captain_Huie","warpBlastOff"],"eventNameLog":["click","click","click","click","selectPlanet|Omega","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1733198074014}`;
+  const replayLog = recording('Huie');
 
   const replay = runReplayLog(replayLog);
 
@@ -962,7 +963,7 @@ test('Huie_ignore', () => {
 });
 
 test('Huie_attack', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","Chart","namedEvent","galacticChart_useSingularity_1_Omega","alertButton_Warp_","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","Warp","cheat_Encounter_Captain_Huie","warpBlastOff"],"eventNameLog":["click","click","click","click","selectPlanet|Omega","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1733198074014}`;
+  const replayLog = recording('Huie');
 
   const replay = runReplayLog(replayLog);
 
@@ -1061,7 +1062,7 @@ test('Huie_attack', () => {
 });
 
 test('MarieCeleste_ignore', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_Encounter_Marie_Celeste","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1732854026979}`;
+  const replayLog = recording('MarieCeleste');
 
   const replay = runReplayLog(replayLog);
 
@@ -1085,7 +1086,7 @@ test('MarieCeleste_ignore', () => {
 });
 
 test('MarieCeleste_boardLeave', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_Encounter_Marie_Celeste","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1732854026979}`;
+  const replayLog = recording('MarieCeleste');
 
   const replay = runReplayLog(replayLog);
 
@@ -1112,7 +1113,7 @@ test('MarieCeleste_boardLeave', () => {
 });
 
 test('MarieCeleste_boardDontTake', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_Encounter_Marie_Celeste","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1732854026979}`;
+  const replayLog = recording('MarieCeleste');
 
   const replay = runReplayLog(replayLog);
 
@@ -1142,7 +1143,7 @@ test('MarieCeleste_boardDontTake', () => {
 });
 
 test('MarieCeleste_boardTakeDumpYield', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_Encounter_Marie_Celeste","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1732854026979}`;
+  const replayLog = recording('MarieCeleste');
 
   const replay = runReplayLog(replayLog);
 
@@ -1192,7 +1193,7 @@ test('MarieCeleste_boardTakeDumpYield', () => {
 });
 
 test('MarieCeleste_boardTakeYield', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_Encounter_Marie_Celeste","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1732854026979}`;
+  const replayLog = recording('MarieCeleste');
 
   const replay = runReplayLog(replayLog);
 
@@ -1237,7 +1238,7 @@ test('MarieCeleste_boardTakeYield', () => {
 });
 
 test('MarieCeleste_boardTakeBribe', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_Encounter_Marie_Celeste","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1732854026979}`;
+  const replayLog = recording('MarieCeleste');
 
   const replay = runReplayLog(replayLog);
 
@@ -1269,7 +1270,7 @@ test('MarieCeleste_boardTakeBribe', () => {
 });
 
 test('MarieCeleste_boardTakeFlee', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_Encounter_Marie_Celeste","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1732854026979}`;
+  const replayLog = recording('MarieCeleste');
 
   const replay = runReplayLog(replayLog);
 
@@ -1316,7 +1317,7 @@ test('MarieCeleste_boardTakeFlee', () => {
 });
 
 test('MarieCeleste_boardTakeAttack', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_Encounter_Marie_Celeste","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1732854026979}`;
+  const replayLog = recording('MarieCeleste');
 
   const replay = runReplayLog(replayLog);
 

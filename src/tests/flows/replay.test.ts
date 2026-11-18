@@ -13,6 +13,7 @@ import {
   assertEqualGames,
   assertTrue,
   mapOf,
+  recording,
   replaySkipEncounters,
   runReplayLog,
   serializeAndDeserialize,
@@ -41,7 +42,7 @@ import {
 test('HPView_unchangedWhenOpponentMisses', () => {
   // The recording borrows 500. The bank offers that in nine presses now that the smallest
   // loan limit is 1,000, so the recording presses those.
-  const replayLog = `{"idLog":["createCommander","Commander","ignorePolice","ignorePirates","ignoreTraders","ignoreTradeInOrbit","Bank","borrow__100","borrow__90","borrow__81","borrow__72","borrow__65","borrow__59","borrow__53","Pay_back__10","Pay_back__10","Warp","warpNext","warpNext","warpNext","warpNext","warpNext","warpNext","warpNext","warpNext","namedEvent","warpBlastOff","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Submit","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","alertButton_Dismiss","alertButton_Dismiss","Special","alertButton_No","Ship Yard","fulltank","Warp","warpNext","warpNext","warpNext","cargo_OreBuy_All","cargo_FursBuy_All","cargo_FoodBuy_All","cargo_WaterBuy_All","warpBlastOff","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Attack","alertButton_Ok__I_won_t_","ecButton_Submit","alertButton_Dismiss","alertButton_Dismiss","Sell","cargo_WaterSell_All","cargo_FoodSell_All","cargo_OreSell_All","Ship Yard","fulltank","Full_repair","Warp","warpNext","togglePrices_Show_Absolute","togglePrices_Show_Relative","togglePrices_Show_Absolute","togglePrices_Show_Relative","warpNext","warpNext","cargo_FirearmsBuy_All","cargo_MedicineBuy_All","warpBlastOff","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","alertButton_Dismiss","Sell","cargo_FirearmsSell_All","Warp","fulltank","Ship Yard","Full_repair","Special","alertButton_No","Sell","Warp","warpNext","Bank","Warp","warpNext","warpNext","cargo_OreBuy_All","cargo_FursBuy_All","cargo_FoodBuy_All","cargo_WaterBuy_All","warpBlastOff","ecButton_Submit","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","alertButton_Dismiss","Sell","cargo_OreSell_All","Warp","fulltank","Ship Yard","Full_repair","Bank","borrow__409","Warp","warpNext","warpNext","warpNext","togglePrices_Show_Absolute","togglePrices_Show_Relative","cargo_FirearmsBuy_All","cargo_MedicineBuy_All","warpBlastOff","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","alertButton_Dismiss","alertButton_Dismiss","Sell","cargo_FirearmsSell_All","Ship Yard","fulltank","Full_repair","autoFuelCheckbox","autoRepairCheckbox","Warp","warpNext","warpNext","warpNext","cargo_OreBuy_All","Bank","pay__1000","Sell","Warp","warpBlastOff","ecButton_Flee","alertButton_Dismiss","alertButton_Dismiss","Sell","cargo_OreSell_All","Ship Yard","Warp","warpNext","cargo_FirearmsBuy_All","cargo_NarcoticsBuy_All","cargo_MedicineBuy_All","warpBlastOff","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","alertButton_Dismiss","Sell","cargo_FirearmsSell_All","cargo_NarcoticsSell_All","cargo_MedicineSell_All","Warp","warpNext","warpNext","warpNext","cargo_OreBuy_All","cargo_FoodBuy_All","warpBlastOff","ecButton_Flee","alertButton_Dismiss","ecButton_Submit","alertButton_Dismiss","alertButton_Dismiss","Sell","cargo_FoodSell_All","cargo_OreSell_All","Warp","warpNext","warpNext","warpNext","cargo_FirearmsBuy_All","cargo_NarcoticsBuy_All","cargo_MedicineBuy_All","warpBlastOff","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","alertButton_Dismiss"],"eventNameLog":["click","click","change","change","change","change","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Tantalos","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","change","change","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1732919193563}`;
+  const replayLog = recording('HPView_unchangedWhenOpponentMisses');
 
   const replay = runReplayLog(replayLog);
 
@@ -67,7 +68,7 @@ test('HPView_unchangedWhenOpponentMisses', () => {
 });
 
 test('giveUp', () => {
-  const replayLog = `{"idLog":["createCommander","Commander","giveup","alertButton_Abandon_game"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1732590998247}`;
+  const replayLog = recording('giveUp');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -88,7 +89,7 @@ test('giveUp', () => {
 });
 
 test('dieStartOver', () => {
-  const replayLog = `{"idLog":["createCommander","Warp","warpBlastOff","ecButton_Attack","alertButton_Attack","ecButton_Auto_Attack","alertButton_Dismiss"],"eventNameLog":["click","click","click","click","click","click","click"],"gameRandSeed":1732591429497}`;
+  const replayLog = recording('dieStartOver');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -134,7 +135,7 @@ test('dieStartOver', () => {
 });
 
 test('autoRepairs_autoFuel', () => {
-  const replayLog = `{"idLog":["createCommander","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","cheat_freeMoney","Warp","cargo_WaterBuy_1","warpBlastOff","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Attack","alertButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","alertButton_Dismiss"],"eventNameLog":["click","click","change","change","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734494396218}`;
+  const replayLog = recording('autoRepairs_autoFuel');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -147,7 +148,7 @@ test('autoRepairs_autoFuel', () => {
 });
 
 test('manualRepairs', () => {
-  const replayLog = `{"idLog":["createCommander","Warp","warpBlastOff","ecButton_Attack","alertButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","alertButton_Dismiss","ecButton_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard"],"eventNameLog":["click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1732357186711}`;
+  const replayLog = recording('manualRepairs');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -175,7 +176,7 @@ test('manualRepairs', () => {
 });
 
 test('manualFuel', () => {
-  const replayLog = `{"idLog":["createCommander","Ship Yard","cheat_freeMoney","Warp","warpBlastOff","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Attack","alertButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Flee","ecButton_Flee","ecButton_Flee","ecButton_Flee","alertButton_Dismiss","alertButton_Dismiss","Ship Yard"],"eventNameLog":["click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734494396218}`;
+  const replayLog = recording('manualFuel');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -203,7 +204,7 @@ test('manualFuel', () => {
 });
 
 test('manualNews', () => {
-  const replayLog = `{"idLog":["createCommander","News"],"eventNameLog":["click","click"],"gameRandSeed":1732358737231}`;
+  const replayLog = recording('manualNews');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -242,7 +243,7 @@ test('manualNews', () => {
 });
 
 test('autoNews', () => {
-  const replayLog = `{"idLog":["createCommander","News","autoNewsCheckbox","Sell"],"eventNameLog":["click","click","change","click"],"gameRandSeed":1732358737231}`;
+  const replayLog = recording('autoNews');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -282,7 +283,7 @@ test('autoNews', () => {
 test('buyShip_debt_upgrade', () => {
   // The recording borrows 500. The bank offers that in nine presses now that the smallest
   // loan limit is 1,000, so the recording presses those.
-  const replayLog = `{"idLog":["createCommander","Bank","borrow__100","borrow__90","borrow__81","borrow__72","borrow__65","borrow__59","borrow__53","Pay_back__10","Pay_back__10","Buy","cargo_FursBuy_All","cargo_FoodBuy_All","cargo_WaterBuy_All","Sell","cargo_WaterSell_All","cargo_FursSell_All","cargo_FoodSell_All","namedEvent","Buy","cargo_WaterBuy_All","cargo_FursBuy_All","cargo_FoodBuy_All","cargo_FoodBuy_All","cargo_FursBuy_All","Sell","cargo_WaterSell_All","Buy","cargo_FursBuy_All","Sell","cargo_FursSell_All","Buy","cargo_FursBuy_All","Sell","cargo_FursSell_All","Buy","cargo_FursBuy_All","Sell","cargo_FursSell_All","Buy","cargo_FursBuy_All","Sell","cargo_FursSell_All","Buy","cargo_FoodBuy_All","Sell","cargo_FoodSell_All","Buy","cargo_FoodBuy_All","Sell","cargo_FoodSell_All","Buy","cargo_WaterBuy_All","Sell","cargo_WaterSell_All","Buy","cargo_FursBuy_All","Sell","cargo_FursSell_All","Buy","cargo_FoodBuy_All","Sell","cargo_FoodSell_All","Equipment","Ship Yard","namedEvent","namedEvent","warpBlastOff","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Special","alertButton_No","Ship Yard","fulltank","Buy","cargo_MedicineBuy_All","Sell","cargo_MedicineSell_All","Buy","cargo_WaterBuy_All","Sell","cargo_WaterSell_All","Buy","cargo_FoodBuy_All","Sell","cargo_FoodSell_All","Buy","cargo_FoodBuy_All","Sell","cargo_FoodSell_All","Buy","cargo_OreBuy_All","Sell","cargo_OreSell_All","Buy","cargo_OreBuy_All","Sell","cargo_OreSell_All","Buy","cargo_GamesBuy_All","Sell","cargo_GamesSell_All","Buy","cargo_OreBuy_All","Sell","cargo_OreSell_All","Bank","Ship Yard","buyship_Flea","alertButton_Yes"],"eventNameLog":["click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Laertes","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Festen","selectPlanetZoomed|Esmee","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1732872096993}`;
+  const replayLog = recording('buyShip_debt');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -316,7 +317,7 @@ test('buyShip_debt_upgrade', () => {
 test('buyShip_debt_downgrade', () => {
   // The recording borrows 500. The bank offers that in nine presses now that the smallest
   // loan limit is 1,000, so the recording presses those.
-  const replayLog = `{"idLog":["createCommander","Bank","borrow__100","borrow__90","borrow__81","borrow__72","borrow__65","borrow__59","borrow__53","Pay_back__10","Pay_back__10","Buy","cargo_FursBuy_All","cargo_FoodBuy_All","cargo_WaterBuy_All","Sell","cargo_WaterSell_All","cargo_FursSell_All","cargo_FoodSell_All","namedEvent","Buy","cargo_WaterBuy_All","cargo_FursBuy_All","cargo_FoodBuy_All","cargo_FoodBuy_All","cargo_FursBuy_All","Sell","cargo_WaterSell_All","Buy","cargo_FursBuy_All","Sell","cargo_FursSell_All","Buy","cargo_FursBuy_All","Sell","cargo_FursSell_All","Buy","cargo_FursBuy_All","Sell","cargo_FursSell_All","Buy","cargo_FursBuy_All","Sell","cargo_FursSell_All","Buy","cargo_FoodBuy_All","Sell","cargo_FoodSell_All","Buy","cargo_FoodBuy_All","Sell","cargo_FoodSell_All","Buy","cargo_WaterBuy_All","Sell","cargo_WaterSell_All","Buy","cargo_FursBuy_All","Sell","cargo_FursSell_All","Buy","cargo_FoodBuy_All","Sell","cargo_FoodSell_All","Equipment","Ship Yard","namedEvent","namedEvent","warpBlastOff","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Special","alertButton_No","Ship Yard","fulltank","Buy","cargo_MedicineBuy_All","Sell","cargo_MedicineSell_All","Buy","cargo_WaterBuy_All","Sell","cargo_WaterSell_All","Buy","cargo_FoodBuy_All","Sell","cargo_FoodSell_All","Buy","cargo_FoodBuy_All","Sell","cargo_FoodSell_All","Buy","cargo_OreBuy_All","Sell","cargo_OreSell_All","Buy","cargo_OreBuy_All","Sell","cargo_OreSell_All","Buy","cargo_GamesBuy_All","Sell","cargo_GamesSell_All","Buy","cargo_OreBuy_All","Sell","cargo_OreSell_All","Bank","Ship Yard","buyship_Flea","alertButton_Yes"],"eventNameLog":["click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Laertes","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Festen","selectPlanetZoomed|Esmee","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1732872096993}`;
+  const replayLog = recording('buyShip_debt');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -328,7 +329,7 @@ test('buyShip_debt_downgrade', () => {
 });
 
 test('escapePod', () => {
-  const replayLog = `{"idLog":["createCommander","Ship Yard","cheat_freeMoney","Ship Yard","buy_escape_pod","alertButton_Yes","Warp","warpBlastOff","ecButton_Auto_Attack","alertButton_Attack","ecButton_Auto_Attack"],"eventNameLog":["click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1732415003637}`;
+  const replayLog = recording('escapePod');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -341,7 +342,7 @@ test('escapePod', () => {
 });
 
 test('autoFlee_withImmediate', () => {
-  const replayLog = `{"idLog":["pilot","pilot","pilot","pilot","pilot","createCommander","Warp","warpBlastOff","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss"],"eventNameLog":["slider|input|6","slider|input|7","slider|input|8","slider|input|9","slider|input|10","click","click","click","click","click","click"],"gameRandSeed":1734495546137}`;
+  const replayLog = recording('autoFlee_withImmediate');
 
   // This auto-flee was immediate ^
 
@@ -360,7 +361,7 @@ test('autoFlee_withImmediate', () => {
 });
 
 test('autoFlee_noImmediates', () => {
-  const replayLog = `{"idLog":["pilot","pilot","pilot","pilot","engineer","engineer","engineer","engineer","createCommander","Warp","warpBlastOff","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss"],"eventNameLog":["slider|input|4","slider|input|3","slider|input|2","slider|input|1","slider|input|6","slider|input|7","slider|input|8","slider|input|9","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734495811559}`;
+  const replayLog = recording('autoFlee_noImmediates');
 
   // ^ this was not immediate
 
@@ -379,7 +380,7 @@ test('autoFlee_noImmediates', () => {
 });
 
 test('autoAttack', () => {
-  const replayLog = `{"idLog":["createCommander","namedEvent","cheat_freeMoney","warpBlastOff","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Navigation_system","alertButton_Yes","buy_Targeting_system","alertButton_Yes"],"eventNameLog":["click","selectPlanetZoomed|Vadera","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1733023531445}`;
+  const replayLog = recording('autoAttack');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -485,7 +486,7 @@ test('autoAttack', () => {
 });
 
 test('hireMercenary_fireMercenary', () => {
-  const replayLog = `{"idLog":["createCommander","Ship Yard","cheat_freeMoney","autoFuelCheckbox","autoRepairCheckbox","Warp","warpBlastOff","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Ship Yard","Warp","namedEvent","warpBlastOff","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Ship Yard","buyship_Bumblebee","alertButton_Yes"],"eventNameLog":["click","click","click","change","change","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Triacus","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734496062815}`;
+  const replayLog = recording('hireMercenary_fireMercenary');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -542,7 +543,7 @@ test('hireMercenary_fireMercenary', () => {
 });
 
 test('mercenary_arrest', () => {
-  const replayLog = `{"idLog":["createCommander","Ship Yard","cheat_freeMoney","autoFuelCheckbox","autoRepairCheckbox","Warp","warpBlastOff","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Ship Yard","Warp","namedEvent","warpBlastOff","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Ship Yard","buyship_Bumblebee","alertButton_Yes"],"eventNameLog":["click","click","click","change","change","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Triacus","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734496062815}`;
+  const replayLog = recording('hireMercenary_fireMercenary');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -591,7 +592,7 @@ test('mercenary_arrest', () => {
 });
 
 test('tradeInOrbit_buy_selectedValue', () => {
-  const replayLog = `{"idLog":["createCommander","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","cheat_freeMoney","Warp","cargo_WaterBuy_1","warpBlastOff","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Trade","alertButton_Selected"],"eventNameLog":["click","click","change","change","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734494396218}`;
+  const replayLog = recording('tradeInOrbit_buy_selectedValue');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -618,7 +619,7 @@ test('tradeInOrbit_buy_selectedValue', () => {
 });
 
 test('tradeInOrbit_buy_all', () => {
-  const replayLog = `{"idLog":["createCommander","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","cheat_freeMoney","Warp","cargo_WaterBuy_1","warpBlastOff","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Trade","alertButton_All"],"eventNameLog":["click","click","change","change","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734494396218}`;
+  const replayLog = recording('tradeInOrbit_buy_all');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -645,7 +646,7 @@ test('tradeInOrbit_buy_all', () => {
 });
 
 test('tradeInOrbit_buy_none', () => {
-  const replayLog = `{"idLog":["createCommander","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","cheat_freeMoney","Warp","cargo_WaterBuy_1","warpBlastOff","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Trade","alertButton_None"],"eventNameLog":["click","click","change","change","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734494396218}`;
+  const replayLog = recording('tradeInOrbit_buy_none');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -664,7 +665,7 @@ test('tradeInOrbit_buy_none', () => {
 });
 
 test('tradeInOrbit_sell_selectedValue', () => {
-  const replayLog = `{"idLog":["pilot","pilot","pilot","pilot","pilot","createCommander","cheat_freeMoney","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","Commander","ignorePirates","ignorePolice","Warp","cargo_WaterBuy_1","cargo_WaterBuy_1","cargo_FursBuy_1","cargo_FursBuy_1","cargo_FursBuy_1","cargo_FoodBuy_1","cargo_FoodBuy_1","cargo_FoodBuy_1","cargo_FoodBuy_1","warpBlastOff","ecButton_Submit","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Trade","alertButton_Selected"],"eventNameLog":["slider|input|6","slider|input|7","slider|input|8","slider|input|9","slider|input|10","click","click","click","change","change","click","change","change","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734497194511}`;
+  const replayLog = recording('tradeInOrbit_sell_selectedValue');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -689,7 +690,7 @@ test('tradeInOrbit_sell_selectedValue', () => {
 });
 
 test('tradeInOrbit_actionLogCanUpdateSlider', () => {
-  const replayLog = `{"idLog":["createCommander","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","cheat_freeMoney","Warp","cargo_WaterBuy_1","warpBlastOff","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Trade","tradeslider","alertButton_Selected"],"eventNameLog":["click","click","change","change","click","click","click","click","click","click","click","click","click","slider|input|8","click"],"gameRandSeed":1734494396218}`;
+  const replayLog = recording('tradeInOrbit_actionLogCanUpdateSlider');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -714,7 +715,7 @@ test('tradeInOrbit_actionLogCanUpdateSlider', () => {
 });
 
 test('tradeInOrbit_sell_all', () => {
-  const replayLog = `{"idLog":["pilot","pilot","pilot","pilot","pilot","createCommander","cheat_freeMoney","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","Commander","ignorePirates","ignorePolice","Warp","cargo_WaterBuy_1","cargo_WaterBuy_1","cargo_FursBuy_1","cargo_FursBuy_1","cargo_FursBuy_1","cargo_FoodBuy_1","cargo_FoodBuy_1","cargo_FoodBuy_1","cargo_FoodBuy_1","warpBlastOff","ecButton_Submit","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Trade","alertButton_All"],"eventNameLog":["slider|input|6","slider|input|7","slider|input|8","slider|input|9","slider|input|10","click","click","click","change","change","click","change","change","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734497194511}`;
+  const replayLog = recording('tradeInOrbit_sell_all');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -738,7 +739,7 @@ test('tradeInOrbit_sell_all', () => {
 });
 
 test('tradeInOrbit_sell_none', () => {
-  const replayLog = `{"idLog":["pilot","pilot","pilot","pilot","pilot","createCommander","cheat_freeMoney","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","Commander","ignorePirates","ignorePolice","Warp","cargo_WaterBuy_1","cargo_WaterBuy_1","cargo_FursBuy_1","cargo_FursBuy_1","cargo_FursBuy_1","cargo_FoodBuy_1","cargo_FoodBuy_1","cargo_FoodBuy_1","cargo_FoodBuy_1","warpBlastOff","ecButton_Submit","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Trade","alertButton_None"],"eventNameLog":["slider|input|6","slider|input|7","slider|input|8","slider|input|9","slider|input|10","click","click","click","change","change","click","change","change","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734497194511}`;
+  const replayLog = recording('tradeInOrbit_sell_none');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -760,7 +761,7 @@ test('tradeInOrbit_sell_none', () => {
 });
 
 test('destroy_pirate_bounty_bug', () => {
-  const replayLog = `{"idLog":["createCommander","namedEvent","cheat_freeMoney","warpBlastOff","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Navigation_system","alertButton_Yes","buy_Targeting_system","alertButton_Yes","Commander","ignoreTradeInOrbit","ignoreTraders","ignorePolice","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","buy_escape_pod","alertButton_Yes","namedEvent","warpBlastOff","alertButton_Dismiss","Warp","warpBlastOff","ecButton_Attack","ecButton_Auto_Attack","ecButton_Auto_Attack","alertButton_Dismiss","ecButton_Attack","ecButton_Auto_Attack","ecButton_Plunder","cargo_WaterPlunder_1","alertButton__Plunder_plunderDone","ecButton_Auto_Attack","alertButton_Dismiss","alertButton_Dismiss","namedEvent","namedEvent","warpBlastOff","ecButton_Auto_Attack","alertButton_Dismiss","ecButton_Auto_Attack","alertButton_Dismiss","ecButton_Auto_Attack","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Attack","ecButton_Auto_Attack","alertButton_Dismiss","alertButton_Dismiss","namedEvent","warpBlastOff","alertButton_Dismiss","namedEvent","warpBlastOff","ecButton_Auto_Attack"],"eventNameLog":["click","selectPlanetZoomed|Vadera","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","change","change","change","click","change","change","click","click","selectPlanetZoomed|Courteney","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Exo","selectPlanetZoomed|Penthara","click","click","click","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Zalkon","click","click","selectPlanetZoomed|Odet","click","click"],"gameRandSeed":1733023531445}`;
+  const replayLog = recording('destroy_pirate_bounty_bug');
 
   runReplayLog(replayLog);
 
@@ -768,7 +769,7 @@ test('destroy_pirate_bounty_bug', () => {
 });
 
 test('destroy_pirate_pick_up_canister', () => {
-  const replayLog = `{"idLog":["createCommander","namedEvent","cheat_freeMoney","warpBlastOff","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Navigation_system","alertButton_Yes","buy_Targeting_system","alertButton_Yes","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","Commander","ignorePolice","ignoreTraders","ignoreTradeInOrbit","Warp"],"eventNameLog":["click","selectPlanetZoomed|Vadera","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","change","change","click","change","change","change","click"],"gameRandSeed":1733023531445}`;
+  const replayLog = recording('destroy_pirate');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -848,7 +849,7 @@ test('destroy_pirate_pick_up_canister', () => {
 });
 
 test('destroy_pirate_let_go_canister', () => {
-  const replayLog = `{"idLog":["createCommander","namedEvent","cheat_freeMoney","warpBlastOff","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","Equipment","buy_Reflective_shield","alertButton_Yes","buy_Reflective_shield","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Navigation_system","alertButton_Yes","buy_Targeting_system","alertButton_Yes","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","Commander","ignorePolice","ignoreTraders","ignoreTradeInOrbit","Warp"],"eventNameLog":["click","selectPlanetZoomed|Vadera","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","change","change","click","change","change","change","click"],"gameRandSeed":1733023531445}`;
+  const replayLog = recording('destroy_pirate');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -928,7 +929,7 @@ test('destroy_pirate_let_go_canister', () => {
 });
 
 test('plunder_dump_litter_nevermind', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","Chart","galacticChart_track_121_Andevian","galacticChart_track_121_Andevian","galacticChart_useSingularity_121_Andevian","alertButton_Warp_","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Equipment","buy_Auto_repair_system","alertButton_Yes","buy_Targeting_system","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","autoFuelCheckbox","autoRepairCheckbox","buy_escape_pod","alertButton_Yes","Equipment","buy_Navigation_system","alertButton_Yes","buy_Targeting_system","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Reflective_shield","alertButton_Yes","buy_Reflective_shield","alertButton_Yes","Commander","ignorePolice","Warp","warpBlastOff","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","alertButton_Dismiss","ecButton_Attack","alertButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","alertButton_Dismiss","alertButton_Dismiss","Warp","warpBlastOff","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack"],"eventNameLog":["click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","change","change","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","change","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734669532436}`;
+  const replayLog = recording('plunder');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -961,7 +962,7 @@ test('plunder_dump_litter_nevermind', () => {
 });
 
 test('plunder_dump_litter_yes', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","Chart","galacticChart_track_121_Andevian","galacticChart_track_121_Andevian","galacticChart_useSingularity_121_Andevian","alertButton_Warp_","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Equipment","buy_Auto_repair_system","alertButton_Yes","buy_Targeting_system","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","autoFuelCheckbox","autoRepairCheckbox","buy_escape_pod","alertButton_Yes","Equipment","buy_Navigation_system","alertButton_Yes","buy_Targeting_system","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Reflective_shield","alertButton_Yes","buy_Reflective_shield","alertButton_Yes","Commander","ignorePolice","Warp","warpBlastOff","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","alertButton_Dismiss","ecButton_Attack","alertButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","alertButton_Dismiss","alertButton_Dismiss","Warp","warpBlastOff","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack"],"eventNameLog":["click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","change","change","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","change","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734669532436}`;
+  const replayLog = recording('plunder');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -1014,7 +1015,7 @@ test('plunder_dump_litter_yes', () => {
 });
 
 test('plunder_keep', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","cheat_freeSingularity","Chart","galacticChart_track_121_Andevian","galacticChart_track_121_Andevian","galacticChart_useSingularity_121_Andevian","alertButton_Warp_","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Equipment","buy_Auto_repair_system","alertButton_Yes","buy_Targeting_system","alertButton_Dismiss","Ship Yard","buyship_Wasp","alertButton_Yes","autoFuelCheckbox","autoRepairCheckbox","buy_escape_pod","alertButton_Yes","Equipment","buy_Navigation_system","alertButton_Yes","buy_Targeting_system","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Military_laser","alertButton_Yes","buy_Reflective_shield","alertButton_Yes","buy_Reflective_shield","alertButton_Yes","Commander","ignorePolice","Warp","warpBlastOff","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","alertButton_Dismiss","ecButton_Attack","alertButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack","alertButton_Dismiss","alertButton_Dismiss","Warp","warpBlastOff","ecButton_Attack","ecButton_Attack","ecButton_Attack","ecButton_Attack"],"eventNameLog":["click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","change","change","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","change","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734669532436}`;
+  const replayLog = recording('plunder');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -1043,7 +1044,7 @@ test('plunder_keep', () => {
 });
 
 test('surrender_pirate_noCargo', () => {
-  const replayLog = `{"idLog":["createCommander","Warp","warpBlastOff","ecButton_Surrender"],"eventNameLog":["click","click","click","click"],"gameRandSeed":1734497580510}`;
+  const replayLog = recording('surrender_pirate_noCargo');
 
   const replay = runReplayLog(replayLog);
 
@@ -1067,7 +1068,7 @@ test('surrender_pirate_noCargo', () => {
 });
 
 test('surrender_pirate_cargo', () => {
-  const replayLog = `{"idLog":["createCommander","Buy","cargo_WaterBuy_1","cargo_FursBuy_1","cargo_FursBuy_1","cargo_OreBuy_1","cargo_OreBuy_1","cargo_FoodBuy_1","Commander","Chart","Warp","warpBlastOff"],"eventNameLog":["click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1732440726896}`;
+  const replayLog = recording('surrender_pirate_cargo');
 
   const replay = runReplayLog(replayLog);
 
@@ -1092,7 +1093,7 @@ test('surrender_pirate_cargo', () => {
 });
 
 test('surrender_police', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","Bank","Buy_Insurance_Policy","alertButton_Dismiss","Ship Yard","buy_escape_pod","alertButton_Yes","Bank","Buy_Insurance_Policy","Warp","warpBlastOff","ecButton_Ignore","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","alertButton_Dismiss","Ship Yard","fulltank","Warp","warpBlastOff","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Attack","alertButton_Attack"],"eventNameLog":["click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734514049593}`;
+  const replayLog = recording('surrender_police');
 
   const replay = runReplayLog(replayLog);
 
@@ -1129,7 +1130,7 @@ test('surrender_police', () => {
 });
 
 test('surrender_police_cantAffordFine', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","Bank","Buy_Insurance_Policy","alertButton_Dismiss","Ship Yard","buy_escape_pod","alertButton_Yes","Bank","Buy_Insurance_Policy","Warp","warpBlastOff","ecButton_Ignore","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","alertButton_Dismiss","Warp","fulltank","cargo_WaterBuy_1","cargo_WaterBuy_1","cargo_FursBuy_1","cargo_FursBuy_1","cargo_FursBuy_1","cargo_FoodBuy_1","cargo_FoodBuy_1","cargo_FoodBuy_1","cargo_FoodBuy_1","warpBlastOff","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Attack","alertButton_Attack"],"eventNameLog":["click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734514049593}`;
+  const replayLog = recording('surrender_police_cantAffordFine');
 
   const replay = runReplayLog(replayLog);
 
@@ -1163,7 +1164,7 @@ test('surrender_police_cantAffordFine', () => {
 });
 
 test('insurance', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","Ship Yard","buy_escape_pod","alertButton_Yes","Bank","Buy_Insurance_Policy","Warp","warpBlastOff","ecButton_Auto_Attack","alertButton_Attack","ecButton_Auto_Attack","alertButton_Dismiss"],"eventNameLog":["click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734745362815}`;
+  const replayLog = recording('insurance');
 
   const replay = runReplayLog(replayLog);
 
@@ -1183,7 +1184,7 @@ test('insurance', () => {
 });
 
 test('escapePod_debt', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","Ship Yard","buy_escape_pod","alertButton_Yes","Bank","Warp","warpBlastOff","ecButton_Auto_Attack","alertButton_Attack"],"eventNameLog":["click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734745362815}`;
+  const replayLog = recording('escapePod_debt');
 
   const replay = runReplayLog(replayLog);
 
@@ -1201,7 +1202,7 @@ test('escapePod_debt', () => {
 });
 
 test('systemLanding_showForHire', () => {
-  const replayLog = `{"idLog":["createCommander","Ship Yard","cheat_freeMoney","autoFuelCheckbox","autoRepairCheckbox","Warp","warpBlastOff","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Ship Yard","Warp","namedEvent","warpBlastOff","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Ship Yard","buyship_Bumblebee","alertButton_Yes"],"eventNameLog":["click","click","click","change","change","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Triacus","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734496062815}`;
+  const replayLog = recording('hireMercenary_fireMercenary');
 
   const replay = runReplayLog(replayLog);
 
@@ -1212,7 +1213,7 @@ test('systemLanding_showForHire', () => {
 });
 
 test('systemLanding_hideForHire', () => {
-  const replayLog = `{"idLog":["createCommander","Ship Yard","cheat_freeMoney","autoFuelCheckbox","autoRepairCheckbox","Warp","warpBlastOff","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Ship Yard","Warp","namedEvent","warpBlastOff","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Ship Yard","buyship_Bumblebee","alertButton_Yes"],"eventNameLog":["click","click","click","change","change","click","click","click","click","click","click","click","click","click","click","selectPlanetZoomed|Triacus","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734496062815}`;
+  const replayLog = recording('hireMercenary_fireMercenary');
 
   const replay = runReplayLog(replayLog);
 
@@ -1228,7 +1229,7 @@ test('systemLanding_hideForHire', () => {
 });
 
 test('galaxyView_selectWarpTarget', () => {
-  const replayLog = `{"idLog":["createCommander","Chart","namedEvent","Warp","namedEvent"],"eventNameLog":["click","click","selectPlanet|Mintaka","click","selectPlanetZoomed|Deneb"],"gameRandSeed":1729657624152}`;
+  const replayLog = recording('galaxyView_selectWarpTarget');
 
   runReplayLog(replayLog);
 
@@ -1237,7 +1238,7 @@ test('galaxyView_selectWarpTarget', () => {
 });
 
 test('galaxyView_selectWarpTarget_multipleTimes', () => {
-  const replayLog = `{"idLog":["createCommander","Chart","namedEvent","Warp","namedEvent","namedEvent","namedEvent","namedEvent"],"eventNameLog":["click","click","selectPlanetZoomed|Mintaka","click","selectPlanetZoomed|Deneb","selectPlanetZoomed|Campor","selectPlanetZoomed|Thera","selectPlanetZoomed|Penthara"],"gameRandSeed":1729657624152}`;
+  const replayLog = recording('galaxyView_selectWarpTarget_multipleTimes');
 
   runReplayLog(replayLog);
 
@@ -1246,7 +1247,7 @@ test('galaxyView_selectWarpTarget_multipleTimes', () => {
 });
 
 test('galaxyView_systemLanding_selectWarpTarget', () => {
-  const replayLog = `{"idLog":["createCommander","namedEvent"],"eventNameLog":["click","selectPlanetZoomed|Acamar"],"gameRandSeed":1730259230075}`;
+  const replayLog = recording('galaxyView_systemLanding_selectWarpTarget');
 
   const replay = runReplayLog(replayLog);
 
@@ -1260,7 +1261,7 @@ test('galaxyView_systemLanding_selectWarpTarget', () => {
 });
 
 test('galaxyView_systemLanding_showsSystemInfo', () => {
-  const replayLog = `{"idLog":["createCommander","Warp","warpBlastOff","ecButton_Ignore","ecButton_Submit","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss"],"eventNameLog":["click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734670179065}`;
+  const replayLog = recording('galaxyView_systemLanding_showsSystemInfo');
 
   const replay = runReplayLog(replayLog);
 
@@ -1292,7 +1293,7 @@ test('galaxyView_systemLanding_showsSystemInfo', () => {
 });
 
 test('galaxyView_systemLanding_showsSystemInfo_warpTab', () => {
-  const replayLog = `{"idLog":["difficultySelect","createCommander","Warp","namedEvent","warpBlastOff","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard","fulltank"],"eventNameLog":["select|change|1","click","click","selectPlanetZoomed|Castor","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734668502562}`;
+  const replayLog = recording('galaxyView_systemLanding_showsSystemInfo_warpTab');
 
   const replay = runReplayLog(replayLog);
 
@@ -1322,7 +1323,7 @@ test('galaxyView_systemLanding_showsSystemInfo_warpTab', () => {
 });
 
 test('galaxyView_systemLanding_showsSystemInfo_warpTab_lowFuel', () => {
-  const replayLog = `{"idLog":["difficultySelect","createCommander","Warp","namedEvent","warpBlastOff","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss"],"eventNameLog":["select|change|1","click","click","selectPlanetZoomed|Castor","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734668502562}`;
+  const replayLog = recording('galaxyView_systemLanding_lowFuel');
 
   const replay = runReplayLog(replayLog);
 
@@ -1367,7 +1368,7 @@ test('galaxyView_systemLanding_showsSystemInfo_warpTab_lowFuel', () => {
 });
 
 test('galaxyView_systemLanding_showsSystemInfo_warpTab_lowFuel_buyFromShipYard', () => {
-  const replayLog = `{"idLog":["difficultySelect","createCommander","Warp","namedEvent","warpBlastOff","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss"],"eventNameLog":["select|change|1","click","click","selectPlanetZoomed|Castor","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734668502562}`;
+  const replayLog = recording('galaxyView_systemLanding_lowFuel');
 
   const replay = runReplayLog(replayLog);
   const session = replay.session;
@@ -1392,7 +1393,7 @@ test('galaxyView_systemLanding_showsSystemInfo_warpTab_lowFuel_buyFromShipYard',
 });
 
 test('galaxyView_systemLanding_selectSecondWarpTarget', () => {
-  const replayLog = `{"idLog":["createCommander","Warp","namedEvent"],"eventNameLog":["click","click","selectPlanetZoomed|Acamar"],"gameRandSeed":1730277200899}`;
+  const replayLog = recording('galaxyView_systemLanding_selectSecondWarpTarget');
 
   const replay = runReplayLog(replayLog);
 
@@ -1406,7 +1407,9 @@ test('galaxyView_systemLanding_selectSecondWarpTarget', () => {
 });
 
 test('galaxyView_systemLanding_cycleAllWarpSystems_includingWormhole_next', () => {
-  const replayLog = `{"idLog":["createCommander","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","Chart","cheat_freeSingularity","Ship Yard","Chart","namedEvent","galacticChart_useSingularity_1_Campor","alertButton_Warp_","ecButton_Ignore","alertButton_Dismiss","namedEvent","warpBlastOff","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Warp"],"eventNameLog":["click","click","change","change","click","click","click","click","selectPlanet|Campor","click","click","click","click","selectPlanetZoomed|Styris","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734686840048}`;
+  const replayLog = recording(
+    'galaxyView_systemLanding_cycleAllWarpSystems_includingWormhole_next'
+  );
 
   const replay = runReplayLog(replayLog);
 
@@ -1516,7 +1519,7 @@ test('galaxyView_systemLanding_cycleAllWarpSystems_includingWormhole_next', () =
 });
 
 test('galaxyView_systemLanding_cycleAllWarpSystems_next', () => {
-  const replayLog = `{"idLog":["createCommander","Warp"],"eventNameLog":["click","click"],"gameRandSeed":1730277328255}`;
+  const replayLog = recording('galaxyView_systemLanding_cycleAllWarpSystems');
 
   const replay = runReplayLog(replayLog);
 
@@ -1565,7 +1568,7 @@ test('galaxyView_systemLanding_cycleAllWarpSystems_next', () => {
 });
 
 test('galaxyView_systemLanding_cycleAllWarpSystems_prev', () => {
-  const replayLog = `{"idLog":["createCommander","Warp"],"eventNameLog":["click","click"],"gameRandSeed":1730277328255}`;
+  const replayLog = recording('galaxyView_systemLanding_cycleAllWarpSystems');
 
   const replay = runReplayLog(replayLog);
 
@@ -1614,7 +1617,7 @@ test('galaxyView_systemLanding_cycleAllWarpSystems_prev', () => {
 });
 
 test('galaxyView_systemLanding_selectWarpTarget_outOfRange', () => {
-  const replayLog = `{"idLog":["createCommander","namedEvent"],"eventNameLog":["click","selectPlanetZoomed|Tantalos"],"gameRandSeed":1730259708834}`;
+  const replayLog = recording('galaxyView_systemLanding_selectWarpTarget_outOfRange');
 
   const replay = runReplayLog(replayLog);
 
@@ -1629,7 +1632,7 @@ test('galaxyView_systemLanding_selectWarpTarget_outOfRange', () => {
 });
 
 test('galaxyView_systemLanding_selectWarpTarget_wormhole_outOfRange', () => {
-  const replayLog = `{"idLog":["createCommander","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","Chart","cheat_freeSingularity","Ship Yard","Chart","namedEvent","galacticChart_useSingularity_1_Campor","alertButton_Warp_","ecButton_Ignore","alertButton_Dismiss","namedEvent"],"eventNameLog":["click","click","change","change","click","click","click","click","selectPlanet|Campor","click","click","click","click","selectPlanetZoomed|Styris~wormhole"],"gameRandSeed":1734686840048}`;
+  const replayLog = recording('galaxyView_systemLanding_selectWarpTarget_wormhole_outOfRange');
 
   const replay = runReplayLog(replayLog);
 
@@ -1651,7 +1654,7 @@ test('galaxyView_systemLanding_selectWarpTarget_wormhole_outOfRange', () => {
 });
 
 test('galaxyView_systemLanding_selectWarpTarget_wormholeParent_inRange', () => {
-  const replayLog = `{"idLog":["createCommander","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","Chart","cheat_freeSingularity","Ship Yard","Chart","namedEvent","galacticChart_useSingularity_1_Campor","alertButton_Warp_","ecButton_Ignore","alertButton_Dismiss","namedEvent"],"eventNameLog":["click","click","change","change","click","click","click","click","selectPlanet|Campor","click","click","click","click","selectPlanetZoomed|Styris"],"gameRandSeed":1734686840048}`;
+  const replayLog = recording('galaxyView_systemLanding_selectWarpTarget_wormholeParent_inRange');
   const replay = runReplayLog(replayLog);
 
   const warpButton = button(/^Blast Off to /);
@@ -1671,7 +1674,7 @@ test('galaxyView_systemLanding_selectWarpTarget_wormholeParent_inRange', () => {
 });
 
 test('galaxyView_systemLanding_selectWarpTarget_noSystemsInRange_buyFuel', () => {
-  const replayLog = `{"idLog":["difficultySelect","createCommander","Warp","namedEvent","warpBlastOff","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss"],"eventNameLog":["select|change|1","click","click","selectPlanetZoomed|Castor","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734668502562}`;
+  const replayLog = recording('galaxyView_systemLanding_lowFuel');
 
   const replay = runReplayLog(replayLog);
 
@@ -1698,7 +1701,7 @@ test('galaxyView_systemLanding_selectWarpTarget_noSystemsInRange_buyFuel', () =>
 });
 
 test('galaxyView_systemLanding_chart_selectingInEitherWorks', () => {
-  const replayLog = `{"idLog":["createCommander","Chart","namedEvent"],"eventNameLog":["click","click","selectPlanet|Yojimbo"],"gameRandSeed":1730276042104}`;
+  const replayLog = recording('galaxyView_systemLanding_chart_selectingInEitherWorks');
 
   const replay = runReplayLog(replayLog);
 
@@ -1722,7 +1725,7 @@ test('galaxyView_systemLanding_chart_selectingInEitherWorks', () => {
 });
 
 test('galaxyView_systemLanding_chart_selectingWormhole', () => {
-  const replayLog = `{"idLog":["createCommander","Chart","namedEvent"],"eventNameLog":["click","click","selectPlanet|Utopia~wormhole"],"gameRandSeed":1734687673579}`;
+  const replayLog = recording('galaxyView_systemLanding_chart_selectingWormhole');
 
   runReplayLog(replayLog);
 
@@ -1739,7 +1742,7 @@ test('galaxyView_systemLanding_chart_selectingWormhole', () => {
 });
 
 test('galaxyView_systemLanding_nonwormhole', () => {
-  const replayLog = `{"idLog":["createCommander","Warp","namedEvent"],"eventNameLog":["click","click","selectPlanetZoomed|Kira"],"gameRandSeed":1730277328255}`;
+  const replayLog = recording('galaxyView_systemLanding_nonwormhole');
 
   const replay = runReplayLog(replayLog);
 
@@ -1757,7 +1760,7 @@ test('galaxyView_systemLanding_nonwormhole', () => {
 });
 
 test('galaxyView_systemLanding_wormhole_kira', () => {
-  const replayLog = `{"idLog":["createCommander","Warp","namedEvent"],"eventNameLog":["click","click","selectPlanetZoomed|Yew~wormhole"],"gameRandSeed":1730277328255}`;
+  const replayLog = recording('galaxyView_systemLanding_wormhole_kira');
 
   const replay = runReplayLog(replayLog);
 
@@ -1775,7 +1778,7 @@ test('galaxyView_systemLanding_wormhole_kira', () => {
 });
 
 test('galaxyView_systemLanding_wormhole', () => {
-  const replayLog = `{"idLog":["createCommander","Warp","namedEvent"],"eventNameLog":["click","click","selectPlanetZoomed|Kira~wormhole"],"gameRandSeed":1730277328255}`;
+  const replayLog = recording('galaxyView_systemLanding_wormhole');
 
   const replay = runReplayLog(replayLog);
 
@@ -1793,7 +1796,7 @@ test('galaxyView_systemLanding_wormhole', () => {
 });
 
 test('useSingularity', () => {
-  const replayLog = `{"idLog":["createCommander","Chart","cheat_freeSingularity","Chart","galacticChart_useSingularity_121_Othello","alertButton_Not_now","galacticChart_useSingularity_121_Othello","alertButton_Warp_","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss"],"eventNameLog":["click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1732588693057}`;
+  const replayLog = recording('useSingularity');
 
   const replay = runReplayLog(replayLog);
 
@@ -1807,7 +1810,7 @@ test('useSingularity', () => {
 });
 
 test('policeSummon_nothingIllegal_submit', () => {
-  const replayLog = `{"idLog":["createCommander","Warp","warpBlastOff","ecButton_Ignore","ecButton_Ignore","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Attack","alertButton_Attack","ecButton_Auto_Flee","alertButton_Dismiss","ecButton_Ignore","ecButton_Ignore","alertButton_Dismiss","Ship Yard","fulltank","autoFuelCheckbox","Full_repair","autoRepairCheckbox","Warp","warpBlastOff","ecButton_Ignore","ecButton_Submit"],"eventNameLog":["click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","click","change","click","change","click","click","click","click"],"gameRandSeed":1734686605552}`;
+  const replayLog = recording('policeSummon_nothingIllegal_submit');
 
   const replay = runReplayLog(replayLog);
 
@@ -1828,7 +1831,7 @@ test('policeSummon_nothingIllegal_submit', () => {
 });
 
 test('policeSummon_bribe', () => {
-  const replayLog = `{"idLog":["createCommander","cheat_freeMoney","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","Warp","cargo_FirearmsBuy_1","warpBlastOff","ecButton_Ignore","ecButton_Ignore","ecButton_Ignore","ecButton_Attack","alertButton_Attack","ecButton_Auto_Flee","alertButton_Dismiss","alertButton_Dismiss","Warp","warpBlastOff"],"eventNameLog":["click","click","click","change","change","click","click","click","click","click","click","click","click","click","click","click","click","click"],"gameRandSeed":1734669204790}`;
+  const replayLog = recording('policeSummon_bribe');
 
   const replay = runReplayLog(replayLog);
 
@@ -1845,7 +1848,7 @@ test('policeSummon_bribe', () => {
 });
 
 test('difficultySelect_replay', () => {
-  const replayLog = `{"idLog":["difficultySelect","engineer"],"eventNameLog":["select|change|1","slider|input|6"],"gameRandSeed":1732270077642}`;
+  const replayLog = recording('difficultySelect_replay');
 
   const replay = runReplayLog(replayLog);
 
