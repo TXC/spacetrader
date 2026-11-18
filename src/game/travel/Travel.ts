@@ -3,7 +3,7 @@ import { Encounter } from '../encounter/Encounter.ts';
 import { EncounterType } from '../encounter/types.ts';
 import type { ActionName, EncounterListener } from '../encounter/types.ts';
 import { GameEndStatus } from '../Game.ts';
-import { Opponent, OpponentType } from '../Opponent.ts';
+import { Opponent, OpponentType } from '../opponent/Opponent.ts';
 import { Store } from '../Store.ts';
 import type { SolarSystem } from '../SolarSystem.ts';
 import type { Game, GameEndedStatus } from '../Game.ts';

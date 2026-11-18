@@ -2,7 +2,7 @@ import { AccessoryType } from '../Accessory.ts';
 import { MAX_SKILL_LEVEL, PoliceRecordScore } from '../Commander.ts';
 import { EncounterType } from '../encounter/types.ts';
 import { RareEvent, RARE_EVENT_COUNT } from '../Game.ts';
-import { Opponent, OpponentType } from '../Opponent.ts';
+import { Opponent, OpponentType } from '../opponent/Opponent.ts';
 import type { Game } from '../Game.ts';
 import { ensureArrayOrNull, ensureInteger } from '../ensure.ts';
 import { pLog } from '../probes.ts';

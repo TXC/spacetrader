@@ -1,5 +1,5 @@
 import { EncounterType } from '../encounter/types.ts';
-import { Opponent } from '../Opponent.ts';
+import { Opponent } from '../opponent/Opponent.ts';
 import type { Game } from '../Game.ts';
 import type { Meeting } from './Travel.ts';
 

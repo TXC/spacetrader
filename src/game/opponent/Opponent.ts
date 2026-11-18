@@ -1,14 +1,14 @@
-import { countOf } from './texts.ts';
-import type { ValueOf } from './texts.ts';
-import { AccessoryType, gadgetForType, shieldForType, weaponForType } from './Accessory.ts';
-import { MAX_SKILL_LEVEL, PoliceRecordScore } from './Commander.ts';
-import { CrewMember } from './CrewMember.ts';
-import { Ship, shipModelForType, ShipModelType, SHIP_MODEL_COUNT } from './Ship.ts';
-import { Difficulty, WildQuestStatus } from './SolarSystem.types.ts';
-import { TradeItemType, TRADE_ITEM_COUNT } from './TradeItem.types.ts';
-import { ensureInteger, ensureType } from './ensure.ts';
-import type { Game } from './Game.ts';
-import { runtime } from './runtime.ts';
+import { countOf } from '../texts.ts';
+import type { ValueOf } from '../texts.ts';
+import { AccessoryType, gadgetForType, shieldForType, weaponForType } from '../Accessory.ts';
+import { MAX_SKILL_LEVEL, PoliceRecordScore } from '../Commander.ts';
+import { CrewMember } from '../CrewMember.ts';
+import { Ship, shipModelForType, ShipModelType, SHIP_MODEL_COUNT } from '../Ship.ts';
+import { Difficulty, WildQuestStatus } from '../SolarSystem.types.ts';
+import { TradeItemType, TRADE_ITEM_COUNT } from '../TradeItem.types.ts';
+import { ensureInteger, ensureType } from '../ensure.ts';
+import type { Game } from '../Game.ts';
+import { runtime } from '../runtime.ts';
 
 export const OpponentType = {
   Police: 0,

@@ -7,7 +7,7 @@ import {
 } from './alerts.ts';
 import { PoliceRecordScore } from './Commander.ts';
 import type { Game } from './Game.ts';
-import type { Opponent } from './Opponent.ts';
+import type { Opponent } from './opponent/Opponent.ts';
 import { runtime } from './runtime.ts';
 import { tradeItemForType } from './TradeItem.ts';
 import { TRADE_ITEM_COUNT } from './TradeItem.types.ts';

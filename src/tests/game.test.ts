@@ -6,7 +6,7 @@ import { EncounterType } from '../game/encounter/types.ts';
 import type { EncounterListener } from '../game/encounter/types.ts';
 import { ActionLogger } from '../game/ActionLogger.ts';
 import { GameRand } from '../game/GameRand.ts';
-import { Opponent, OpponentType } from '../game/Opponent.ts';
+import { Opponent, OpponentType } from '../game/opponent/Opponent.ts';
 import { ReputationScore } from '../game/Commander.ts';
 import { AlertActionType, alertStore, AlertViewController } from '../game/alerts.ts';
 import { runtime } from '../game/runtime.ts';

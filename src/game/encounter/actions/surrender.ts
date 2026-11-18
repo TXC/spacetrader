@@ -1,6 +1,6 @@
 import { AlertActionType, AlertViewController } from '../../alerts.ts';
 import { PoliceRecordScore } from '../../Commander.ts';
-import { OpponentType } from '../../Opponent.ts';
+import { OpponentType } from '../../opponent/Opponent.ts';
 import { ReactorQuestStatus, WildQuestStatus } from '../../SolarSystem.types.ts';
 import { TradeItemType, NO_TRADE_ITEM } from '../../TradeItem.types.ts';
 import { ensureBool, ensureInteger } from '../../ensure.ts';

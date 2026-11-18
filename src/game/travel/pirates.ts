@@ -1,6 +1,6 @@
 import { ReputationScore } from '../Commander.ts';
 import { EncounterType } from '../encounter/types.ts';
-import { Opponent, OpponentType } from '../Opponent.ts';
+import { Opponent, OpponentType } from '../opponent/Opponent.ts';
 import { ShipModelType } from '../Ship.ts';
 import type { Game } from '../Game.ts';
 import { runtime } from '../runtime.ts';

@@ -3,7 +3,7 @@
 // project's UnitTests.js; the recordings and expected values are unchanged.
 import { test } from 'vitest';
 import { GameRand } from '../../game/GameRand.ts';
-import { addToOrderedSet } from '../../game/Opponent.ts';
+import { addToOrderedSet } from '../../game/opponent/Opponent.ts';
 import { ShipModelType } from '../../game/Ship.ts';
 import { assertEqualArrays } from './harness.ts';
 
