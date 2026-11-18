@@ -24,7 +24,7 @@ const buttons = (offer: { actions: { title: string }[] }) => offer.actions.map(a
 test('a trader selling what the commander cannot afford can only be dismissed', () => {
   const game = newGame();
   game.commander.credits = 0;
-  const { offer, ended } = hearOffer(game, TraderSell, traderWith(game, [[Water, 5]]));
+  const { offer, ended } = hearOffer(game, TraderSell, traderWith([[Water, 5]]));
 
   expect(offer.title).toMatch(/^The trader wants to sell Water for \$\d+ each\. Unfortunately/);
   expect(buttons(offer)).toEqual(['Dismiss']);
@@ -37,7 +37,7 @@ test('a trader selling what the commander cannot afford can only be dismissed', 
 test('buying the selected amount from a trader moves the goods and the money', () => {
   const game = newGame();
   game.commander.credits = 10000;
-  const trader = traderWith(game, [[Water, 10]]);
+  const trader = traderWith([[Water, 10]]);
   const { offer, ended } = hearOffer(game, TraderSell, trader);
   const price = priceIn(offer);
 
@@ -55,7 +55,7 @@ test('buying the selected amount from a trader moves the goods and the money', (
 test('answering "None" to a trader ends the meeting with nothing traded', () => {
   const game = newGame();
   game.commander.credits = 10000;
-  const { ended } = hearOffer(game, TraderSell, traderWith(game, [[Water, 10]]));
+  const { ended } = hearOffer(game, TraderSell, traderWith([[Water, 10]]));
 
   press('None');
 
@@ -68,7 +68,7 @@ test('selling all to a trader who buys empties the hold and pays for every unit'
   const game = newGame();
   game.commander.ship.boughtQuantity(10, Water, 30);
   const credits = game.commander.credits;
-  const { offer } = hearOffer(game, TraderBuy, traderWith(game, []));
+  const { offer } = hearOffer(game, TraderBuy, traderWith([]));
   const price = priceIn(offer);
 
   expect(offer.title).toBe(
@@ -90,7 +90,7 @@ function criminal(): Game {
 
 test('a criminal is offered only illegal goods by a trader who sells', () => {
   const game = criminal();
-  const trader = traderWith(game, [
+  const trader = traderWith([
     [Water, 10],
     [Narcotics, 10],
   ]);
@@ -103,7 +103,7 @@ test('a trader who buys asks a criminal only for illegal goods', () => {
   game.commander.ship.boughtQuantity(5, Water, 0);
   game.commander.ship.boughtQuantity(5, Narcotics, 0);
 
-  expect(hearOffer(game, TraderBuy, traderWith(game, [])).offer.title).toMatch(/buy Narcotics/);
+  expect(hearOffer(game, TraderBuy, traderWith([])).offer.title).toMatch(/buy Narcotics/);
 });
 
 // The trader's price on this roll of the dice, for goods the market here buys at this price.
@@ -113,7 +113,7 @@ function offeredPrice(record: number, type: EncounterType, roll: number, [item, 
   game.commander.credits = 100000;
   game.commander['_basePrices']![item] = market;
   game.commander.ship.boughtQuantity(5, item, 0);
-  const trader = traderWith(game, [[item, 5]]);
+  const trader = traderWith([[item, 5]]);
   // The first roll picks the goods, of which there is one kind; the second moves the price.
   vi.spyOn(runtime.gameRand, 'randomIntBelow').mockReturnValueOnce(0).mockReturnValueOnce(roll);
   return priceIn(hearOffer(game, type, trader).offer);

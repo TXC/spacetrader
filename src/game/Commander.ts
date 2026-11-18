@@ -269,7 +269,7 @@ export class Commander extends CrewMember {
       difficulty,
       reserveMoney: state.reserveMoney,
       currentSystem,
-      ship: Ship.load(state.ship, solarSystems, difficulty),
+      ship: Ship.load(state.ship, solarSystems),
       basePrices: state.basePrices ? [...state.basePrices] : null,
     });
   }

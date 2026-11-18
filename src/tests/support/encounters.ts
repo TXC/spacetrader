@@ -14,12 +14,11 @@ type Fitting = { weapons?: AccessoryType[]; gadgets?: AccessoryType[]; engineer?
 
 // An opponent in a bare ship of the given model, fitted with only what the test names.
 export function opponentIn(
-  game: Game,
   type: OpponentType,
   model: ShipModelType,
   { weapons = [], gadgets = [], engineer = 5 }: Fitting = {}
 ): Opponent {
-  const ship = Ship.create(model, game.difficulty);
+  const ship = Ship.create(model);
   weapons.forEach(weapon => ship.addWeaponOfType(weapon));
   gadgets.forEach(gadget => ship.addGadgetOfType(gadget));
   return Opponent.captain(type, engineer, 5, 5, 5, ship);
@@ -40,8 +39,8 @@ export function cloakCommander(game: Game): void {
 export const cloaked: Fitting = { gadgets: [AccessoryType.GadgetCloakingDevice], engineer: 10 };
 
 // A trader whose hold holds exactly what a test puts in it.
-export function traderWith(game: Game, cargo: [number, number][]): Opponent {
-  const trader = opponentIn(game, OpponentType.Trader, ShipModelType.Gnat);
+export function traderWith(cargo: [number, number][]): Opponent {
+  const trader = opponentIn(OpponentType.Trader, ShipModelType.Gnat);
   for (let type = 0; type < TRADE_ITEM_COUNT; type++) {
     trader.ship.soldQuantity(trader.ship.tradeItemQuantityForType(type), type);
   }

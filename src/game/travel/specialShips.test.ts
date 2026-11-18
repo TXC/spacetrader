@@ -18,7 +18,7 @@ const ships = [
 test.each(ships)('%s ignores a commander whose cloak hides the ship', (_, meet, type, ignore) => {
   const game = newGame();
   // The Dragonfly's engineer is the best of them: 8, and 3 for its auto-repair system.
-  game.commander.ship = Ship.create(ShipModelType.Bumblebee, game.difficulty);
+  game.commander.ship = Ship.create(ShipModelType.Bumblebee);
   game.commander.ship.addGadgetOfType(AccessoryType.GadgetCloakingDevice);
   game.commander.ship.addGadgetOfType(AccessoryType.GadgetAutoRepairSystem);
   game.commander.engineer = 10;

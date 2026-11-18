@@ -9,7 +9,7 @@ import { EncounterType } from '../types.ts';
 
 // The commander surrenders to pirates in this ship. Returns what the pirates say.
 function surrenderToPirates(game: Game, model: ShipModelType = ShipModelType.Gnat): string {
-  const pirates = opponentIn(game, OpponentType.Pirate, model);
+  const pirates = opponentIn(OpponentType.Pirate, model);
   const { encounter, listener } = encounterWith(game, EncounterType.PirateAttack, pirates);
   encounter.performAction('Surrender');
   const [said] = dismissAll();
@@ -19,7 +19,7 @@ function surrenderToPirates(game: Game, model: ShipModelType = ShipModelType.Gna
 
 test('the aliens accept no surrender from a commander without the artifact', () => {
   const game = newGame();
-  const mantis = opponentIn(game, OpponentType.Mantis, ShipModelType.Mantis);
+  const mantis = opponentIn(OpponentType.Mantis, ShipModelType.Mantis);
   encounterWith(game, EncounterType.PirateAttack, mantis).encounter.performAction('Surrender');
 
   expect(topAlert().title).toBe('Surrender? Ha! We want your HEAD!');

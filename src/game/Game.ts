@@ -662,7 +662,7 @@ export class Game {
     const commander = Commander.enlist(recruit, {
       difficulty,
       credits: STARTING_CREDITS,
-      ship: Ship.create(ShipModelType.Gnat, difficulty),
+      ship: Ship.create(ShipModelType.Gnat),
       system: solarSystems[solarSystems.length - 1],
     });
 

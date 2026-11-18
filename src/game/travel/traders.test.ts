@@ -12,7 +12,7 @@ test('a trader flees from a criminal it fears', () => {
   const game = newGame();
   game.commander.policeRecordScore = PoliceRecordScore.Criminal;
   game.commander.reputationScore = ReputationScore.Elite;
-  nextOpponentIs(opponentIn(game, OpponentType.Trader, ShipModelType.Gnat));
+  nextOpponentIs(opponentIn(OpponentType.Trader, ShipModelType.Gnat));
   vi.spyOn(runtime.gameRand, 'randomIntBelow').mockReturnValueOnce(0);
 
   expect(traderMeeting(game, OpponentType.Trader).encounterType).toBe(EncounterType.TraderFlee);

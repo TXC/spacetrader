@@ -96,7 +96,7 @@ test('the bank does not show the same amount on two buttons', () => {
 test('two identical pieces of equipment have sell buttons with different ids', () => {
   const replay = runReplayLog(LANDED);
   const { commander } = replay.session.game!;
-  commander.ship = Ship.create(ShipModelType.Hornet, 2); // three weapon slots
+  commander.ship = Ship.create(ShipModelType.Hornet); // three weapon slots
   commander.ship.addAccessoryOfType(AccessoryType.WeaponPulseLaser);
   commander.ship.addAccessoryOfType(AccessoryType.WeaponPulseLaser);
   replay.replayEvent('Equipment', 'click');

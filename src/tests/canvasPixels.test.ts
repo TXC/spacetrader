@@ -198,7 +198,7 @@ test('the travel strip, with a new target after the ship has stopped', async () 
 test('the travel strip, with a see-through ship on a plain screen', async () => {
   page(301, 40, 1);
   const g = game();
-  g.commander.ship = Ship.create(ShipModelType.Grasshopper, g.difficulty);
+  g.commander.ship = Ship.create(ShipModelType.Grasshopper);
   const view = strip(g, true);
   view.setProgress(1);
 
