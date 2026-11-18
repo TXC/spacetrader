@@ -132,7 +132,7 @@ export function replaySkipEncounters(replay: ActionLogReplay, breakConditionFn?:
 }
 
 export function serializeAndDeserialize(game: Game) {
-  const gsJSONStr = JSON.stringify(game.serializedState());
+  const gsJSONStr = JSON.stringify(game.toState());
   // Through the same check a real load goes through, so the check is tried on every
   // game the flow tests save.
   const gs = parseSavedGame(JSON.parse(gsJSONStr));
@@ -296,7 +296,7 @@ export function performStressTest(
 // started; then the game's part is just null.
 function fingerprint(game: Game | null): string {
   // Left out: lastSave is the time of day, and uniqueID is random without a seed.
-  const state = game && { ...game.serializedState(), lastSave: undefined, uniqueID: undefined };
+  const state = game && { ...game.toState(), lastSave: undefined, uniqueID: undefined };
   const { randHigh, randLow, _numInvocations } = runtime.gameRand;
   const steps = runtime.actionLog.serializedString();
   const text = JSON.stringify([state, randHigh, randLow, _numInvocations, steps]);
