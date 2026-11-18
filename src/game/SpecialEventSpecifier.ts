@@ -2,7 +2,7 @@ import { AccessoryType } from './Accessory.ts';
 import { AlertViewController } from './alerts.ts';
 import { PoliceRecordScore, ReputationScore } from './Commander.ts';
 import { CrewMember } from './CrewMember.ts';
-import { GameEndStatus } from './Game.ts';
+import { GameEndStatus } from './Game.types.ts';
 import {
   MOON_PRICE,
   REACTOR_BAY_COUNT,
@@ -24,7 +24,8 @@ import {
 import { tradeItemForType } from './TradeItem.ts';
 import { FAKE_QUEST_CARGO, FAKE_QUEST_CARGO_REACTOR, TRADE_ITEM_COUNT } from './TradeItem.types.ts';
 import { pLog } from './probes.ts';
-import type { Game, GameEndedStatus } from './Game.ts';
+import type { Game } from './Game.ts';
+import type { GameEndedStatus } from './Game.types.ts';
 import { runtime } from './runtime.ts';
 
 type IsHidden = (game: Game) => boolean;

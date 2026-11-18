@@ -1,6 +1,7 @@
 // The end-of-game message and the hall of fame.
 import { AlertActionType, AlertViewController } from './alerts.ts';
-import { Game, GameEndStatus } from './Game.ts';
+import { Game } from './Game.ts';
+import { GameEndStatus } from './Game.types.ts';
 import type { GameState } from './Game.ts';
 import { difficultyName } from './SolarSystem.types.ts';
 import { named } from './texts.ts';

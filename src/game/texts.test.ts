@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { captainFor } from './encounter/captains.ts';
 import { EncounterType } from './encounter/types.ts';
-import { GameEndStatus } from './Game.ts';
+import { GameEndStatus } from './Game.types.ts';
 import { endStatusText } from './HallOfFame.ts';
 import { occurrenceStr } from './Politics.ts';
 import {

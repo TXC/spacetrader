@@ -4,7 +4,7 @@
 import { expect, test } from 'vitest';
 import { AccessoryType } from '../../game/Accessory.ts';
 import { PoliceRecordScore } from '../../game/Commander.ts';
-import { GameEndStatus } from '../../game/Game.ts';
+import { GameEndStatus } from '../../game/Game.types.ts';
 import { PoliticsType } from '../../game/Politics.ts';
 import { ShipModelType } from '../../game/Ship.ts';
 import {

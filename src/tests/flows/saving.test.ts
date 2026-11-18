@@ -4,7 +4,8 @@
 import { expect, test } from 'vitest';
 import { GameRand } from '../../game/GameRand.ts';
 import { ActionLogger } from '../../game/ActionLogger.ts';
-import { Game, GameEndStatus } from '../../game/Game.ts';
+import { Game } from '../../game/Game.ts';
+import { GameEndStatus } from '../../game/Game.types.ts';
 import { Difficulty, JarekQuestStatus, WildQuestStatus } from '../../game/SolarSystem.types.ts';
 import { TradeItemType } from '../../game/TradeItem.types.ts';
 import { MockLocalStorage } from '../support/MockLocalStorage.ts';
