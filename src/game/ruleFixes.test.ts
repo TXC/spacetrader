@@ -398,3 +398,15 @@ test('Q5: five tribbles without food breed two more at most, as half of five is 
 
   expect(game.commander.ship.tribbles).toBe(7); // one, and a roll below two
 });
+
+test('Q5: the damage roll in a fight has a whole number as its limit', () => {
+  const game = newGame();
+  const pirate = Opponent.generateOpponentWithType(OpponentType.Pirate, game);
+  const rolls = vi.spyOn(runtime.gameRand, 'randomIntBelow');
+
+  encounter(game, EncounterType.PirateAttack, pirate).performAction('Attack');
+
+  const limits = rolls.mock.calls.flat();
+  expect(limits).toContain(15); // a laser's 15, scaled to 15.9 by the engineer
+  expect(limits.filter(limit => !Number.isInteger(limit))).toEqual([]);
+});

@@ -411,6 +411,9 @@ test.each(CAPTAINS)('%s_attack', (name, captain) => {
   replay.replayEvent('ecButton_Auto_Flee', 'click');
   replay.replayEvent('alertButton_Dismiss', 'click');
 
+  replay.replayEvent('ecButton_Auto_Flee', 'click');
+  replay.replayEvent('alertButton_Dismiss', 'click');
+
   replay.replayEvent('alertButton_Dismiss', 'click'); // arrived
 
   const systemInfoHeader = welcome();
@@ -425,7 +428,7 @@ test.each(CAPTAINS)('%s_attack', (name, captain) => {
   assertTrue(hasText(newsStrDiv, 'h4', 'The Command'), 'masthead is a heading');
   assertEqual(
     textOf(newsStrDiv),
-    `The Command\n${captain.attackNews}\n\nNotorious Criminal Jean-Luc Sighted in Yew!\n\nInsurrection Crushed: Rebels Executed!`
+    `The Command\n${captain.attackNews}\n\nTerror Strikes Locals on Arrival of Jean-Luc!\n\nNew Palace Planned; Taxes Increase.`
   );
 
   assertEqual(game._breakingNews, null);

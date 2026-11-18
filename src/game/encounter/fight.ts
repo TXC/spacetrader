@@ -575,7 +575,9 @@ function weaponDamage(
       damage = 0;
       pLog.log(167);
     } else {
-      damage = runtime.gameRand.randomIntBelow((pulsePower + morganPower) * ATTACK_SCALE);
+      damage = runtime.gameRand.randomIntBelow(
+        Math.floor((pulsePower + morganPower) * ATTACK_SCALE)
+      );
       pLog.log(168);
     }
   } else {
@@ -585,7 +587,7 @@ function weaponDamage(
     );
     ensureInteger(weaponPower);
 
-    damage = runtime.gameRand.randomIntBelow(weaponPower * ATTACK_SCALE);
+    damage = runtime.gameRand.randomIntBelow(Math.floor(weaponPower * ATTACK_SCALE));
   }
 
   return damage;
