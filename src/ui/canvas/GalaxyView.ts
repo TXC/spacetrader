@@ -29,25 +29,27 @@ export function labelSize(): number {
 }
 
 export class GalaxyView {
-  declare div: HTMLElement;
-  declare game: Game;
-  declare zoomed: boolean;
-  declare showNames: boolean;
-  declare infoClass: string;
-  declare planets: Planet[];
-  declare selectedSystem: SolarSystem | null;
-  declare selectedWormhole: boolean;
-  declare selectedPlanet: Planet | null | undefined;
-  declare canvasContainer: HTMLDivElement;
-  declare canvas: HTMLCanvasElement;
-  declare context: CanvasRenderingContext2D;
-  declare delegate?: GalaxyViewDelegate | null;
-  declare scale: number;
-  declare cachedBoundingRect: DOMRect;
-  declare animationStartTime: number;
-  declare lastInvalidationCheckTimestamp?: number;
-  declare _prevXYScaleFactors?: ScaleFactors;
-  declare solarSystemBounds?: Bounds;
+  game: Game;
+  zoomed: boolean;
+  showNames: boolean;
+  infoClass: string;
+  planets: Planet[] = [];
+  selectedSystem: SolarSystem | null;
+  selectedWormhole: boolean;
+  selectedPlanet: Planet | null | undefined = null;
+  canvasContainer = document.createElement('div');
+  canvas = document.createElement('canvas');
+  context = this.canvas.getContext('2d')!;
+  delegate: GalaxyViewDelegate | null = null;
+  scale = 1;
+  // The size of the container the canvas was last fitted to.
+  private width = 0;
+  private height = 0;
+  // Zero until the first frame; the rings pulse from then.
+  animationStartTime = 0;
+  private lastInvalidationCheckTimestamp = 0;
+  private _prevXYScaleFactors: ScaleFactors | null = null;
+  private solarSystemBounds: Bounds | null = null;
   private disposed = false;
   private onResize = () => this.resizeCanvasIfNeeded();
   private onMouseUp = (event: MouseEvent) => this.onInputEnd(event);
@@ -69,27 +71,21 @@ export class GalaxyView {
     // The class names of the elements made here; their styles are the caller's.
     classes: { host: string; canvas: string; info: string }
   ) {
-    this.div = div;
     this.game = game;
     this.zoomed = zoomed;
     this.showNames = showNames;
     this.infoClass = classes.info;
-    this.planets = [];
     this.selectedSystem = selectedSystem;
     this.selectedWormhole = selectedWormhole;
-    this.selectedPlanet = null;
 
-    this.canvasContainer = document.createElement('div');
     this.canvasContainer.id = zoomed
       ? 'zoomedGalaxyViewCanvasContainer'
       : 'galaxyViewCanvasContainer';
     this.canvasContainer.className = classes.host;
-    this.div.appendChild(this.canvasContainer);
+    div.appendChild(this.canvasContainer);
 
-    this.canvas = document.createElement('canvas');
     this.canvas.id = zoomed ? 'zoomedGalaxyViewCanvas' : 'galaxyViewCanvas';
     this.canvas.className = classes.canvas;
-    this.context = this.canvas.getContext('2d')!;
     this.canvasContainer.appendChild(this.canvas);
     this.initCanvas();
     this.initEvents();
@@ -127,7 +123,8 @@ export class GalaxyView {
 
   initCanvas() {
     const rect = this.canvasContainer.getBoundingClientRect();
-    this.cachedBoundingRect = rect;
+    this.width = rect.width;
+    this.height = rect.height;
     if (DEBUG_OVERRIDE_SCALE_TO_1) {
       this.scale = 1;
     } else {
@@ -156,10 +153,7 @@ export class GalaxyView {
     this._prevXYScaleFactors = xyScaleFactors;
 
     const rect = this.canvasContainer.getBoundingClientRect();
-    needsResize =
-      needsResize ||
-      this.cachedBoundingRect.width !== rect.width ||
-      this.cachedBoundingRect.height !== rect.height;
+    needsResize = needsResize || this.width !== rect.width || this.height !== rect.height;
 
     if (needsResize) {
       this.planets = [];
