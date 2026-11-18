@@ -253,28 +253,8 @@ export class Commander extends CrewMember {
     return this.policeRecordScore <= PoliceRecordScore.Dubious;
   }
 
-  setReserveMoney(rM: boolean) {
-    if (ensureBool(rM)) {
-      this.reserveMoney = rM;
-    }
-  }
-
-  getReserveMoney() {
-    return this.reserveMoney;
-  }
-
   _checkCreditsAmount(c: number) {
     return ensureInteger(c);
-  }
-
-  setCredits(c: number) {
-    if (this._checkCreditsAmount(c)) {
-      this._credits = c;
-    }
-  }
-
-  getCredits() {
-    return this._credits;
   }
 
   get credits() {
@@ -282,7 +262,9 @@ export class Commander extends CrewMember {
   }
 
   set credits(c: number) {
-    this.setCredits(c);
+    if (this._checkCreditsAmount(c)) {
+      this._credits = c;
+    }
   }
 
   get noClaim() {
@@ -303,10 +285,6 @@ export class Commander extends CrewMember {
     if (ensureInteger(r)) {
       this._reputationScore = r;
     }
-  }
-
-  getDebt() {
-    return this._debt;
   }
 
   get debt() {
@@ -352,10 +330,6 @@ export class Commander extends CrewMember {
       }
       this._basePrices = basePrices;
     }
-  }
-
-  getCurrentSystem() {
-    return this._currentSystem;
   }
 
   get currentSystem() {
