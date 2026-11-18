@@ -27,18 +27,13 @@ export { ActionLogReplay };
 const mounted = new Map<Element, () => void>();
 
 function mount(container: Element, element: ReactNode) {
-  // shortcut: some recordings empty the element by hand between two games. React can no
-  // longer remove what it drew there, so that screen is left behind; it watches a session
-  // that is no longer in use. Upgrade if a test ever needs two live games at once.
-  if (container.childNodes.length > 0) mounted.get(container)?.();
+  mounted.get(container)?.();
   mounted.set(container, mountReact(container, element));
 }
 
 // Removes everything the tests put on the page. Called between tests.
 export function unmountAll() {
-  for (const [container, unmount] of mounted) {
-    if (container.childNodes.length > 0) unmount();
-  }
+  for (const unmount of mounted.values()) unmount();
   mounted.clear();
 }
 
@@ -61,7 +56,7 @@ export function runReplayLog(
   hackHandler?: ((session: Session) => void) | null,
   registerEventHandler?: RegisterHandler
 ) {
-  document.getElementById('game')!.innerHTML = '';
+  unmountAll();
   AlertViewController.clearAlerts();
 
   const randSeed = Date.now();
