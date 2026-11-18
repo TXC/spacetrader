@@ -37,8 +37,6 @@ export default defineConfig([
       '@typescript-eslint/unbound-method': 'off',
       // A canvas fill style can be a gradient; the tests print it and only ever set colours.
       '@typescript-eslint/no-base-to-string': 'off',
-      // Five leftover `!` and `as`, harmless.
-      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
     },
   },
   {

@@ -24,7 +24,7 @@ test('the debug panel shows the action log as it grows, and copies it', () => {
   host.querySelector<HTMLElement>('#cheat_freeMoney')!.click();
 
   expect(session.game!.commander.credits).toBe(1000000);
-  const shown = host.querySelector('#debugLog')!.textContent!;
+  const shown = host.querySelector('#debugLog')!.textContent;
   expect(JSON.parse(shown).idLog).toEqual(['createCommander', 'cheat_freeMoney']);
 
   host.querySelector<HTMLElement>('#copyActionLog')!.click();

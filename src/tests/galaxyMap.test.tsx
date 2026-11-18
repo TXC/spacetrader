@@ -17,7 +17,7 @@ function mount() {
   const keep = (v: GalaxyView | null) => (view = v ?? view);
   const { host, root } = render(map(game, keep));
   const redraw = () => flushSync(() => root.render(map(game, keep)));
-  return { host, root, redraw, view: view! as GalaxyView };
+  return { host, root, redraw, view: view! };
 }
 
 function map(game: Game, viewRef: (view: GalaxyView | null) => void) {
