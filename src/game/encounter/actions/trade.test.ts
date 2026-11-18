@@ -1,6 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import { encounterWith, traderWith } from '../../../tests/support/encounters.ts';
 import { newGame, press, topAlert } from '../../../tests/support/newGame.ts';
+import { alertStore } from '../../alerts.ts';
 import { PoliceRecordScore } from '../../Commander.ts';
 import type { Game } from '../../Game.ts';
 import type { Opponent } from '../../opponent/Opponent.ts';
@@ -79,6 +80,26 @@ test('selling all to a trader who buys empties the hold and pays for every unit'
 
   expect(game.commander.ship.tradeItemQuantityForType(Water)).toBe(0);
   expect(game.commander.credits).toBe(credits + 10 * price);
+});
+
+// The original ends the meeting whatever amount is chosen (Encounter.c:1697-1717,
+// 1786-1806, 2309), so a player cannot ask again for a better price.
+test.each([
+  ['buying from a trader', TraderSell],
+  ['selling to a trader', TraderBuy],
+])('choosing 0 units when %s ends the meeting with nothing traded', (_, type) => {
+  const game = newGame();
+  game.commander.credits = 10000;
+  game.commander.ship.boughtQuantity(10, Water, 30);
+  const { offer, ended } = hearOffer(game, type, traderWith([[Water, 10]]));
+
+  offer.setSliderValue(0);
+  press('Selected');
+
+  expect(ended).toHaveBeenCalledWith(false);
+  expect(alertStore.open).toEqual([]);
+  expect(game.commander.credits).toBe(10000);
+  expect(game.commander.ship.tradeItemQuantityForType(Water)).toBe(10);
 });
 
 function criminal(): Game {
