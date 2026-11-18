@@ -5,6 +5,7 @@ import type { RosterKind, RosterSection } from '../game/Roster.ts';
 import { Icon } from './Icon.tsx';
 import { LoggedButton } from './Logged.tsx';
 import { useSession } from './useStore.ts';
+import styles from './Roster.module.css';
 import shared from './shared.module.css';
 
 type Props = { game: Game; onFired?: (member: CrewMember) => void };
@@ -17,7 +18,7 @@ const ICONS: Record<RosterKind, string> = {
 
 function Skills({ member }: { member: CrewMember }) {
   return (
-    <table className="crew-skill-table">
+    <table className={styles.skills}>
       <tbody>
         <tr>
           <td>Pilot</td>
@@ -70,7 +71,7 @@ function MemberRow({
     <tr id={`personnelRow-${member.name}`}>
       <td>
         <div>
-          <Icon name={ICONS[kind]} className="roster-icon" />
+          <Icon name={ICONS[kind]} className={styles.memberIcon} />
           {name}
           {!member.forQuest && <Skills member={member} />}
         </div>
@@ -88,7 +89,7 @@ function EmptyRow({ label, icon }: { label: string; icon: string }) {
     <tr>
       <td colSpan={2}>
         <div>
-          <Icon name={icon} className="roster-icon-box" />
+          <Icon name={icon} className={styles.slotIcon} />
           {label}
         </div>
       </td>

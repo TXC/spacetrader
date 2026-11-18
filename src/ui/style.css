@@ -44,28 +44,6 @@
   margin: auto;
 }
 
-.crew-skill-table {
-  margin-left: 1.333rem;
-}
-
-.roster-icon {
-  width: 1.333rem;
-  height: 1.333rem;
-  object-fit: contain;
-  margin-right: 0.133rem;
-  vertical-align: middle;
-  padding-bottom: 0.333rem; /* Achieve visual centering relative to text with this manual adjustment */
-}
-
-.roster-icon-box {
-  width: 1.333rem;
-  height: 1.333rem;
-  object-fit: contain;
-  margin-right: 0.133rem;
-  vertical-align: middle;
-  padding-bottom: 0.2rem; /* Achieve visual centering relative to text with this manual adjustment */
-}
-
 .button-icon-chart {
   width: 1.067rem;
   height: 1.067rem;
