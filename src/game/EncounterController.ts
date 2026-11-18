@@ -2,9 +2,7 @@ import { AlertActionType, AlertViewController } from './alerts.ts';
 import { PoliceRecordScore } from './Commander.ts';
 import { Plunder } from './Plunder.ts';
 import { ShipModelType } from './Ship.ts';
-import { Difficulty, ReactorQuestStatus, WildQuestStatus } from './SolarSystem.types.ts';
-import { tradeItemForType } from './TradeItem.ts';
-import { TradeItemType, TRADE_ITEM_COUNT } from './TradeItem.types.ts';
+import { ReactorQuestStatus, WildQuestStatus } from './SolarSystem.types.ts';
 import { ensureBool, ensureInteger, ensureType } from './ensure.ts';
 import { pLog } from './probes.ts';
 import type { Game } from './Game.ts';
@@ -324,40 +322,6 @@ export class EncounterController {
   _presentAlertController(alertController: AlertViewController) {
     this._endAutoEncounters();
     alertController.presentView();
-  }
-
-  _scoopWithCompletion(completion: () => void) {
-    let canScoop = this._game.commander.ship.freeCargoBays() > 0;
-    canScoop =
-      canScoop &&
-      (this._game.difficulty < Difficulty.Normal ||
-        runtime.gameRand.randomIntBelow(this._game.difficulty) === 1);
-
-    if (canScoop) {
-      let itemType = runtime.gameRand.randomIntBelow(TRADE_ITEM_COUNT);
-      if (itemType >= TradeItemType.Firearms) {
-        itemType = runtime.gameRand.randomIntBelow(TRADE_ITEM_COUNT);
-      }
-
-      const alertString = `A canister from the destroyed ship, labelled ${tradeItemForType(itemType).name}, drifts within range of your scoops.`;
-
-      const aC = new AlertViewController(alertString);
-
-      aC.addAction('Pick it up!', AlertActionType.Default, () => {
-        this._game.commander.ship.boughtQuantity(1, itemType, 0);
-        completion();
-      });
-
-      aC.addAction('Let it go', AlertActionType.Cancel, () => {
-        completion();
-      });
-
-      this._presentAlertController(aC);
-
-      return;
-    }
-
-    completion();
   }
 
   // #pragma mark - PlunderViewControllerDelegate

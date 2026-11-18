@@ -29,6 +29,7 @@ import {
   isFleeEncounter,
   isSurrenderEncounter,
 } from './types.ts';
+import { scoop } from './scoop.ts';
 import type { EncounterController } from '../EncounterController.ts';
 
 // One round of a fight: both sides fire, then someone is destroyed or gets away, or the
@@ -150,7 +151,7 @@ function opponentDestroyed(
 
   aC.addAction('Dismiss', AlertActionType.Default, () => {
     if (attemptScoop) {
-      encounter._scoopWithCompletion(() => {
+      scoop(encounter, () => {
         completionBlock(false);
       });
     } else {
