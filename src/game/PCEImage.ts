@@ -24,7 +24,7 @@ export class PCEImage {
     for (const line of this.imageStrLines) {
       colorTableLineCount++;
 
-      if (line == '') {
+      if (line === '') {
         break;
       }
 
@@ -33,7 +33,7 @@ export class PCEImage {
       }
 
       const charAndColor = line.split(':');
-      if (charAndColor.length == 2) {
+      if (charAndColor.length === 2) {
         this.charToColor[charAndColor[0]] = charAndColor[1];
       }
     }

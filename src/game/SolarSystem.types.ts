@@ -21,7 +21,7 @@ export const adjustSkillForDifficulty = (skill: number, difficulty: number) => {
   Utils.ensureInteger(difficulty);
   if (difficulty <= Difficulty.Easy) {
     return skill + 1;
-  } else if (difficulty == Difficulty.Absurd) {
+  } else if (difficulty === Difficulty.Absurd) {
     return Math.max(2, skill) - 1;
   } else {
     return skill;
