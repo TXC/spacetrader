@@ -8,6 +8,7 @@ import {
   ReputationScore,
 } from './Commander.ts';
 import { EncounterController, EncounterType } from './EncounterController.ts';
+import type { EncounterListener } from './EncounterController.ts';
 import { GameEndStatus, RareEvent, RARE_EVENT_COUNT } from './Game.ts';
 import { Opponent, OpponentType, OPPONENT_TYPE_COUNT } from './Opponent.ts';
 import { MAX_TRIBBLES, Ship, ShipModelType } from './Ship.ts';
@@ -47,7 +48,7 @@ export type TravelResult = 'arrived' | GameEndedStatus;
 
 // One trip between two systems: what is met on the way, the fights, and the arrival.
 // The travel screen watches this and draws what it finds.
-export class Travel extends Store {
+export class Travel extends Store implements EncounterListener {
   declare _game: Game;
   declare _origin: SolarSystem;
   declare _destination: SolarSystem;
@@ -553,7 +554,12 @@ export class Travel extends Store {
       }
 
       if (encounterType !== EncounterType.None && opponent) {
-        const encounterController = new EncounterController(encounterType, this._game, opponent);
+        const encounterController = new EncounterController(
+          encounterType,
+          this._game,
+          opponent,
+          this
+        );
         this.setEncounterController(encounterController);
         return;
       }
@@ -767,9 +773,6 @@ export class Travel extends Store {
       }
 
       this._encounterController = eC;
-      if (this._encounterController) {
-        this._encounterController.delegate = this;
-      }
     }
 
     this.changed();
@@ -780,19 +783,17 @@ export class Travel extends Store {
     this.onProgress?.(progress);
   }
 
-  // EncounterController delegate
+  // What the encounter tells the trip.
 
-  encounterControllerDidPlunder(controller: EncounterController, didPlunder: boolean) {
-    if (controller.type === EncounterType.MarieCelesteEncounter && didPlunder) {
+  plundered(anythingTaken: boolean) {
+    const type = this._encounterController?.type;
+    if (type === EncounterType.MarieCelesteEncounter && anythingTaken) {
       this._needPostMarieCustomsPolice = true;
     }
   }
 
-  encounterControllerEncounterContinues(
-    _controller: EncounterController,
-    encounterContinues: boolean
-  ) {
-    if (encounterContinues) {
+  continues(fightGoesOn: boolean) {
+    if (fightGoesOn) {
       this.changed();
     } else {
       this.setEncounterController(null);
@@ -800,20 +801,20 @@ export class Travel extends Store {
     }
   }
 
-  encounterControllerHasUpdatedHP() {
+  hullChanged() {
     this.changed();
   }
 
-  encounterControllerHasUpdatedButtons() {
+  buttonsChanged() {
     this.changed();
   }
 
-  encounterControllerDidCompleteWithArrest() {
+  arrested() {
     this.setEncounterController(null);
     this._done('arrived');
   }
 
-  encounterControllerDidCompleteWithDestruction() {
+  destroyed() {
     this.setEncounterController(null);
 
     if (this._game.commander.hasEscapePod) {

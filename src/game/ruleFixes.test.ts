@@ -4,6 +4,7 @@ import { newGame, press, topAlert } from '../tests/support/newGame.ts';
 import { AccessoryType } from './Accessory.ts';
 import { alertStore } from './alerts.ts';
 import { EncounterController, EncounterType } from './EncounterController.ts';
+import type { EncounterListener } from './EncounterController.ts';
 import { GameRand } from './GameRand.ts';
 import { News } from './News.ts';
 import { Opponent, OpponentType } from './Opponent.ts';
@@ -34,9 +35,8 @@ function traderWith(game: ReturnType<typeof newGame>, cargo: [number, number][])
 
 // An encounter whose owner ignores what it is told.
 function encounter(game: ReturnType<typeof newGame>, type: number, opponent: Opponent) {
-  const controller = new EncounterController(type, game, opponent);
-  controller.delegate = new Proxy({}, { get: () => () => {} }) as Travel;
-  return controller;
+  const owner = new Proxy({}, { get: () => () => {} }) as EncounterListener;
+  return new EncounterController(type, game, opponent, owner);
 }
 
 test('B1: dumping more than the fee allows dumps only what is paid for', () => {
