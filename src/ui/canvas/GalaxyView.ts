@@ -4,6 +4,7 @@ import { Utils } from '../../game/Utilities.ts';
 import type { Game } from '../../game/Game.ts';
 import type { SolarSystem } from '../../game/SolarSystem.ts';
 import { runtime } from '../../game/runtime.ts';
+import { watchSize } from './watchSize.ts';
 
 type Point = { x: number; y: number };
 type Planet = Point & { radius: number; solarSystem: SolarSystem; isWormhole: boolean };
@@ -55,14 +56,15 @@ export class GalaxyView {
   private lastInvalidationCheckTimestamp = 0;
   private _prevXYScaleFactors: ScaleFactors | null = null;
   private solarSystemBounds: Bounds | null = null;
+  private lastTimestamp = 0;
   private disposed = false;
-  private onResize = () => this.resizeCanvasIfNeeded();
+  private stopWatchingSize = watchSize(this.canvasContainer, () => this.resizeCanvasIfNeeded());
   private onMouseUp = (event: MouseEvent) => this.onInputEnd(event);
 
   // Stops the drawing loop and stops listening. Call when the map leaves the page.
   dispose() {
     this.disposed = true;
-    window.removeEventListener('resize', this.onResize);
+    this.stopWatchingSize();
     this.canvas.removeEventListener('mouseup', this.onMouseUp);
     runtime.actionLog.unregisterNamedEventListener(this, this.selectEventName());
   }
@@ -110,6 +112,7 @@ export class GalaxyView {
     if (this.disposed) {
       return;
     }
+    this.lastTimestamp = timestamp;
     this.drawGalaxy(timestamp);
 
     // Allow us to get garbage collected if the view is removed from the document
@@ -127,8 +130,7 @@ export class GalaxyView {
     }
   }
 
-  initCanvas() {
-    const rect = this.canvasContainer.getBoundingClientRect();
+  initCanvas(rect = this.canvasContainer.getBoundingClientRect()) {
     this.width = rect.width;
     this.height = rect.height;
     this.scale = window.devicePixelRatio;
@@ -142,25 +144,28 @@ export class GalaxyView {
     this.context.scale(this.scale, this.scale);
   }
 
+  // Called when the container's size or the screen's pixel density may have changed.
   resizeCanvasIfNeeded() {
-    let needsResize = false;
-
-    const xyScaleFactors = this.getXYScaleFactors();
-    if (this._prevXYScaleFactors) {
-      // Scale factors change when the commander's ship changes to have different range
-      needsResize =
-        xyScaleFactors.xScaleFactor !== this._prevXYScaleFactors.xScaleFactor ||
-        xyScaleFactors.yScaleFactor !== this._prevXYScaleFactors.yScaleFactor;
-    }
-    this._prevXYScaleFactors = xyScaleFactors;
-
     const rect = this.canvasContainer.getBoundingClientRect();
-    needsResize = needsResize || this.width !== rect.width || this.height !== rect.height;
-
-    if (needsResize) {
-      this.planets = [];
-      this.initCanvas();
+    const fits = this.width === rect.width && this.height === rect.height;
+    if (fits && this.scale === window.devicePixelRatio) {
+      return;
     }
+    this.planets = [];
+    this.initCanvas(rect);
+    // At once: a canvas is empty after a change of size.
+    this.drawGalaxy(this.lastTimestamp);
+  }
+
+  // The scale changes when the commander's ship changes to one with a different range.
+  private scaleFactorsChanged() {
+    const before = this._prevXYScaleFactors;
+    const now = this.getXYScaleFactors();
+    this._prevXYScaleFactors = now;
+    return (
+      before !== null &&
+      (now.xScaleFactor !== before.xScaleFactor || now.yScaleFactor !== before.yScaleFactor)
+    );
   }
 
   eventHandlerName() {
@@ -175,8 +180,6 @@ export class GalaxyView {
     this.canvas.addEventListener('mouseup', this.onMouseUp);
 
     runtime.actionLog.registerNamedEventListener(this, this.selectEventName());
-
-    window.addEventListener('resize', this.onResize);
   }
 
   handleNamedEvent(eventName: string, eventContext: string) {
@@ -290,7 +293,9 @@ export class GalaxyView {
   }
 
   drawGalaxy(timestamp: number) {
-    this.resizeCanvasIfNeeded();
+    if (this.scaleFactorsChanged()) {
+      this.planets = [];
+    }
     if (this.canvas.width === 0 || this.canvas.height === 0) {
       return;
     }
