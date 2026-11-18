@@ -128,13 +128,20 @@ place of a fixed 2.5-second wait, and always shuts it down.
 - The plugin's options beyond those named here.
 - How the second build for the test is made to differ.
 
-## Decisions made by Claude, not yet confirmed by the owner
+## Approved
 
-- Approach A: the plugin, with our own worker.
-- A new version takes over when the game is next opened, with no
-  prompt.
-- `standalone` in place of `fullscreen`.
-- No icon for Android's shaped icons yet. It needs a picture with empty
-  space around the motif, which does not exist; the owner can supply
-  one later.
-- Cutting the Apple icon lines to three.
+The owner approved this design on 2026-11-18, with every recommendation
+in it.
+
+## What the build did differently
+
+- **The pictures the build makes are stored too.** The first list held
+  only scripts, styles and the page, and the offline check caught the
+  title picture missing.
+- **The icons used only for installing are not stored**, except the two
+  the manifest names. The other files in `public/PWAImages` are left in
+  place but nothing refers to most of them any more.
+- **The offline check makes its own two builds**, so `pnpm test:offline`
+  no longer runs `pnpm build` first.
+- **A fourth update check was added:** the open game is not replaced
+  while it is open.

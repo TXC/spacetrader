@@ -14,7 +14,7 @@ unchanged in `old/` for reference) into TypeScript and React.
 | `pnpm dev`         | Run the game locally with live reload            |
 | `pnpm test`        | Run the tests: rules in Node, screens in Chromium |
 | `pnpm test:stress` | Run the slower stress tests                      |
-| `pnpm test:offline`| Build, then check the game works with no network  |
+| `pnpm test:offline`| Check the built game offline, and that it updates |
 | `pnpm check`       | Run everything the pipeline runs, in one go      |
 | `pnpm format`      | Check the formatting (`format:fix` corrects it)  |
 | `pnpm lint`        | Check the code style (`lint:fix` corrects it)    |
@@ -32,12 +32,15 @@ pnpm exec playwright install chromium
 
 ## Offline use
 
-The built game keeps a copy of everything it loads, so after one visit
-it starts and plays without a connection, and it can be installed as an
-app from the browser. This is done by a small service worker,
-`public/sw.js`, which keeps files as they are used; there is no list of
-files to maintain. It is only active in the built game, not in
-`pnpm dev`.
+The built game keeps a copy of itself, so after one visit it starts and
+plays without a connection, and it can be installed as an app from the
+browser. This is done by a small service worker, `src/sw.ts`. The build
+gives it the list of the build's files, so there is no list to
+maintain. It is only active in the built game, not in `pnpm dev`.
+
+A new version is fetched in the background while the game is open, and
+is used the next time the game is opened. A game in progress is never
+reloaded.
 
 ## Debug panel
 

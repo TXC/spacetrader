@@ -26,7 +26,7 @@
     "typecheck": "tsc -b",
     "test": "vitest run --exclude src/tests/flows/stress.test.ts",
     "test:stress": "vitest run src/tests/flows/stress.test.ts",
-    "test:offline": "pnpm build && node scripts/check-offline.mjs",
+    "test:offline": "node scripts/check-offline.mjs",
     "check": "pnpm format && pnpm lint && pnpm typecheck && pnpm test && pnpm test:stress && pnpm test:offline",
     "preview": "vite preview"
   },
@@ -53,7 +53,12 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.2",
     "vite": "^8.3.8",
-    "vitest": "^5.1.0"
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.1.0",
+    "workbox-build": "^7.4.1",
+    "workbox-precaching": "^7.4.1",
+    "workbox-routing": "^7.4.1",
+    "workbox-window": "^7.4.1"
   },
   "dependencies": {
     "valibot": "^1.5.0"
