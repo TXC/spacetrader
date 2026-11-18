@@ -6,6 +6,7 @@ import {
   JarekQuestStatus,
   ReactorQuestStatus,
   WildQuestStatus,
+  reactorAboard,
 } from '../SolarSystem.types.ts';
 import { pLog } from '../probes.ts';
 import type { Travel } from './Travel.ts';
@@ -29,10 +30,7 @@ function ejected(game: Game): string[] {
   const alerts: string[] = [];
 
   let reactorStr = '';
-  if (
-    game.reactorStatus > ReactorQuestStatus.Open &&
-    game.reactorStatus < ReactorQuestStatus.ClosedTooLate
-  ) {
+  if (reactorAboard(game.reactorStatus)) {
     reactorStr =
       ' The destruction of your ship is made much more spectacular by the added explosion of the Ion Reactor.';
     game.reactorStatus = ReactorQuestStatus.ClosedTooLate;

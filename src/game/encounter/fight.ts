@@ -12,8 +12,8 @@ import {
   Difficulty,
   DragonflyQuestStatus,
   MonsterQuestStatus,
-  ReactorQuestStatus,
   ScarabQuestStatus,
+  reactorAboard,
 } from '../SolarSystem.types.ts';
 import { ensureBool, ensureInteger, ensureNumber, ensureType } from '../ensure.ts';
 import { pLog } from '../probes.ts';
@@ -617,11 +617,7 @@ export function damageDefender(
   commanderUnderAttack: boolean
 ): void {
   // Reactor weakens our hull and shields
-  if (
-    commanderUnderAttack &&
-    encounter._game.reactorStatus > ReactorQuestStatus.Open &&
-    encounter._game.reactorStatus < ReactorQuestStatus.ClosedTooLate
-  ) {
+  if (commanderUnderAttack && reactorAboard(encounter._game.reactorStatus)) {
     // The factor keeps its fraction; only the result is a whole number, as in the original.
     const factor =
       1 +

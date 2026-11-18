@@ -1,5 +1,5 @@
 import { AlertActionType, AlertViewController } from '../../alerts.ts';
-import { Difficulty, ReactorQuestStatus, WildQuestStatus } from '../../SolarSystem.types.ts';
+import { Difficulty, WildQuestStatus, reactorAboard } from '../../SolarSystem.types.ts';
 import { ensureInteger } from '../../ensure.ts';
 import { pLog } from '../../probes.ts';
 import { EncounterType } from '../types.ts';
@@ -80,8 +80,7 @@ function bribePrice(encounter: Encounter): number {
 
   if (
     encounter._game.wildStatus === WildQuestStatus.OnBoard ||
-    (encounter._game.reactorStatus > ReactorQuestStatus.Open &&
-      encounter._game.reactorStatus < ReactorQuestStatus.ClosedTooLate)
+    reactorAboard(encounter._game.reactorStatus)
   ) {
     pLog.log(126);
     bribe *= encounter._game.difficulty <= Difficulty.Normal ? 2 : 3;

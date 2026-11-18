@@ -8,6 +8,7 @@ import {
   JarekQuestStatus,
   ReactorQuestStatus,
   WildQuestStatus,
+  reactorAboard,
 } from '../SolarSystem.types.ts';
 import { TradeItemType, FAKE_QUEST_CARGO, FAKE_QUEST_CARGO_REACTOR } from '../TradeItem.types.ts';
 import { ensureInteger } from '../ensure.ts';
@@ -108,10 +109,7 @@ function closeQuests(encounter: Encounter): string {
     encounter._game.commander.ship.soldQuantity(10, FAKE_QUEST_CARGO);
   }
 
-  if (
-    encounter._game.reactorStatus > ReactorQuestStatus.Open &&
-    encounter._game.reactorStatus < ReactorQuestStatus.ClosedTooLate
-  ) {
+  if (reactorAboard(encounter._game.reactorStatus)) {
     alertString +=
       "\nThe police confiscated the Ion Reactor as evidence of your dealings with unsavory characters. The bad news is that you've lost the Ion Reactor. The good news is that you no longer have to worry about managing its depleting fuel store.";
     encounter._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;

@@ -1,6 +1,6 @@
 import { AlertActionType, AlertViewController } from '../alerts.ts';
 import { Plunder } from '../Plunder.ts';
-import { ReactorQuestStatus, WildQuestStatus } from '../SolarSystem.types.ts';
+import { WildQuestStatus, reactorAboard } from '../SolarSystem.types.ts';
 import { ensureBool, ensureInteger, ensureType } from '../ensure.ts';
 import { pLog } from '../probes.ts';
 import type { Game } from '../Game.ts';
@@ -43,7 +43,7 @@ export class Encounter {
 
   _reactorAboard(): boolean {
     const status = this._game.reactorStatus;
-    return status > ReactorQuestStatus.Open && status < ReactorQuestStatus.ClosedTooLate;
+    return reactorAboard(status);
   }
 
   // Shows a message; the encounter goes on with `then` once it is dismissed.

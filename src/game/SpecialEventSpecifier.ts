@@ -17,6 +17,9 @@ import {
   ScarabQuestStatus,
   SpecialEvent,
   WildQuestStatus,
+  experimentUnderway,
+  invasionUnderway,
+  reactorAboard,
 } from './SolarSystem.types.ts';
 import { tradeItemForType } from './TradeItem.ts';
 import { FAKE_QUEST_CARGO, FAKE_QUEST_CARGO_REACTOR, TRADE_ITEM_COUNT } from './TradeItem.types.ts';
@@ -563,11 +566,7 @@ const SPECS: Spec[] = [
         alertString = `Jonathan Wild refuses to board unless you're armed with a Beam Laser or better. He'd rather take his chances hiding out here on ${game.commander.currentSystem.name}.`;
       }
 
-      if (
-        !alertString &&
-        game.reactorStatus > ReactorQuestStatus.Open &&
-        game.reactorStatus < ReactorQuestStatus.ClosedTooLate
-      ) {
+      if (!alertString && reactorAboard(game.reactorStatus)) {
         pLog.log(123);
         alertString =
           "Jonathan Wild doesn't like the looks of that Ion Reactor. He thinks it's too dangerous, and won't get on board.";
@@ -722,10 +721,7 @@ const SPECS: Spec[] = [
     randomOccurrence: 0,
     messageOnly: true,
     isHidden: game => {
-      return !(
-        game.reactorStatus > ReactorQuestStatus.Open &&
-        game.reactorStatus < ReactorQuestStatus.ClosedTooLate
-      );
+      return !reactorAboard(game.reactorStatus);
     },
     action: game => {
       game.commander.ship.soldQuantity(
@@ -767,10 +763,7 @@ const SPECS: Spec[] = [
     randomOccurrence: 0,
     messageOnly: true,
     isHidden: game => {
-      return !(
-        game.invasionStatus >= InvasionQuestStatus.DaysUntilInvasion7 &&
-        game.invasionStatus <= InvasionQuestStatus.DaysUntilInvasion1
-      );
+      return !invasionUnderway(game.invasionStatus);
     },
     action: game => {
       game.invasionStatus = InvasionQuestStatus.ClosedSaved;
@@ -788,10 +781,7 @@ const SPECS: Spec[] = [
     randomOccurrence: 0,
     messageOnly: true,
     isHidden: game => {
-      return !(
-        game.experimentStatus >= ExperimentQuestStatus.DaysRemaining10 &&
-        game.experimentStatus <= ExperimentQuestStatus.DaysRemaining1
-      );
+      return !experimentUnderway(game.experimentStatus);
     },
     action: game => {
       game.experimentStatus = ExperimentQuestStatus.ClosedSaved;
