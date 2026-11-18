@@ -1,6 +1,5 @@
 import { named, countOf } from './texts.ts';
 import type { ValueOf } from './texts.ts';
-import { ensureInteger } from './ensure.ts';
 
 // Constants
 export const MOON_PRICE = 500000;
@@ -17,8 +16,6 @@ export type Difficulty = ValueOf<typeof Difficulty>;
 export const DIFFICULTY_COUNT = countOf(Difficulty);
 
 export const adjustSkillForDifficulty = (skill: number, difficulty: Difficulty) => {
-  ensureInteger(skill);
-  ensureInteger(difficulty);
   if (difficulty <= Difficulty.Easy) {
     return skill + 1;
   } else if (difficulty === Difficulty.Absurd) {
