@@ -165,7 +165,7 @@ test.each([
   ['short of workers', 'Jobless Rate at All-Time Low!', Status.LackWorkers],
 ])('a system %s prints "%s"', (_, headline, status) => {
   const game = newGame();
-  game.commander.currentSystem._status = status;
+  game.commander.currentSystem.status = status;
 
   expect(headlines(game)).toContain(headline);
 });
@@ -190,7 +190,7 @@ test('a hero is welcomed by name', () => {
 function quietNeighbours() {
   const game = newGame();
   const nearby = game.solarSystemsWithinRange();
-  nearby.forEach(system => (system._status = Status.Uneventful));
+  nearby.forEach(system => (system.status = Status.Uneventful));
   return { game, nearby: nearby[0] };
 }
 
@@ -206,7 +206,7 @@ test.each([
 
 test('trouble in a nearby system makes a story on a lucky roll', () => {
   const { game, nearby } = quietNeighbours();
-  nearby._status = Status.Drought;
+  nearby.status = Status.Drought;
   vi.spyOn(runtime.gameRand, 'randomIntBelow').mockReturnValue(0);
 
   expect(headlines(game)).toContain(`Reports of Severe Drought in the ${nearby.name} System.`);
@@ -214,7 +214,7 @@ test('trouble in a nearby system makes a story on a lucky roll', () => {
 
 test('without a story from nearby, the paper prints one of its own headlines', () => {
   const { game, nearby } = quietNeighbours();
-  nearby._status = Status.Drought;
+  nearby.status = Status.Drought;
   vi.spyOn(runtime.gameRand, 'randomIntBelow').mockReturnValueOnce(99);
 
   const lines = headlines(game);

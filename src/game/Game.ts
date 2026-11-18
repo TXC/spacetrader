@@ -521,9 +521,9 @@ export class Game {
     }
 
     for (let i = 0; i < WORMHOLE_COUNT - 1; ++i) {
-      randomWormholeSystems[i].setWormhole(randomWormholeSystems[i + 1]);
+      randomWormholeSystems[i].wormhole = randomWormholeSystems[i + 1];
     }
-    randomWormholeSystems[WORMHOLE_COUNT - 1].setWormhole(randomWormholeSystems[0]);
+    randomWormholeSystems[WORMHOLE_COUNT - 1].wormhole = randomWormholeSystems[0];
   }
 
   _setupEventsAndMercenaries() {
@@ -608,7 +608,7 @@ export class Game {
 
     const mercenary = CrewMember.create(name);
     mercenary.randomizeAttributes(rand);
-    mercenarySystem.setMercenary(mercenary);
+    mercenarySystem.mercenary = mercenary;
   }
 
   _setupCommander() {
