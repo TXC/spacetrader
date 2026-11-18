@@ -1,4 +1,4 @@
-import { GameEndStatus, RareEvent, RARE_EVENT_COUNT } from './Game.types.ts';
+import { GameEndStatus, RareEvent } from './Game.types.ts';
 import { Commander } from './Commander.ts';
 import type { Recruit } from './Commander.ts';
 import { CrewMember } from './CrewMember.ts';
@@ -95,7 +95,7 @@ type GameFields = {
   reactorStatus: ReactorQuestStatus;
   commander: Commander;
   monsterHull: number;
-  remainingRareEvents: number[];
+  remainingRareEvents: RareEvent[];
   solarSystems: SolarSystem[];
   warpSystem: SolarSystem | null;
 };
@@ -167,7 +167,7 @@ export class Game {
   readonly commander: Commander;
   difficulty: Difficulty;
   monsterHull: number;
-  remainingRareEvents: number[];
+  remainingRareEvents: RareEvent[];
   readonly solarSystems: SolarSystem[];
   // Where the game started. A saved game keeps it, though no rule reads it.
   private readonly _warpSystem: SolarSystem | null;
@@ -217,7 +217,7 @@ export class Game {
     Game._setupEventsAndMercenaries(solarSystems);
     const commander = Game._setupCommander(recruit, solarSystems);
     const remainingRareEvents = [
-      ...Array.from({ length: RARE_EVENT_COUNT }, (_, rareEvent) => rareEvent),
+      ...Object.values(RareEvent),
       // Some extra skill enhancements
       ...[RareEvent.BottleGood, RareEvent.BottleGood, RareEvent.BottleOld, RareEvent.BottleOld],
     ];
@@ -285,7 +285,7 @@ export class Game {
       wildStatus: state.wildStatus,
       reactorStatus: state.reactorStatus,
       difficulty: state.difficulty,
-      endStatus: state.endStatus as GameEndStatus,
+      endStatus: state.endStatus,
       monsterHull: state.monsterHull,
       remindLoans: state.remindLoans,
       tribbleMessage: state.tribbleMessage,
@@ -650,7 +650,7 @@ export class Game {
     this._breakingNews = null;
   }
 
-  removeRemainingRareEvent(rareEvent: number) {
+  removeRemainingRareEvent(rareEvent: RareEvent) {
     const index = this.remainingRareEvents.indexOf(rareEvent);
     if (index !== -1) {
       this.remainingRareEvents.splice(index, 1);

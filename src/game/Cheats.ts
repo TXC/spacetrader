@@ -2,7 +2,7 @@
 import { ReputationScore } from './Commander.ts';
 import { sanitizedElementID } from './elementId.ts';
 import type { Game } from './Game.ts';
-import { RARE_EVENT_COUNT } from './Game.types.ts';
+import { RareEvent } from './Game.types.ts';
 
 export type Cheat = { id: string; label: string; apply: (game: Game) => void };
 
@@ -16,8 +16,8 @@ const RARE_EVENT_NAMES = [
 ];
 
 function rareEventCheats(): Cheat[] {
-  return RARE_EVENT_NAMES.slice(0, RARE_EVENT_COUNT).map((name, rareEvent) => {
-    const label = 'Encounter ' + name;
+  return Object.values(RareEvent).map(rareEvent => {
+    const label = 'Encounter ' + RARE_EVENT_NAMES[rareEvent];
     return {
       id: 'cheat_' + sanitizedElementID(label),
       label,
