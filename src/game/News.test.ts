@@ -104,7 +104,7 @@ const specialHeadlines: [string, SpecialEvent, (game: Game) => void][] = [
   [
     'Invasion Imminent! Plans in Place to Repel Hostile Invaders.',
     E.GemulonRescued,
-    quest.invasion(InvasionQuestStatus.DaysUntilInvasion._1),
+    quest.invasion(InvasionQuestStatus.DaysUntilInvasion1),
   ],
   [
     'Alien Invasion Devastates Planet!',
@@ -115,7 +115,7 @@ const specialHeadlines: [string, SpecialEvent, (game: Game) => void][] = [
   [
     'Scientists Cancel High-profile Test! Committee to Investigate Design.',
     E.ExperimentStopped,
-    quest.experiment(ExperimentQuestStatus.DaysRemaining._10),
+    quest.experiment(ExperimentQuestStatus.DaysRemaining10),
   ],
   ['Huge Explosion Reported at Research Facility.', E.ExperimentNotStopped, quest.none],
   ['Scientist Adds Alien Artifact to Museum Collection.', E.ArtifactDelivered, quest.artifact],

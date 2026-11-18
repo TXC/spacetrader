@@ -295,7 +295,7 @@ function arrive(game: ReturnType<typeof newGame>): void {
 
 test('B8: a reactor explosion with an escape pod arrives once', () => {
   const game = newGame();
-  game.reactorStatus = ReactorQuestStatus.DaysRemaining._1;
+  game.reactorStatus = ReactorQuestStatus.DaysRemaining1;
   game.commander.hasEscapePod = true;
   const arrival = vi.spyOn(game, 'handleArrival');
 
@@ -329,7 +329,7 @@ test('Q1: with the reactor aboard, contraband is still fined and the reactor tak
   commander.credits = 5000;
   commander.ship.boughtQuantity(2, TradeItemType.Narcotics, 0);
   commander.ship.boughtQuantity(5, FAKE_QUEST_CARGO_REACTOR, 0);
-  game.reactorStatus = ReactorQuestStatus.DaysRemaining._20;
+  game.reactorStatus = ReactorQuestStatus.DaysRemaining20;
 
   submitToInspection(game);
 
@@ -342,7 +342,7 @@ test('Q1: with the reactor aboard, contraband is still fined and the reactor tak
 test('Q1: with the reactor and Wild aboard, the commander is arrested', () => {
   const game = newGame();
   game.commander.ship.boughtQuantity(5, FAKE_QUEST_CARGO_REACTOR, 0);
-  game.reactorStatus = ReactorQuestStatus.DaysRemaining._20;
+  game.reactorStatus = ReactorQuestStatus.DaysRemaining20;
   game.wildStatus = WildQuestStatus.OnBoard;
 
   submitToInspection(game);
@@ -429,7 +429,7 @@ test.each([
   [Difficulty.Absurd, 26], // 10 * 2.65
 ])('Q11: with the reactor aboard, a hit of 10 at difficulty %i does %i', (difficulty, hit) => {
   const game = newGame(difficulty);
-  game.reactorStatus = ReactorQuestStatus.DaysRemaining._20;
+  game.reactorStatus = ReactorQuestStatus.DaysRemaining20;
   const { commander } = game;
   const before = commander.ship.hull;
   const police = Opponent.generateOpponentWithType(OpponentType.Police, game);

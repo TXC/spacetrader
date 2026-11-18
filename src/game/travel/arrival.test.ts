@@ -33,7 +33,7 @@ test('a smaller debt is a reminder every fifth day', () => {
 
 test('the reactor kills half the tribbles when there are many', () => {
   const game = newGame();
-  game.reactorStatus = ReactorQuestStatus.DaysRemaining._20;
+  game.reactorStatus = ReactorQuestStatus.DaysRemaining20;
   game.commander.ship.tribbles = 100;
 
   expect(arrivalMessages(game)).toContain(

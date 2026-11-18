@@ -375,7 +375,7 @@ test('ionReactor', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
   assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
-  assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
+  assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining20);
 
   assertEqual(
     game.specialCargoDescription(),
@@ -406,7 +406,7 @@ test('ionReactor', () => {
   let loopCycles: number;
   for (
     loopCycles = 0;
-    loopCycles < 100 && game.reactorStatus < ReactorQuestStatus.DaysRemaining._1 - 1;
+    loopCycles < 100 && game.reactorStatus < ReactorQuestStatus.DaysRemaining1 - 1;
     ++loopCycles
   ) {
     const prevReactorStatus = game.reactorStatus;
@@ -568,7 +568,7 @@ test('ionReactor_tooLate', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
   assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
-  assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
+  assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining20);
 
   assertEqual(
     game.specialCargoDescription(),
@@ -599,7 +599,7 @@ test('ionReactor_tooLate', () => {
   let loopCycles: number;
   for (
     loopCycles = 0;
-    loopCycles < 100 && game.reactorStatus < ReactorQuestStatus.DaysRemaining._1 - 1;
+    loopCycles < 100 && game.reactorStatus < ReactorQuestStatus.DaysRemaining1 - 1;
     ++loopCycles
   ) {
     const prevReactorStatus = game.reactorStatus;
@@ -709,7 +709,7 @@ test('ionReactor_tooLate_escapePod', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
   assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
-  assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
+  assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining20);
 
   assertEqual(
     game.specialCargoDescription(),
@@ -740,7 +740,7 @@ test('ionReactor_tooLate_escapePod', () => {
   let loopCycles: number;
   for (
     loopCycles = 0;
-    loopCycles < 100 && game.reactorStatus < ReactorQuestStatus.DaysRemaining._1 - 1;
+    loopCycles < 100 && game.reactorStatus < ReactorQuestStatus.DaysRemaining1 - 1;
     ++loopCycles
   ) {
     const prevReactorStatus = game.reactorStatus;
@@ -865,7 +865,7 @@ test('ionReactor_surrenderToPolice', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
   assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
-  assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
+  assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining20);
 
   assertEqual(
     game.specialCargoDescription(),
@@ -1041,7 +1041,7 @@ test('ionReactor_early', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
   assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
-  assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
+  assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining20);
 
   assertEqual(
     game.specialCargoDescription(),
@@ -1072,7 +1072,7 @@ test('ionReactor_early', () => {
   let loopCycles: number;
   for (
     loopCycles = 0;
-    loopCycles < 100 && game.reactorStatus < ReactorQuestStatus.DaysRemaining._1 - 9;
+    loopCycles < 100 && game.reactorStatus < ReactorQuestStatus.DaysRemaining1 - 9;
     ++loopCycles
   ) {
     const prevReactorStatus = game.reactorStatus;
@@ -1234,7 +1234,7 @@ test('ionReactor_notEnoughBays', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
   assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
-  assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
+  assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining20);
 
   assertEqual(
     game.specialCargoDescription(),
@@ -1273,7 +1273,7 @@ test('ionReactor_cantBuyShip', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
   assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
-  assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
+  assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining20);
 
   assertEqual(
     game.specialCargoDescription(),
@@ -1350,7 +1350,7 @@ test('ionReactor_destroyedInBattle', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
   assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
-  assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
+  assertEqual(game.reactorStatus, ReactorQuestStatus.DaysRemaining20);
 
   assertEqual(
     game.specialCargoDescription(),
@@ -1435,7 +1435,7 @@ test('experiment_early', () => {
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._10);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining10);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 10 days.");
 
@@ -1454,7 +1454,7 @@ test('experiment_early', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._9);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining9);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 9 days.");
 
@@ -1467,7 +1467,7 @@ test('experiment_early', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._8);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining8);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 8 days.");
 
@@ -1486,7 +1486,7 @@ test('experiment_early', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._7);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining7);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 7 days.");
 
@@ -1499,7 +1499,7 @@ test('experiment_early', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._6);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining6);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 6 days.");
 
@@ -1549,7 +1549,7 @@ test('experiment_last_day', () => {
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._10);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining10);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 10 days.");
 
@@ -1568,7 +1568,7 @@ test('experiment_last_day', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._9);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining9);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 9 days.");
 
@@ -1581,7 +1581,7 @@ test('experiment_last_day', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._8);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining8);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 8 days.");
 
@@ -1600,7 +1600,7 @@ test('experiment_last_day', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._7);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining7);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 7 days.");
 
@@ -1613,7 +1613,7 @@ test('experiment_last_day', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._6);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining6);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 6 days.");
 
@@ -1626,7 +1626,7 @@ test('experiment_last_day', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._5);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining5);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 5 days.");
 
@@ -1639,7 +1639,7 @@ test('experiment_last_day', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._4);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining4);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 4 days.");
 
@@ -1652,7 +1652,7 @@ test('experiment_last_day', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._3);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining3);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 3 days.");
 
@@ -1665,7 +1665,7 @@ test('experiment_last_day', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._2);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining2);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(
     game.questListDescription(),
@@ -1684,7 +1684,7 @@ test('experiment_last_day', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._1);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining1);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled today.");
 
@@ -1699,7 +1699,7 @@ test('experiment_last_day', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._1);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining1);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled today.");
 
@@ -1749,7 +1749,7 @@ test('experiment_fail', () => {
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._10);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining10);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 10 days.");
 
@@ -1768,7 +1768,7 @@ test('experiment_fail', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._9);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining9);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 9 days.");
 
@@ -1781,7 +1781,7 @@ test('experiment_fail', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._8);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining8);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 8 days.");
 
@@ -1800,7 +1800,7 @@ test('experiment_fail', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._7);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining7);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 7 days.");
 
@@ -1813,7 +1813,7 @@ test('experiment_fail', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._6);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining6);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 6 days.");
 
@@ -1826,7 +1826,7 @@ test('experiment_fail', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._5);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining5);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 5 days.");
 
@@ -1839,7 +1839,7 @@ test('experiment_fail', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._4);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining4);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 4 days.");
 
@@ -1852,7 +1852,7 @@ test('experiment_fail', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._3);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining3);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 3 days.");
 
@@ -1865,7 +1865,7 @@ test('experiment_fail', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._2);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining2);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(
     game.questListDescription(),
@@ -1884,7 +1884,7 @@ test('experiment_fail', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining._1);
+  assertEqual(game.experimentStatus, ExperimentQuestStatus.DaysRemaining1);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled today.");
 

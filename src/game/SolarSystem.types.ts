@@ -98,15 +98,13 @@ export type DragonflyQuestStatus = (typeof DragonflyQuestStatus)[keyof typeof Dr
 
 export const InvasionQuestStatus = {
   Open: 0,
-  DaysUntilInvasion: {
-    _7: 1,
-    _6: 2,
-    _5: 3,
-    _4: 4,
-    _3: 5,
-    _2: 6,
-    _1: 7,
-  },
+  DaysUntilInvasion7: 1,
+  DaysUntilInvasion6: 2,
+  DaysUntilInvasion5: 3,
+  DaysUntilInvasion4: 4,
+  DaysUntilInvasion3: 5,
+  DaysUntilInvasion2: 6,
+  DaysUntilInvasion1: 7,
   ClosedTooLate: 8,
   ClosedSaved: 9,
   ClosedRewardClaimed: 10,
@@ -115,18 +113,16 @@ export type InvasionQuestStatus = number;
 
 export const ExperimentQuestStatus = {
   Open: 0,
-  DaysRemaining: {
-    _10: 1,
-    _9: 2,
-    _8: 3,
-    _7: 4,
-    _6: 5,
-    _5: 6,
-    _4: 7,
-    _3: 8,
-    _2: 9,
-    _1: 10,
-  },
+  DaysRemaining10: 1,
+  DaysRemaining9: 2,
+  DaysRemaining8: 3,
+  DaysRemaining7: 4,
+  DaysRemaining6: 5,
+  DaysRemaining5: 6,
+  DaysRemaining4: 7,
+  DaysRemaining3: 8,
+  DaysRemaining2: 9,
+  DaysRemaining1: 10,
   ClosedTooLate: 11,
   ClosedSaved: 12,
 } as const;
@@ -137,10 +133,8 @@ export const REACTOR_MAX_FUEL = 10;
 
 export const ReactorQuestStatus = {
   Open: 0,
-  DaysRemaining: {
-    _20: 1,
-    _1: 20,
-  },
+  DaysRemaining20: 1,
+  DaysRemaining1: 20,
   ClosedTooLate: 21,
   ClosedSaved: 22,
 } as const;

@@ -30,10 +30,10 @@ const reactorRemark = 'They also poke around the Ion Reactor';
 
 test('pirates look the reactor over and leave it aboard', () => {
   const game = newGame();
-  game.reactorStatus = ReactorQuestStatus.DaysRemaining._20;
+  game.reactorStatus = ReactorQuestStatus.DaysRemaining20;
 
   expect(surrenderToPirates(game)).toContain(reactorRemark);
-  expect(game.reactorStatus).toBe(ReactorQuestStatus.DaysRemaining._20);
+  expect(game.reactorStatus).toBe(ReactorQuestStatus.DaysRemaining20);
 });
 
 test('pirates say nothing of a reactor that is gone', () => {

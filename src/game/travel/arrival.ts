@@ -78,7 +78,7 @@ function reactorOnArrival(travel: Travel): string[] | null {
       );
       pLog.log(154);
       break;
-    case ReactorQuestStatus.DaysRemaining._1: {
+    case ReactorQuestStatus.DaysRemaining1: {
       reactorExplodes(travel);
 
       return null;

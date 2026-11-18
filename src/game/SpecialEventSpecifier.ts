@@ -475,7 +475,7 @@ const SPECS: Spec[] = [
     randomOccurrence: 0,
     messageOnly: true,
     action: game => {
-      game.invasionStatus = InvasionQuestStatus.DaysUntilInvasion._7;
+      game.invasionStatus = InvasionQuestStatus.DaysUntilInvasion7;
       clearCurrentSpecial(game);
     },
   },
@@ -527,7 +527,7 @@ const SPECS: Spec[] = [
       return game.commander.policeRecordScore < PoliceRecordScore.Dubious;
     },
     action: game => {
-      game.experimentStatus = ExperimentQuestStatus.DaysRemaining._10;
+      game.experimentStatus = ExperimentQuestStatus.DaysRemaining10;
       clearCurrentSpecial(game);
       pLog.log(147);
     },
@@ -618,7 +618,7 @@ const SPECS: Spec[] = [
         FAKE_QUEST_CARGO_REACTOR,
         0
       );
-      game.reactorStatus = ReactorQuestStatus.DaysRemaining._20;
+      game.reactorStatus = ReactorQuestStatus.DaysRemaining20;
 
       AlertViewController.presentAlertWithDismiss(
         'Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.'
@@ -768,8 +768,8 @@ const SPECS: Spec[] = [
     messageOnly: true,
     isHidden: game => {
       return !(
-        game.invasionStatus >= InvasionQuestStatus.DaysUntilInvasion._7 &&
-        game.invasionStatus <= InvasionQuestStatus.DaysUntilInvasion._1
+        game.invasionStatus >= InvasionQuestStatus.DaysUntilInvasion7 &&
+        game.invasionStatus <= InvasionQuestStatus.DaysUntilInvasion1
       );
     },
     action: game => {
@@ -789,8 +789,8 @@ const SPECS: Spec[] = [
     messageOnly: true,
     isHidden: game => {
       return !(
-        game.experimentStatus >= ExperimentQuestStatus.DaysRemaining._10 &&
-        game.experimentStatus <= ExperimentQuestStatus.DaysRemaining._1
+        game.experimentStatus >= ExperimentQuestStatus.DaysRemaining10 &&
+        game.experimentStatus <= ExperimentQuestStatus.DaysRemaining1
       );
     },
     action: game => {

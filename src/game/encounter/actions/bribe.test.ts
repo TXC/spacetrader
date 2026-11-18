@@ -41,7 +41,7 @@ test.each([
   const usual = bribePrice(bribe(smuggler(difficulty)));
   const game = smuggler(difficulty);
   if (cargo === 'wild') game.wildStatus = WildQuestStatus.OnBoard;
-  else game.reactorStatus = ReactorQuestStatus.DaysRemaining._20;
+  else game.reactorStatus = ReactorQuestStatus.DaysRemaining20;
 
   expect(bribePrice(bribe(game))).toBe(factor * usual);
 });
