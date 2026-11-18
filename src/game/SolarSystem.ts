@@ -620,7 +620,7 @@ export class SolarSystem {
 
     ensureObjectOrNull(this._mercenary);
     if (this._mercenary) {
-      state.mercenary = this._mercenary.serializedState();
+      state.mercenary = this._mercenary.toState();
     }
 
     ensureArrayOrNull(this._tradeItemInventory, 'number');

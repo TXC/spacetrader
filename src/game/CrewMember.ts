@@ -160,7 +160,7 @@ export class CrewMember {
     return index;
   }
 
-  serializedState(): CrewMemberState {
+  toState(): CrewMemberState {
     ensureType(this.name, 'string');
     ensureInteger(this.pilot);
     ensureInteger(this.fighter);

@@ -1291,7 +1291,7 @@ export class Ship {
       state.crewMap = {};
       this._crew.forEach(crewMember => {
         ensureType(crewMember.name, 'string');
-        state.crewMap![crewMember.name!] = crewMember.serializedState();
+        state.crewMap![crewMember.name!] = crewMember.toState();
       });
     }
 
