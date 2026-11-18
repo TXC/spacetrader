@@ -1,5 +1,5 @@
 // What the equipment screen shows, and buying and selling equipment.
-import { ACCESSORY_FOR_TYPE, AccessoryType, Gadget } from './Accessory.ts';
+import { accessoryForType, AccessoryType, Gadget } from './Accessory.ts';
 import type { Accessory } from './Accessory.ts';
 import { AlertActionType, AlertViewController } from './alerts.ts';
 import type { Game } from './Game.ts';
@@ -46,7 +46,7 @@ function offer(game: Game, type: number, accessory: Accessory): Offer {
 export function offers(game: Game): Offer[] {
   const result: Offer[] = [];
   for (let type = 0; type < AccessoryType.None; type++) {
-    const accessory = ACCESSORY_FOR_TYPE(type);
+    const accessory = accessoryForType(type);
     if (accessory?.isBuyable) result.push(offer(game, type, accessory));
   }
   return result;
@@ -70,7 +70,7 @@ function whyNotBuy(game: Game, type: number, accessory: Accessory): string | nul
 
 // `price` is the price that was on the screen when the button was pressed.
 export function buyEquipment(game: Game, type: number, price: number): void {
-  const accessory = ACCESSORY_FOR_TYPE(type)!;
+  const accessory = accessoryForType(type)!;
   const refusal = whyNotBuy(game, type, accessory);
   if (refusal) return AlertViewController.presentAlertWithDismiss(refusal);
   confirm(`Do you want to install ${accessory.name} for $${price}?`, () => {
@@ -82,7 +82,7 @@ export function buyEquipment(game: Game, type: number, price: number): void {
 }
 
 export function sellEquipment(game: Game, type: number, price: number): void {
-  const accessory = ACCESSORY_FOR_TYPE(type)!;
+  const accessory = accessoryForType(type)!;
   if (type === AccessoryType.GadgetFiveExtraCargoBays && game.commander.ship.freeCargoBays() < 5) {
     const text =
       "The extra cargo bays are still filled with goods. You can only sell them when they're empty.";

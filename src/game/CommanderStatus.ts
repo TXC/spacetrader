@@ -1,6 +1,6 @@
 // The commander status screen: figures, options, and giving up.
 import { AlertActionType, AlertViewController } from './alerts.ts';
-import { POLICE_RECORD_STR, REPUTATION_STR } from './Commander.ts';
+import { policeRecordName, reputationName } from './Commander.ts';
 import type { Game } from './Game.ts';
 import { session } from './session.ts';
 import { difficultyName } from './SolarSystem.types.ts';
@@ -43,8 +43,8 @@ export function figures(game: Game): Figure[] {
   return [
     { item: 'Time:', value: `${commander.days} days` },
     { item: 'Difficulty:', value: difficultyName(game.difficulty) },
-    { item: 'Police Record:', value: POLICE_RECORD_STR(commander.policeRecordScore) },
-    { item: 'Reputation:', value: REPUTATION_STR(commander.reputationScore) },
+    { item: 'Police Record:', value: policeRecordName(commander.policeRecordScore) },
+    { item: 'Reputation:', value: reputationName(commander.reputationScore) },
     { item: 'Kills:', value: `${kills}`, number: true },
     { item: 'Cash:', value: `$${commander.getCredits()}`, number: true },
     { item: 'Debt:', value: `$${commander.getDebt()}`, number: true },

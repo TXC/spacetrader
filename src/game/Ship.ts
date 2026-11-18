@@ -3,7 +3,7 @@ import type { ValueOf } from './texts.ts';
 import { PCEImageLibrary } from './Images.ts';
 import { PCEImage } from './PCEImage.ts';
 import {
-  ACCESSORY_FOR_TYPE,
+  accessoryForType,
   AccessoryType,
   gadgetForType,
   shieldForType,
@@ -12,7 +12,7 @@ import {
 import type { Accessory, Gadget, Shield, Weapon } from './Accessory.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import { CrewMember } from './CrewMember.ts';
-import { ADJUST_SKILL_FOR_DIFFICULTY, CLOAK_BONUS, SKILL_BONUS } from './SolarSystem.types.ts';
+import { adjustSkillForDifficulty, CLOAK_BONUS, SKILL_BONUS } from './SolarSystem.types.ts';
 import {
   TechLevel,
   TradeItemType,
@@ -809,7 +809,7 @@ export class Ship {
       return false;
     }
 
-    const index = list.indexOf(ACCESSORY_FOR_TYPE(type)!);
+    const index = list.indexOf(accessoryForType(type)!);
     if (index !== -1) {
       list.splice(index, 1);
       return true;
@@ -987,24 +987,24 @@ export class Ship {
   shipValuationForInsurance(insurance: boolean) {
     let value = 0;
     const model = shipModelForType(this._type);
-    const SELLDISCOUNT = (x: number) => Math.floor((x * 3) / 4);
+    const resalePrice = (x: number) => Math.floor((x * 3) / 4);
 
     value +=
-      this.tribbles > 0 && !insurance ? Math.floor(model.price / 4) : SELLDISCOUNT(model.price);
+      this.tribbles > 0 && !insurance ? Math.floor(model.price / 4) : resalePrice(model.price);
 
     value -= (this._hullStrength() - this._hull) * model.repairCosts;
     value -= (model.fuelTanks - this._fuel) * model.costOfFuel;
 
     this._weapons.forEach(weapon => {
-      value += SELLDISCOUNT(weapon.price);
+      value += resalePrice(weapon.price);
     });
 
     this._shields.forEach(shield => {
-      value += SELLDISCOUNT(shield.price);
+      value += resalePrice(shield.price);
     });
 
     this._gadgets.forEach(gadget => {
-      value += SELLDISCOUNT(gadget.price);
+      value += resalePrice(gadget.price);
     });
 
     Utils.ensureInteger(value);
@@ -1061,7 +1061,7 @@ export class Ship {
 
     Utils.ensureInteger(maxSkill);
 
-    return ADJUST_SKILL_FOR_DIFFICULTY(maxSkill, this._difficulty);
+    return adjustSkillForDifficulty(maxSkill, this._difficulty);
   }
 
   crewTraderSkillIncludingCommander(commander: CrewMember) {
@@ -1076,7 +1076,7 @@ export class Ship {
 
     Utils.ensureInteger(maxSkill);
 
-    return ADJUST_SKILL_FOR_DIFFICULTY(maxSkill, this._difficulty);
+    return adjustSkillForDifficulty(maxSkill, this._difficulty);
   }
 
   crewFighterSkillIncludingCommander(commander: CrewMember) {
@@ -1091,7 +1091,7 @@ export class Ship {
 
     Utils.ensureInteger(maxSkill);
 
-    return ADJUST_SKILL_FOR_DIFFICULTY(maxSkill, this._difficulty);
+    return adjustSkillForDifficulty(maxSkill, this._difficulty);
   }
 
   crewPilotSkillIncludingCommander(commander: CrewMember) {
@@ -1110,7 +1110,7 @@ export class Ship {
 
     Utils.ensureInteger(maxSkill);
 
-    return ADJUST_SKILL_FOR_DIFFICULTY(maxSkill, this._difficulty);
+    return adjustSkillForDifficulty(maxSkill, this._difficulty);
   }
 
   tradeItemQuantityForType(type: number) {

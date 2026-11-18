@@ -16,7 +16,7 @@ export const Difficulty = {
 export type Difficulty = ValueOf<typeof Difficulty>;
 export const DIFFICULTY_COUNT = countOf(Difficulty);
 
-export const ADJUST_SKILL_FOR_DIFFICULTY = (skill: number, difficulty: number) => {
+export const adjustSkillForDifficulty = (skill: number, difficulty: number) => {
   Utils.ensureInteger(skill);
   Utils.ensureInteger(difficulty);
   if (difficulty <= Difficulty.Easy) {

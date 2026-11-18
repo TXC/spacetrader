@@ -108,7 +108,7 @@ export const EncounterType = {
 
   DragonflyStart: 30,
   DragonflyEnd: 31,
-};
+} as const;
 export type EncounterType = number;
 
 // A famous captain: what the news says when you attack or destroy them, and what they
@@ -152,19 +152,24 @@ export function captainFor(type: number): Captain {
   return CAPTAINS[type] ?? HUIE;
 }
 
-export const ENCOUNTERT = (T: number, TYPE: string) => {
-  const ranges: Record<string, number> = EncounterType;
-  return T >= ranges[`${TYPE}Start`] && T <= ranges[`${TYPE}End`];
-};
-export const ENCOUNTER = (type: number, TYPE: string) => ENCOUNTERT(type, TYPE);
+// The kinds of opponent that own a range of encounter types.
+type EncounterFamily = {
+  [K in keyof typeof EncounterType]: K extends `${infer Family}Start` ? Family : never;
+}[keyof typeof EncounterType];
+
+// Array.includes would refuse a plain number once the lists hold exact values.
+const isOneOf = (value: number, ...options: number[]) => options.includes(value);
+
+export const isEncounterWith = (type: number, family: EncounterFamily) =>
+  type >= EncounterType[`${family}Start`] && type <= EncounterType[`${family}End`];
 
 // Update these with the other attack/ignore/flee types when they're added:
-export const ENCOUNTERT_FLEE = (T: number) =>
-  [EncounterType.PoliceFlee, EncounterType.PirateFlee, EncounterType.TraderFlee].includes(T);
-export const ENCOUNTER_FLEE = (type: number) => ENCOUNTERT_FLEE(type);
+export const isFleeEncounter = (type: number) =>
+  isOneOf(type, EncounterType.PoliceFlee, EncounterType.PirateFlee, EncounterType.TraderFlee);
 
-export const ENCOUNTER_ATTACK = (type: number) =>
-  [
+export const isAttackEncounter = (type: number) =>
+  isOneOf(
+    type,
     EncounterType.PoliceAttack,
     EncounterType.PirateAttack,
     EncounterType.TraderAttack,
@@ -173,33 +178,35 @@ export const ENCOUNTER_ATTACK = (type: number) =>
     EncounterType.FamousCaptainHuieAttack,
     EncounterType.ScarabAttack,
     EncounterType.MonsterAttack,
-    EncounterType.DragonflyAttack,
-  ].includes(type);
+    EncounterType.DragonflyAttack
+  );
 
-export const ENCOUNTER_IGNORE = (type: number) =>
-  [
+export const isIgnoreEncounter = (type: number) =>
+  isOneOf(
+    type,
     EncounterType.PoliceIgnore,
     EncounterType.PirateIgnore,
     EncounterType.TraderIgnore,
     EncounterType.ScarabIgnore,
     EncounterType.MonsterIgnore,
-    EncounterType.DragonflyIgnore,
-  ].includes(type);
+    EncounterType.DragonflyIgnore
+  );
 
-export const ENCOUNTER_SURRENDER = (type: number) =>
-  [EncounterType.PirateSurrender, EncounterType.TraderSurrender].includes(type);
+export const isSurrenderEncounter = (type: number) =>
+  isOneOf(type, EncounterType.PirateSurrender, EncounterType.TraderSurrender);
 
-export const FAMOUS_ATTACK_TYPE = (type: number) => (ENCOUNTER_ATTACK(type) ? type : type + 1);
+export const famousCaptainAttackType = (type: number) =>
+  isAttackEncounter(type) ? type : type + 1;
 
 export const EncounterMode = {
   Manual: 0,
   AutoAttack: 1,
   AutoFlee: 2,
-};
+} as const;
 export type EncounterMode = number;
 
-export const ENCOUNTER_MODE_AUTO = (encounterMode: number) =>
-  [EncounterMode.AutoAttack, EncounterMode.AutoFlee].includes(encounterMode);
+export const isAutoMode = (encounterMode: number) =>
+  isOneOf(encounterMode, EncounterMode.AutoAttack, EncounterMode.AutoFlee);
 
 export class EncounterController {
   declare _type: number;
@@ -326,23 +333,23 @@ export class EncounterController {
     const clicks = this._game.commander.travelClicksRemaining;
     text += `At ${clicks} click${clicks === 1 ? '' : 's'} from ${this._game.commander.currentSystem.name} you encounter`;
 
-    if (ENCOUNTER(this._type, 'Police')) {
+    if (isEncounterWith(this._type, 'Police')) {
       text += ' a police ';
-    } else if (ENCOUNTER(this._type, 'Pirate')) {
+    } else if (isEncounterWith(this._type, 'Pirate')) {
       if (this._opponent.ship.type === ShipModelType.Mantis) {
         text += ' an alien ';
       } else {
         text += ' a pirate ';
       }
-    } else if (ENCOUNTER(this._type, 'Trader')) {
+    } else if (isEncounterWith(this._type, 'Trader')) {
       text += ' a trader ';
-    } else if (ENCOUNTER(this._type, 'Scarab') || ENCOUNTER(this._type, 'Dragonfly')) {
+    } else if (isEncounterWith(this._type, 'Scarab') || isEncounterWith(this._type, 'Dragonfly')) {
       text += ' a stolen ';
-    } else if (ENCOUNTER(this._type, 'Monster')) {
+    } else if (isEncounterWith(this._type, 'Monster')) {
       text += ' the terrifying ';
     }
 
-    if (ENCOUNTER(this._type, 'FamousCaptain')) {
+    if (isEncounterWith(this._type, 'FamousCaptain')) {
       text += ` the famous Captain ${captainFor(this._type).name}.`;
     } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
       text += ' the Customs Police.';
@@ -364,11 +371,11 @@ export class EncounterController {
       this._game.commander.policeRecordScore > PoliceRecordScore.Criminal
     ) {
       text += 'The police hail that they want you to surrender.';
-    } else if (ENCOUNTER_FLEE(this._type)) {
+    } else if (isFleeEncounter(this._type)) {
       text += 'Your opponent is fleeing.';
-    } else if (ENCOUNTER_ATTACK(this._type)) {
+    } else if (isAttackEncounter(this._type)) {
       text += 'Your opponent attacks.';
-    } else if (ENCOUNTER_IGNORE(this._type)) {
+    } else if (isIgnoreEncounter(this._type)) {
       if (
         this._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(
           this._game.commander,
@@ -386,7 +393,7 @@ export class EncounterController {
       this._type === EncounterType.PirateSurrender
     ) {
       text += 'Your opponent hails to surrender to you.';
-    } else if (ENCOUNTER(this._type, 'FamousCaptain') && !ENCOUNTER_ATTACK(this._type)) {
+    } else if (isEncounterWith(this._type, 'FamousCaptain') && !isAttackEncounter(this._type)) {
       text += 'The captain requests a brief meeting with you.';
     } else if (this._type === EncounterType.MarieCelesteEncounter) {
       text += 'The Marie Celeste appears to be completely abandoned.';
@@ -412,57 +419,63 @@ export class EncounterController {
 
     Utils.ensureInteger(this._encounterMode);
 
-    if (ENCOUNTER_MODE_AUTO(this._encounterMode)) {
+    if (isAutoMode(this._encounterMode)) {
       buttons.push('Interrupt');
     }
 
     if (this._type === EncounterType.PoliceInspection) {
       buttons.push('Attack', 'Flee', 'Submit', 'Bribe');
     } else if (
-      [EncounterType.PoliceFlee, EncounterType.TraderFlee, EncounterType.PirateFlee].includes(
-        this._type
+      isOneOf(
+        this._type,
+        EncounterType.PoliceFlee,
+        EncounterType.TraderFlee,
+        EncounterType.PirateFlee
       )
     ) {
       buttons.push('Attack', 'Ignore');
     } else if (
-      [EncounterType.PirateAttack, EncounterType.PoliceAttack, EncounterType.ScarabAttack].includes(
-        this._type
+      isOneOf(
+        this._type,
+        EncounterType.PirateAttack,
+        EncounterType.PoliceAttack,
+        EncounterType.ScarabAttack
       )
     ) {
       buttons.push('Attack', 'Flee', 'Surrender');
     } else if (
-      [
+      isOneOf(
+        this._type,
         EncounterType.TraderAttack,
         EncounterType.MonsterAttack,
-        EncounterType.DragonflyAttack,
-      ].includes(this._type) ||
-      (ENCOUNTER(this._type, 'FamousCaptain') && ENCOUNTER_ATTACK(this._type))
+        EncounterType.DragonflyAttack
+      ) ||
+      (isEncounterWith(this._type, 'FamousCaptain') && isAttackEncounter(this._type))
     ) {
       buttons.push('Attack', 'Flee');
     } else if (
-      [
+      isOneOf(
+        this._type,
         EncounterType.TraderIgnore,
         EncounterType.PoliceIgnore,
         EncounterType.PirateIgnore,
         EncounterType.ScarabIgnore,
         EncounterType.MonsterIgnore,
-        EncounterType.DragonflyIgnore,
-      ].includes(this._type)
+        EncounterType.DragonflyIgnore
+      )
     ) {
       buttons.push('Attack', 'Ignore');
-    } else if (
-      [EncounterType.TraderSurrender, EncounterType.PirateSurrender].includes(this._type)
-    ) {
+    } else if (isOneOf(this._type, EncounterType.TraderSurrender, EncounterType.PirateSurrender)) {
       buttons.push('Attack', 'Plunder');
-    } else if ([EncounterType.TraderSell, EncounterType.TraderBuy].includes(this._type)) {
+    } else if (isOneOf(this._type, EncounterType.TraderSell, EncounterType.TraderBuy)) {
       buttons.push('Attack', 'Ignore', 'Trade');
-    } else if (ENCOUNTER(this._type, 'FamousCaptain') && !ENCOUNTER_ATTACK(this._type)) {
+    } else if (isEncounterWith(this._type, 'FamousCaptain') && !isAttackEncounter(this._type)) {
       buttons.push('Attack', 'Ignore', 'Meet');
     } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
       buttons.push('Attack', 'Flee', 'Yield', 'Bribe');
     } else if (this._type === EncounterType.MarieCelesteEncounter) {
       buttons.push('Board', 'Ignore');
-    } else if ([EncounterType.BottleGood, EncounterType.BottleOld].includes(this._type)) {
+    } else if (isOneOf(this._type, EncounterType.BottleGood, EncounterType.BottleOld)) {
       buttons.push('Drink', 'Ignore');
     }
 
@@ -555,7 +568,7 @@ export class EncounterController {
         };
 
         if (
-          ENCOUNTER(this._type, 'Police') ||
+          isEncounterWith(this._type, 'Police') ||
           this._type === EncounterType.PostMarieCelestePoliceEncounter
         ) {
           const executePoliceActionBlock = () => {
@@ -591,11 +604,11 @@ export class EncounterController {
 
           executePoliceActionBlock();
           return;
-        } else if (ENCOUNTER(this._type, 'Pirate')) {
+        } else if (isEncounterWith(this._type, 'Pirate')) {
           if (this._type === EncounterType.PirateIgnore) {
             this._type = EncounterType.PirateAttack;
           }
-        } else if (ENCOUNTER(this._type, 'Trader')) {
+        } else if (isEncounterWith(this._type, 'Trader')) {
           const executeTraderActionBlock = () => {
             if (this._type !== EncounterType.TraderFlee) {
               if (this._opponent.ship.weapons.length <= 0) {
@@ -614,11 +627,12 @@ export class EncounterController {
           };
 
           if (
-            [
+            isOneOf(
+              this._type,
               EncounterType.TraderIgnore,
               EncounterType.TraderBuy,
-              EncounterType.TraderSell,
-            ].includes(this._type)
+              EncounterType.TraderSell
+            )
           ) {
             if (this._game.commander.policeRecordScore >= PoliceRecordScore.Clean) {
               const alertString =
@@ -644,13 +658,13 @@ export class EncounterController {
 
           executeTraderActionBlock();
           return;
-        } else if (ENCOUNTER(this._type, 'FamousCaptain')) {
+        } else if (isEncounterWith(this._type, 'FamousCaptain')) {
           const executeFamousCaptainActionBlock = () => {
-            this._type = FAMOUS_ATTACK_TYPE(this._type);
+            this._type = famousCaptainAttackType(this._type);
             executeActionBlock();
           };
 
-          if (!ENCOUNTER_ATTACK(this._type)) {
+          if (!isAttackEncounter(this._type)) {
             const alertString =
               'Famous captains get famous by, among other things, destroying everyone who attacks them. Do you really want to attack?';
 
@@ -674,15 +688,15 @@ export class EncounterController {
 
           executeFamousCaptainActionBlock();
           return;
-        } else if (ENCOUNTER(this._type, 'Scarab')) {
+        } else if (isEncounterWith(this._type, 'Scarab')) {
           if (this._type === EncounterType.ScarabIgnore) {
             this._type = EncounterType.ScarabAttack;
           }
-        } else if (ENCOUNTER(this._type, 'Monster')) {
+        } else if (isEncounterWith(this._type, 'Monster')) {
           if (this._type === EncounterType.MonsterIgnore) {
             this._type = EncounterType.MonsterAttack;
           }
-        } else if (ENCOUNTER(this._type, 'Dragonfly')) {
+        } else if (isEncounterWith(this._type, 'Dragonfly')) {
           if (this._type === EncounterType.DragonflyIgnore) {
             this._type = EncounterType.DragonflyAttack;
           }
@@ -866,7 +880,7 @@ export class EncounterController {
           surrenderPrompt = 'Surrender? Ha! We want your HEAD!';
         }
       } else if (
-        ENCOUNTER(this._type, 'Police') ||
+        isEncounterWith(this._type, 'Police') ||
         this._type === EncounterType.PostMarieCelestePoliceEncounter
       ) {
         if (
@@ -1184,7 +1198,7 @@ export class EncounterController {
         this._presentAlertController(aC);
 
         return;
-      } else if (ENCOUNTER(this._type, 'Trader')) {
+      } else if (isEncounterWith(this._type, 'Trader')) {
         this._game.commander.policeRecordScore =
           this._game.commander.policeRecordScore + PLUNDER_TRADER_SCORE;
       } else {
@@ -1296,7 +1310,7 @@ export class EncounterController {
       this.delegate!.encounterControllerEncounterContinues(this, true);
     }
 
-    if (ENCOUNTER_MODE_AUTO(this._encounterMode)) {
+    if (isAutoMode(this._encounterMode)) {
       Utils.ensureInteger(this._autoEncounterSession);
 
       const sessionID = this._game.uniqueID + '-' + this._autoEncounterSession;
@@ -1432,7 +1446,7 @@ export class EncounterController {
     let commanderGotHit = false;
 
     if (
-      ENCOUNTER_ATTACK(this._type) ||
+      isAttackEncounter(this._type) ||
       this._type === EncounterType.PostMarieCelestePoliceEncounter
     ) {
       commanderGotHit = this._executeAttackWithAttacker(
@@ -1448,7 +1462,7 @@ export class EncounterController {
       opponentGotHit = this._executeAttackWithAttacker(
         this._game.commander,
         this._opponent,
-        ENCOUNTER_FLEE(this._type)
+        isFleeEncounter(this._type)
       );
     }
 
@@ -1472,7 +1486,7 @@ export class EncounterController {
       let getBounty = false;
       let alertString = 'You have destroyed your opponent.';
       if (
-        ENCOUNTER(this._type, 'Pirate') &&
+        isEncounterWith(this._type, 'Pirate') &&
         this._opponent.ship.type !== ShipModelType.Mantis &&
         this._game.commander.policeRecordScore >= PoliceRecordScore.Dubious
       ) {
@@ -1483,10 +1497,10 @@ export class EncounterController {
 
       let attemptScoop = false;
 
-      if (ENCOUNTER(this._type, 'Police')) {
+      if (isEncounterWith(this._type, 'Police')) {
         this._game.commander.policeKills++;
         this._game.commander.policeRecordScore += KILL_POLICE_SCORE;
-      } else if (ENCOUNTER(this._type, 'Pirate')) {
+      } else if (isEncounterWith(this._type, 'Pirate')) {
         if (this._opponent.ship.type !== ShipModelType.Mantis) {
           if (getBounty) {
             const bounty = this._opponent.ship.bountyForEnemyShipWithOpponent(this._opponent);
@@ -1497,12 +1511,12 @@ export class EncounterController {
           attemptScoop = true;
         }
         this._game.commander.pirateKills++;
-      } else if (ENCOUNTER(this._type, 'Trader')) {
+      } else if (isEncounterWith(this._type, 'Trader')) {
         this._game.commander.traderKills++;
         this._game.commander.policeRecordScore += KILL_TRADER_SCORE;
 
         attemptScoop = true;
-      } else if (ENCOUNTER(this._type, 'FamousCaptain')) {
+      } else if (isEncounterWith(this._type, 'FamousCaptain')) {
         this._game.commander.reputationScore = Math.max(
           this._game.commander.reputationScore + 100,
           ReputationScore.Dangerous
@@ -1511,18 +1525,18 @@ export class EncounterController {
           captainFor(this._type).name,
           captainFor(this._type).destroyNews
         );
-      } else if (ENCOUNTER(this._type, 'Scarab')) {
+      } else if (isEncounterWith(this._type, 'Scarab')) {
         this._game.commander.pirateKills++;
         this._game.commander.policeRecordScore += KILL_PIRATE_SCORE;
 
         this._game.scarabStatus = ScarabQuestStatus.ScarabDestroyed;
         pLog.log(166);
-      } else if (ENCOUNTER(this._type, 'Monster')) {
+      } else if (isEncounterWith(this._type, 'Monster')) {
         this._game.commander.pirateKills++;
         this._game.commander.policeRecordScore += KILL_PIRATE_SCORE;
 
         this._game.monsterStatus = MonsterQuestStatus.ClosedMonsterDestroyed;
-      } else if (ENCOUNTER(this._type, 'Dragonfly')) {
+      } else if (isEncounterWith(this._type, 'Dragonfly')) {
         this._game.commander.pirateKills++;
         this._game.commander.policeRecordScore += KILL_PIRATE_SCORE;
 
@@ -1587,7 +1601,7 @@ export class EncounterController {
       }
 
       if (escapeString) {
-        if (ENCOUNTER(this._type, 'Monster')) {
+        if (isEncounterWith(this._type, 'Monster')) {
           this._game.monsterHull = this._opponent.ship.hull;
           Utils.ensureInteger(this._game.monsterHull);
           pLog.log(143);
@@ -1603,7 +1617,7 @@ export class EncounterController {
 
         return;
       }
-    } else if (ENCOUNTER_SURRENDER(this._type) || ENCOUNTER_FLEE(this._type)) {
+    } else if (isSurrenderEncounter(this._type) || isFleeEncounter(this._type)) {
       if (
         4 *
           runtime.gameRand.randomIntBelow(
@@ -1631,7 +1645,7 @@ export class EncounterController {
     const prevType = this._type;
 
     if (this._opponent.ship.hull < opponentHull) {
-      if (ENCOUNTER(this._type, 'Police')) {
+      if (isEncounterWith(this._type, 'Police')) {
         if (this._opponent.ship.hull < opponentHull / 2) {
           if (this._game.commander.ship.hull < commanderHull / 2) {
             this._type =
@@ -1640,7 +1654,7 @@ export class EncounterController {
             this._type = EncounterType.PoliceFlee;
           }
         }
-      } else if (ENCOUNTER(this._type, 'Pirate')) {
+      } else if (isEncounterWith(this._type, 'Pirate')) {
         if (this._opponent.ship.hull < (2 * opponentHull) / 3) {
           if (this._game.commander.ship.hull < (2 * commanderHull) / 3) {
             this._type =
@@ -1653,7 +1667,7 @@ export class EncounterController {
                 : EncounterType.PirateFlee;
           }
         }
-      } else if (ENCOUNTER(this._type, 'Trader')) {
+      } else if (isEncounterWith(this._type, 'Trader')) {
         if (this._opponent.ship.hull < (2 * opponentHull) / 3) {
           this._type =
             runtime.gameRand.randomIntBelow(10) > 3
@@ -1679,7 +1693,7 @@ export class EncounterController {
     Utils.ensureInteger(this._type);
 
     if (prevType !== this._type) {
-      if (!ENCOUNTER_FLEE(this._type) && this._encounterMode === EncounterMode.AutoAttack) {
+      if (!isFleeEncounter(this._type) && this._encounterMode === EncounterMode.AutoAttack) {
         this._encounterMode = EncounterMode.Manual;
       } else if (this._encounterMode === EncounterMode.AutoFlee) {
         this._encounterMode = EncounterMode.Manual;
@@ -1690,19 +1704,19 @@ export class EncounterController {
 
     let shipString = null;
 
-    if (ENCOUNTERT(prevType, 'Police')) {
+    if (isEncounterWith(prevType, 'Police')) {
       shipString = 'police ship';
-    } else if (ENCOUNTERT(prevType, 'Pirate')) {
+    } else if (isEncounterWith(prevType, 'Pirate')) {
       shipString = this._opponent.ship.type === ShipModelType.Mantis ? 'alien ship' : 'pirate ship';
-    } else if (ENCOUNTERT(prevType, 'Trader')) {
+    } else if (isEncounterWith(prevType, 'Trader')) {
       shipString = 'trader ship';
-    } else if (ENCOUNTERT(prevType, 'FamousCaptain')) {
+    } else if (isEncounterWith(prevType, 'FamousCaptain')) {
       shipString = 'captain';
-    } else if (ENCOUNTERT(prevType, 'Scarab')) {
+    } else if (isEncounterWith(prevType, 'Scarab')) {
       shipString = 'Scarab';
-    } else if (ENCOUNTERT(prevType, 'Monster')) {
+    } else if (isEncounterWith(prevType, 'Monster')) {
       shipString = 'monster';
-    } else if (ENCOUNTERT(prevType, 'Dragonfly')) {
+    } else if (isEncounterWith(prevType, 'Dragonfly')) {
       shipString = 'Dragonfly';
     }
 
@@ -1712,7 +1726,7 @@ export class EncounterController {
       delimit = '\n';
     }
 
-    if (!ENCOUNTERT_FLEE(prevType) && !commanderGotHit) {
+    if (!isFleeEncounter(prevType) && !commanderGotHit) {
       this._encounterActionUpdate += `${delimit}The ${shipString} missed you.`;
       delimit = '\n';
     }
@@ -1732,7 +1746,7 @@ export class EncounterController {
       delimit = '\n';
     }
 
-    if (ENCOUNTERT_FLEE(prevType)) {
+    if (isFleeEncounter(prevType)) {
       this._encounterActionUpdate += `${delimit}The ${shipString} didn't get away.`;
       delimit = '\n';
     }

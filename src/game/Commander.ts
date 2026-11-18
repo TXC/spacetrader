@@ -1,4 +1,4 @@
-import { ACCESSORY_FOR_TYPE } from './Accessory.ts';
+import { accessoryForType } from './Accessory.ts';
 import { CrewMember } from './CrewMember.ts';
 import { Ship } from './Ship.ts';
 import type { ShipModel } from './Ship.ts';
@@ -37,7 +37,7 @@ export const PoliceRecordScore = {
 } as const;
 export type PoliceRecordScore = (typeof PoliceRecordScore)[keyof typeof PoliceRecordScore];
 
-export function POLICE_RECORD_STR(x: number) {
+export function policeRecordName(x: number) {
   if (x <= PoliceRecordScore.Psycho) {
     return 'Psycho';
   } else if (x <= PoliceRecordScore.Villain) {
@@ -61,7 +61,7 @@ export function POLICE_RECORD_STR(x: number) {
   }
 }
 
-export function POLICE_RECORD_MULTIPLIER(x: number) {
+export function policeRecordMultiplier(x: number) {
   if (x < PoliceRecordScore.Psycho) {
     return 3;
   } else if (x < PoliceRecordScore.Villain) {
@@ -86,7 +86,7 @@ export type ReputationScore = (typeof ReputationScore)[keyof typeof ReputationSc
 
 export const DEFAULT_REPUTATION_SCORE = ReputationScore.Harmless;
 
-export function REPUTATION_STR(x: number) {
+export function reputationName(x: number) {
   if (x >= ReputationScore.Elite) {
     return 'Elite';
   } else if (x >= ReputationScore.Deadly) {
@@ -458,7 +458,7 @@ export class Commander extends CrewMember {
   }
 
   buyPriceForAccessory(accessoryType: number) {
-    const accessory = ACCESSORY_FOR_TYPE(accessoryType)!;
+    const accessory = accessoryForType(accessoryType)!;
     const price =
       accessory.techLevel > this._currentSystem.techLevel
         ? 0
@@ -472,7 +472,7 @@ export class Commander extends CrewMember {
   }
 
   sellPriceForAccessory(accessoryType: number) {
-    const result = Math.floor((ACCESSORY_FOR_TYPE(accessoryType)!.price * 3) / 4);
+    const result = Math.floor((accessoryForType(accessoryType)!.price * 3) / 4);
     Utils.ensureInteger(result);
     return result;
   }
@@ -633,12 +633,12 @@ export class Commander extends CrewMember {
     Utils.ensureBool(increase);
 
     const skillArray = [];
-    const BOUND_CHECK = (x: number) => (increase ? x < MAX_SKILL_LEVEL : x > 0);
+    const canChange = (x: number) => (increase ? x < MAX_SKILL_LEVEL : x > 0);
 
-    if (BOUND_CHECK(this.pilot)) skillArray.push(0);
-    if (BOUND_CHECK(this.fighter)) skillArray.push(1);
-    if (BOUND_CHECK(this.trader)) skillArray.push(2);
-    if (BOUND_CHECK(this.engineer)) skillArray.push(3);
+    if (canChange(this.pilot)) skillArray.push(0);
+    if (canChange(this.fighter)) skillArray.push(1);
+    if (canChange(this.trader)) skillArray.push(2);
+    if (canChange(this.engineer)) skillArray.push(3);
 
     const increaseAmount = increase ? 1 : -1;
     if (skillArray.length) {
