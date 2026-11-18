@@ -9,7 +9,7 @@ export function newGame(difficulty = 2): Game {
   runtime.debugMode = DebugMode.Assert;
   runtime.gameRand = new GameRand(1);
   AlertViewController.clearAlerts();
-  const game = new Game(difficulty, {
+  const game = Game.create(difficulty, {
     name: 'Tester',
     engineer: 5,
     pilot: 5,

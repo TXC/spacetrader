@@ -10,7 +10,7 @@ let game: Game;
 beforeEach(() => {
   runtime.debugMode = DebugMode.Assert;
   runtime.gameRand = new GameRand(1);
-  game = new Game(2, { name: 'Tester', engineer: 5, pilot: 5, fighter: 5, trader: 5 });
+  game = Game.create(2, { name: 'Tester', engineer: 5, pilot: 5, fighter: 5, trader: 5 });
   game.commander.reserveMoney = true;
 });
 
