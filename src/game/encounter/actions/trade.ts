@@ -165,6 +165,8 @@ function presentTradeAlert(
             performTradeWithAmount(encounter, amount, itemType, tradePrice, traderSell);
           });
         };
+      } else {
+        performTradeWithAmount(encounter, 0, itemType, tradePrice, traderSell);
       }
     });
   }
