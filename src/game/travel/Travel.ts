@@ -1,10 +1,9 @@
-import { AccessoryType } from '../Accessory.ts';
 import { AlertActionType, AlertViewController } from '../alerts.ts';
-import { CAUGHT_WITH_WILD_SCORE, MAX_SKILL_LEVEL, PoliceRecordScore } from '../Commander.ts';
+import { CAUGHT_WITH_WILD_SCORE } from '../Commander.ts';
 import { Encounter } from '../encounter/Encounter.ts';
 import { EncounterType } from '../encounter/types.ts';
 import type { ActionName, EncounterListener } from '../encounter/types.ts';
-import { GameEndStatus, RareEvent, RARE_EVENT_COUNT } from '../Game.ts';
+import { GameEndStatus } from '../Game.ts';
 import { Opponent, OpponentType } from '../Opponent.ts';
 import { MAX_TRIBBLES, Ship, ShipModelType } from '../Ship.ts';
 import {
@@ -17,11 +16,12 @@ import { TradeItemType } from '../TradeItem.types.ts';
 import { Store } from '../Store.ts';
 import type { SolarSystem } from '../SolarSystem.ts';
 import type { Game, GameEndedStatus } from '../Game.ts';
-import { ensureArrayOrNull, ensureInteger } from '../ensure.ts';
+import { ensureInteger } from '../ensure.ts';
 import { pLog } from '../probes.ts';
 import { runtime } from '../runtime.ts';
 import { pirateMeeting } from './pirates.ts';
 import { policeMeeting } from './police.ts';
+import { rareEventMeeting } from './rareEvents.ts';
 import { dragonflyMeeting, monsterMeeting, scarabMeeting } from './specialShips.ts';
 import { traderMeeting } from './traders.ts';
 import { whoIsMet } from './whoIsMet.ts';
@@ -112,7 +112,7 @@ export class Travel extends Store implements EncounterListener {
     }
 
     while (currentClicks > 0) {
-      let encounterType: EncounterType = EncounterType.None;
+      let encounterType: EncounterType;
 
       this._game.commander.travelClicksRemaining = currentClicks;
       this._setProgress(1 - (currentClicks * 1.0) / this._startClicksRemaining);
@@ -128,7 +128,7 @@ export class Travel extends Store implements EncounterListener {
 
       const opponentType = whoIsMet(this, currentClicks);
 
-      let opponent: Opponent | null = null;
+      let opponent: Opponent | null;
 
       if (opponentType === OpponentType.Police) {
         ({ encounterType, opponent } = policeMeeting(this, opponentType, currentClicks));
@@ -143,99 +143,7 @@ export class Travel extends Store implements EncounterListener {
       } else if (opponentType === OpponentType.Monster) {
         ({ encounterType, opponent } = monsterMeeting(this._game, opponentType));
       } else {
-        // Very Rare Random Events:
-        // 1. Encounter the abandoned Marie Celeste, which you may loot.
-        // 2. Captain Ahab will trade your Reflective Shield for skill points in Piloting.
-        // 3. Captain Conrad will trade your Military Laser for skill points in Engineering.
-        // 4. Captain Huie will trade your Military Laser for points in Trading.
-        // 5. Encounter an expired bottle of Captain Marmoset's Skill Tonic. This will affect skills depending on game difficulty level.
-        // 6. Encounter a good bottle of Captain Marmoset's Skill Tonic, which will improve a random skill one or two times, depending on difficulty.
-
-        if (
-          this._game.forceRareEvent || // testing hook
-          (this._game.commander.days > 10 && runtime.gameRand.randomIntBelow(1000) < 5)
-        ) {
-          const rareEvents = this._game.remainingRareEvents;
-          ensureArrayOrNull(rareEvents, 'number');
-
-          const index =
-            rareEvents.length > 0 ? runtime.gameRand.randomIntBelow(rareEvents.length) : -1;
-          const rareEvent = index !== -1 ? rareEvents[index] : RARE_EVENT_COUNT;
-
-          ensureInteger(rareEvent);
-
-          switch (rareEvent) {
-            case RareEvent.CaptainAhab:
-              if (
-                this._game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective) &&
-                this._game.commander.pilot < MAX_SKILL_LEVEL &&
-                this._game.commander.policeRecordScore > PoliceRecordScore.Criminal
-              ) {
-                pLog.log(95);
-                encounterType = EncounterType.FamousCaptainAhabEncounter;
-                opponent = Opponent.generateOpponentWithType(
-                  OpponentType.FamousCaptain,
-                  this._game
-                );
-              }
-              break;
-
-            case RareEvent.CaptainConrad:
-              if (
-                this._game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser) &&
-                this._game.commander.engineer < MAX_SKILL_LEVEL &&
-                this._game.commander.policeRecordScore > PoliceRecordScore.Criminal
-              ) {
-                pLog.log(96);
-                encounterType = EncounterType.FamousCaptainConradEncounter;
-                opponent = Opponent.generateOpponentWithType(
-                  OpponentType.FamousCaptain,
-                  this._game
-                );
-              }
-              break;
-
-            case RareEvent.CaptainHuie:
-              if (
-                this._game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser) &&
-                this._game.commander.trader < MAX_SKILL_LEVEL &&
-                this._game.commander.policeRecordScore > PoliceRecordScore.Criminal
-              ) {
-                pLog.log(97);
-                encounterType = EncounterType.FamousCaptainHuieEncounter;
-                opponent = Opponent.generateOpponentWithType(
-                  OpponentType.FamousCaptain,
-                  this._game
-                );
-              }
-              break;
-
-            case RareEvent.MarieCeleste:
-              pLog.log(98);
-              encounterType = EncounterType.MarieCelesteEncounter;
-              opponent = Opponent.generateOpponentWithType(OpponentType.MarieCeleste, this._game);
-              break;
-
-            case RareEvent.BottleOld:
-              pLog.log(99);
-              encounterType = EncounterType.BottleOld;
-              opponent = Opponent.generateOpponentWithType(OpponentType.Bottle, this._game);
-              break;
-
-            case RareEvent.BottleGood:
-              pLog.log(100);
-              encounterType = EncounterType.BottleGood;
-              opponent = Opponent.generateOpponentWithType(OpponentType.Bottle, this._game);
-              break;
-
-            default:
-              break;
-          }
-
-          if (encounterType !== EncounterType.None) {
-            this._game.removeRemainingRareEvent(rareEvent);
-          }
-        }
+        ({ encounterType, opponent } = rareEventMeeting(this._game));
       }
 
       if (encounterType !== EncounterType.None && opponent) {
