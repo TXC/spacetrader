@@ -528,6 +528,13 @@ test('ionReactor', () => {
 
   replay.replayEvent('Warp', 'click');
   replay.replayEvent('warpBlastOff', 'click');
+  // The first three opponents get away.
+  replay.replayEvent('ecButton_Auto_Attack', 'click');
+  replay.replayEvent('alertButton_Dismiss', 'click');
+  replay.replayEvent('ecButton_Auto_Attack', 'click');
+  replay.replayEvent('alertButton_Dismiss', 'click');
+  replay.replayEvent('ecButton_Auto_Attack', 'click');
+  replay.replayEvent('alertButton_Dismiss', 'click');
   replay.replayEvent('ecButton_Auto_Attack', 'click');
   assertEqual(AlertViewController.currentAlertTitle(), 'You have destroyed your opponent.');
   replay.replayEvent('alertButton_Dismiss', 'click');
@@ -917,7 +924,7 @@ test('ionReactor_surrenderToPolice', () => {
   replay.replayEvent('alertButton_Surrender', 'click');
   assertEqual(
     AlertViewController.currentAlertTitle(),
-    `You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to 33 days in prison and a fine of $299000.\nThe police impounded all of the illegal goods you had on board.\nThe police confiscated the Ion Reactor as evidence of your dealings with unsavory characters. The bad news is that you've lost the Ion Reactor. The good news is that you no longer have to worry about managing its depleting fuel store.`
+    `You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to 33 days in prison and a fine of $298500.\nThe police impounded all of the illegal goods you had on board.\nThe police confiscated the Ion Reactor as evidence of your dealings with unsavory characters. The bad news is that you've lost the Ion Reactor. The good news is that you no longer have to worry about managing its depleting fuel store.`
   );
   replay.replayEvent('alertButton_Dismiss', 'click');
 
@@ -1187,6 +1194,11 @@ test('ionReactor_early', () => {
 
   replay.replayEvent('Warp', 'click');
   replay.replayEvent('warpBlastOff', 'click');
+  // The first two opponents get away.
+  replay.replayEvent('ecButton_Auto_Attack', 'click');
+  replay.replayEvent('alertButton_Dismiss', 'click');
+  replay.replayEvent('ecButton_Auto_Attack', 'click');
+  replay.replayEvent('alertButton_Dismiss', 'click');
   replay.replayEvent('ecButton_Auto_Attack', 'click');
   assertEqual(AlertViewController.currentAlertTitle(), 'You have destroyed your opponent.');
   replay.replayEvent('alertButton_Dismiss', 'click');
@@ -1379,9 +1391,6 @@ test('ionReactor_destroyedInBattle', () => {
 
   replay.replayEvent('Warp', 'click');
   replay.replayEvent('warpBlastOff', 'click');
-  replay.replayEvent('ecButton_Ignore', 'click');
-  replay.replayEvent('ecButton_Ignore', 'click');
-  replay.replayEvent('ecButton_Ignore', 'click');
   replay.replayEvent('ecButton_Auto_Attack', 'click');
 
   assertEqual(
@@ -1991,7 +2000,7 @@ test('monster', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.monsterHull, 299);
+  assertEqual(game.monsterHull, 301);
   assertEqual(game.monsterStatus, MonsterQuestStatus.MonsterExists);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Kill the space monster at Acamar.');
@@ -1999,7 +2008,7 @@ test('monster', () => {
   assertEqual(specialEl, null);
 
   game2 = assertSurvivesSave(game);
-  assertEqual(game2.monsterHull, 299);
+  assertEqual(game2.monsterHull, 301);
   assertEqual(game2.monsterStatus, MonsterQuestStatus.MonsterExists);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Kill the space monster at Acamar.');
@@ -2032,7 +2041,7 @@ test('monster', () => {
 
   replaySkipEncounters(replay);
 
-  assertEqual(game.monsterHull, 196);
+  assertEqual(game.monsterHull, 200);
   assertEqual(game.monsterStatus, MonsterQuestStatus.MonsterExists);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Kill the space monster at Acamar.');
@@ -2058,7 +2067,7 @@ test('monster', () => {
     encounterText,
     'At 1 click from Acamar you encounter the terrifying Space Monster.\n\nYour opponent attacks.'
   );
-  assertEqual(game.monsterHull, 215);
+  assertEqual(game.monsterHull, 220);
 
   replay.replayEvent('ecButton_Auto_Attack', 'click');
 
@@ -3676,37 +3685,9 @@ test('wild_ionReactor', () => {
   replay.replayEvent('Chart', 'click');
   replay.replayEvent('galacticChart_useSingularity_121_Exo', 'click');
   replay.replayEvent('alertButton_Warp_', 'click');
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-  replay.replayEvent('ecButton_Ignore', 'click');
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-  replay.replayEvent('ecButton_Ignore', 'click');
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
+
+  replaySkipEncounters(replay);
+
   replay.replayEvent('Special', 'click');
   replay.replayEvent('alertButton_Yes', 'click');
   assertEqual(

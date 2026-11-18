@@ -48,7 +48,7 @@ test('HPView_unchangedWhenOpponentMisses', () => {
   let encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
-    'At 10 clicks from Tantalos you encounter a pirate Gnat.\n\nYour opponent attacks.'
+    'At 8 clicks from Tantalos you encounter a pirate Bumblebee.\n\nYour opponent attacks.'
   );
 
   const hpBarWidthBefore = hullBar('self')!.style.width;
@@ -58,7 +58,7 @@ test('HPView_unchangedWhenOpponentMisses', () => {
   encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
-    'At 10 clicks from Tantalos you encounter a pirate Gnat.\n\nYour opponent attacks.\nThe pirate ship missed you.\nThe pirate ship is still following you.'
+    'At 8 clicks from Tantalos you encounter a pirate Bumblebee.\n\nYour opponent attacks.\nThe pirate ship missed you.\nThe pirate ship is still following you.'
   );
 
   const hpBarWidthAfter = hullBar('self')!.style.width;
@@ -444,34 +444,41 @@ test('autoAttack', () => {
 
   replay.replayEvent('Ship Yard', 'click');
   replay.replayEvent('fulltank', 'click');
-  replay.replayEvent('Full_repair', 'click');
 
   replay.replayEvent('Warp', 'click');
   replay.replayEvent('warpBlastOff', 'click');
-
+  replay.replayEvent('ecButton_Auto_Flee', 'click');
+  replay.replayEvent('alertButton_Dismiss', 'click');
+  replay.replayEvent('ecButton_Auto_Attack', 'click');
+  // Escaped
+  replay.replayEvent('alertButton_Dismiss', 'click');
+  replay.replayEvent('ecButton_Auto_Flee', 'click');
+  replay.replayEvent('alertButton_Dismiss', 'click');
+  replay.replayEvent('ecButton_Auto_Flee', 'click');
+  replay.replayEvent('alertButton_Dismiss', 'click');
   replay.replayEvent('ecButton_Ignore', 'click');
+  replay.replayEvent('ecButton_Ignore', 'click');
+  replay.replayEvent('ecButton_Ignore', 'click');
+  replay.replayEvent('ecButton_Auto_Flee', 'click');
+  replay.replayEvent('alertButton_Dismiss', 'click');
+  replay.replayEvent('ecButton_Auto_Flee', 'click');
+  replay.replayEvent('alertButton_Dismiss', 'click');
+  replay.replayEvent('ecButton_Ignore', 'click');
+  replay.replayEvent('ecButton_Ignore', 'click');
+
+  // Arrived at destination
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   replay.replayEvent('Warp', 'click');
   replay.replayEvent('warpBlastOff', 'click');
-
-  replay.replayEvent('ecButton_Auto_Flee', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Ignore', 'click');
-
   replay.replayEvent('ecButton_Auto_Attack', 'click');
   // Escaped
   replay.replayEvent('alertButton_Dismiss', 'click');
-
-  replay.replayEvent('ecButton_Ignore', 'click');
+  replay.replayEvent('ecButton_Auto_Flee', 'click');
+  replay.replayEvent('alertButton_Dismiss', 'click');
   replay.replayEvent('ecButton_Auto_Flee', 'click');
   replay.replayEvent('alertButton_Dismiss', 'click');
   replay.replayEvent('ecButton_Ignore', 'click');
-
-  replay.replayEvent('ecButton_Auto_Attack', 'click');
-  // Escaped
-  replay.replayEvent('alertButton_Dismiss', 'click');
 
   // Arrived at destination
   replay.replayEvent('alertButton_Dismiss', 'click');
@@ -493,7 +500,7 @@ test('hireMercenary_fireMercenary', () => {
   const commander = session.game!.commander;
 
   const creditsBefore = commander.credits;
-  assertEqual(creditsBefore, 950389);
+  assertEqual(creditsBefore, 950390);
   assertEqual(commander.ship.crew.length, 0);
 
   replay.replayEvent('Ship Yard');
@@ -551,7 +558,7 @@ test('mercenary_arrest', () => {
   const commander = session.game!.commander;
 
   const creditsBefore = commander.credits;
-  assertEqual(creditsBefore, 950389);
+  assertEqual(creditsBefore, 950390);
   assertEqual(commander.ship.crew.length, 0);
 
   replay.replayEvent('Ship Yard');
@@ -1143,7 +1150,7 @@ test('surrender_police_cantAffordFine', () => {
 
   replay.replayEvent('alertButton_Dismiss', 'click');
 
-  assertEqual(commander.credits, 5958);
+  assertEqual(commander.credits, 5959);
   assertEqual(commander.hasInsurance, false);
 
   assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Water), 2);

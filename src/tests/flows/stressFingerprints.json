@@ -1,7 +1,7 @@
 {
-  "beginnerDifficulty": ["01a6b536", "ec0c2c75", "aa1270eb", "2987a5a2"],
-  "easyDifficulty": ["6c840cba", "fda9faf0", "327b917d", "6c2c5a01"],
-  "normalDifficulty": ["03de0e3f", "290525da", "no game:0c015b4e", "no game:09a34a92"],
-  "hardDifficulty": ["f9c027d5", "7f0efdef", "a2ecec5a", "463bdd39"],
-  "absurdDifficulty": ["259b0b00", "87a02fbc", "2fd019b1", "8b6ff301"]
+  "beginnerDifficulty": ["01a6b536", "b6a18a1f", "17edbd69", "7d037f15"],
+  "easyDifficulty": ["6c840cba", "fda9faf0", "9a5cd400", "1a6afb54"],
+  "normalDifficulty": ["03de0e3f", "290525da", "e44d4823", "097643c9"],
+  "hardDifficulty": ["19c7ac33", "8a98aaf2", "31a55e5b", "6cac6c87"],
+  "absurdDifficulty": ["259b0b00", "87a02fbc", "863e2ef7", "no game:66c00dad"]
 }
