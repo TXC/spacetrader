@@ -186,23 +186,23 @@ function ordinaryOpponent(type: number, game: Game): Opponent {
 
   ensureInteger(tries);
 
-  let gadgetSlots = 0;
-  if (model.gadgetSlots > 0) {
-    if (game.difficulty <= Difficulty.Hard) {
-      gadgetSlots = runtime.gameRand.randomIntBelow(model.gadgetSlots + 1);
-      if (gadgetSlots < model.gadgetSlots) {
-        if (tries > 4) {
-          gadgetSlots++;
-        } else if (tries > 2) {
-          gadgetSlots += runtime.gameRand.randomIntBelow(2);
-        }
-      }
-    } else {
-      gadgetSlots = model.gadgetSlots;
-    }
-  }
+  addGadgets(ship, model, game, tries);
 
-  ensureInteger(gadgetSlots);
+  addCargo(ship, type, game, allNarcotics);
+
+  addWeapons(ship, model, game, tries);
+
+  addShields(ship, model, game, tries);
+
+  weakenHull(ship, type);
+
+  addMercenaries(ship, model, game);
+
+  return opponentWithSkills(type, game, ship);
+}
+
+function addGadgets(ship: Ship, model: ShipModel, game: Game, tries: number): void {
+  const gadgetSlots = gadgetCount(model, game, tries);
 
   for (let i = 0; i < gadgetSlots; ++i) {
     let gadgetRoll = 0;
@@ -231,18 +231,28 @@ function ordinaryOpponent(type: number, game: Game): Opponent {
       ship.addGadgetOfType(AccessoryType.GadgetFiveExtraCargoBays);
     }
   }
+}
 
-  addCargo(ship, type, game, allNarcotics);
+function gadgetCount(model: ShipModel, game: Game, tries: number): number {
+  let gadgetSlots = 0;
+  if (model.gadgetSlots > 0) {
+    if (game.difficulty <= Difficulty.Hard) {
+      gadgetSlots = runtime.gameRand.randomIntBelow(model.gadgetSlots + 1);
+      if (gadgetSlots < model.gadgetSlots) {
+        if (tries > 4) {
+          gadgetSlots++;
+        } else if (tries > 2) {
+          gadgetSlots += runtime.gameRand.randomIntBelow(2);
+        }
+      }
+    } else {
+      gadgetSlots = model.gadgetSlots;
+    }
+  }
 
-  addWeapons(ship, model, game, tries);
+  ensureInteger(gadgetSlots);
 
-  addShields(ship, model, game, tries);
-
-  weakenHull(ship, type);
-
-  addMercenaries(ship, model, game);
-
-  return opponentWithSkills(type, game, ship);
+  return gadgetSlots;
 }
 
 function addCargo(ship: Ship, type: number, game: Game, allNarcotics: boolean): void {
