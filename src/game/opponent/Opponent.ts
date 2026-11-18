@@ -1,8 +1,8 @@
 import { countOf } from '../texts.ts';
 import type { ValueOf } from '../texts.ts';
 import { CrewMember } from '../CrewMember.ts';
+import type { CrewMemberFields } from '../CrewMember.ts';
 import { Ship } from '../Ship.ts';
-import { ensureInteger, ensureType } from '../ensure.ts';
 import type { Game } from '../Game.ts';
 import { buildOpponent } from './build.ts';
 
@@ -21,23 +21,16 @@ export const OpponentType = {
 export type OpponentType = ValueOf<typeof OpponentType>;
 export const OPPONENT_TYPE_COUNT = countOf(OpponentType);
 
-export class Opponent extends CrewMember {
-  declare type: OpponentType;
-  declare ship: Ship;
+type OpponentFields = CrewMemberFields & { type: OpponentType; ship: Ship };
 
-  constructor(
-    type: OpponentType,
-    engineer: number,
-    pilot: number,
-    fighter: number,
-    trader: number,
-    ship: Ship
-  ) {
-    super(CrewMember.newFields('opponent', engineer, pilot, fighter, trader));
-    ensureInteger(type);
-    this.type = type;
-    ensureType(ship, 'object');
-    this.ship = ship;
+export class Opponent extends CrewMember {
+  type: OpponentType;
+  ship: Ship;
+
+  private constructor(fields: OpponentFields) {
+    super(fields);
+    this.type = fields.type;
+    this.ship = fields.ship;
   }
 
   // Not called `create`: a subclass's static methods must accept what its base class's
@@ -50,11 +43,13 @@ export class Opponent extends CrewMember {
     trader: number,
     ship: Ship
   ): Opponent {
-    return new Opponent(type, engineer, pilot, fighter, trader, ship);
+    const crew = CrewMember.newFields('opponent', engineer, pilot, fighter, trader);
+    return new Opponent({ ...crew, type, ship });
   }
 
   static generateOpponentWithType(type: number, game: Game) {
-    // shortcut: the trip's dice still give a plain number; drop the cast once they give an OpponentType.
+    // shortcut: the trip's dice still give a plain number; drop the cast once they give
+    // an OpponentType.
     return buildOpponent(type as OpponentType, game);
   }
 }

@@ -5,7 +5,7 @@ import type { CrewMemberState } from './savedGame.ts';
 export type { CrewMemberState };
 
 // Everything a crew member is made of.
-type CrewMemberFields = {
+export type CrewMemberFields = {
   name: string | null;
   engineer: number;
   pilot: number;
