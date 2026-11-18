@@ -1,6 +1,7 @@
 import { PoliceRecordScore, ReputationScore } from '../Commander.ts';
 import { EncounterType } from '../encounter/types.ts';
 import { Opponent } from '../opponent/Opponent.ts';
+import type { OpponentType } from '../opponent/Opponent.ts';
 import type { Game } from '../Game.ts';
 import { runtime } from '../runtime.ts';
 import type { Meeting } from './Travel.ts';
@@ -17,7 +18,7 @@ export function hiddenByOptions(encounterType: number, game: Game): boolean {
 }
 
 // A trader is met: it passes by, flees from a criminal, or offers to buy or sell.
-export function traderMeeting(game: Game, opponentType: number): Meeting {
+export function traderMeeting(game: Game, opponentType: OpponentType): Meeting {
   let encounterType: EncounterType;
   const opponent = Opponent.generateOpponentWithType(opponentType, game);
   encounterType = traderReaction(game, opponent);

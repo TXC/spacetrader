@@ -1,6 +1,7 @@
 import { PoliceRecordScore, ReputationScore } from '../Commander.ts';
 import { EncounterType } from '../encounter/types.ts';
 import { Opponent } from '../opponent/Opponent.ts';
+import type { OpponentType } from '../opponent/Opponent.ts';
 import type { Game } from '../Game.ts';
 import { runtime } from '../runtime.ts';
 import type { Meeting, Travel } from './Travel.ts';
@@ -9,7 +10,7 @@ import type { Meeting, Travel } from './Travel.ts';
 // police record. After the Marie Celeste was plundered, the customs police wait at the end.
 export function policeMeeting(
   travel: Travel,
-  opponentType: number,
+  opponentType: OpponentType,
   currentClicks: number
 ): Meeting {
   let encounterType: EncounterType;

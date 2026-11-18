@@ -47,9 +47,7 @@ export class Opponent extends CrewMember {
     return new Opponent({ ...crew, type, ship });
   }
 
-  static generateOpponentWithType(type: number, game: Game) {
-    // shortcut: the trip's dice still give a plain number; drop the cast once they give
-    // an OpponentType.
-    return buildOpponent(type as OpponentType, game);
+  static generateOpponentWithType(type: OpponentType, game: Game) {
+    return buildOpponent(type, game);
   }
 }

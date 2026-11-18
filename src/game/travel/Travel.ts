@@ -223,7 +223,11 @@ function repairOnTheWay(game: Game): void {
 }
 
 // Asks the kind of opponent that was picked how it behaves.
-function meeting(travel: Travel, opponentType: number, currentClicks: number): Meeting {
+function meeting(
+  travel: Travel,
+  opponentType: OpponentType | null,
+  currentClicks: number
+): Meeting {
   if (opponentType === OpponentType.Police) {
     return policeMeeting(travel, opponentType, currentClicks);
   } else if (opponentType === OpponentType.Pirate || opponentType === OpponentType.Mantis) {
