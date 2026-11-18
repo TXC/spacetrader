@@ -1,0 +1,16 @@
+/* Padding, not margin, for the empty lines: it adds to a neighbour's margin instead of
+   merging with it, as the line breaks it replaces did. */
+.message {
+  composes: centredBlock centredText from './shared.module.css';
+  padding-top: var(--space-line);
+}
+
+.restart {
+  composes: centredBlock from './shared.module.css';
+  padding-bottom: var(--space-line);
+}
+
+.clear {
+  composes: centredBlock from './shared.module.css';
+  padding-top: var(--space-line);
+}
