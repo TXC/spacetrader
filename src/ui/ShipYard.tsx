@@ -19,13 +19,14 @@ import { LoggedButton, LoggedCheckbox } from './Logged.tsx';
 import { ShipPicture } from './ShipPicture.tsx';
 import { ShipView } from './ShipView.tsx';
 import { useSession } from './useStore.ts';
+import shared from './shared.module.css';
 
 type GameProps = { game: Game };
 
 function Fuel({ game }: GameProps) {
   const { text, needed } = fuelLines(game);
   return (
-    <div className="centered-div centered" id="fuelDiv">
+    <div className={`${shared.centredBlock} ${shared.centredText}`} id="fuelDiv">
       <Lines text={text} />
       <br />
       {needed > 0 && (
@@ -128,10 +129,8 @@ function ShipRow({ game, offer }: GameProps & { offer: ShipOffer }) {
       <td>
         <Lines text={details(model)} />
       </td>
-      <td className={priceText.includes('$') ? 'right-aligned-cell' : 'centered-cell'}>
-        {priceText}
-      </td>
-      <td className="centered-cell">
+      <td className={priceText.includes('$') ? shared.right : shared.centredText}>{priceText}</td>
+      <td className={shared.centredText}>
         <LoggedButton
           id={'buyship_' + model.name}
           label="Buy"
@@ -147,7 +146,7 @@ function Ships({ game }: GameProps) {
   return (
     <div id="shipsDiv">
       <h3>Ships</h3>
-      <table className="tight-table">
+      <table className={shared.tightTable}>
         <tbody>
           <tr>
             <th>Name</th>
@@ -169,7 +168,7 @@ export function ShipYard({ game }: GameProps) {
   useSession();
   return (
     <>
-      <h1 className="centered-div">Ship Yard</h1>
+      <h1 className={shared.centredBlock}>Ship Yard</h1>
       <div id="maintenaceDiv">
         <Fuel game={game} />
         <br />

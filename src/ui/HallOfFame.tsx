@@ -4,6 +4,7 @@ import type { Scores } from '../game/HallOfFame.ts';
 import { Lines } from './Lines.tsx';
 import { LoggedButton } from './Logged.tsx';
 import { useSession } from './useStore.ts';
+import shared from './shared.module.css';
 
 // `inProgress` is the look from the commander screen; otherwise this is the end of the game.
 type Props = { game: Game; inProgress: boolean; scores: Scores; onContinue?: () => void };
@@ -13,14 +14,14 @@ export function HallOfFame({ game, inProgress, scores, onContinue }: Props) {
   const fame = hallOfFame(scores);
   return (
     <>
-      {!inProgress && <h1 className="centered">Game Over</h1>}
+      {!inProgress && <h1 className={shared.centredText}>Game Over</h1>}
       <br />
-      <div id="end-message" className="centered-div centered">
+      <div id="end-message" className={`${shared.centredBlock} ${shared.centredText}`}>
         <Lines text={scoreMessage(game, inProgress, scores)} />
       </div>
       {!inProgress && (
         <>
-          <div className="centered-div">
+          <div className={shared.centredBlock}>
             <LoggedButton
               id="endgame"
               kind="main"
@@ -31,14 +32,14 @@ export function HallOfFame({ game, inProgress, scores, onContinue }: Props) {
           <br />
         </>
       )}
-      <h3 className="centered">Hall of Fame</h3>
-      <div id="highscores" className="centered-div centered">
+      <h3 className={shared.centredText}>Hall of Fame</h3>
+      <div id="highscores" className={`${shared.centredBlock} ${shared.centredText}`}>
         <Lines text={fame.text} />
       </div>
       {fame.any && (
         <>
           <br />
-          <div className="centered-div">
+          <div className={shared.centredBlock}>
             <LoggedButton id="clearall" label="Clear All" onPress={() => askToClear(scores)} />
           </div>
         </>

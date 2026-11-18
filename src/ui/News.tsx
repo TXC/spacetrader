@@ -4,6 +4,7 @@ import type { News as NewsRules } from '../game/News.ts';
 import { Icon } from './Icon.tsx';
 import { LoggedCheckbox, LoggedLink } from './Logged.tsx';
 import { useSession } from './useStore.ts';
+import shared from './shared.module.css';
 
 type Props = { game: Game; news: NewsRules };
 
@@ -11,7 +12,7 @@ function PayLink({ news }: { news: NewsRules }) {
   return (
     <div className="button-item">
       <LoggedLink id="purchaseNews" onPress={() => news.buy()}>
-        <Icon name="News" className="button-icon" />
+        <Icon name="News" className={shared.buttonIcon} />
         <span>{`Pay $${news.price()} to read news`}</span>
       </LoggedLink>
     </div>
@@ -44,13 +45,13 @@ export function News({ game, news }: Props) {
   const text = news.text();
   return (
     <>
-      <h1 className="centered-div news-header">News</h1>
+      <h1 className={`${shared.centredBlock} news-header`}>News</h1>
       <br />
       <div id="newsStrDiv">
         {text === null ? <PayLink news={news} /> : <Paper masthead={news.masthead()} text={text} />}
       </div>
       <br />
-      <div className="centered-div">
+      <div className={shared.centredBlock}>
         <LoggedCheckbox
           id="autoNewsCheckbox"
           checked={game.autoNews}

@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
+import shared from './shared.module.css';
 
 // Shown in place of the game when drawing it fails, so the page is never left blank.
 // React offers this only to class components.
@@ -17,7 +18,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { failed: 
   override render() {
     if (!this.state.failed) return this.props.children;
     return (
-      <div id="game-error" role="alert" className="centered">
+      <div id="game-error" role="alert" className={shared.centredText}>
         <p>Something went wrong. Reload the page to continue from your last saved game.</p>
         <button id="reload" onClick={() => location.reload()}>
           Reload

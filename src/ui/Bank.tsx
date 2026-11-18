@@ -13,6 +13,7 @@ import { AlertViewController } from '../game/alerts.ts';
 import { BaysCredits } from './BaysCredits.tsx';
 import { LoggedButton, LoggedCheckbox } from './Logged.tsx';
 import { useSession } from './useStore.ts';
+import shared from './shared.module.css';
 
 type GameProps = { game: Game };
 
@@ -23,7 +24,7 @@ function Row({ title, amount }: { title: string; amount: string }) {
   return (
     <tr>
       <td>{title}</td>
-      <td className="right-aligned-cell">{amount}</td>
+      <td className={shared.right}>{amount}</td>
     </tr>
   );
 }
@@ -121,8 +122,8 @@ function Insurance({ game }: GameProps) {
 export function Bank({ game }: GameProps) {
   useSession();
   return (
-    <div className="centered-div">
-      <h1 className="centered-div">Bank</h1>
+    <div className={shared.centredBlock}>
+      <h1 className={shared.centredBlock}>Bank</h1>
       <h4>Loans</h4>
       <Loans game={game} />
       <RemindLoans game={game} />

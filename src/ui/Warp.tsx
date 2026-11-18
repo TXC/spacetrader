@@ -4,6 +4,7 @@ import { fillTank, step, systemsWithinRange } from '../game/Warp.ts';
 import { BuySellCargo } from './BuySellCargo.tsx';
 import { LoggedButton } from './Logged.tsx';
 import { useSession } from './useStore.ts';
+import shared from './shared.module.css';
 
 type Props = {
   game: Game;
@@ -22,7 +23,7 @@ function Buttons({
 }: Pick<Props, 'onSelect' | 'onBlastOff'> & { systems: SolarSystem[]; index: number }) {
   const move = (forward: boolean) => () => onSelect(systems[step(index, systems.length, forward)]);
   return (
-    <div className="button-row">
+    <div className={shared.buttonRow}>
       <LoggedButton
         id="warpBlastOff"
         kind="main"
@@ -68,7 +69,7 @@ export function Warp({ game, selected, mapSelection, onSelect, onFuel, onBlastOf
   const base = index >= 0 ? systems[index] : null;
   return (
     <>
-      <h1 className="header-with-buttons">
+      <h1 className={shared.headerWithButtons}>
         Warp
         {base && (
           <Buttons systems={systems} index={index} onSelect={onSelect} onBlastOff={onBlastOff} />

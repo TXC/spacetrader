@@ -17,6 +17,7 @@ import { Roster } from './Roster.tsx';
 import { ShipYard } from './ShipYard.tsx';
 import { TravelScreen } from './Travel.tsx';
 import { Warp } from './Warp.tsx';
+import shared from './shared.module.css';
 
 type Props = { session: Session; game: Game };
 
@@ -32,7 +33,7 @@ function NavLink({ session, link }: { session: Session; link: NavRow }) {
         current={session.activeRow === row}
         onPress={open}
       >
-        <Icon name={icon} className={row === 'Chart' ? 'button-icon-chart' : 'button-icon'} />
+        <Icon name={icon} className={row === 'Chart' ? 'button-icon-chart' : shared.buttonIcon} />
         <span>{row}</span>
       </LoggedLink>
     </li>
@@ -65,10 +66,13 @@ function Welcome({ game }: { game: Game }) {
   const system = game.commander.getCurrentSystem();
   return (
     <>
-      <h1 id="system-info-welcome" className="centered-div system-info-header">
+      <h1 id="system-info-welcome" className={`${shared.centredBlock} system-info-header`}>
         {'Welcome to ' + system.getName()}
       </h1>
-      <h4 id="system-info-text" className="system-info centered-div centered">
+      <h4
+        id="system-info-text"
+        className={`system-info ${shared.centredBlock} ${shared.centredText}`}
+      >
         <Lines text={system.systemInfoString()} />
       </h4>
     </>

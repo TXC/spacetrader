@@ -9,6 +9,7 @@ import { BaysCredits } from './BaysCredits.tsx';
 import { Icon } from './Icon.tsx';
 import { LoggedButton } from './Logged.tsx';
 import { useSession } from './useStore.ts';
+import shared from './shared.module.css';
 
 type Props = { game: Game; buy: boolean; baseSystem?: SolarSystem };
 
@@ -35,8 +36,8 @@ function Amounts({ row, onAmount }: { row: CargoRow; onAmount: (quantity: number
     />
   );
   return (
-    <td className="centered-cell">
-      <div className="button-group">
+    <td className={shared.centredText}>
+      <div className={shared.buttonGroup}>
         {button('1', 1)}
         {button('5', 5)}
         {button('All', row.quantity)}
@@ -49,11 +50,11 @@ function ItemRow({ row, onAmount }: { row: CargoRow; onAmount: (quantity: number
   return (
     <tr>
       <td>
-        <Icon name={row.name} className="table-row-icon" />
+        <Icon name={row.name} className={shared.rowIcon} />
         {row.bold ? <b>{row.name}</b> : <span>{row.name}</span>}
       </td>
-      <td className="right-aligned-cell">{row.quantity}</td>
-      <td className="right-aligned-cell">{row.cost}</td>
+      <td className={shared.right}>{row.quantity}</td>
+      <td className={shared.right}>{row.cost}</td>
       <Amounts row={row} onAmount={onAmount} />
     </tr>
   );
@@ -70,9 +71,9 @@ function PricesHeader({
 }) {
   const label = `Show ${relative ? 'Absolute' : 'Relative'}`;
   return (
-    <h4 className="header-with-buttons">
+    <h4 className={shared.headerWithButtons}>
       {`Average prices on ${system.getName()} `}
-      <div className="button-row">
+      <div className={shared.buttonRow}>
         <LoggedButton key={label} id={'togglePrices_' + label} label={label} onPress={toggle} />
       </div>
     </h4>
@@ -94,7 +95,7 @@ export function BuySellCargo({ game, buy, baseSystem }: Props) {
       ) : (
         <h1>{buy ? 'Buy Cargo' : 'Sell Cargo'}</h1>
       )}
-      <table className="tight-table">
+      <table className={shared.tightTable}>
         <tbody>
           {cargoRows(game, view).map(row => (
             <ItemRow

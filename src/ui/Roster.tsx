@@ -5,6 +5,7 @@ import type { RosterKind, RosterSection } from '../game/Roster.ts';
 import { Icon } from './Icon.tsx';
 import { LoggedButton } from './Logged.tsx';
 import { useSession } from './useStore.ts';
+import shared from './shared.module.css';
 
 type Props = { game: Game; onFired?: (member: CrewMember) => void };
 
@@ -74,7 +75,7 @@ function MemberRow({
           {!member.forQuest && <Skills member={member} />}
         </div>
       </td>
-      <td className="centered-cell">
+      <td className={shared.centredText}>
         {priced && <HireFire game={game} kind={kind} member={member} onFired={onFired} />}
       </td>
     </tr>
@@ -99,8 +100,10 @@ function Section({ game, section, onFired }: Props & { section: RosterSection })
   const vacancies = Math.max(0, section.slots - section.members.length);
   return (
     <>
-      <tr className="section-label">
-        <td colSpan={2}>{section.title}</td>
+      <tr>
+        <th colSpan={2} className={shared.sectionTitle}>
+          {section.title}
+        </th>
       </tr>
       {section.slots === 0 && <EmptyRow label="None" icon="noslots" />}
       {section.slots > 0 &&
@@ -126,7 +129,7 @@ export function Roster({ game, onFired }: Props) {
   return (
     <>
       <h1>Personnel Roster</h1>
-      <table className="tight-table-collapse">
+      <table className={shared.joinedTable}>
         <tbody>
           {rosterSections(game).map(section => (
             <Section key={section.kind} game={game} section={section} onFired={onFired} />
