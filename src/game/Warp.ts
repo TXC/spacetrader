@@ -50,7 +50,8 @@ function costOfLeaving(game: Game, destination: SolarSystem) {
   return { credits, shortfall };
 }
 
-// Why the commander cannot leave, if anything. Too much debt comes first, then Wild.
+// Why the commander cannot leave, if anything. Wild comes first, as in the original game,
+// so his question is never shown with another refusal's text.
 function refusal(
   game: Game,
   origin: SolarSystem,
@@ -58,11 +59,11 @@ function refusal(
   viaSingularity: boolean,
   shortfall: string | null
 ): string | null {
-  if (!viaSingularity && game.commander.debtIsTooLargeToBuy()) {
-    return 'Your debt is too large. You are not allowed to leave this system until your debt is lowered.';
-  }
   if (wild) {
     return `Jonathan Wild isn't about to go with you if you're not armed with at least a Beam Laser. He'd rather take his chances hiding out here on ${origin.name}.`;
+  }
+  if (!viaSingularity && game.commander.debtIsTooLargeToBuy()) {
+    return 'Your debt is too large. You are not allowed to leave this system until your debt is lowered.';
   }
   return shortfall;
 }

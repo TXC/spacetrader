@@ -635,7 +635,7 @@ export class Commander extends CrewMember {
         );
       }
 
-      this.ship.soldQuantity(quantity, itemType);
+      this.ship.soldQuantity(actualSellAmount, itemType);
 
       if (isDumping) {
         this.credits -= actualSellAmount * dumpPenalty;

@@ -5,7 +5,7 @@ import type { Game } from './Game.ts';
 import { session } from './session.ts';
 import { Ship, shipModelForType, ShipModelType } from './Ship.ts';
 import type { ShipModel } from './Ship.ts';
-import { FAKE_QUEST_CARGO_REACTOR } from './TradeItem.types.ts';
+import { FAKE_QUEST_CARGO, FAKE_QUEST_CARGO_REACTOR } from './TradeItem.types.ts';
 import { pLog } from './Utilities.ts';
 
 export const kEscapePodPrice = 2000;
@@ -188,6 +188,9 @@ function tradeIn(
   const ship = new Ship(model.type, game.difficulty);
   game.commander.ship.crew.forEach(crewMember => ship.addCrewMember(crewMember));
   rare.kept.forEach(type => ship.addAccessoryOfType(type));
+  // Quest cargo stays with the commander. (The reactor never gets here: it blocks the sale.)
+  const antidote = game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO);
+  ship.boughtQuantity(antidote, FAKE_QUEST_CARGO, 0);
   game.commander.ship = ship;
   game.commander.credits = game.commander.credits - price - rare.extraCost;
   saved(game);
