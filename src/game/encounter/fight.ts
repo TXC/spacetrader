@@ -65,10 +65,7 @@ export function fightRound(
 function exchangeFire(encounter: Encounter, commanderFlees: boolean) {
   let commanderGotHit = false;
 
-  if (
-    isAttackEncounter(encounter._type) ||
-    encounter._type === EncounterType.PostMarieCelestePoliceEncounter
-  ) {
+  if (isAttackEncounter(encounter._type)) {
     commanderGotHit = executeAttack(
       encounter,
       encounter._opponent,
