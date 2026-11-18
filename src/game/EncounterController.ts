@@ -1061,7 +1061,9 @@ export class EncounterController {
           surrenderBlock();
         }
       } else {
-        const aC = new AlertViewController(surrenderPrompt);
+        // The rule misreads a variable that starts as a bare null; the compiler needs the `!`.
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        const aC = new AlertViewController(surrenderPrompt!);
 
         aC.addAction('Dismiss', AlertActionType.Default, null);
 
