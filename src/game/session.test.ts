@@ -1,11 +1,13 @@
 import { beforeEach, expect, test, vi } from 'vitest';
+import { alertStore, AlertViewController } from './alerts.ts';
 import { CrewMember } from './CrewMember.ts';
-import { GameEndStatus } from './Game.ts';
+import { Game, GameEndStatus } from './Game.ts';
 import { GameRand } from './GameRand.ts';
 import { startingSkills } from './NewCommander.ts';
 import { runtime } from './runtime.ts';
-import { Session } from './session.ts';
-import { DebugMode, MockLocalStorage } from './Utilities.ts';
+import { CANNOT_SAVE, SAVE_REMOVED, Session } from './session.ts';
+import { MockLocalStorage } from '../tests/support/MockLocalStorage.ts';
+import { DebugMode } from './Utilities.ts';
 
 let session: Session;
 let storage: MockLocalStorage;
@@ -13,6 +15,7 @@ let storage: MockLocalStorage;
 beforeEach(() => {
   runtime.debugMode = DebugMode.Assert;
   runtime.gameRand = new GameRand(1);
+  AlertViewController.clearAlerts();
   storage = new MockLocalStorage();
   session = new Session();
   session.storage = storage;
@@ -116,4 +119,76 @@ test('firing the local mercenary puts "For Hire" back at once', () => {
   session.rosterFired(mercenary);
 
   expect(session.navRows.map(link => link.row)).toContain('For Hire');
+});
+
+// ---- storage that fails, and saved games that cannot be used ----
+
+const alerts = () => alertStore.open.map(alert => alert.title);
+
+// A session reading what is in the shared storage now.
+function nextSession(): Session {
+  const next = new Session();
+  next.storage = storage;
+  next.start();
+  return next;
+}
+
+test('when the browser cannot save, the game goes on and the player is told once', () => {
+  storage.setItem = () => {
+    throw new Error('The quota has been exceeded.');
+  };
+
+  session.createCommander('Tester', 2, startingSkills());
+  session.game!.save();
+
+  expect(session.screen).toBe('landing');
+  expect(alerts()).toEqual([CANNOT_SAVE]);
+});
+
+test('unreadable data under "games" does not stop a new game', () => {
+  storage.setItem('games', '{');
+  const next = nextSession();
+  expect(next.screen).toBe('newCommander');
+
+  next.createCommander('Tester', 2, startingSkills());
+
+  expect(next.screen).toBe('landing');
+  expect(saved('games')).toEqual([next.game!.uniqueID]);
+});
+
+test('a damaged save is removed, the next one loads, and the player is told', () => {
+  session.createCommander('Tester', 2, startingSkills());
+  const good = session.game!.uniqueID;
+  const games = JSON.parse(storage.getItem('games')!);
+  storage.setItem('games', JSON.stringify({ broken: { difficulty: 'hard' }, ...games }));
+
+  const next = nextSession();
+
+  expect(next.game!.uniqueID).toBe(good);
+  expect(saved('games')).toEqual([good]);
+  expect(alerts()).toEqual([SAVE_REMOVED]);
+});
+
+test('a save that passes the check but fails to load is removed too', () => {
+  session.createCommander('Tester', 2, startingSkills());
+  vi.spyOn(Game, 'fromSerializedState').mockImplementation(() => {
+    throw new Error('This save makes no sense to the rules.');
+  });
+  vi.spyOn(console, 'error').mockImplementation(() => {});
+
+  const next = nextSession();
+
+  expect(next.screen).toBe('newCommander');
+  expect(saved('games')).toEqual([]);
+  expect(alerts()).toEqual([SAVE_REMOVED]);
+});
+
+test('a damaged high-score record is left out and removed', () => {
+  session.createCommander('Tester', 2, startingSkills());
+  session.endGame(GameEndStatus.Retired);
+  const scores = JSON.parse(storage.getItem('highScoringGames')!);
+  storage.setItem('highScoringGames', JSON.stringify({ ...scores, broken: { score: 99 } }));
+
+  expect(session.highScores(6).map(state => state.commander.name)).toEqual(['Tester']);
+  expect(saved('highScoringGames')).toEqual(Object.keys(scores));
 });

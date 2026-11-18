@@ -2,6 +2,7 @@ import { ActionLogger } from './game/ActionLogger.ts';
 import { GameRand } from './game/GameRand.ts';
 import { runtime } from './game/runtime.ts';
 import { activate, Session } from './game/session.ts';
+import { browserStorage } from './game/storage.ts';
 import { DebugMode } from './game/Utilities.ts';
 
 // Debug mode is asked for in the address, as in /?debug. It shows the debug panel and
@@ -17,7 +18,7 @@ export function startSession(): Session {
   runtime.debugMode = debugModeFor(location.search);
   runtime.gameRand = new GameRand(randSeed);
   runtime.actionLog = new ActionLogger(randSeed);
-  runtime.stLocalStorage = localStorage;
+  runtime.stLocalStorage = browserStorage();
   const session = new Session();
   activate(session);
   session.start();

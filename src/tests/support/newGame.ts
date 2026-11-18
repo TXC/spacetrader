@@ -11,6 +11,7 @@ export function newGame(difficulty = 2): Game {
   runtime.gameRand = new GameRand(1);
   AlertViewController.clearAlerts();
   const commander = new Commander('Tester', 5, 5, 5, 5);
+  commander.setReserveMoney(false);
   commander.setDifficulty(difficulty);
   return new Game(difficulty, commander);
 }

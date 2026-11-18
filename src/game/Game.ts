@@ -1,12 +1,10 @@
 import { countOf } from './texts.ts';
 import type { ValueOf } from './texts.ts';
 import { Commander } from './Commander.ts';
-import type { CommanderState } from './Commander.ts';
 import { CrewMember } from './CrewMember.ts';
 import { politicsForType, PoliticsType } from './Politics.ts';
 import { MAX_TRIBBLES, Ship, shipModelForType, ShipModelType } from './Ship.ts';
 import { SolarSystem } from './SolarSystem.ts';
-import type { SolarSystemState } from './SolarSystem.ts';
 import {
   REACTOR_BAY_COUNT,
   REACTOR_MAX_FUEL,
@@ -65,42 +63,9 @@ export const WORMHOLE_COUNT = 6;
 
 export const MERCENARY_COUNT = CrewMember.mercenaryNames().length;
 
-// What serializedState() writes into a saved game.
-export type GameState = {
-  monsterStatus: number;
-  dragonflyStatus: number;
-  scarabStatus: number;
-  japoriQuestStatus: number;
-  jarekStatus: number;
-  invasionStatus: number;
-  experimentStatus: number;
-  fabricRipProbability: number;
-  wildStatus: number;
-  reactorStatus: number;
-  difficulty: number;
-  endStatus: number;
-  monsterHull: number;
-  score: number;
-  remindLoans: boolean;
-  tribbleMessage: boolean;
-  alreadyPaidForNewspaper: boolean;
-  alwaysIgnorePirates: boolean;
-  alwaysIgnorePolice: boolean;
-  alwaysIgnoreTraders: boolean;
-  alwaysIgnoreTradeInOrbit: boolean;
-  autoFuel: boolean;
-  autoRepairs: boolean;
-  autoNews: boolean;
-  canSuperWarp: boolean;
-  breakingNews?: string[];
-  commander: CommanderState;
-  warpSystemName?: string;
-  trackedSystemName?: string;
-  uniqueID: string;
-  remainingRareEvents: number[];
-  solarSystems: SolarSystemState[];
-  lastSave: Date | string;
-};
+import { SAVE_VERSION } from './savedGame.ts';
+import type { GameState } from './savedGame.ts';
+export type { GameState };
 
 export class Game {
   // `new Game()` with no commander returns an empty shell that fromSerializedState() fills in.
@@ -402,6 +367,7 @@ export class Game {
 
     this._lastSave = new Date();
     state.lastSave = this._lastSave;
+    state.version = SAVE_VERSION;
 
     return state;
   }

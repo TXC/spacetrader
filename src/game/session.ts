@@ -8,14 +8,17 @@ import { Game, GameEndStatus } from './Game.ts';
 import type { GameState } from './Game.ts';
 import { News } from './News.ts';
 import { runtime } from './runtime.ts';
+import { parseSavedGame } from './savedGame.ts';
 import { present as presentShipYard } from './ShipYard.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import { SpecialEvent } from './SolarSystem.types.ts';
 import { specialEventForType } from './SpecialEventSpecifier.ts';
 import type { SpecialEventSpecifier } from './SpecialEventSpecifier.ts';
+import { readJson, writeJson } from './storage.ts';
+import type { GameStorage } from './storage.ts';
 import { Store } from './Store.ts';
 import { Travel } from './Travel.ts';
-import { MockLocalStorage, pLog } from './Utilities.ts';
+import { pLog } from './Utilities.ts';
 import { systemsWithinRange, warp } from './Warp.ts';
 
 export const MAX_HIGH_SCORES = 6;
@@ -52,6 +55,10 @@ const ROW_PROBES: Record<string, number> = {
 export type NavRow = { row: string; icon: string };
 export type Skills = { engineer: number; pilot: number; fighter: number; trader: number };
 type SavedGames = Record<string, GameState>;
+
+export const CANNOT_SAVE =
+  'Your game cannot be saved in this browser right now. You can keep playing, but your progress will be lost when you close the page.';
+export const SAVE_REMOVED = 'A saved game could not be read and was removed.';
 // The part of the map the session needs: a way to move its selection.
 export type MapHandle = { selectSystem(system: SolarSystem, wormhole: boolean): void };
 
@@ -62,7 +69,8 @@ export class Session extends Store {
   screen: 'newCommander' | 'landing' | 'endGame' = 'newCommander';
   loadGame = true;
   // Tests put their own storage here; otherwise the page's storage is used.
-  storage: Storage | MockLocalStorage | null = null;
+  storage: GameStorage | null = null;
+  private warnedAboutSaving = false;
 
   // The landing screen.
   row: string | null = null; // the sub-screen that is open; none shows the welcome
@@ -131,31 +139,72 @@ export class Session extends Store {
     this.start();
   };
 
-  private get store(): Storage | MockLocalStorage {
+  private get store(): GameStorage {
     return this.storage ?? runtime.stLocalStorage;
   }
 
-  private read(key: string): SavedGames {
-    return JSON.parse(this.store.getItem(key)!) || {};
+  // The saved games under `key` that pass the check. Any that do not are removed from
+  // storage; `removed` says whether that happened.
+  private read(key: string): { games: SavedGames; removed: boolean } {
+    const stored = readJson(this.store, key);
+    const entries = stored && typeof stored === 'object' ? Object.entries(stored) : [];
+    const games: SavedGames = {};
+    for (const [id, value] of entries) {
+      const state = parseSavedGame(value);
+      if (state) games[id] = state;
+    }
+    const removed = Object.keys(games).length < entries.length;
+    if (removed) this.write(key, games);
+    return { games, removed };
   }
 
+  // Storage can be full or switched off. The game goes on; the player is told once.
+  private write(key: string, games: SavedGames): void {
+    if (writeJson(this.store, key, games) || this.warnedAboutSaving) return;
+    this.warnedAboutSaving = true;
+    AlertViewController.presentAlertWithDismiss(CANNOT_SAVE);
+  }
+
+  // Loads the newest saved game that can be used, and removes the ones that cannot.
   private loadIfNeeded(): void {
     if (this.game || !this.loadGame) return;
+    const { games, removed } = this.read('games');
+    const unusable = this.loadNewest(games);
+    unusable.forEach(id => delete games[id]);
+    if (unusable.length > 0) this.write('games', games);
+    if (removed || unusable.length > 0) AlertViewController.presentAlertWithDismiss(SAVE_REMOVED);
+  }
+
+  // Tries the games newest first until one loads. Returns the ids of those that failed.
+  private loadNewest(games: SavedGames): string[] {
+    const newestFirst = Object.keys(games).sort(
+      (a, b) => Date.parse(String(games[b].lastSave)) - Date.parse(String(games[a].lastSave))
+    );
+    const failed: string[] = [];
+    for (const id of newestFirst) {
+      if (this.load(games[id])) break;
+      failed.push(id);
+    }
+    return failed;
+  }
+
+  // A save can pass the check and still not make sense to the rules.
+  private load(state: GameState): boolean {
     try {
-      const saved = this.read('games');
-      const first = saved[Object.keys(saved)[0]];
-      if (!first) return;
+      const game = Game.fromSerializedState(state);
       pLog.log(67);
-      this.game = Game.fromSerializedState(first);
-      this.game.setSaveBlock(this.save);
-    } catch (e) {
-      console.log('Could not load the saved game. ' + e);
+      game.setSaveBlock(this.save);
+      this.game = game;
+      return true;
+    } catch (error) {
+      console.error('Could not load the saved game.', error);
+      return false;
     }
   }
 
   // A game in progress is kept under "games"; a finished one moves to the high scores.
   private save = (game: Game): void => {
-    const games = this.read('games');
+    const { games } = this.read('games');
     if (game.endStatus === GameEndStatus.None) {
       pLog.log(69);
       games[game.uniqueID] = game.serializedState();
@@ -163,17 +212,17 @@ export class Session extends Store {
       delete games[game.uniqueID];
       this.addHighScore(game);
     }
-    this.store.setItem('games', JSON.stringify(games));
+    this.write('games', games);
   };
 
   private addHighScore(game: Game): void {
-    const scores = this.read('highScoringGames');
+    const { games: scores } = this.read('highScoringGames');
     pLog.log(68);
     scores[game.uniqueID] = game.serializedState();
     Session.byScore(scores)
       .slice(MAX_HIGH_SCORES)
       .forEach(id => delete scores[id]);
-    this.store.setItem('highScoringGames', JSON.stringify(scores));
+    this.write('highScoringGames', scores);
   }
 
   // The ids of the saved games, best score first.
@@ -182,20 +231,15 @@ export class Session extends Store {
   }
 
   highScores = (count: number): GameState[] => {
-    try {
-      const scores = this.read('highScoringGames');
-      return Session.byScore(scores)
-        .slice(0, count)
-        .map(id => scores[id]);
-    } catch (e) {
-      console.log('Could not read the high scores. ' + e);
-      return [];
-    }
+    const { games: scores } = this.read('highScoringGames');
+    return Session.byScore(scores)
+      .slice(0, count)
+      .map(id => scores[id]);
   };
 
   clearHighScores = (): void => {
     pLog.log(94);
-    this.store.setItem('highScoringGames', JSON.stringify({}));
+    this.write('highScoringGames', {});
   };
 
   // ---- the landing screen ------------------------------------------------------------
