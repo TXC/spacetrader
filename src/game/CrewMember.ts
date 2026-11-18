@@ -96,12 +96,21 @@ export class CrewMember {
     };
   }
 
-  static create(name: string, engineer = 0, pilot = 0, fighter = 0, trader = 0): CrewMember {
+  // `this` is typed so that Commander.create and Opponent.create, which would make a plain
+  // crew member, do not compile: their private constructors make them a different kind.
+  static create(
+    this: typeof CrewMember,
+    name: string,
+    engineer = 0,
+    pilot = 0,
+    fighter = 0,
+    trader = 0
+  ): CrewMember {
     return new CrewMember(CrewMember.newFields(name, engineer, pilot, fighter, trader));
   }
 
   // A crew member from a saved game, as parseSavedGame checked it.
-  static load(state: CrewMemberState): CrewMember {
+  static load(this: typeof CrewMember, state: CrewMemberState): CrewMember {
     return new CrewMember({
       name: state.name || null,
       engineer: state.engineer,
