@@ -37,7 +37,7 @@ export const AccessoryType = {
 export type AccessoryType = (typeof AccessoryType)[keyof typeof AccessoryType];
 
 type AccessorySpec = {
-  type: number;
+  type: AccessoryType;
   name: string;
   price: number;
   techLevel: TechLevel | typeof NOT_FOR_SALE;
@@ -47,7 +47,7 @@ type PoweredSpec = AccessorySpec & { power: number };
 
 // A piece of equipment a ship can carry: a gadget, a weapon or a shield.
 export class Accessory {
-  declare readonly type: number;
+  declare readonly type: AccessoryType;
   declare readonly name: string;
   declare readonly price: number;
   declare readonly techLevel: TechLevel | typeof NOT_FOR_SALE;

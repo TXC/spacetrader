@@ -70,7 +70,7 @@ type ShipOwner = CrewMember & { ship: Ship };
 type ShipModelSpec = Omit<ShipModel, 'mercenaryQuarters' | 'shipImage' | '_shipImage'>;
 
 export class ShipModel {
-  declare type: number;
+  declare type: ShipModelType;
   declare name: string;
   declare cargoBays: number;
   declare weaponSlots: number;
@@ -436,7 +436,7 @@ export function shipModelForType(type: number): ShipModel {
 }
 
 export class Ship {
-  declare _type: number;
+  declare _type: ShipModelType;
   declare _difficulty: number;
   declare _fuel: number;
   declare _hull: number;
@@ -454,7 +454,7 @@ export class Ship {
     if (type >= SHIP_MODEL_COUNT) {
       return;
     }
-    this._type = type;
+    this._type = type as ShipModelType;
     this._difficulty = difficulty!;
     this._fuel = shipModelForType(type).fuelTanks;
     this._hull = this._hullStrength();
@@ -498,7 +498,7 @@ export class Ship {
     return ship;
   }
 
-  static createFromPreviousShip(type: number, previousShip: Ship) {
+  static createFromPreviousShip(type: ShipModelType, previousShip: Ship) {
     const ship = new Ship(type, previousShip._difficulty);
 
     if (previousShip) {
@@ -541,7 +541,7 @@ export class Ship {
     const ship = new Ship(SHIP_MODEL_COUNT);
 
     ship._upgradedHull = serializedState.upgradedHull;
-    ship._type = serializedState.type;
+    ship._type = serializedState.type as ShipModelType;
     ship._difficulty = serializedState.difficulty;
     ship._fuel = serializedState.fuel;
     ship._hull = serializedState.hull;
@@ -582,7 +582,7 @@ export class Ship {
     if (serializedState.weaponTypes) {
       serializedState.weaponTypes.forEach(accessoryType => {
         ensureInteger(accessoryType);
-        ship.addAccessoryOfType(accessoryType);
+        ship.addAccessoryOfType(accessoryType as AccessoryType);
       });
     }
 
@@ -590,7 +590,7 @@ export class Ship {
     if (serializedState.shieldTypes) {
       serializedState.shieldTypes.forEach(accessoryType => {
         ensureInteger(accessoryType);
-        ship.addAccessoryOfType(accessoryType);
+        ship.addAccessoryOfType(accessoryType as AccessoryType);
       });
     }
 
@@ -601,7 +601,7 @@ export class Ship {
     if (serializedState.gadgetTypes) {
       serializedState.gadgetTypes.forEach(accessoryType => {
         ensureInteger(accessoryType);
-        ship.addAccessoryOfType(accessoryType);
+        ship.addAccessoryOfType(accessoryType as AccessoryType);
       });
     }
 
@@ -742,23 +742,23 @@ export class Ship {
   }
 
   // Method to check if ship has a weapon of a specific type
-  hasWeaponOfType(type: number) {
+  hasWeaponOfType(type: AccessoryType) {
     return this.weaponPowerBetweenMinMaxInclusive(type, type) > 0;
   }
 
   // Method to check if ship has a gadget of a specific type
-  hasGadgetOfType(accessoryType: number) {
+  hasGadgetOfType(accessoryType: AccessoryType) {
     return this.countGadgetOfType(accessoryType, true) > 0;
   }
 
   // Method to count gadgets of a specific type
-  countGadgetOfType(gadgetType: number, limitOne: boolean) {
+  countGadgetOfType(gadgetType: AccessoryType, limitOne: boolean) {
     const count = this._gadgets.filter(gadget => gadget.type === gadgetType).length;
     return limitOne ? Math.min(count, 1) : count;
   }
 
   // Method to check if the ship has a shield of a specific type
-  hasShieldOfType(type: number) {
+  hasShieldOfType(type: AccessoryType) {
     return this._shields && this._shields.includes(shieldForType(type)!);
   }
 
@@ -769,7 +769,7 @@ export class Ship {
   }
 
   // Method to calculate free slots for an accessory type
-  freeSlotsForAccessoryType(type: number) {
+  freeSlotsForAccessoryType(type: AccessoryType) {
     let totalSlots = 0;
     let accessories: Accessory[] = [];
 
@@ -791,12 +791,12 @@ export class Ship {
   }
 
   // Method to add an accessory of a specific type
-  addAccessoryOfType(type: number) {
+  addAccessoryOfType(type: AccessoryType) {
     return this.addGadgetOfType(type) || this.addShieldOfType(type) || this.addWeaponOfType(type);
   }
 
   // Private method to remove an accessory type from a list
-  _removeType(type: number, list: Accessory[] | null) {
+  _removeType(type: AccessoryType, list: Accessory[] | null) {
     if (!list) {
       return false;
     }
@@ -810,7 +810,7 @@ export class Ship {
   }
 
   // Method to remove an accessory of a specific type
-  removeAccessoryOfType(type: number) {
+  removeAccessoryOfType(type: AccessoryType) {
     if (this._removeType(type, this._gadgets) || this._removeType(type, this._weapons)) return true;
     if (!this._removeType(type, this._shields)) return false;
     // A shield takes its charge with it: the rest cannot hold more than their own power.
@@ -820,7 +820,7 @@ export class Ship {
   }
 
   // Method to add a shield of a specific type
-  addShieldOfType(type: number) {
+  addShieldOfType(type: AccessoryType) {
     const shield = shieldForType(type);
 
     if (!shield || this._shields.length >= shipModelForType(this._type).shieldSlots) {
@@ -834,7 +834,7 @@ export class Ship {
   }
 
   // Method to add a weapon of a specific type
-  addWeaponOfType(type: number) {
+  addWeaponOfType(type: AccessoryType) {
     const weapon = weaponForType(type);
 
     if (!weapon || this._weapons.length >= shipModelForType(this._type).weaponSlots) {
@@ -847,7 +847,7 @@ export class Ship {
   }
 
   // Method to add a gadget of a specific type
-  addGadgetOfType(type: number) {
+  addGadgetOfType(type: AccessoryType) {
     const gadget = gadgetForType(type);
 
     if (!gadget || this._gadgets.length >= shipModelForType(this._type).gadgetSlots) {

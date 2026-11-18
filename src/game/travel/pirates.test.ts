@@ -19,7 +19,7 @@ const { Gnat, Firefly, Grasshopper } = ShipModelType;
 // How pirates in this ship take the commander.
 function pirateReaction(
   game: Game,
-  model: number,
+  model: ShipModelType,
   fitting = {},
   type: OpponentType = OpponentType.Pirate
 ) {

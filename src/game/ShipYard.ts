@@ -140,7 +140,7 @@ const RARE = [
   { type: AccessoryType.WeaponMorgansLaser, name: "Morgan's Laser", kind: 'weapon' },
 ] as const;
 
-function hasRare(ship: Ship, kind: 'shield' | 'gadget' | 'weapon', type: number): boolean {
+function hasRare(ship: Ship, kind: 'shield' | 'gadget' | 'weapon', type: AccessoryType): boolean {
   if (kind === 'shield') return ship.hasShieldOfType(type);
   return kind === 'gadget' ? ship.hasGadgetOfType(type) : ship.hasWeaponOfType(type);
 }
@@ -152,7 +152,7 @@ function slotsFor(model: ShipModel, kind: 'shield' | 'gadget' | 'weapon'): numbe
 
 // Which rare items move to the new ship, what that costs, and which are lost.
 function rareEquipment(game: Game, model: ShipModel) {
-  const kept: number[] = [];
+  const kept: AccessoryType[] = [];
   const lost: string[] = [];
   let extraCost = 0;
   for (const item of RARE) {
