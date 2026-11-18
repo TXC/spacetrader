@@ -7,6 +7,7 @@ import {
 import type { Game } from '../../game/Game.ts';
 import type { SolarSystem } from '../../game/SolarSystem.ts';
 import { Utils } from '../../game/Utilities.ts';
+import { drawInCanvas } from './pceDrawing.ts';
 
 // Seconds the ship takes to slide to a new position.
 export const TRAVEL_PROGRESS_DURATION = 0.2;
@@ -251,7 +252,7 @@ export class TravelProgressView {
       (this.canvas.height / this.scale - shipPCEImage.height * shipScale) / 2
     );
 
-    shipPCEImage.drawInCanvas(this.canvas, shipScale, shipX, shipY);
+    drawInCanvas(shipPCEImage, this.canvas, shipScale, shipX, shipY);
   }
 
   setProgress(p: number) {
