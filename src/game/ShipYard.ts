@@ -83,11 +83,14 @@ function confirm(text: string, yes: () => void) {
   alert.presentView();
 }
 
-// Asks first: $2000 is a lot to lose to a slip of the finger.
+// Asks first: $2000 is a lot to lose to a slip of the finger. Checks when the answer
+// comes: another confirmation may have been accepted before this one.
 export function buyEscapePod(game: Game): void {
   confirm(`Buy an escape pod for $${kEscapePodPrice}?`, () => {
-    game.commander.credits -= kEscapePodPrice;
-    game.commander.hasEscapePod = true;
+    const { commander } = game;
+    if (commander.hasEscapePod || commander.credits < kEscapePodPrice) return;
+    commander.credits -= kEscapePodPrice;
+    commander.hasEscapePod = true;
     saved(game);
   });
 }

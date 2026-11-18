@@ -192,7 +192,7 @@ function buyTwice(game: ReturnType<typeof newGame>, price: number): void {
   press('Yes');
 }
 
-test.fails('G9: equipment confirmed twice is installed once when one slot is free', () => {
+test('G9: equipment confirmed twice is installed once when one slot is free', () => {
   const game = newGame();
   game.commander.credits = 10000;
 
@@ -202,7 +202,7 @@ test.fails('G9: equipment confirmed twice is installed once when one slot is fre
   expect(game.commander.credits).toBe(9000);
 });
 
-test.fails('G9: equipment confirmed twice is installed once when the cash is for one', () => {
+test('G9: equipment confirmed twice is installed once when the cash is for one', () => {
   const game = newGame();
   game.commander.ship = new Ship(ShipModelType.Bumblebee, 2); // two gadget slots
   game.commander.credits = 1500;
@@ -213,7 +213,7 @@ test.fails('G9: equipment confirmed twice is installed once when the cash is for
   expect(game.commander.credits).toBe(500);
 });
 
-test.fails('G9: an escape pod confirmed twice is paid for once', () => {
+test('G9: an escape pod confirmed twice is paid for once', () => {
   const game = newGame();
   game.commander.credits = 3 * kEscapePodPrice;
 
@@ -226,7 +226,7 @@ test.fails('G9: an escape pod confirmed twice is paid for once', () => {
   expect(game.commander.credits).toBe(2 * kEscapePodPrice);
 });
 
-test.fails('G9: an escape pod is not sold when the cash is gone before the confirmation', () => {
+test('G9: an escape pod is not sold when the cash is gone before the confirmation', () => {
   const game = newGame();
   game.commander.credits = kEscapePodPrice;
 
@@ -238,7 +238,7 @@ test.fails('G9: an escape pod is not sold when the cash is gone before the confi
   expect(game.commander.credits).toBe(kEscapePodPrice - 1);
 });
 
-test.fails('G9: a mercenary hired twice joins the crew once', () => {
+test('G9: a mercenary hired twice joins the crew once', () => {
   const game = newGame();
   game.commander.ship = new Ship(ShipModelType.Beetle, 2); // two mercenary quarters
   const mercenary = new CrewMember('Hired Hand', 4, 4, 4, 4);
@@ -249,7 +249,7 @@ test.fails('G9: a mercenary hired twice joins the crew once', () => {
   expect(game.commander.ship.crew).toEqual([mercenary]);
 });
 
-test.fails('G9: with the quarters full nobody is hired and nothing is saved', () => {
+test('G9: with the quarters full nobody is hired and nothing is saved', () => {
   const game = newGame();
   const onSave = vi.fn();
   game.setOnSave(onSave);
