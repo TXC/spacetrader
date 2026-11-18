@@ -25,6 +25,7 @@ import type { Game, GameEndedStatus } from '../Game.ts';
 import { ensureArrayOrNull, ensureInteger } from '../ensure.ts';
 import { pLog } from '../probes.ts';
 import { runtime } from '../runtime.ts';
+import { policeMeeting } from './police.ts';
 import { whoIsMet } from './whoIsMet.ts';
 
 export const CHANCE_OF_TRADE_IN_ORBIT = 100;
@@ -140,105 +141,10 @@ export class Travel extends Store implements EncounterListener {
 
       const opponentType = whoIsMet(this, currentClicks);
 
-      let opponent = null;
+      let opponent: Opponent | null = null;
 
       if (opponentType === OpponentType.Police) {
-        opponent = Opponent.generateOpponentWithType(opponentType, this._game);
-
-        if (currentClicks === 1 && this._needPostMarieCustomsPolice) {
-          encounterType = EncounterType.PostMarieCelestePoliceEncounter;
-          this._needPostMarieCustomsPolice = false;
-        } else {
-          encounterType = EncounterType.PoliceIgnore;
-          const policeHaveWeapons = opponent.ship.weapons.length > 0;
-
-          if (
-            this._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(
-              this._game.commander,
-              opponent
-            )
-          ) {
-            encounterType = EncounterType.PoliceIgnore;
-          } else if (this._game.commander.policeRecordScore < PoliceRecordScore.Dubious) {
-            // If you're a criminal, the police will try to attack
-            if (!policeHaveWeapons) {
-              if (
-                opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(
-                  opponent,
-                  this._game.commander
-                )
-              ) {
-                encounterType = EncounterType.PoliceIgnore;
-              } else {
-                encounterType = EncounterType.PoliceFlee;
-              }
-            } else if (this._game.commander.reputationScore < ReputationScore.Average) {
-              encounterType = EncounterType.PoliceAttack;
-            } else if (
-              runtime.gameRand.randomIntBelow(ReputationScore.Elite) >
-              Math.floor(this._game.commander.reputationScore / (1 + opponent.ship.type))
-            ) {
-              encounterType = EncounterType.PoliceAttack;
-            } else if (
-              opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, this._game.commander)
-            ) {
-              encounterType = EncounterType.PoliceIgnore;
-            } else {
-              encounterType = EncounterType.PoliceFlee;
-            }
-          } else if (
-            this._game.commander.policeRecordScore >= PoliceRecordScore.Dubious &&
-            this._game.commander.policeRecordScore < PoliceRecordScore.Clean &&
-            !this._game.commander.inspected
-          ) {
-            // If your reputation is dubious, the police will inspect you
-            encounterType = EncounterType.PoliceInspection;
-            this._game.commander.inspected = true;
-          } else if (this._game.commander.policeRecordScore < PoliceRecordScore.Lawful) {
-            // Clean record, infrequent inspections
-            if (
-              runtime.gameRand.randomIntBelow(12 - this._game.difficulty) < 1 &&
-              !this._game.commander.inspected
-            ) {
-              encounterType = EncounterType.PoliceInspection;
-              this._game.commander.inspected = true;
-            }
-          } else {
-            // Lawful trader, very infrequent inspections
-            if (runtime.gameRand.randomIntBelow(40) === 1 && !this._game.commander.inspected) {
-              encounterType = EncounterType.PoliceInspection;
-              this._game.commander.inspected = true;
-            }
-          }
-
-          // Police aren't intimidated if your ship is weaker
-          if (
-            encounterType === EncounterType.PoliceFlee &&
-            opponent.ship.type > this._game.commander.ship.type
-          ) {
-            if (
-              policeHaveWeapons &&
-              this._game.commander.policeRecordScore < PoliceRecordScore.Dubious
-            ) {
-              encounterType = EncounterType.PoliceAttack;
-            } else {
-              encounterType = EncounterType.PoliceInspection;
-            }
-          }
-
-          const noConfrontation =
-            encounterType === EncounterType.PoliceFlee ||
-            encounterType === EncounterType.PoliceIgnore;
-
-          if (
-            noConfrontation &&
-            opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, this._game.commander)
-          ) {
-            encounterType = EncounterType.None;
-          } else if (noConfrontation && this._game.alwaysIgnorePolice) {
-            encounterType = EncounterType.None;
-          }
-        }
+        ({ encounterType, opponent } = policeMeeting(this, opponentType, currentClicks));
       } else if (opponentType === OpponentType.Pirate || opponentType === OpponentType.Mantis) {
         opponent = Opponent.generateOpponentWithType(opponentType, this._game);
 
@@ -818,3 +724,7 @@ export class Travel extends Store implements EncounterListener {
     });
   }
 }
+
+// What a click of the trip brings: the opponent and how the encounter with it starts.
+// No encounter starts when the type is None or there is no opponent.
+export type Meeting = { encounterType: EncounterType; opponent: Opponent | null };
