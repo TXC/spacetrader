@@ -24,7 +24,7 @@ function rareEventCheats(): Cheat[] {
       apply: game => {
         game.forceRareEvent = true;
         // This replaces any rare events still waiting to happen.
-        game._remainingRareEvents = [rareEvent];
+        game.remainingRareEvents = [rareEvent];
       },
     };
   });

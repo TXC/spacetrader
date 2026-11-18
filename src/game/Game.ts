@@ -93,12 +93,12 @@ function nearestFreeSystem(
 
 export class Game {
   // `new Game()` with no commander returns an empty shell that fromSerializedState() fills in.
-  // `_remainingRareEvents` is typed as always set, but is unset until the game is set up.
+  // `remainingRareEvents` is typed as always set, but is unset until the game is set up.
   declare _onSave: ((game: Game) => void) | null;
   declare _onChange: (() => void) | null;
-  declare _uniqueID: string;
-  declare _endStatus: number;
-  declare _trackedSystem: SolarSystem | null;
+  declare uniqueID: string;
+  declare endStatus: number;
+  declare trackedSystem: SolarSystem | null;
   declare _breakingNews: string[] | null;
   declare canSuperWarp: boolean;
   declare autoNews: boolean;
@@ -123,8 +123,8 @@ export class Game {
   declare reactorStatus: number;
   declare commander: Commander;
   declare difficulty: number;
-  declare _monsterHull: number;
-  declare _remainingRareEvents: number[];
+  declare monsterHull: number;
+  declare remainingRareEvents: number[];
   declare solarSystems: SolarSystem[];
   declare _warpSystem: SolarSystem | null;
   declare _lastSave?: Date; // unset until the first toState()
@@ -137,10 +137,10 @@ export class Game {
     this._onChange = null;
 
     if (recruit) {
-      this._uniqueID = this._generateUniqueID();
-      this._endStatus = GameEndStatus.None;
+      this.uniqueID = this._generateUniqueID();
+      this.endStatus = GameEndStatus.None;
 
-      this._trackedSystem = null;
+      this.trackedSystem = null;
       this._breakingNews = null;
 
       this.canSuperWarp = false;
@@ -201,9 +201,9 @@ export class Game {
     instance.wildStatus = serializedState.wildStatus;
     instance.reactorStatus = serializedState.reactorStatus;
     instance.difficulty = serializedState.difficulty;
-    instance._endStatus = serializedState.endStatus;
+    instance.endStatus = serializedState.endStatus;
 
-    instance._monsterHull = serializedState.monsterHull;
+    instance.monsterHull = serializedState.monsterHull;
 
     instance.remindLoans = serializedState.remindLoans;
     instance.tribbleMessage = serializedState.tribbleMessage;
@@ -226,8 +226,8 @@ export class Game {
       instance._breakingNews = null;
     }
 
-    instance._remainingRareEvents = [...serializedState.remainingRareEvents];
-    ensureArrayOrNull(instance._remainingRareEvents, 'number');
+    instance.remainingRareEvents = [...serializedState.remainingRareEvents];
+    ensureArrayOrNull(instance.remainingRareEvents, 'number');
 
     instance.solarSystems = serializedState.solarSystems.map(ss => SolarSystem.load(ss));
 
@@ -237,39 +237,15 @@ export class Game {
     });
 
     instance._warpSystem = instance._findSolarSystem(serializedState.warpSystemName);
-    instance._trackedSystem = instance._findSolarSystem(serializedState.trackedSystemName);
+    instance.trackedSystem = instance._findSolarSystem(serializedState.trackedSystemName);
 
     instance.commander = Commander.restore(serializedState.commander, instance.solarSystems);
 
     instance._lastSave = new Date(serializedState.lastSave);
 
-    instance._uniqueID = serializedState.uniqueID || instance._generateUniqueID();
+    instance.uniqueID = serializedState.uniqueID || instance._generateUniqueID();
 
     return instance;
-  }
-
-  get trackedSystem() {
-    return this._trackedSystem;
-  }
-
-  set trackedSystem(s) {
-    if (ensureObjectOrNull(s)) {
-      this._trackedSystem = s;
-    }
-  }
-
-  get endStatus() {
-    return this._endStatus;
-  }
-
-  set endStatus(st) {
-    if (ensureInteger(st)) {
-      this._endStatus = st;
-    }
-  }
-
-  get uniqueID() {
-    return this._uniqueID;
   }
 
   _generateUniqueID() {
@@ -317,11 +293,11 @@ export class Game {
     ensureInteger(this.difficulty);
     state.difficulty = this.difficulty;
 
-    ensureInteger(this._endStatus);
-    state.endStatus = this._endStatus;
+    ensureInteger(this.endStatus);
+    state.endStatus = this.endStatus;
 
-    ensureInteger(this._monsterHull);
-    state.monsterHull = this._monsterHull;
+    ensureInteger(this.monsterHull);
+    state.monsterHull = this.monsterHull;
 
     state.score = this.score();
     ensureInteger(state.score);
@@ -373,19 +349,19 @@ export class Game {
       state.warpSystemName = this._warpSystem.name;
     }
 
-    ensureObjectOrNull(this._trackedSystem);
-    if (this._trackedSystem) {
-      ensureType(this._trackedSystem.name, 'string');
-      state.trackedSystemName = this._trackedSystem.name;
+    ensureObjectOrNull(this.trackedSystem);
+    if (this.trackedSystem) {
+      ensureType(this.trackedSystem.name, 'string');
+      state.trackedSystemName = this.trackedSystem.name;
       pLog.log(74);
     }
 
-    ensureType(this._uniqueID, 'string');
-    state.uniqueID = this._uniqueID;
+    ensureType(this.uniqueID, 'string');
+    state.uniqueID = this.uniqueID;
 
-    ensureArrayOrNull(this._remainingRareEvents, 'number');
-    if (this._remainingRareEvents) {
-      state.remainingRareEvents = [...this._remainingRareEvents];
+    ensureArrayOrNull(this.remainingRareEvents, 'number');
+    if (this.remainingRareEvents) {
+      state.remainingRareEvents = [...this.remainingRareEvents];
       pLog.log(75);
     }
 
@@ -424,9 +400,9 @@ export class Game {
     const MILLION = 1000000;
     const adjustedWorth = worth < MILLION ? worth : Math.floor(MILLION + (worth - MILLION) / 10);
 
-    if (this._endStatus === GameEndStatus.Killed) {
+    if (this.endStatus === GameEndStatus.Killed) {
       score = (this.difficulty + 1) * ((adjustedWorth * 90) / 50000);
-    } else if (this._endStatus === GameEndStatus.Retired) {
+    } else if (this.endStatus === GameEndStatus.Retired) {
       score = (this.difficulty + 1) * ((adjustedWorth * 95) / 50000);
     } else {
       const dayFactor = Math.max(0, (this.difficulty + 1) * 100 - this.commander.days);
@@ -654,7 +630,7 @@ export class Game {
 
     this._warpSystem = this.commander.currentSystem;
     this.remindLoans = true;
-    this._monsterHull = shipModelForType(ShipModelType.SpaceMonster).hullStrength;
+    this.monsterHull = shipModelForType(ShipModelType.SpaceMonster).hullStrength;
 
     if (this.difficulty < Difficulty.Normal) {
       if (this.commander.currentSystem.specialEvent === SpecialEvent.None) {
@@ -736,27 +712,23 @@ export class Game {
     this._breakingNews = null;
   }
 
-  get remainingRareEvents() {
-    return this._remainingRareEvents;
-  }
-
   addRemainingRareEvents(rareEvents: number[]) {
     if (!ensureArrayOrNull(rareEvents, 'number')) {
       return;
     }
 
-    if (!this._remainingRareEvents) {
-      this._remainingRareEvents = [];
+    if (!this.remainingRareEvents) {
+      this.remainingRareEvents = [];
     }
-    this._remainingRareEvents.push(...rareEvents);
+    this.remainingRareEvents.push(...rareEvents);
   }
 
   removeRemainingRareEvent(rareEvent: number) {
     ensureInteger(rareEvent);
 
-    const index = this._remainingRareEvents.indexOf(rareEvent);
+    const index = this.remainingRareEvents.indexOf(rareEvent);
     if (index !== -1) {
-      this._remainingRareEvents.splice(index, 1);
+      this.remainingRareEvents.splice(index, 1);
     }
   }
 
@@ -831,22 +803,12 @@ export class Game {
     }
   }
 
-  get monsterHull() {
-    return this._monsterHull;
-  }
-
-  set monsterHull(m) {
-    if (ensureInteger(m)) {
-      this._monsterHull = m;
-    }
-  }
-
   healMonster() {
-    this._monsterHull = Math.min(
+    this.monsterHull = Math.min(
       shipModelForType(ShipModelType.SpaceMonster).hullStrength,
-      Math.floor((this._monsterHull * 105) / 100)
+      Math.floor((this.monsterHull * 105) / 100)
     );
-    ensureInteger(this._monsterHull);
+    ensureInteger(this.monsterHull);
     pLog.log(142);
   }
 
