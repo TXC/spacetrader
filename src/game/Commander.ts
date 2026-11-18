@@ -123,7 +123,7 @@ export type Recruit = {
 };
 
 // How a new commander starts: the money, the ship, and the first system.
-type Start = { difficulty: number; credits: number; ship: Ship; system: SolarSystem };
+type Start = { credits: number; ship: Ship; system: SolarSystem };
 
 // Everything a commander is made of.
 type CommanderFields = CrewMemberFields & {
@@ -146,7 +146,6 @@ type CommanderFields = CrewMemberFields & {
   hasEscapePod: boolean;
   hasInsurance: boolean;
   credits: number;
-  difficulty: number;
   reserveMoney: boolean;
   currentSystem: SolarSystem;
   ship: Ship;
@@ -172,7 +171,6 @@ export class Commander extends CrewMember {
   hasEscapePod: boolean;
   hasInsurance: boolean;
   private _credits: number;
-  readonly difficulty: number;
   reserveMoney: boolean;
   private _currentSystem: SolarSystem;
   ship: Ship;
@@ -198,7 +196,6 @@ export class Commander extends CrewMember {
     this.hasEscapePod = fields.hasEscapePod;
     this.hasInsurance = fields.hasInsurance;
     this._credits = fields.credits;
-    this.difficulty = fields.difficulty;
     this.reserveMoney = fields.reserveMoney;
     this._currentSystem = fields.currentSystem;
     this.ship = fields.ship;
@@ -229,7 +226,6 @@ export class Commander extends CrewMember {
       hasEscapePod: false,
       hasInsurance: false,
       credits: start.credits,
-      difficulty: start.difficulty,
       reserveMoney: false,
       currentSystem: start.system,
       ship: start.ship,
@@ -239,11 +235,7 @@ export class Commander extends CrewMember {
   }
 
   // A commander from a saved game, as parseSavedGame checked it, at one of its systems.
-  static restore(
-    state: CommanderState,
-    solarSystems: SolarSystem[],
-    difficulty: number
-  ): Commander {
+  static restore(state: CommanderState, solarSystems: SolarSystem[]): Commander {
     const currentSystem = SolarSystem.solarSystemForName(state.currentSystemName, solarSystems)!;
     ensureType(currentSystem, 'object');
     return new Commander({
@@ -266,7 +258,6 @@ export class Commander extends CrewMember {
       hasEscapePod: state.hasEscapePod,
       hasInsurance: state.hasInsurance,
       credits: state.credits,
-      difficulty,
       reserveMoney: state.reserveMoney,
       currentSystem,
       ship: Ship.load(state.ship, solarSystems),
