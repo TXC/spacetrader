@@ -321,11 +321,6 @@ nav {
   margin: auto;
 }
 
-.bays-credits {
-  display: flex;
-  justify-content: space-between; /* Left-aligns the first item, right-aligns the second */
-}
-
 /* Styling for the backdrop (overlay) */
 .alert-backdrop {
   position: fixed;

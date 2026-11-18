@@ -1,0 +1,5 @@
+/* The bays on the left, the cash on the right. */
+.line {
+  display: flex;
+  justify-content: space-between;
+}
