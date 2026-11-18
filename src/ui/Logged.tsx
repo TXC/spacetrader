@@ -4,15 +4,9 @@ import { Utils } from '../game/Utilities.ts';
 import styles from './Button.module.css';
 import { useLogged } from './useLogged.ts';
 
-// The shared button look, plus whatever else the caller asks for.
-function look(...extra: (string | undefined)[]): string {
-  return [styles.button, ...extra].filter(Boolean).join(' ');
-}
-
 type ButtonProps = {
   id?: string;
   label: string;
-  className?: string;
   disabled?: boolean;
   onPress: () => void;
   // 'main' is a screen's main action; 'danger' cannot be undone.
@@ -20,13 +14,13 @@ type ButtonProps = {
 };
 
 // The id defaults to the label, made safe for an element id, as the old screens did.
-export function LoggedButton({ id, label, className, disabled, onPress, kind }: ButtonProps) {
+export function LoggedButton({ id, label, disabled, onPress, kind }: ButtonProps) {
   const elementId = Utils.sanitizedElementID(id ?? label);
   const onClick = useLogged(elementId, 'click', onPress);
   return (
     <button
       id={elementId}
-      className={look(kind && styles[kind], className)}
+      className={kind ? `${styles.button} ${styles[kind]}` : styles.button}
       disabled={disabled}
       onClick={onClick}
     >

@@ -121,6 +121,6 @@ test('with two alerts sharing a button id, a click reaches the older one', () =>
 
   expect(pressed).toEqual(['older']);
   expect(alertStore.open.map(alert => alert.title)).toEqual(['newer']);
-  expect(document.querySelectorAll('.alert-backdrop').length).toBe(1);
+  expect(document.querySelectorAll('dialog').length).toBe(1);
   AlertViewController.clearAlerts();
 });

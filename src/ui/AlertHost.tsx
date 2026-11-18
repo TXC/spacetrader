@@ -4,6 +4,7 @@ import type { ChangeEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { AlertActionType, AlertPresentationStyle, alertStore } from '../game/alerts.ts';
 import type { AlertAction, AlertViewController, SliderContent } from '../game/alerts.ts';
+import styles from './AlertHost.module.css';
 import { Lines } from './Lines.tsx';
 import { LoggedButton } from './Logged.tsx';
 import { PlunderTable } from './PlunderTable.tsx';
@@ -53,7 +54,6 @@ function ActionButton({ alert, action }: AlertProps & { action: AlertAction }) {
   return (
     <LoggedButton
       id={alert.buttonId(action.title)}
-      className="alert-action-button"
       kind={destructive ? 'danger' : undefined}
       label={action.title}
       onPress={() => alert.press(action)}
@@ -77,22 +77,22 @@ function Alert({ alert }: AlertProps) {
   const dialog = useModal();
   const titleId = alert.elementId('alertvc-title');
   const high = alert.presentationStyle === AlertPresentationStyle.High;
-  const count = alert.actions.length <= 2 ? 'two-buttons' : 'more-buttons';
+  const stacked = alert.actions.length > 2;
   return createPortal(
     <dialog
       ref={dialog}
       id={alert.elementId('alertvc-backdrop')}
-      className="alert-backdrop"
+      className={styles.layer}
       aria-labelledby={titleId}
       // An alert needs an answer, so Escape does not close it.
       onCancel={event => event.preventDefault()}
     >
-      <div className={'alert-box ' + (high ? 'alert-box-high' : 'alert-box-default')}>
-        <div id={titleId} className="alert-title">
+      <div className={high ? `${styles.box} ${styles.high}` : styles.box}>
+        <div id={titleId} className={styles.title}>
           <Lines text={alert.title} />
         </div>
         <Content alert={alert} />
-        <div className={'alert-actions ' + count}>
+        <div className={stacked ? `${styles.actions} ${styles.stacked}` : styles.actions}>
           {alert.actions.map((action, index) => (
             <ActionButton key={index} alert={alert} action={action} />
           ))}
