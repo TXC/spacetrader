@@ -39,7 +39,7 @@ test('saveLoad', () => {
   assertEqual(mockLS.getItem('games'), null);
   assertEqual(mockLS.getItem('highScoringGames'), null);
 
-  ActionLogReplay.replayEvent('createCommander', 'click', vc);
+  ActionLogReplay.replayEvent('createCommander', 'click');
 
   // After creating a game, one is saved. No high scoring games are saved.
   let saveGames = JSON.parse(mockLS.getItem('games') ?? 'null') || {};
@@ -67,9 +67,9 @@ test('saveLoad', () => {
   assertEqual(vc.game!.commander.name, 'Jean-Luc');
 
   // End the game, check that the game moves to the high scoring list and no longer appears in the in progress list
-  ActionLogReplay.replayEvent('Commander', 'click', vc);
-  ActionLogReplay.replayEvent('giveup', 'click', vc);
-  ActionLogReplay.replayEvent('alertButton_Abandon_game', 'click', vc);
+  ActionLogReplay.replayEvent('Commander', 'click');
+  ActionLogReplay.replayEvent('giveup', 'click');
+  ActionLogReplay.replayEvent('alertButton_Abandon_game', 'click');
 
   saveGames = JSON.parse(mockLS.getItem('games') ?? 'null') || {};
   assertEqual(Object.keys(saveGames).length, 0);

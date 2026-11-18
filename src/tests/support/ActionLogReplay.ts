@@ -5,63 +5,45 @@ import { runtime } from '../../game/runtime.ts';
 import { Utils } from '../../game/Utilities.ts';
 import type { Session } from '../../game/session.ts';
 
-type HackHandler = (session: Session) => void;
-
 export class ActionLogReplay {
   declare session: Session;
   declare _gameRandSeed: number;
   declare _idLog: string[];
   declare _eventNameLog: string[];
-  declare _hackHandler: HackHandler | undefined;
 
-  // hackHandler is an optional function that will be invoked before every
-  // replayed event, taking the session as an argument.
-  constructor(serializedString: string, session: Session, hackHandler?: HackHandler) {
+  constructor(serializedString: string, session: Session) {
     const obj = JSON.parse(serializedString);
     this.session = session;
     this._gameRandSeed = obj.gameRandSeed;
     this._idLog = obj.idLog;
     this._eventNameLog = obj.eventNameLog;
-    this._hackHandler = hackHandler;
+    // The recording of escapePod_debt has one event name too many, which is never used, so
+    // only a missing event name is an error.
+    if (this._idLog.length > this._eventNameLog.length) {
+      throw new Error('The recording has more ids than event names.');
+    }
   }
 
   replay() {
-    console.log('Starting action log replay');
     runtime.actionLog._gameRandSeed = this._gameRandSeed;
     runtime.actionLog.replayInProgress = true;
-    console.log('Replacing runtime.gameRand instance with action log seed');
     runtime.gameRand = new GameRand(this._gameRandSeed);
 
     const len = this._idLog.length;
-    console.log(`Replaying ${len} actions...`);
     for (let i = 0; i < len; i++) {
-      const elID = this._idLog[i];
-      const eventName = this._eventNameLog[i];
-
-      console.log(`Replay[${i}] ${eventName} ${elID}`);
-      this.replayEvent(elID, eventName);
+      this.replayEvent(this._idLog[i], this._eventNameLog[i]);
     }
-    console.log('Finished action log replay');
     runtime.actionLog.replayInProgress = false;
   }
 
   replayEvent(elementID: string, eventName?: string) {
     eventName = eventName ? eventName : 'click';
     const replayClass = this.constructor as typeof ActionLogReplay;
-    replayClass.replayEvent(elementID, eventName, this.session, this._hackHandler);
+    replayClass.replayEvent(elementID, eventName);
   }
 
-  static replayEvent(
-    elementID: string,
-    eventName: string,
-    session: Session,
-    hackHandler?: HackHandler
-  ) {
+  static replayEvent(elementID: string, eventName: string) {
     runtime.actionLog.replayInProgress = true; // force async to happen immediately from now on
-
-    if (hackHandler) {
-      hackHandler(session);
-    }
 
     if (elementID === 'namedEvent') {
       const eventComponents = eventName.split(/\|/);
@@ -110,6 +92,8 @@ export class ActionLogReplay {
       } else if (eventName === 'change') {
         // A real click toggles the box and fires its change event, for old screens and React alike.
         element!.click();
+      } else {
+        throw new Error(`Unknown event name in a recording: ${eventName}`);
       }
     }
   }
