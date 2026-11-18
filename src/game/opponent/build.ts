@@ -91,6 +91,32 @@ function ordinaryOpponent(type: number, game: Game): Opponent {
     allNarcotics = true;
   }
 
+  const chosenShipType = chooseShipType(type, game);
+
+  ensureInteger(chosenShipType);
+  ensureInteger(game.difficulty);
+
+  const ship = new Ship(chosenShipType, game.difficulty);
+  const model = shipModelForType(chosenShipType);
+
+  const tries = equipmentTries(type, game);
+
+  addGadgets(ship, model, game, tries);
+
+  addCargo(ship, type, game, allNarcotics);
+
+  addWeapons(ship, model, game, tries);
+
+  addShields(ship, model, game, tries);
+
+  weakenHull(ship, type);
+
+  addMercenaries(ship, model, game);
+
+  return opponentWithSkills(type, game, ship);
+}
+
+function chooseShipType(type: number, game: Game): number {
   let tries = 1; // We'll roll a die `tries` times and pick the best roll
   let chosenShipType: number = SHIP_MODEL_COUNT;
 
@@ -121,59 +147,76 @@ function ordinaryOpponent(type: number, game: Game): Opponent {
   ensureInteger(chosenShipType);
 
   if (chosenShipType >= SHIP_MODEL_COUNT) {
-    const handicap = Math.max(game.difficulty - Difficulty.Normal, 0);
-    let totalShipOccurrence = 0;
-    const possibleShipTypes = [
-      type === OpponentType.Trader ? ShipModelType.Flea : ShipModelType.Gnat,
-    ];
+    chosenShipType = randomShipType(type, game, tries);
+  }
 
-    for (let i = 0; i <= ShipModelType.Best; ++i) {
-      const model = shipModelForType(i);
-      if (
-        type === OpponentType.Police &&
-        (model.police < 0 ||
-          game.commander.currentSystem.politics.occurrencePolice + handicap < model.police)
-      ) {
-        continue;
-      } else if (
-        type === OpponentType.Pirate &&
-        (model.pirates < 0 ||
-          game.commander.currentSystem.politics.occurrencePirates + handicap < model.pirates)
-      ) {
-        continue;
-      } else if (
-        type === OpponentType.Trader &&
-        (model.traders < 0 ||
-          game.commander.currentSystem.politics.occurrenceTraders + handicap < model.traders)
-      ) {
-        continue;
-      }
-      totalShipOccurrence += model.frequency;
-      addToOrderedSet(possibleShipTypes, i);
-    }
+  return chosenShipType;
+}
 
-    let shipChoice = 0;
-    for (let i = 0; i < tries; ++i) {
-      shipChoice = Math.max(shipChoice, runtime.gameRand.randomIntBelow(totalShipOccurrence));
-    }
+function randomShipType(type: number, game: Game, tries: number): number {
+  let chosenShipType: number;
 
-    let frequencySum = 0;
-    chosenShipType = possibleShipTypes[0];
-    for (const shipType of possibleShipTypes) {
-      const model = shipModelForType(shipType);
-      frequencySum += model.frequency;
-      if (frequencySum >= shipChoice) {
-        chosenShipType = shipType;
-        break;
-      }
+  const { possibleShipTypes, totalShipOccurrence } = shipsFor(type, game);
+
+  let shipChoice = 0;
+  for (let i = 0; i < tries; ++i) {
+    shipChoice = Math.max(shipChoice, runtime.gameRand.randomIntBelow(totalShipOccurrence));
+  }
+
+  let frequencySum = 0;
+  chosenShipType = possibleShipTypes[0];
+  for (const shipType of possibleShipTypes) {
+    const model = shipModelForType(shipType);
+    frequencySum += model.frequency;
+    if (frequencySum >= shipChoice) {
+      chosenShipType = shipType;
+      break;
     }
   }
 
-  ensureInteger(chosenShipType);
-  ensureInteger(game.difficulty);
+  return chosenShipType;
+}
 
-  const ship = new Ship(chosenShipType, game.difficulty);
-  const model = shipModelForType(chosenShipType);
+// The ships this kind of opponent flies in the commander's system, and how common they
+// are together.
+function shipsFor(type: number, game: Game) {
+  const handicap = Math.max(game.difficulty - Difficulty.Normal, 0);
+  let totalShipOccurrence = 0;
+  const possibleShipTypes = [
+    type === OpponentType.Trader ? ShipModelType.Flea : ShipModelType.Gnat,
+  ];
+
+  for (let i = 0; i <= ShipModelType.Best; ++i) {
+    const model = shipModelForType(i);
+    if (
+      type === OpponentType.Police &&
+      (model.police < 0 ||
+        game.commander.currentSystem.politics.occurrencePolice + handicap < model.police)
+    ) {
+      continue;
+    } else if (
+      type === OpponentType.Pirate &&
+      (model.pirates < 0 ||
+        game.commander.currentSystem.politics.occurrencePirates + handicap < model.pirates)
+    ) {
+      continue;
+    } else if (
+      type === OpponentType.Trader &&
+      (model.traders < 0 ||
+        game.commander.currentSystem.politics.occurrenceTraders + handicap < model.traders)
+    ) {
+      continue;
+    }
+    totalShipOccurrence += model.frequency;
+    addToOrderedSet(possibleShipTypes, i);
+  }
+
+  return { possibleShipTypes, totalShipOccurrence };
+}
+
+// How many times the dice are rolled for each piece of equipment; the best roll counts.
+function equipmentTries(type: number, game: Game): number {
+  let tries: number;
 
   if (type === OpponentType.Mantis) {
     tries = 1 + game.difficulty;
@@ -186,19 +229,7 @@ function ordinaryOpponent(type: number, game: Game): Opponent {
 
   ensureInteger(tries);
 
-  addGadgets(ship, model, game, tries);
-
-  addCargo(ship, type, game, allNarcotics);
-
-  addWeapons(ship, model, game, tries);
-
-  addShields(ship, model, game, tries);
-
-  weakenHull(ship, type);
-
-  addMercenaries(ship, model, game);
-
-  return opponentWithSkills(type, game, ship);
+  return tries;
 }
 
 function addGadgets(ship: Ship, model: ShipModel, game: Game, tries: number): void {
