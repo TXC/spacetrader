@@ -25,6 +25,7 @@ import type { Game, GameEndedStatus } from '../Game.ts';
 import { ensureArrayOrNull, ensureInteger } from '../ensure.ts';
 import { pLog } from '../probes.ts';
 import { runtime } from '../runtime.ts';
+import { pirateMeeting } from './pirates.ts';
 import { policeMeeting } from './police.ts';
 import { whoIsMet } from './whoIsMet.ts';
 
@@ -146,42 +147,7 @@ export class Travel extends Store implements EncounterListener {
       if (opponentType === OpponentType.Police) {
         ({ encounterType, opponent } = policeMeeting(this, opponentType, currentClicks));
       } else if (opponentType === OpponentType.Pirate || opponentType === OpponentType.Mantis) {
-        opponent = Opponent.generateOpponentWithType(opponentType, this._game);
-
-        if (opponentType === OpponentType.Mantis) {
-          encounterType = EncounterType.PirateAttack;
-        } else if (
-          this._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(
-            this._game.commander,
-            opponent
-          )
-        ) {
-          encounterType = EncounterType.PirateIgnore;
-        } else if (
-          opponent.ship.type >= ShipModelType.Grasshopper ||
-          opponent.ship.type > this._game.commander.ship.type ||
-          runtime.gameRand.randomIntBelow(ReputationScore.Elite) >
-            Math.floor((this._game.commander.reputationScore * 4) / (1 + opponent.ship.type))
-        ) {
-          // Pirates mostly attack but will flee if commander's reputation is too high
-          encounterType = EncounterType.PirateAttack;
-        } else {
-          encounterType = EncounterType.PirateFlee;
-        }
-
-        const noConfrontation =
-          encounterType === EncounterType.PirateFlee ||
-          encounterType === EncounterType.PirateIgnore;
-
-        // If this isn't a confrontation and we can't see the pirate, skip the encounter
-        if (
-          noConfrontation &&
-          opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, this._game.commander)
-        ) {
-          encounterType = EncounterType.None;
-        } else if (noConfrontation && this._game.alwaysIgnorePirates) {
-          encounterType = EncounterType.None;
-        }
+        ({ encounterType, opponent } = pirateMeeting(this._game, opponentType));
       } else if (opponentType === OpponentType.Trader) {
         opponent = Opponent.generateOpponentWithType(opponentType, this._game);
         encounterType = EncounterType.TraderIgnore;
