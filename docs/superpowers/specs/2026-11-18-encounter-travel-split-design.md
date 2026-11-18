@@ -202,12 +202,8 @@ Within each: one commit per moved piece.
 - Whether a helper used by two actions lives in `Encounter.ts` or in a
   small file of its own.
 
-## Decisions made by Claude, not yet confirmed by the owner
+## Approved
 
-- Approach A: actions are plain functions in a table, not objects or
-  classes.
-- The button logic stays in one file, not in each action.
-- Renaming `EncounterController` to `Encounter`.
-- Typing `EncounterType` and the action names in these files.
-- Three pull requests in place of one.
-- The fingerprints of the stress walks as the main guard.
+The owner approved this design on 2026-11-18, with every recommendation
+in it: plain functions in a table, the rename to `Encounter`, and three
+stacked pull requests.
