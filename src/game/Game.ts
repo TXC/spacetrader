@@ -91,166 +91,240 @@ function nearestFreeSystem(
     .sort((a, b) => a.distance - b.distance)[0]?.other;
 }
 
+// Everything a game is made of.
+type GameFields = {
+  uniqueID: string;
+  difficulty: number;
+  endStatus: number;
+  trackedSystem: SolarSystem | null;
+  breakingNews: string[] | null;
+  canSuperWarp: boolean;
+  autoNews: boolean;
+  autoRepairs: boolean;
+  autoFuel: boolean;
+  remindLoans: boolean;
+  tribbleMessage: boolean;
+  alreadyPaidForNewspaper: boolean;
+  alwaysIgnorePirates: boolean;
+  alwaysIgnorePolice: boolean;
+  alwaysIgnoreTraders: boolean;
+  alwaysIgnoreTradeInOrbit: boolean;
+  monsterStatus: number;
+  dragonflyStatus: number;
+  scarabStatus: number;
+  japoriQuestStatus: number;
+  jarekStatus: number;
+  invasionStatus: number;
+  experimentStatus: number;
+  fabricRipProbability: number;
+  wildStatus: number;
+  reactorStatus: number;
+  commander: Commander;
+  monsterHull: number;
+  remainingRareEvents: number[];
+  solarSystems: SolarSystem[];
+  warpSystem: SolarSystem | null;
+};
+
+// How every new game starts, apart from what is chosen or drawn.
+const NEW_GAME = {
+  endStatus: GameEndStatus.None,
+  trackedSystem: null,
+  breakingNews: null,
+  canSuperWarp: false,
+  autoNews: false,
+  autoRepairs: false,
+  autoFuel: false,
+  remindLoans: true,
+  tribbleMessage: false,
+  alreadyPaidForNewspaper: false,
+  alwaysIgnorePirates: false,
+  alwaysIgnorePolice: false,
+  alwaysIgnoreTraders: false,
+  alwaysIgnoreTradeInOrbit: false,
+  monsterStatus: 0,
+  dragonflyStatus: 0,
+  scarabStatus: 0,
+  japoriQuestStatus: 0,
+  jarekStatus: 0,
+  invasionStatus: 0,
+  experimentStatus: 0,
+  fabricRipProbability: 0,
+  wildStatus: 0,
+  reactorStatus: 0,
+} as const;
+
+function generateUniqueID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0,
+      v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 export class Game {
-  // `new Game()` with no commander returns an empty shell that fromSerializedState() fills in.
-  // `remainingRareEvents` is typed as always set, but is unset until the game is set up.
-  declare _onSave: ((game: Game) => void) | null;
-  declare _onChange: (() => void) | null;
-  declare uniqueID: string;
-  declare endStatus: number;
-  declare trackedSystem: SolarSystem | null;
-  declare _breakingNews: string[] | null;
-  declare canSuperWarp: boolean;
-  declare autoNews: boolean;
-  declare autoRepairs: boolean;
-  declare autoFuel: boolean;
-  declare remindLoans: boolean;
-  declare tribbleMessage: boolean;
-  declare alreadyPaidForNewspaper: boolean;
-  declare alwaysIgnorePirates: boolean;
-  declare alwaysIgnorePolice: boolean;
-  declare alwaysIgnoreTraders: boolean;
-  declare alwaysIgnoreTradeInOrbit: boolean;
-  declare monsterStatus: number;
-  declare dragonflyStatus: number;
-  declare scarabStatus: number;
-  declare japoriQuestStatus: number;
-  declare jarekStatus: number;
-  declare invasionStatus: number;
-  declare experimentStatus: number;
-  declare fabricRipProbability: number;
-  declare wildStatus: number;
-  declare reactorStatus: number;
-  declare commander: Commander;
-  declare difficulty: number;
-  declare monsterHull: number;
-  declare remainingRareEvents: number[];
-  declare solarSystems: SolarSystem[];
-  declare _warpSystem: SolarSystem | null;
+  private _onSave: ((game: Game) => void) | null = null;
+  private _onChange: (() => void) | null = null;
+  readonly uniqueID: string;
+  endStatus: number;
+  trackedSystem: SolarSystem | null;
+  private _breakingNews: string[] | null;
+  canSuperWarp: boolean;
+  autoNews: boolean;
+  autoRepairs: boolean;
+  autoFuel: boolean;
+  remindLoans: boolean;
+  tribbleMessage: boolean;
+  alreadyPaidForNewspaper: boolean;
+  alwaysIgnorePirates: boolean;
+  alwaysIgnorePolice: boolean;
+  alwaysIgnoreTraders: boolean;
+  alwaysIgnoreTradeInOrbit: boolean;
+  monsterStatus: number;
+  dragonflyStatus: number;
+  scarabStatus: number;
+  japoriQuestStatus: number;
+  jarekStatus: number;
+  invasionStatus: number;
+  experimentStatus: number;
+  fabricRipProbability: number;
+  wildStatus: number;
+  reactorStatus: number;
+  readonly commander: Commander;
+  difficulty: number;
+  monsterHull: number;
+  remainingRareEvents: number[];
+  readonly solarSystems: SolarSystem[];
+  // Where the game started. A saved game keeps it, though no rule reads it.
+  private readonly _warpSystem: SolarSystem | null;
   // Set by the cheats panel, read by the old screens.
-  declare forceRareEvent?: boolean;
-  declare showSpecialSystems?: boolean;
+  forceRareEvent = false;
+  showSpecialSystems = false;
 
-  constructor(difficulty?: number, recruit?: Recruit) {
-    this._onSave = null;
-    this._onChange = null;
-
-    if (recruit) {
-      this.uniqueID = this._generateUniqueID();
-      this.endStatus = GameEndStatus.None;
-
-      this.trackedSystem = null;
-      this._breakingNews = null;
-
-      this.canSuperWarp = false;
-      this.autoNews = false;
-      this.autoRepairs = false;
-      this.autoFuel = false;
-      this.remindLoans = false;
-      this.tribbleMessage = false;
-      this.alreadyPaidForNewspaper = false;
-      this.alwaysIgnorePirates = false;
-      this.alwaysIgnorePolice = false;
-      this.alwaysIgnoreTraders = false;
-      this.alwaysIgnoreTradeInOrbit = false;
-
-      this.monsterStatus = 0;
-      this.dragonflyStatus = 0;
-      this.scarabStatus = 0;
-      this.japoriQuestStatus = 0;
-      this.jarekStatus = 0;
-      this.invasionStatus = 0;
-      this.experimentStatus = 0;
-      this.fabricRipProbability = 0;
-      this.wildStatus = 0;
-      this.reactorStatus = 0;
-
-      ensureInteger(difficulty);
-      this.difficulty = difficulty!;
-
-      this.solarSystems = Game._populateSolarSystems(this.difficulty);
-      Game._setupEventsAndMercenaries(this.solarSystems);
-      this.commander = Game._setupCommander(recruit, this.difficulty, this.solarSystems);
-      this._setupInitialGameState();
-    }
+  private constructor(fields: GameFields) {
+    this.uniqueID = fields.uniqueID;
+    this.difficulty = fields.difficulty;
+    this.endStatus = fields.endStatus;
+    this.trackedSystem = fields.trackedSystem;
+    this._breakingNews = fields.breakingNews;
+    this.canSuperWarp = fields.canSuperWarp;
+    this.autoNews = fields.autoNews;
+    this.autoRepairs = fields.autoRepairs;
+    this.autoFuel = fields.autoFuel;
+    this.remindLoans = fields.remindLoans;
+    this.tribbleMessage = fields.tribbleMessage;
+    this.alreadyPaidForNewspaper = fields.alreadyPaidForNewspaper;
+    this.alwaysIgnorePirates = fields.alwaysIgnorePirates;
+    this.alwaysIgnorePolice = fields.alwaysIgnorePolice;
+    this.alwaysIgnoreTraders = fields.alwaysIgnoreTraders;
+    this.alwaysIgnoreTradeInOrbit = fields.alwaysIgnoreTradeInOrbit;
+    this.monsterStatus = fields.monsterStatus;
+    this.dragonflyStatus = fields.dragonflyStatus;
+    this.scarabStatus = fields.scarabStatus;
+    this.japoriQuestStatus = fields.japoriQuestStatus;
+    this.jarekStatus = fields.jarekStatus;
+    this.invasionStatus = fields.invasionStatus;
+    this.experimentStatus = fields.experimentStatus;
+    this.fabricRipProbability = fields.fabricRipProbability;
+    this.wildStatus = fields.wildStatus;
+    this.reactorStatus = fields.reactorStatus;
+    this.commander = fields.commander;
+    this.monsterHull = fields.monsterHull;
+    this.remainingRareEvents = fields.remainingRareEvents;
+    this.solarSystems = fields.solarSystems;
+    this._warpSystem = fields.warpSystem;
   }
 
   // A new game: the galaxy, its special events and mercenaries, and the commander, drawn at
   // random in that order.
   static create(difficulty: number, recruit: Recruit): Game {
-    return new Game(difficulty, recruit);
-  }
-
-  // A game from a saved game, as parseSavedGame checked it.
-  static load(state: GameState): Game {
-    return Game.fromSerializedState(state);
-  }
-
-  static fromSerializedState(serializedState: GameState) {
-    const instance = new Game();
-
-    instance.monsterStatus = serializedState.monsterStatus;
-    instance.dragonflyStatus = serializedState.dragonflyStatus;
-    instance.scarabStatus = serializedState.scarabStatus;
-    instance.japoriQuestStatus = serializedState.japoriQuestStatus;
-    instance.jarekStatus = serializedState.jarekStatus;
-    instance.invasionStatus = serializedState.invasionStatus;
-    instance.experimentStatus = serializedState.experimentStatus;
-    instance.fabricRipProbability = serializedState.fabricRipProbability;
-    instance.wildStatus = serializedState.wildStatus;
-    instance.reactorStatus = serializedState.reactorStatus;
-    instance.difficulty = serializedState.difficulty;
-    instance.endStatus = serializedState.endStatus;
-
-    instance.monsterHull = serializedState.monsterHull;
-
-    instance.remindLoans = serializedState.remindLoans;
-    instance.tribbleMessage = serializedState.tribbleMessage;
-    instance.alreadyPaidForNewspaper = serializedState.alreadyPaidForNewspaper;
-    instance.alwaysIgnorePirates = serializedState.alwaysIgnorePirates;
-    instance.alwaysIgnorePolice = serializedState.alwaysIgnorePolice;
-    instance.alwaysIgnoreTraders = serializedState.alwaysIgnoreTraders;
-    instance.alwaysIgnoreTradeInOrbit = serializedState.alwaysIgnoreTradeInOrbit;
-    instance.autoFuel = serializedState.autoFuel;
-    instance.autoRepairs = serializedState.autoRepairs;
-    instance.autoNews = serializedState.autoNews;
-    instance.canSuperWarp = serializedState.canSuperWarp;
-
-    if (serializedState.breakingNews) {
-      pLog.log(71);
-      instance._breakingNews = [...serializedState.breakingNews];
-      ensureArrayOrNull(instance._breakingNews, 'string');
-    } else {
-      pLog.log(72);
-      instance._breakingNews = null;
+    const uniqueID = generateUniqueID();
+    const solarSystems = Game._populateSolarSystems(difficulty);
+    Game._setupEventsAndMercenaries(solarSystems);
+    const commander = Game._setupCommander(recruit, difficulty, solarSystems);
+    const remainingRareEvents = [
+      ...Array.from({ length: RARE_EVENT_COUNT }, (_, rareEvent) => rareEvent),
+      // Some extra skill enhancements
+      ...[RareEvent.BottleGood, RareEvent.BottleGood, RareEvent.BottleOld, RareEvent.BottleOld],
+    ];
+    const warpSystem = commander.currentSystem;
+    const monsterHull = shipModelForType(ShipModelType.SpaceMonster).hullStrength;
+    if (difficulty < Difficulty.Normal) {
+      if (commander.currentSystem.specialEvent === SpecialEvent.None) {
+        pLog.log(109);
+        commander.currentSystem.specialEvent = SpecialEvent.LotteryWinner;
+      }
     }
-
-    instance.remainingRareEvents = [...serializedState.remainingRareEvents];
-    ensureArrayOrNull(instance.remainingRareEvents, 'number');
-
-    instance.solarSystems = serializedState.solarSystems.map(ss => SolarSystem.load(ss));
-
-    instance.solarSystems.forEach((solarSystem, idx) => {
-      const wormholeName = serializedState.solarSystems[idx].wormholeName;
-      solarSystem.wormhole = SolarSystem.solarSystemForName(wormholeName, instance.solarSystems);
+    return new Game({
+      ...NEW_GAME,
+      uniqueID,
+      difficulty,
+      commander,
+      solarSystems,
+      remainingRareEvents,
+      warpSystem,
+      monsterHull,
     });
-
-    instance._warpSystem = instance._findSolarSystem(serializedState.warpSystemName);
-    instance.trackedSystem = instance._findSolarSystem(serializedState.trackedSystemName);
-
-    instance.commander = Commander.restore(serializedState.commander, instance.solarSystems);
-
-    instance.uniqueID = serializedState.uniqueID || instance._generateUniqueID();
-
-    return instance;
   }
 
-  _generateUniqueID() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      const r = (Math.random() * 16) | 0,
-        v = c === 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
+  // A game from a saved game, as parseSavedGame checked it, with its wormholes linked.
+  static load(state: GameState): Game {
+    const breakingNews = Game.savedNews(state.breakingNews);
+    const solarSystems = state.solarSystems.map(ss => SolarSystem.load(ss));
+    solarSystems.forEach((solarSystem, idx) => {
+      const wormholeName = state.solarSystems[idx].wormholeName;
+      solarSystem.wormhole = SolarSystem.solarSystemForName(wormholeName, solarSystems);
     });
+    const find = (name?: string) => SolarSystem.solarSystemForName(name, solarSystems);
+    return new Game({
+      ...Game.savedValues(state),
+      breakingNews,
+      remainingRareEvents: [...state.remainingRareEvents],
+      solarSystems,
+      warpSystem: find(state.warpSystemName),
+      trackedSystem: find(state.trackedSystemName),
+      commander: Commander.restore(state.commander, solarSystems),
+      uniqueID: state.uniqueID || generateUniqueID(),
+    });
+  }
+
+  private static savedNews(breakingNews: string[] | undefined): string[] | null {
+    if (breakingNews) {
+      pLog.log(71);
+      return [...breakingNews];
+    }
+    pLog.log(72);
+    return null;
+  }
+
+  // The values a saved game keeps as they are.
+  private static savedValues(state: GameState) {
+    return {
+      monsterStatus: state.monsterStatus,
+      dragonflyStatus: state.dragonflyStatus,
+      scarabStatus: state.scarabStatus,
+      japoriQuestStatus: state.japoriQuestStatus,
+      jarekStatus: state.jarekStatus,
+      invasionStatus: state.invasionStatus,
+      experimentStatus: state.experimentStatus,
+      fabricRipProbability: state.fabricRipProbability,
+      wildStatus: state.wildStatus,
+      reactorStatus: state.reactorStatus,
+      difficulty: state.difficulty,
+      endStatus: state.endStatus,
+      monsterHull: state.monsterHull,
+      remindLoans: state.remindLoans,
+      tribbleMessage: state.tribbleMessage,
+      alreadyPaidForNewspaper: state.alreadyPaidForNewspaper,
+      alwaysIgnorePirates: state.alwaysIgnorePirates,
+      alwaysIgnorePolice: state.alwaysIgnorePolice,
+      alwaysIgnoreTraders: state.alwaysIgnoreTraders,
+      alwaysIgnoreTradeInOrbit: state.alwaysIgnoreTradeInOrbit,
+      autoFuel: state.autoFuel,
+      autoRepairs: state.autoRepairs,
+      autoNews: state.autoNews,
+      canSuperWarp: state.canSuperWarp,
+    };
   }
 
   toState() {
@@ -611,29 +685,6 @@ export class Game {
     return commander;
   }
 
-  _setupInitialGameState() {
-    for (let i = 0; i < RARE_EVENT_COUNT; ++i) {
-      this.addRemainingRareEvents([i]);
-    }
-    this.addRemainingRareEvents([
-      RareEvent.BottleGood,
-      RareEvent.BottleGood,
-      RareEvent.BottleOld,
-      RareEvent.BottleOld,
-    ]); // Some extra skill enhancements
-
-    this._warpSystem = this.commander.currentSystem;
-    this.remindLoans = true;
-    this.monsterHull = shipModelForType(ShipModelType.SpaceMonster).hullStrength;
-
-    if (this.difficulty < Difficulty.Normal) {
-      if (this.commander.currentSystem.specialEvent === SpecialEvent.None) {
-        pLog.log(109);
-        this.commander.currentSystem.specialEvent = SpecialEvent.LotteryWinner;
-      }
-    }
-  }
-
   _findSolarSystem(name: string | undefined) {
     return SolarSystem.solarSystemForName(name, this.solarSystems);
   }
@@ -700,17 +751,6 @@ export class Game {
 
   clearBreakingNews() {
     this._breakingNews = null;
-  }
-
-  addRemainingRareEvents(rareEvents: number[]) {
-    if (!ensureArrayOrNull(rareEvents, 'number')) {
-      return;
-    }
-
-    if (!this.remainingRareEvents) {
-      this.remainingRareEvents = [];
-    }
-    this.remainingRareEvents.push(...rareEvents);
   }
 
   removeRemainingRareEvent(rareEvent: number) {
