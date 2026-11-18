@@ -1,6 +1,8 @@
 import { expect, onTestFinished, test } from 'vitest';
-import { captainFor, EncounterController, EncounterType } from '../game/EncounterController.ts';
-import type { EncounterListener } from '../game/EncounterController.ts';
+import { EncounterController } from '../game/EncounterController.ts';
+import { captainFor } from '../game/encounter/captains.ts';
+import { EncounterType } from '../game/encounter/types.ts';
+import type { EncounterListener } from '../game/encounter/types.ts';
 import { ActionLogger } from '../game/ActionLogger.ts';
 import { GameRand } from '../game/GameRand.ts';
 import { Opponent, OpponentType } from '../game/Opponent.ts';
