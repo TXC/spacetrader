@@ -127,7 +127,6 @@ export class Game {
   declare remainingRareEvents: number[];
   declare solarSystems: SolarSystem[];
   declare _warpSystem: SolarSystem | null;
-  declare _lastSave?: Date; // unset until the first toState()
   // Set by the cheats panel, read by the old screens.
   declare forceRareEvent?: boolean;
   declare showSpecialSystems?: boolean;
@@ -240,8 +239,6 @@ export class Game {
     instance.trackedSystem = instance._findSolarSystem(serializedState.trackedSystemName);
 
     instance.commander = Commander.restore(serializedState.commander, instance.solarSystems);
-
-    instance._lastSave = new Date(serializedState.lastSave);
 
     instance.uniqueID = serializedState.uniqueID || instance._generateUniqueID();
 
@@ -368,8 +365,7 @@ export class Game {
     ensureArrayOrNull(this.solarSystems, 'object');
     state.solarSystems = this.solarSystems.map(solarSystem => solarSystem.toState());
 
-    this._lastSave = new Date();
-    state.lastSave = this._lastSave;
+    state.lastSave = new Date();
     state.version = SAVE_VERSION;
 
     return state;
