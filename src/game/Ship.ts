@@ -608,18 +608,6 @@ export class Ship {
     return ship;
   }
 
-  get gadgetSlots() {
-    return shipModelForType(this.type).gadgetSlots;
-  }
-
-  get weaponSlots() {
-    return shipModelForType(this.type).weaponSlots;
-  }
-
-  get shieldSlots() {
-    return shipModelForType(this.type).shieldSlots;
-  }
-
   // Static method to get crew member by name
   static crewMemberForName(name: string, solarSystems: SolarSystem[]) {
     if (!name) return null;
@@ -707,18 +695,6 @@ export class Ship {
     if (!this._upgradedHull) {
       this._upgradedHull = true;
       this._hull += 50;
-    }
-  }
-
-  // Method to set upgraded hull
-  setUpgradedHull(upgradedHull: boolean) {
-    if (!ensureBool(upgradedHull)) {
-      return;
-    }
-
-    if (upgradedHull !== this._upgradedHull) {
-      this._upgradedHull = upgradedHull;
-      this._hull += this._upgradedHull ? 50 : 0;
     }
   }
 
@@ -1194,10 +1170,6 @@ export class Ship {
 
   mercenaryPricePerDay() {
     return this._crew.reduce((price, crew) => price + crew.hirePrice(), 0);
-  }
-
-  costOfFuel() {
-    return shipModelForType(this.type).costOfFuel;
   }
 
   get model() {
