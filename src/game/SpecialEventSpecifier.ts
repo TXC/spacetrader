@@ -21,12 +21,15 @@ import {
 import { tradeItemForType } from './TradeItem.ts';
 import { FAKE_QUEST_CARGO, FAKE_QUEST_CARGO_REACTOR, TRADE_ITEM_COUNT } from './TradeItem.types.ts';
 import { pLog } from './Utilities.ts';
-import type { Game } from './Game.ts';
+import type { Game, GameEndedStatus } from './Game.ts';
 import { runtime } from './runtime.ts';
 
 type IsHidden = (game: Game) => boolean;
 // The second argument lets an event end the game (buying the moon does).
-type Action = (game: Game, viewController: { gameDidEndWithStatus(status: number): void }) => void;
+type Action = (
+  game: Game,
+  viewController: { gameDidEndWithStatus(status: GameEndedStatus): void }
+) => void;
 
 export const FABRIC_RIP_PROBABILITY_INITIAL = 25;
 

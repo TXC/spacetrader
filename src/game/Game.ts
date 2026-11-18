@@ -40,6 +40,8 @@ export const GameEndStatus = {
   Moon: 3,
 } as const;
 export type GameEndStatus = (typeof GameEndStatus)[keyof typeof GameEndStatus];
+// How a game that is over ended.
+export type GameEndedStatus = Exclude<GameEndStatus, typeof GameEndStatus.None>;
 
 export const RareEvent = {
   MarieCeleste: 0,

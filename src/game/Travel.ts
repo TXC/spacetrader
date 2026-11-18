@@ -26,7 +26,7 @@ import {
 import { TradeItemType } from './TradeItem.types.ts';
 import { Store } from './Store.ts';
 import type { SolarSystem } from './SolarSystem.ts';
-import type { Game } from './Game.ts';
+import type { Game, GameEndedStatus } from './Game.ts';
 import { Utils, pLog } from './Utilities.ts';
 import { runtime } from './runtime.ts';
 
@@ -42,7 +42,7 @@ export function hiddenByOptions(encounterType: number, game: Game): boolean {
 }
 
 // How a trip ended: the commander arrived, or the game is over.
-export type TravelResult = 'arrived' | GameEndStatus;
+export type TravelResult = 'arrived' | GameEndedStatus;
 
 // One trip between two systems: what is met on the way, the fights, and the arrival.
 // The travel screen watches this and draws what it finds.
