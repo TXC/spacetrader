@@ -23,13 +23,6 @@ import {
   TRADE_ITEM_COUNT,
   TRADE_ITEM_TYPES,
 } from './TradeItem.types.ts';
-import {
-  ensureArrayOrNull,
-  ensureBool,
-  ensureInteger,
-  ensureObjectOrNull,
-  ensureType,
-} from './ensure.ts';
 import { runtime } from './runtime.ts';
 
 import type { SolarSystemState } from './savedGame.ts';
@@ -229,8 +222,6 @@ export class SolarSystem {
   }
 
   static solarSystemForName(name: string | null | undefined, solarSystems: SolarSystem[]) {
-    ensureArrayOrNull(solarSystems, 'object');
-
     if (!name) return null;
 
     return solarSystems.find(solarSystem => solarSystem.name === name) ?? null;
@@ -293,9 +284,7 @@ export class SolarSystem {
   }
 
   set inventoryReplenishCountdown(i: number) {
-    if (ensureInteger(i)) {
-      this._inventoryReplenishCountdown = i;
-    }
+    this._inventoryReplenishCountdown = i;
   }
 
   hashCode() {
@@ -363,8 +352,6 @@ export class SolarSystem {
         runtime.gameRand.randomIntBelow(10) +
         runtime.gameRand.randomIntBelow(10);
       this._tradeItemInventory[itemType] = Math.max(this._tradeItemInventory[itemType], 0);
-
-      ensureInteger(this._tradeItemInventory[itemType]);
     }
   }
 
@@ -377,8 +364,6 @@ export class SolarSystem {
   }
 
   squaredDistanceToXY(x: number, y: number) {
-    ensureInteger(x);
-    ensureInteger(y);
     return Math.floor((this.x - x) ** 2 + (this.y - y) ** 2);
   }
 
@@ -415,20 +400,15 @@ export class SolarSystem {
       }
     }
 
-    ensureInteger(price);
-
     return Math.max(price, 0);
   }
 
   tradeItemQuantityForType(type: TradeItemType) {
-    ensureInteger(type);
     return this._tradeItemInventory[type];
   }
 
   boughtQuantity(quantity: number, type: TradeItemType) {
-    if (ensureInteger(quantity) && ensureInteger(type)) {
-      this._tradeItemInventory[type] -= Math.min(quantity, this._tradeItemInventory[type]);
-    }
+    this._tradeItemInventory[type] -= Math.min(quantity, this._tradeItemInventory[type]);
   }
 
   _canProduceItem(itemType: TradeItemType) {
@@ -492,50 +472,26 @@ export class SolarSystem {
     // Filled in field by field below.
     const state = {} as SolarSystemState;
 
-    ensureType(this.name, 'string');
     state.name = this.name;
-
-    ensureInteger(this.techLevel);
     state.techLevel = this.techLevel;
-
-    ensureInteger(this.status);
     state.status = this.status;
-
-    ensureInteger(this._specialResource);
     state.specialResource = this._specialResource;
-
-    ensureInteger(this.size);
     state.size = this.size;
-
-    ensureInteger(this.specialEvent);
     state.specialEvent = this.specialEvent;
-
-    ensureInteger(this.politics.type);
     state.politicsType = this.politics.type;
-
-    ensureInteger(this.x);
     state.x = this.x;
-    ensureInteger(this.y);
     state.y = this.y;
-
-    ensureInteger(this._inventoryReplenishCountdown);
     state.inventoryReplenishCountdown = this._inventoryReplenishCountdown;
-
-    ensureBool(this.visited);
     state.visited = this.visited;
 
-    ensureObjectOrNull(this.wormhole);
     if (this.wormhole) {
-      ensureType(this.wormhole.name, 'string');
       state.wormholeName = this.wormhole.name;
     }
 
-    ensureObjectOrNull(this.mercenary);
     if (this.mercenary) {
       state.mercenary = this.mercenary.toState();
     }
 
-    ensureArrayOrNull(this._tradeItemInventory, 'number');
     state.tradeItemInventory = this._tradeItemInventory.map(item => item);
 
     return state;
