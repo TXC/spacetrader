@@ -498,7 +498,12 @@ export class Game {
       if (tooClose || !closeFound) continue;
 
       const randomNameIndex = runtime.gameRand.randomIntBelow(solarSystemNames.length);
-      const solarSystem = new SolarSystem(solarSystemNames[randomNameIndex], x, y, this.difficulty);
+      const solarSystem = SolarSystem.create(
+        solarSystemNames[randomNameIndex],
+        x,
+        y,
+        this.difficulty
+      );
       solarSystemNames.splice(randomNameIndex, 1);
 
       solarSystems.push(solarSystem);
