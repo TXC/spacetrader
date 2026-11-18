@@ -9,6 +9,7 @@ import type { Game } from '../../game/Game.ts';
 import type { SolarSystem } from '../../game/SolarSystem.ts';
 import { Utils } from '../../game/Utilities.ts';
 import { drawInCanvas } from './pceDrawing.ts';
+import { watchSize } from './watchSize.ts';
 
 // Seconds the ship takes to slide to a new position.
 export const TRAVEL_PROGRESS_DURATION = 0.2;
@@ -33,13 +34,15 @@ export class TravelProgressView {
   private lastInvalidationCheckTimestamp = 0;
   // Zero until the first frame.
   private lastDrawTimestamp = 0;
+  // Where the ship was last drawn, from 0 to 1.
+  private shipDistance = 0;
   private disposed = false;
-  private onResize = () => this.resizeCanvasIfNeeded();
+  private stopWatchingSize = watchSize(this.canvasContainer, () => this.resizeCanvasIfNeeded());
 
   // Stops the drawing loop and stops listening. Call when the view leaves the page.
   dispose() {
     this.disposed = true;
-    window.removeEventListener('resize', this.onResize);
+    this.stopWatchingSize();
   }
 
   constructor(
@@ -64,7 +67,6 @@ export class TravelProgressView {
     this.canvas.className = classes.canvas;
     this.canvasContainer.appendChild(this.canvas);
     this.initCanvas();
-    this.initEvents();
 
     // Excessive to run this the whole time. Consider animating only during progress animation.
     this.startAnimating();
@@ -95,8 +97,7 @@ export class TravelProgressView {
     }
   }
 
-  initCanvas() {
-    const rect = this.canvasContainer.getBoundingClientRect();
+  initCanvas(rect = this.canvasContainer.getBoundingClientRect()) {
     this.width = rect.width;
     this.height = rect.height;
     this.scale = window.devicePixelRatio;
@@ -110,15 +111,16 @@ export class TravelProgressView {
     this.context.scale(this.scale, this.scale);
   }
 
+  // Called when the container's size or the screen's pixel density may have changed.
   resizeCanvasIfNeeded() {
     const rect = this.canvasContainer.getBoundingClientRect();
-    if (this.width !== rect.width || this.height !== rect.height) {
-      this.initCanvas();
+    const fits = this.width === rect.width && this.height === rect.height;
+    if (fits && this.scale === window.devicePixelRatio) {
+      return;
     }
-  }
-
-  initEvents() {
-    window.addEventListener('resize', this.onResize);
+    this.initCanvas(rect);
+    // At once: a canvas is empty after a change of size.
+    this.paint();
   }
 
   planetRadius() {
@@ -183,12 +185,34 @@ export class TravelProgressView {
 
   drawView(timestamp: number) {
     this.lastDrawTimestamp = timestamp;
+    this.shipDistance = this.slide(timestamp);
+    this.paint();
+  }
 
+  // Where the ship is at this time, from 0 to 1. Ends the slide when its time is up.
+  private slide(timestamp: number) {
     if (this.shipTargetProgress > this.shipProgress && !this.progressAnimationStartTime) {
       this.progressAnimationStartTime = timestamp;
     }
+    if (this.progressAnimationStartTime <= 0) {
+      this.shipProgress = this.shipTargetProgress;
+      return this.shipTargetProgress;
+    }
 
-    this.resizeCanvasIfNeeded();
+    const animationTimeElapsed = timestamp - this.progressAnimationStartTime;
+    const animationPercent = Math.min(1, animationTimeElapsed / (TRAVEL_PROGRESS_DURATION * 1000));
+    const distancePercent = Utils.easeInOutCubic(animationPercent);
+    const shipDistance =
+      this.shipProgress + distancePercent * (this.shipTargetProgress - this.shipProgress);
+
+    if (animationPercent >= 1) {
+      this.progressAnimationStartTime = 0;
+      this.shipProgress = this.shipTargetProgress;
+    }
+    return shipDistance;
+  }
+
+  private paint() {
     if (this.canvas.width === 0 || this.canvas.height === 0) {
       return;
     }
@@ -196,34 +220,12 @@ export class TravelProgressView {
     this.context.fillStyle = 'black';
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // SolarSystems
     this._drawSolarSystem(this.origin, true, true);
     this._drawSolarSystem(this.destination, false, this.wasVisited);
+    this.drawShip();
+  }
 
-    // Ship
-    let shipDistance = this.shipTargetProgress;
-
-    if (this.progressAnimationStartTime > 0) {
-      const animationTimeElapsed = timestamp - this.progressAnimationStartTime;
-      let animationPercent = animationTimeElapsed / (TRAVEL_PROGRESS_DURATION * 1000);
-
-      if (animationPercent >= 1) {
-        // Animation is complete
-        this.progressAnimationStartTime = 0;
-        animationPercent = 1;
-      }
-
-      const distancePercent = Utils.easeInOutCubic(animationPercent);
-      shipDistance =
-        this.shipProgress + distancePercent * (this.shipTargetProgress - this.shipProgress);
-
-      if (animationPercent >= 1) {
-        this.shipProgress = this.shipTargetProgress;
-      }
-    } else {
-      this.shipProgress = this.shipTargetProgress;
-    }
-
+  private drawShip() {
     const shipPCEImage = this.game.commander.ship.model.shipImage;
     const shipScale = Math.max(1, Math.ceil((this.planetRadius() * 2) / shipPCEImage.height));
 
@@ -234,7 +236,7 @@ export class TravelProgressView {
       this.planetRadius() -
       edgePadding -
       shipPCEImage.width * shipScale;
-    const shipX = Math.floor(shipXOrigin + (shipXDestination - shipXOrigin) * shipDistance);
+    const shipX = Math.floor(shipXOrigin + (shipXDestination - shipXOrigin) * this.shipDistance);
     const shipY = Math.floor(
       (this.canvas.height / this.scale - shipPCEImage.height * shipScale) / 2
     );

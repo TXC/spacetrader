@@ -93,3 +93,60 @@ test('a replayed click on a system that does not exist changes nothing', () => {
   expect(view.selectedSystem).toBe(game.commander.currentSystem);
   view.dispose();
 });
+
+const canvas = () => host.querySelector('canvas')!;
+const views = { map: () => map(), strip: () => strip() };
+
+// Stand-ins for the browser's media queries, by their text, so that a test can fire their
+// changes. Only those whose text holds `matching` match.
+function mediaQueries(matching = 'nothing') {
+  const queries: Record<string, MediaQueryList> = {};
+  vi.spyOn(window, 'matchMedia').mockImplementation(media => {
+    const query = { media, matches: media.includes(matching) };
+    return (queries[media] = Object.assign(new EventTarget(), query) as MediaQueryList);
+  });
+  return queries;
+}
+
+test.for(['map', 'strip'] as const)('the %s follows the size of its container', async kind => {
+  vi.spyOn(window, 'devicePixelRatio', 'get').mockReturnValue(1);
+  const view = views[kind]();
+  expect(canvas().width).toBe(300);
+  host.style.width = '200px';
+  await vi.waitFor(() => expect(canvas().width).toBe(200));
+  expect(canvas().style.width).toBe('200px');
+  view.dispose();
+});
+
+test.for(['map', 'strip'] as const)('the %s stays sharp on a denser screen', kind => {
+  const ratio = vi.spyOn(window, 'devicePixelRatio', 'get').mockReturnValue(1);
+  const queries = mediaQueries();
+  const view = views[kind]();
+  ratio.mockReturnValue(2);
+  queries['(resolution: 1dppx)'].dispatchEvent(new Event('change'));
+  expect(canvas().width).toBe(600);
+  expect(Object.keys(queries)).toContain('(resolution: 2dppx)');
+  view.dispose();
+});
+
+test.for(['map', 'strip'] as const)(
+  'the %s, once taken away, ignores its container',
+  async kind => {
+    vi.spyOn(window, 'devicePixelRatio', 'get').mockReturnValue(1);
+    const view = views[kind]();
+    view.dispose();
+    host.style.width = '200px';
+    await new Promise(resolve => setTimeout(resolve, 100));
+    frame(1000);
+    expect(canvas().width).toBe(300);
+  }
+);
+
+test.for(['map', 'strip'] as const)('the %s does not measure the page to draw a frame', kind => {
+  const view = views[kind]();
+  frame(1000);
+  const measure = vi.spyOn(Element.prototype, 'getBoundingClientRect');
+  [1016, 1032, 1048].forEach(frame);
+  expect(measure).not.toHaveBeenCalled();
+  view.dispose();
+});
