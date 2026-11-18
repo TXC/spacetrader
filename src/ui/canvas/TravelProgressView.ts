@@ -1,5 +1,6 @@
 import {
-  DEBUG_OVERRIDE_SCALE_TO_1,
+  LabelColor,
+  labelFont,
   labelSize,
   UnvisitedSystemColor,
   VisitedSystemColor,
@@ -98,11 +99,7 @@ export class TravelProgressView {
     const rect = this.canvasContainer.getBoundingClientRect();
     this.width = rect.width;
     this.height = rect.height;
-    if (DEBUG_OVERRIDE_SCALE_TO_1) {
-      this.scale = 1;
-    } else {
-      this.scale = window.devicePixelRatio;
-    }
+    this.scale = window.devicePixelRatio;
 
     this.canvas.style.width = `${rect.width}px`;
     this.canvas.style.height = `${rect.height}px`;
@@ -151,7 +148,7 @@ export class TravelProgressView {
     this.context.textAlign = 'center';
     this.context.textBaseline = 'middle';
     const textHeight = this._textHeight();
-    this.context.font = `${textHeight}px Helvetica, Arial, san-serif`;
+    this.context.font = labelFont();
 
     const sname = s.name;
     const textMetrics = this.context.measureText(sname);
@@ -180,7 +177,7 @@ export class TravelProgressView {
         textMetrics.width / 2;
     }
 
-    this.context.fillStyle = 'white';
+    this.context.fillStyle = LabelColor;
     this.context.fillText(sname, nameX, nameY);
   }
 

@@ -16,16 +16,21 @@ export type GalaxyViewDelegate = {
 };
 
 export const GalaxyViewEdgeBuffer = 23;
-export const DEBUG_OVERRIDE_SCALE_TO_1 = false;
 
 export const VisitedSystemColor = '#6699CC';
 export const UnvisitedSystemColor = '#414141';
 export const WormholeSystemColor = '#FFA500';
 export const SpecialSystemColor = '#66CC85';
+// The maps are black whatever the page's colours are.
+export const LabelColor = 'white';
 
 // The size of the labels drawn on a canvas: two thirds of the page's text size.
 export function labelSize(): number {
   return (parseFloat(getComputedStyle(document.documentElement).fontSize) * 2) / 3;
+}
+
+export function labelFont(): string {
+  return `${labelSize()}px Helvetica, Arial, sans-serif`;
 }
 
 export class GalaxyView {
@@ -126,11 +131,7 @@ export class GalaxyView {
     const rect = this.canvasContainer.getBoundingClientRect();
     this.width = rect.width;
     this.height = rect.height;
-    if (DEBUG_OVERRIDE_SCALE_TO_1) {
-      this.scale = 1;
-    } else {
-      this.scale = window.devicePixelRatio;
-    }
+    this.scale = window.devicePixelRatio;
 
     this.canvas.style.width = `${rect.width}px`;
     this.canvas.style.height = `${rect.height}px`;
@@ -214,20 +215,9 @@ export class GalaxyView {
     }
   }
 
-  getEventPosition(event: MouseEvent & { touches?: TouchList }) {
-    let ret = { x: event.clientX, y: event.clientY };
-
-    if (event.touches && event.touches.length > 0) {
-      const touch = event.touches[0];
-      ret = { x: touch.clientX, y: touch.clientY };
-    }
-
+  getEventPosition(event: MouseEvent) {
     const rect = this.canvas.getBoundingClientRect();
-
-    ret.x = ret.x - rect.left;
-    ret.y = ret.y - rect.top;
-
-    return ret;
+    return { x: event.clientX - rect.left, y: event.clientY - rect.top };
   }
 
   getPlanetAtPosition(x: number, y: number) {
@@ -308,10 +298,6 @@ export class GalaxyView {
     this.context.fillStyle = 'black';
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    const bodyColor = window.getComputedStyle(document.body).color;
-    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const textColor = isDarkMode ? bodyColor : 'white';
-
     const solarSystems = this.game.solarSystems;
     const radius = this.planetRadius();
 
@@ -385,10 +371,10 @@ export class GalaxyView {
     if (this.showNames) {
       this.planets.forEach(planet => {
         const namePadding = Math.floor(radius);
-        this.context.fillStyle = textColor;
+        this.context.fillStyle = LabelColor;
         this.context.textAlign = 'center';
         this.context.textBaseline = 'middle';
-        this.context.font = `${labelSize()}px Helvetica, Arial, san-serif`;
+        this.context.font = labelFont();
         if (!planet.isWormhole) {
           this.context.fillText(
             planet.solarSystem.name,
