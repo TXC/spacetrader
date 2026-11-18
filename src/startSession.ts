@@ -3,7 +3,7 @@ import { GameRand } from './game/GameRand.ts';
 import { runtime } from './game/runtime.ts';
 import { activate, Session } from './game/session.ts';
 import { browserStorage } from './game/storage.ts';
-import { DebugMode } from './game/Utilities.ts';
+import { DebugMode } from './game/ensure.ts';
 
 // Debug mode is asked for in the address, as in /?debug. It shows the debug panel and
 // reports errors in the rules as alerts.

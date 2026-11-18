@@ -3,7 +3,7 @@ import { Commander } from '../../game/Commander.ts';
 import { Game } from '../../game/Game.ts';
 import { GameRand } from '../../game/GameRand.ts';
 import { runtime } from '../../game/runtime.ts';
-import { DebugMode } from '../../game/Utilities.ts';
+import { DebugMode } from '../../game/ensure.ts';
 
 // A fresh game for a rules test: a fixed galaxy, an average commander, no alerts open.
 export function newGame(difficulty = 2): Game {

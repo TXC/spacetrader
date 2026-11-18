@@ -6,7 +6,7 @@ import { CrewMember } from './CrewMember.ts';
 import { Ship, shipModelForType, ShipModelType, SHIP_MODEL_COUNT } from './Ship.ts';
 import { Difficulty, WildQuestStatus } from './SolarSystem.types.ts';
 import { TradeItemType, TRADE_ITEM_COUNT } from './TradeItem.types.ts';
-import { Utils } from './Utilities.ts';
+import { ensureInteger, ensureType } from './ensure.ts';
 import type { Game } from './Game.ts';
 import { runtime } from './runtime.ts';
 
@@ -38,19 +38,19 @@ export class Opponent extends CrewMember {
     ship: Ship
   ) {
     super('opponent', engineer, pilot, fighter, trader);
-    Utils.ensureInteger(type);
+    ensureInteger(type);
     this.type = type;
-    Utils.ensureType(ship, 'object');
+    ensureType(ship, 'object');
     this.ship = ship;
   }
 
   static generateOpponentWithType(type: number, game: Game) {
-    Utils.ensureInteger(type);
-    Utils.ensureType(game, 'object');
+    ensureInteger(type);
+    ensureType(game, 'object');
 
     let opponent: Opponent;
     const difficulty = game.commander.difficulty;
-    Utils.ensureInteger(difficulty);
+    ensureInteger(difficulty);
 
     if (type === OpponentType.FamousCaptain) {
       const ship = Ship.bestShipWithDifficulty(difficulty);
@@ -142,8 +142,8 @@ export class Opponent extends CrewMember {
         chosenShipType = ShipModelType.Mantis;
       }
 
-      Utils.ensureInteger(tries);
-      Utils.ensureInteger(chosenShipType);
+      ensureInteger(tries);
+      ensureInteger(chosenShipType);
 
       if (chosenShipType >= SHIP_MODEL_COUNT) {
         const handicap = Math.max(game.difficulty - Difficulty.Normal, 0);
@@ -174,7 +174,7 @@ export class Opponent extends CrewMember {
             continue;
           }
           totalShipOccurrence += model.frequency;
-          Utils.addToOrderedSet(possibleShipTypes, i);
+          addToOrderedSet(possibleShipTypes, i);
         }
 
         let shipChoice = 0;
@@ -194,8 +194,8 @@ export class Opponent extends CrewMember {
         }
       }
 
-      Utils.ensureInteger(chosenShipType);
-      Utils.ensureInteger(game.difficulty);
+      ensureInteger(chosenShipType);
+      ensureInteger(game.difficulty);
 
       const ship = new Ship(chosenShipType, game.difficulty);
       const model = shipModelForType(chosenShipType);
@@ -209,7 +209,7 @@ export class Opponent extends CrewMember {
         );
       }
 
-      Utils.ensureInteger(tries);
+      ensureInteger(tries);
 
       let gadgetSlots = 0;
       if (model.gadgetSlots > 0) {
@@ -227,7 +227,7 @@ export class Opponent extends CrewMember {
         }
       }
 
-      Utils.ensureInteger(gadgetSlots);
+      ensureInteger(gadgetSlots);
 
       for (let i = 0; i < gadgetSlots; ++i) {
         let gadgetRoll = 0;
@@ -243,7 +243,7 @@ export class Opponent extends CrewMember {
         ) {
           const gadget = gadgetForType(gadgetType)!;
           gadgetFreqSum += gadget.occurrence;
-          Utils.ensureInteger(gadgetFreqSum);
+          ensureInteger(gadgetFreqSum);
           if (gadgetFreqSum >= gadgetRoll) {
             if (!ship.hasGadgetOfType(gadgetType)) {
               ship.addGadgetOfType(gadgetType);
@@ -258,7 +258,7 @@ export class Opponent extends CrewMember {
       }
 
       const totalCargoBays = ship.totalCargoBays();
-      Utils.ensureInteger(totalCargoBays);
+      ensureInteger(totalCargoBays);
 
       if (allNarcotics) {
         ship.boughtQuantity(Math.min(totalCargoBays, 5), TradeItemType.Narcotics, 0);
@@ -280,7 +280,7 @@ export class Opponent extends CrewMember {
         amountCargo = Math.max(1, amountCargo);
 
         let cargoToDistribute = amountCargo;
-        Utils.ensureInteger(cargoToDistribute);
+        ensureInteger(cargoToDistribute);
 
         while (cargoToDistribute > 0) {
           const itemType = runtime.gameRand.randomIntBelow(TRADE_ITEM_COUNT);
@@ -304,11 +304,11 @@ export class Opponent extends CrewMember {
         }
       }
 
-      Utils.ensureInteger(weaponSlots);
+      ensureInteger(weaponSlots);
 
       for (let i = 0; i < weaponSlots; ++i) {
         const weaponRoll = bestRoll(tries, 100);
-        Utils.ensureInteger(weaponRoll);
+        ensureInteger(weaponRoll);
 
         let weaponFreqSum = 0;
         for (
@@ -318,7 +318,7 @@ export class Opponent extends CrewMember {
         ) {
           const weapon = weaponForType(weaponType)!;
           weaponFreqSum += weapon.occurrence;
-          Utils.ensureInteger(weaponFreqSum);
+          ensureInteger(weaponFreqSum);
           if (weaponFreqSum >= weaponRoll) {
             ship.addWeaponOfType(weaponType);
             break;
@@ -338,12 +338,12 @@ export class Opponent extends CrewMember {
         }
       }
 
-      Utils.ensureInteger(shieldSlots);
+      ensureInteger(shieldSlots);
 
       let totalShieldPower = 0;
       for (let i = 0; i < shieldSlots; ++i) {
         const shieldRoll = bestRoll(tries, 100);
-        Utils.ensureInteger(shieldRoll);
+        ensureInteger(shieldRoll);
 
         let shieldFreqSum = 0;
         for (
@@ -363,7 +363,7 @@ export class Opponent extends CrewMember {
         }
       }
 
-      Utils.ensureInteger(totalShieldPower);
+      ensureInteger(totalShieldPower);
 
       const damage = ship.currentShieldPower - totalShieldPower;
       ship.damageShieldsByAmount(damage);
@@ -386,7 +386,7 @@ export class Opponent extends CrewMember {
         }
       }
 
-      Utils.ensureInteger(numMercenaries);
+      ensureInteger(numMercenaries);
 
       for (let i = 0; i < numMercenaries; ++i) {
         const mercenary = new CrewMember(CrewMember.mercenaryNames()[i]);
@@ -410,6 +410,13 @@ export class Opponent extends CrewMember {
     }
 
     return opponent;
+  }
+}
+
+// Treat an array like an ordered set
+export function addToOrderedSet<T>(arr: T[], item: T) {
+  if (!arr.includes(item)) {
+    arr.push(item);
   }
 }
 

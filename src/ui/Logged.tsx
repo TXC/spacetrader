@@ -1,6 +1,6 @@
 // Buttons and checkboxes that record themselves in the action log.
 import type { ReactNode } from 'react';
-import { Utils } from '../game/Utilities.ts';
+import { sanitizedElementID } from '../game/elementId.ts';
 import styles from './Button.module.css';
 import { useLogged } from './useLogged.ts';
 
@@ -15,7 +15,7 @@ type ButtonProps = {
 
 // The id defaults to the label, made safe for an element id, as the old screens did.
 export function LoggedButton({ id, label, disabled, onPress, kind }: ButtonProps) {
-  const elementId = Utils.sanitizedElementID(id ?? label);
+  const elementId = sanitizedElementID(id ?? label);
   const onClick = useLogged(elementId, 'click', onPress);
   return (
     <button

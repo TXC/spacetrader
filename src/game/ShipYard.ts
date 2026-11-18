@@ -6,7 +6,7 @@ import { session } from './session.ts';
 import { Ship, shipModelForType, ShipModelType } from './Ship.ts';
 import type { ShipModel } from './Ship.ts';
 import { FAKE_QUEST_CARGO, FAKE_QUEST_CARGO_REACTOR } from './TradeItem.types.ts';
-import { pLog } from './Utilities.ts';
+import { pLog } from './probes.ts';
 
 export const kEscapePodPrice = 2000;
 

@@ -1,9 +1,9 @@
 import { GALAXY_HEIGHT, GALAXY_WIDTH } from '../../game/Game.ts';
 import { SpecialEvent } from '../../game/SolarSystem.types.ts';
-import { Utils } from '../../game/Utilities.ts';
 import type { Game } from '../../game/Game.ts';
 import type { SolarSystem } from '../../game/SolarSystem.ts';
 import { runtime } from '../../game/runtime.ts';
+import { easeInOutSine } from './easing.ts';
 import { watchSize } from './watchSize.ts';
 
 type Point = { x: number; y: number };
@@ -432,7 +432,7 @@ export class GalaxyView {
         1 - (elapsedAnimationTimeMS - animationDurationMS / 2) / (animationDurationMS / 2);
     }
 
-    const radiusGrowth = 0.2 * Utils.easeInOutSine(animationProportion);
+    const radiusGrowth = 0.2 * easeInOutSine(animationProportion);
 
     const radius = this.planetRadius() * (1.05 + radiusGrowth);
 

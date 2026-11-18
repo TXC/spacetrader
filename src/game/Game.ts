@@ -25,7 +25,14 @@ import {
   randomOccurrenceEventTypes,
 } from './SpecialEventSpecifier.ts';
 import { TechLevel, FAKE_QUEST_CARGO_REACTOR } from './TradeItem.types.ts';
-import { Utils, pLog } from './Utilities.ts';
+import {
+  ensureArrayOrNull,
+  ensureBool,
+  ensureInteger,
+  ensureObjectOrNull,
+  ensureType,
+} from './ensure.ts';
+import { pLog } from './probes.ts';
 import { runtime } from './runtime.ts';
 
 export const GALAXY_WIDTH = 150;
@@ -152,10 +159,10 @@ export class Game {
       this.wildStatus = 0;
       this.reactorStatus = 0;
 
-      Utils.ensureType(commander, 'object');
+      ensureType(commander, 'object');
       this.commander = commander;
 
-      Utils.ensureInteger(difficulty);
+      ensureInteger(difficulty);
       this.difficulty = difficulty!;
 
       this._populateSolarSystems();
@@ -198,14 +205,14 @@ export class Game {
     if (serializedState.breakingNews) {
       pLog.log(71);
       instance._breakingNews = [...serializedState.breakingNews];
-      Utils.ensureArrayOrNull(instance._breakingNews, 'string');
+      ensureArrayOrNull(instance._breakingNews, 'string');
     } else {
       pLog.log(72);
       instance._breakingNews = null;
     }
 
     instance._remainingRareEvents = [...serializedState.remainingRareEvents];
-    Utils.ensureArrayOrNull(instance._remainingRareEvents, 'number');
+    ensureArrayOrNull(instance._remainingRareEvents, 'number');
 
     instance.solarSystems = serializedState.solarSystems.map(ss =>
       SolarSystem.fromSerializedState(ss)
@@ -238,7 +245,7 @@ export class Game {
   }
 
   set trackedSystem(s) {
-    if (Utils.ensureObjectOrNull(s)) {
+    if (ensureObjectOrNull(s)) {
       this._trackedSystem = s;
     }
   }
@@ -248,7 +255,7 @@ export class Game {
   }
 
   set endStatus(st) {
-    if (Utils.ensureInteger(st)) {
+    if (ensureInteger(st)) {
       this._endStatus = st;
     }
   }
@@ -269,82 +276,82 @@ export class Game {
     // Filled in field by field below.
     const state = {} as GameState;
 
-    Utils.ensureInteger(this.monsterStatus);
+    ensureInteger(this.monsterStatus);
     state.monsterStatus = this.monsterStatus;
 
-    Utils.ensureInteger(this.dragonflyStatus);
+    ensureInteger(this.dragonflyStatus);
     state.dragonflyStatus = this.dragonflyStatus;
 
-    Utils.ensureInteger(this.scarabStatus);
+    ensureInteger(this.scarabStatus);
     state.scarabStatus = this.scarabStatus;
 
-    Utils.ensureInteger(this.japoriQuestStatus);
+    ensureInteger(this.japoriQuestStatus);
     state.japoriQuestStatus = this.japoriQuestStatus;
 
-    Utils.ensureInteger(this.jarekStatus);
+    ensureInteger(this.jarekStatus);
     state.jarekStatus = this.jarekStatus;
 
-    Utils.ensureInteger(this.invasionStatus);
+    ensureInteger(this.invasionStatus);
     state.invasionStatus = this.invasionStatus;
 
-    Utils.ensureInteger(this.experimentStatus);
+    ensureInteger(this.experimentStatus);
     state.experimentStatus = this.experimentStatus;
 
-    Utils.ensureInteger(this.fabricRipProbability);
+    ensureInteger(this.fabricRipProbability);
     state.fabricRipProbability = this.fabricRipProbability;
 
-    Utils.ensureInteger(this.wildStatus);
+    ensureInteger(this.wildStatus);
     state.wildStatus = this.wildStatus;
 
-    Utils.ensureInteger(this.reactorStatus);
+    ensureInteger(this.reactorStatus);
     state.reactorStatus = this.reactorStatus;
 
-    Utils.ensureInteger(this.difficulty);
+    ensureInteger(this.difficulty);
     state.difficulty = this.difficulty;
 
-    Utils.ensureInteger(this._endStatus);
+    ensureInteger(this._endStatus);
     state.endStatus = this._endStatus;
 
-    Utils.ensureInteger(this._monsterHull);
+    ensureInteger(this._monsterHull);
     state.monsterHull = this._monsterHull;
 
     state.score = this.score();
-    Utils.ensureInteger(state.score);
+    ensureInteger(state.score);
 
-    Utils.ensureBool(this.remindLoans);
+    ensureBool(this.remindLoans);
     state.remindLoans = this.remindLoans;
 
-    Utils.ensureBool(this.tribbleMessage);
+    ensureBool(this.tribbleMessage);
     state.tribbleMessage = this.tribbleMessage;
 
-    Utils.ensureBool(this.alreadyPaidForNewspaper);
+    ensureBool(this.alreadyPaidForNewspaper);
     state.alreadyPaidForNewspaper = this.alreadyPaidForNewspaper;
 
-    Utils.ensureBool(this.alwaysIgnorePirates);
+    ensureBool(this.alwaysIgnorePirates);
     state.alwaysIgnorePirates = this.alwaysIgnorePirates;
 
-    Utils.ensureBool(this.alwaysIgnorePolice);
+    ensureBool(this.alwaysIgnorePolice);
     state.alwaysIgnorePolice = this.alwaysIgnorePolice;
 
-    Utils.ensureBool(this.alwaysIgnoreTraders);
+    ensureBool(this.alwaysIgnoreTraders);
     state.alwaysIgnoreTraders = this.alwaysIgnoreTraders;
 
-    Utils.ensureBool(this.alwaysIgnoreTradeInOrbit);
+    ensureBool(this.alwaysIgnoreTradeInOrbit);
     state.alwaysIgnoreTradeInOrbit = this.alwaysIgnoreTradeInOrbit;
 
-    Utils.ensureBool(this.autoFuel);
+    ensureBool(this.autoFuel);
     state.autoFuel = this.autoFuel;
 
-    Utils.ensureBool(this.autoRepairs);
+    ensureBool(this.autoRepairs);
     state.autoRepairs = this.autoRepairs;
 
-    Utils.ensureBool(this.autoNews);
+    ensureBool(this.autoNews);
     state.autoNews = this.autoNews;
 
-    Utils.ensureBool(this.canSuperWarp);
+    ensureBool(this.canSuperWarp);
     state.canSuperWarp = this.canSuperWarp;
 
-    Utils.ensureArrayOrNull(this._breakingNews, 'string');
+    ensureArrayOrNull(this._breakingNews, 'string');
     if (this._breakingNews) {
       state.breakingNews = [...this._breakingNews];
       pLog.log(73);
@@ -352,29 +359,29 @@ export class Game {
 
     state.commander = this.commander.serializedState();
 
-    Utils.ensureObjectOrNull(this._warpSystem);
+    ensureObjectOrNull(this._warpSystem);
     if (this._warpSystem) {
-      Utils.ensureType(this._warpSystem.name, 'string');
+      ensureType(this._warpSystem.name, 'string');
       state.warpSystemName = this._warpSystem.name;
     }
 
-    Utils.ensureObjectOrNull(this._trackedSystem);
+    ensureObjectOrNull(this._trackedSystem);
     if (this._trackedSystem) {
-      Utils.ensureType(this._trackedSystem.name, 'string');
+      ensureType(this._trackedSystem.name, 'string');
       state.trackedSystemName = this._trackedSystem.name;
       pLog.log(74);
     }
 
-    Utils.ensureType(this._uniqueID, 'string');
+    ensureType(this._uniqueID, 'string');
     state.uniqueID = this._uniqueID;
 
-    Utils.ensureArrayOrNull(this._remainingRareEvents, 'number');
+    ensureArrayOrNull(this._remainingRareEvents, 'number');
     if (this._remainingRareEvents) {
       state.remainingRareEvents = [...this._remainingRareEvents];
       pLog.log(75);
     }
 
-    Utils.ensureArrayOrNull(this.solarSystems, 'object');
+    ensureArrayOrNull(this.solarSystems, 'object');
     state.solarSystems = this.solarSystems.map(solarSystem => solarSystem.serializedState());
 
     this._lastSave = new Date();
@@ -410,7 +417,7 @@ export class Game {
     }
 
     score = Math.floor(score);
-    Utils.ensureInteger(score);
+    ensureInteger(score);
 
     return score;
   }
@@ -641,7 +648,7 @@ export class Game {
       result.unshift(current.wormhole);
     }
 
-    Utils.ensureArrayOrNull(result, 'object');
+    ensureArrayOrNull(result, 'object');
 
     return result;
   }
@@ -670,7 +677,7 @@ export class Game {
   }
 
   addBreakingNewsItem(item: string) {
-    if (!Utils.ensureType(item, 'string')) {
+    if (!ensureType(item, 'string')) {
       return;
     }
 
@@ -681,10 +688,10 @@ export class Game {
   }
 
   replaceNewsContainingString(needle: string, item: string) {
-    if (!Utils.ensureType(needle, 'string')) {
+    if (!ensureType(needle, 'string')) {
       return;
     }
-    if (!Utils.ensureType(item, 'string')) {
+    if (!ensureType(item, 'string')) {
       return;
     }
 
@@ -704,7 +711,7 @@ export class Game {
   }
 
   addRemainingRareEvents(rareEvents: number[]) {
-    if (!Utils.ensureArrayOrNull(rareEvents, 'number')) {
+    if (!ensureArrayOrNull(rareEvents, 'number')) {
       return;
     }
 
@@ -715,7 +722,7 @@ export class Game {
   }
 
   removeRemainingRareEvent(rareEvent: number) {
-    Utils.ensureInteger(rareEvent);
+    ensureInteger(rareEvent);
 
     const index = this._remainingRareEvents.indexOf(rareEvent);
     if (index !== -1) {
@@ -731,7 +738,7 @@ export class Game {
   }
 
   timePassed(days: number) {
-    Utils.ensureInteger(days);
+    ensureInteger(days);
 
     this.commander.timePassed(days);
 
@@ -789,7 +796,7 @@ export class Game {
       this.fabricRipProbability > 0
     ) {
       this.fabricRipProbability -= Math.min(this.fabricRipProbability, days);
-      Utils.ensureInteger(this.fabricRipProbability);
+      ensureInteger(this.fabricRipProbability);
       pLog.log(146);
     }
   }
@@ -799,7 +806,7 @@ export class Game {
   }
 
   set monsterHull(m) {
-    if (Utils.ensureInteger(m)) {
+    if (ensureInteger(m)) {
       this._monsterHull = m;
     }
   }
@@ -809,7 +816,7 @@ export class Game {
       shipModelForType(ShipModelType.SpaceMonster).hullStrength,
       Math.floor((this._monsterHull * 105) / 100)
     );
-    Utils.ensureInteger(this._monsterHull);
+    ensureInteger(this._monsterHull);
     pLog.log(142);
   }
 

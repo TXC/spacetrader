@@ -4,7 +4,7 @@ import { policeRecordName, reputationName } from './Commander.ts';
 import type { Game } from './Game.ts';
 import { session } from './session.ts';
 import { difficultyName } from './SolarSystem.types.ts';
-import { pLog } from './Utilities.ts';
+import { pLog } from './probes.ts';
 
 export type Skill = { name: string; base: number; withCrew: number };
 

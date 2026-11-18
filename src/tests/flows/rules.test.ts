@@ -3,8 +3,8 @@
 // project's UnitTests.js; the recordings and expected values are unchanged.
 import { test } from 'vitest';
 import { GameRand } from '../../game/GameRand.ts';
+import { addToOrderedSet } from '../../game/Opponent.ts';
 import { ShipModelType } from '../../game/Ship.ts';
-import { Utils } from '../../game/Utilities.ts';
 import { assertEqualArrays } from './harness.ts';
 
 // GameRand
@@ -22,14 +22,12 @@ test('randomInt', () => {
   assertEqualArrays(observed, expected);
 });
 
-// Utils
-
 test('addToOrderedSet', () => {
   const arr = [ShipModelType.Flea, ShipModelType.Firefly];
-  Utils.addToOrderedSet(arr, ShipModelType.Flea);
-  Utils.addToOrderedSet(arr, ShipModelType.Gnat);
-  Utils.addToOrderedSet(arr, ShipModelType.Firefly);
-  Utils.addToOrderedSet(arr, ShipModelType.Beetle);
+  addToOrderedSet(arr, ShipModelType.Flea);
+  addToOrderedSet(arr, ShipModelType.Gnat);
+  addToOrderedSet(arr, ShipModelType.Firefly);
+  addToOrderedSet(arr, ShipModelType.Beetle);
   assertEqualArrays(arr, [
     ShipModelType.Flea,
     ShipModelType.Firefly,

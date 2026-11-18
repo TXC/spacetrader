@@ -23,7 +23,14 @@ import {
   NOT_FOR_SALE,
   TRADE_ITEM_COUNT,
 } from './TradeItem.types.ts';
-import { Utils, pLog } from './Utilities.ts';
+import {
+  ensureArrayOrNull,
+  ensureBool,
+  ensureInteger,
+  ensureMapOrNull,
+  ensureType,
+} from './ensure.ts';
+import { pLog } from './probes.ts';
 import { runtime } from './runtime.ts';
 
 export const ShipModelType = {
@@ -463,7 +470,7 @@ export class Ship {
   }
 
   static bestShipWithDifficulty(difficulty: number) {
-    Utils.ensureInteger(difficulty);
+    ensureInteger(difficulty);
 
     const ship = new Ship(ShipModelType.Best, difficulty);
 
@@ -501,7 +508,7 @@ export class Ship {
       }
       for (let itemType = TRADE_ITEM_COUNT - 1; itemType >= 0; itemType--) {
         const quantity = previousShip.tradeItemQuantityForType(itemType);
-        Utils.ensureInteger(quantity);
+        ensureInteger(quantity);
         if (quantity > 0) {
           if (
             ship.boughtQuantity(
@@ -545,8 +552,8 @@ export class Ship {
     ship._cargo = new Map();
     if (serializedState.cargoKeys && serializedState.cargoValues) {
       serializedState.cargoKeys.forEach((key, idx) => {
-        Utils.ensureInteger(key);
-        Utils.ensureInteger(idx);
+        ensureInteger(key);
+        ensureInteger(idx);
         ship._cargo.set(key, serializedState.cargoValues![idx]);
       });
     }
@@ -554,8 +561,8 @@ export class Ship {
     ship._cargoBuyingPrice = new Map();
     if (serializedState.cargoBuyingPriceKeys && serializedState.cargoBuyingPriceValues) {
       serializedState.cargoBuyingPriceKeys.forEach((key, idx) => {
-        Utils.ensureInteger(key);
-        Utils.ensureInteger(idx);
+        ensureInteger(key);
+        ensureInteger(idx);
         ship._cargoBuyingPrice.set(key, serializedState.cargoBuyingPriceValues![idx]);
       });
     }
@@ -563,7 +570,7 @@ export class Ship {
     ship._weapons = [];
     if (serializedState.weaponTypes) {
       serializedState.weaponTypes.forEach(accessoryType => {
-        Utils.ensureInteger(accessoryType);
+        ensureInteger(accessoryType);
         ship.addAccessoryOfType(accessoryType);
       });
     }
@@ -571,7 +578,7 @@ export class Ship {
     ship._shields = [];
     if (serializedState.shieldTypes) {
       serializedState.shieldTypes.forEach(accessoryType => {
-        Utils.ensureInteger(accessoryType);
+        ensureInteger(accessoryType);
         ship.addAccessoryOfType(accessoryType);
       });
     }
@@ -582,7 +589,7 @@ export class Ship {
     ship._gadgets = [];
     if (serializedState.gadgetTypes) {
       serializedState.gadgetTypes.forEach(accessoryType => {
-        Utils.ensureInteger(accessoryType);
+        ensureInteger(accessoryType);
         ship.addAccessoryOfType(accessoryType);
       });
     }
@@ -636,7 +643,7 @@ export class Ship {
       return false;
     }
 
-    if (Utils.ensureType(crew, 'object')) {
+    if (ensureType(crew, 'object')) {
       pLog.log(44);
       this._crew.push(crew);
       return true;
@@ -668,7 +675,7 @@ export class Ship {
 
   // Method to get the count of crew members
   crewCount() {
-    if (this._crew !== null && Utils.ensureArrayOrNull(this._crew, 'object')) {
+    if (this._crew !== null && ensureArrayOrNull(this._crew, 'object')) {
       return this._crew.length;
     }
 
@@ -693,7 +700,7 @@ export class Ship {
   _hullStrength() {
     const baseStrength = shipModelForType(this._type).hullStrength;
     const result = baseStrength + (this._upgradedHull ? 50 : 0);
-    Utils.ensureInteger(result);
+    ensureInteger(result);
     return result;
   }
 
@@ -703,7 +710,7 @@ export class Ship {
 
   // Method to set upgraded hull
   setUpgradedHull(upgradedHull: boolean) {
-    if (!Utils.ensureBool(upgradedHull)) {
+    if (!ensureBool(upgradedHull)) {
       return;
     }
 
@@ -719,7 +726,7 @@ export class Ship {
       .filter(weapon => weapon.type >= min && weapon.type <= max)
       .reduce((sum, weapon) => sum + weapon.power, 0);
 
-    Utils.ensureInteger(power);
+    ensureInteger(power);
     return power;
   }
 
@@ -746,7 +753,7 @@ export class Ship {
 
   // Method to check if the ship has any shields
   hasAnyShield() {
-    Utils.ensureType(this._shields, 'object');
+    ensureType(this._shields, 'object');
     return this._shields.length !== 0;
   }
 
@@ -766,8 +773,8 @@ export class Ship {
       accessories = this._weapons;
     }
 
-    Utils.ensureInteger(totalSlots);
-    Utils.ensureInteger(accessories.length);
+    ensureInteger(totalSlots);
+    ensureInteger(accessories.length);
 
     return Math.max(0, totalSlots - accessories.length);
   }
@@ -856,7 +863,7 @@ export class Ship {
   }
 
   consumeFuelOverDistance(distance: number) {
-    if (Utils.ensureInteger(distance)) {
+    if (ensureInteger(distance)) {
       this._fuel -= Math.min(distance, this._fuel);
     }
   }
@@ -889,7 +896,7 @@ export class Ship {
     if (amount <= 0) {
       return;
     }
-    if (!Utils.ensureInteger(amount)) {
+    if (!ensureInteger(amount)) {
       return;
     }
 
@@ -900,7 +907,7 @@ export class Ship {
 
   // Returns the damage the shields could not take.
   damageShieldsByAmount(amount: number) {
-    if (!Utils.ensureInteger(amount)) {
+    if (!ensureInteger(amount)) {
       return 0;
     }
 
@@ -914,7 +921,7 @@ export class Ship {
   }
 
   fillFuelByAmount(amount: number) {
-    if (!Utils.ensureInteger(amount)) {
+    if (!ensureInteger(amount)) {
       return;
     }
 
@@ -923,7 +930,7 @@ export class Ship {
 
   // Returns the part of `amount` that was not needed.
   repairHullByAmount(amount: number) {
-    if (!Utils.ensureInteger(amount)) {
+    if (!ensureInteger(amount)) {
       return 0;
     }
 
@@ -939,7 +946,7 @@ export class Ship {
   }
 
   damageHullByAmount(amount: number) {
-    if (!Utils.ensureInteger(amount)) {
+    if (!ensureInteger(amount)) {
       return;
     }
 
@@ -973,7 +980,7 @@ export class Ship {
       0
     );
 
-    Utils.ensureInteger(value);
+    ensureInteger(value);
 
     return Math.floor(value);
   }
@@ -993,7 +1000,7 @@ export class Ship {
 
     value = Math.floor(value);
 
-    Utils.ensureInteger(value);
+    ensureInteger(value);
 
     return value;
   }
@@ -1017,7 +1024,7 @@ export class Ship {
       maxSkill += SKILL_BONUS;
     }
 
-    Utils.ensureInteger(maxSkill);
+    ensureInteger(maxSkill);
 
     return adjustSkillForDifficulty(maxSkill, this._difficulty);
   }
@@ -1029,7 +1036,7 @@ export class Ship {
       maxSkill++;
     }
 
-    Utils.ensureInteger(maxSkill);
+    ensureInteger(maxSkill);
 
     return adjustSkillForDifficulty(maxSkill, this._difficulty);
   }
@@ -1041,7 +1048,7 @@ export class Ship {
       maxSkill += SKILL_BONUS;
     }
 
-    Utils.ensureInteger(maxSkill);
+    ensureInteger(maxSkill);
 
     return adjustSkillForDifficulty(maxSkill, this._difficulty);
   }
@@ -1057,7 +1064,7 @@ export class Ship {
       maxSkill += CLOAK_BONUS;
     }
 
-    Utils.ensureInteger(maxSkill);
+    ensureInteger(maxSkill);
 
     return adjustSkillForDifficulty(maxSkill, this._difficulty);
   }
@@ -1077,7 +1084,7 @@ export class Ship {
   }
 
   boughtQuantity(quantity: number, itemType: number, price: number) {
-    if (!Utils.ensureArrayOrNull([quantity, itemType, price], 'number')) {
+    if (!ensureArrayOrNull([quantity, itemType, price], 'number')) {
       return 0;
     }
 
@@ -1094,7 +1101,7 @@ export class Ship {
   }
 
   soldQuantity(quantity: number, itemType: number) {
-    if (!Utils.ensureArrayOrNull([quantity, itemType], 'number')) {
+    if (!ensureArrayOrNull([quantity, itemType], 'number')) {
       return;
     }
 
@@ -1170,7 +1177,7 @@ export class Ship {
   totalCargoBays() {
     const extraCount = this.countGadgetOfType(AccessoryType.GadgetFiveExtraCargoBays, false);
     const result = shipModelForType(this._type).cargoBays + 5 * extraCount;
-    Utils.ensureInteger(result);
+    ensureInteger(result);
     return result;
   }
 
@@ -1179,7 +1186,7 @@ export class Ship {
     const loaded = [...this._cargo.values()].reduce((sum, quantity) => sum + quantity, 0);
     const consumedBays = Math.min(loaded, totalBays);
     const result = totalBays - consumedBays;
-    Utils.ensureInteger(result);
+    ensureInteger(result);
     return result;
   }
 
@@ -1208,82 +1215,82 @@ export class Ship {
     const state = {} as ShipState;
 
     // BOOL
-    Utils.ensureBool(this._upgradedHull);
+    ensureBool(this._upgradedHull);
     state.upgradedHull = this._upgradedHull;
 
     // char
-    Utils.ensureInteger(this._type);
+    ensureInteger(this._type);
     state.type = this._type;
 
-    Utils.ensureInteger(this._difficulty);
+    ensureInteger(this._difficulty);
     state.difficulty = this._difficulty;
 
-    Utils.ensureInteger(this._fuel);
+    ensureInteger(this._fuel);
     state.fuel = this._fuel;
 
     // NSInteger
-    Utils.ensureInteger(this._hull);
+    ensureInteger(this._hull);
     state.hull = this._hull;
 
-    Utils.ensureInteger(this.tribbles);
+    ensureInteger(this.tribbles);
     state.tribbles = this.tribbles;
 
-    Utils.ensureInteger(this._currentShieldPower);
+    ensureInteger(this._currentShieldPower);
     state.currentShieldPower = this._currentShieldPower;
 
     // NSDictionary
-    Utils.ensureMapOrNull(this._cargo);
+    ensureMapOrNull(this._cargo);
     if (this._cargo) {
       state.cargoKeys = [];
       state.cargoValues = [];
 
       for (const [key, value] of this._cargo) {
-        Utils.ensureInteger(key);
+        ensureInteger(key);
         state.cargoKeys.push(key);
 
-        Utils.ensureInteger(value);
+        ensureInteger(value);
         state.cargoValues.push(value);
       }
     }
 
-    Utils.ensureMapOrNull(this._cargoBuyingPrice);
+    ensureMapOrNull(this._cargoBuyingPrice);
     if (this._cargoBuyingPrice) {
       state.cargoBuyingPriceKeys = [];
       state.cargoBuyingPriceValues = [];
 
       for (const [key, value] of this._cargoBuyingPrice) {
-        Utils.ensureInteger(key);
+        ensureInteger(key);
         state.cargoBuyingPriceKeys.push(key);
 
-        Utils.ensureInteger(value);
+        ensureInteger(value);
         state.cargoBuyingPriceValues.push(value);
       }
     }
 
     // NSArray
-    Utils.ensureArrayOrNull(this._weapons, 'object');
+    ensureArrayOrNull(this._weapons, 'object');
     if (this._weapons.length) {
       state.weaponTypes = this._weapons.map(weapon => weapon.type);
-      Utils.ensureArrayOrNull(state.weaponTypes, 'number');
+      ensureArrayOrNull(state.weaponTypes, 'number');
     }
 
-    Utils.ensureArrayOrNull(this._shields, 'object');
+    ensureArrayOrNull(this._shields, 'object');
     if (this._shields.length) {
       state.shieldTypes = this._shields.map(shield => shield.type);
-      Utils.ensureArrayOrNull(state.shieldTypes, 'number');
+      ensureArrayOrNull(state.shieldTypes, 'number');
     }
 
-    Utils.ensureArrayOrNull(this._gadgets, 'object');
+    ensureArrayOrNull(this._gadgets, 'object');
     if (this._gadgets.length) {
       state.gadgetTypes = this._gadgets.map(gadget => gadget.type);
-      Utils.ensureArrayOrNull(state.gadgetTypes, 'number');
+      ensureArrayOrNull(state.gadgetTypes, 'number');
     }
 
-    Utils.ensureArrayOrNull(this._crew, 'object');
+    ensureArrayOrNull(this._crew, 'object');
     if (this._crew.length) {
       state.crewMap = {};
       this._crew.forEach(crewMember => {
-        Utils.ensureType(crewMember.name, 'string');
+        ensureType(crewMember.name, 'string');
         state.crewMap![crewMember.name!] = crewMember.serializedState();
       });
     }

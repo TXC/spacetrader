@@ -6,7 +6,7 @@ import type { SolarSystem } from './SolarSystem.ts';
 import { SpecialEvent, systemSizeName } from './SolarSystem.types.ts';
 import { specialEventForType } from './SpecialEventSpecifier.ts';
 import { techLevelName } from './TradeItem.types.ts';
-import { pLog } from './Utilities.ts';
+import { pLog } from './probes.ts';
 
 // Opening the chart sorts the game's own list of systems by name, in place. The rest of
 // the game then walks the systems in that order, so this must keep happening.
