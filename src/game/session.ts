@@ -2,7 +2,6 @@
 // selection, and saving and loading. It replaces the old screens' web of delegates.
 import { AlertActionType, AlertViewController } from './alerts.ts';
 import { present as presentChart } from './Chart.ts';
-import { Commander } from './Commander.ts';
 import type { CrewMember } from './CrewMember.ts';
 import { Game, GameEndStatus } from './Game.ts';
 import type { GameEndedStatus, GameState } from './Game.ts';
@@ -106,16 +105,8 @@ export class Session extends Store {
 
   createCommander = (name: string, difficulty: number, skills: Skills): void => {
     if (this.game) return;
-    const commander = new Commander(
-      name,
-      skills.engineer,
-      skills.pilot,
-      skills.fighter,
-      skills.trader
-    );
-    commander.setReserveMoney(true);
-    commander.setDifficulty(difficulty);
-    this.game = new Game(difficulty, commander);
+    this.game = new Game(difficulty, { name, ...skills });
+    this.game.commander.setReserveMoney(true);
     this.watch(this.game);
     this.game.save();
     this.start();

@@ -1,6 +1,5 @@
 import { beforeEach, expect, test } from 'vitest';
 import { borrow, borrowable, payBack, steps, toggleInsurance } from './Bank.ts';
-import { Commander } from './Commander.ts';
 import { Game } from './Game.ts';
 import { GameRand } from './GameRand.ts';
 import { runtime } from './runtime.ts';
@@ -11,10 +10,8 @@ let game: Game;
 beforeEach(() => {
   runtime.debugMode = DebugMode.Assert;
   runtime.gameRand = new GameRand(1);
-  const commander = new Commander('Tester', 5, 5, 5, 5);
-  commander.setReserveMoney(true);
-  commander.setDifficulty(2);
-  game = new Game(2, commander);
+  game = new Game(2, { name: 'Tester', engineer: 5, pilot: 5, fighter: 5, trader: 5 });
+  game.commander.setReserveMoney(true);
 });
 
 test('steps offers a small, a medium and the full amount', () => {

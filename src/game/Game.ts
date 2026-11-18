@@ -1,6 +1,7 @@
 import { countOf } from './texts.ts';
 import type { ValueOf } from './texts.ts';
 import { Commander } from './Commander.ts';
+import type { Recruit } from './Commander.ts';
 import { CrewMember } from './CrewMember.ts';
 import { politicsForType, PoliticsType } from './Politics.ts';
 import { MAX_TRIBBLES, Ship, shipModelForType, ShipModelType } from './Ship.ts';
@@ -131,11 +132,11 @@ export class Game {
   declare forceRareEvent?: boolean;
   declare showSpecialSystems?: boolean;
 
-  constructor(difficulty?: number, commander?: Commander) {
+  constructor(difficulty?: number, recruit?: Recruit) {
     this._onSave = null;
     this._onChange = null;
 
-    if (commander) {
+    if (recruit) {
       this._uniqueID = this._generateUniqueID();
       this._endStatus = GameEndStatus.None;
 
@@ -165,15 +166,12 @@ export class Game {
       this.wildStatus = 0;
       this.reactorStatus = 0;
 
-      ensureType(commander, 'object');
-      this.commander = commander;
-
       ensureInteger(difficulty);
       this.difficulty = difficulty!;
 
       this._populateSolarSystems();
       this._setupEventsAndMercenaries();
-      this._setupCommander();
+      this._setupCommander(recruit);
       this._setupInitialGameState();
     }
   }
@@ -609,13 +607,13 @@ export class Game {
     mercenarySystem.mercenary = mercenary;
   }
 
-  _setupCommander() {
-    this.commander.credits = STARTING_CREDITS;
-
-    const ship = Ship.create(ShipModelType.Gnat, this.difficulty);
-    this.commander.ship = ship;
-
-    this.commander.moveTo(this.solarSystems[this.solarSystems.length - 1]);
+  _setupCommander(recruit: Recruit) {
+    this.commander = Commander.enlist(recruit, {
+      difficulty: this.difficulty,
+      credits: STARTING_CREDITS,
+      ship: Ship.create(ShipModelType.Gnat, this.difficulty),
+      system: this.solarSystems[this.solarSystems.length - 1],
+    });
 
     let squaredFuel = this.commander.ship.fuel;
     squaredFuel *= squaredFuel;
