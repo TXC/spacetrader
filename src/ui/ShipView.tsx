@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Ship } from '../game/Ship.ts';
 import { ShipPicture } from './ShipPicture.tsx';
+import styles from './ShipView.module.css';
 
 type Props = {
   ship: Ship;
@@ -32,27 +33,33 @@ export function ShipView({ ship, enemy, fade, leaving, animate }: Props) {
   const side = enemy ? 'enemy' : 'self';
   const visible = appeared && !leaving;
   // The bars slide when the ship is hit, not when it first appears at its first widths.
-  const slide = animate && appeared ? ' bar-width-transition' : '';
-  const fading = fade ? ' battle-opponent-crossfade fade-in' : '';
+  const slide = animate && appeared ? ' ' + styles.sliding : '';
   return (
-    <div className={'battle-opponent' + fading + (visible ? ' visible' : '')}>
+    <div
+      className={fade ? `${styles.ship} ${styles.fading}` : styles.ship}
+      data-ship={side}
+      data-shown={visible ? '' : undefined}
+    >
       <ShipPicture model={ship.model} flipped={enemy} />
       <div
-        className="hp-container"
+        className={styles.hull}
         id={`battle-hpContainer-${side}-${ship.model.name}`}
         style={{ visibility: ship.model.hullStrength === 0 ? 'hidden' : 'visible' }}
       >
         <div
-          className={'hp-bar' + slide}
+          className={styles.hullFill + slide}
           id={`battle-hpBar-${side}`}
           style={{ width: share(ship.hullPercentage()) }}
         />
       </div>
       <div
-        className="shield-container"
+        className={styles.shield}
         style={{ visibility: ship.hasAnyShield() ? 'visible' : 'hidden' }}
       >
-        <div className={'shield-bar' + slide} style={{ width: share(ship.shieldPercentage()) }} />
+        <div
+          className={styles.shieldFill + slide}
+          style={{ width: share(ship.shieldPercentage()) }}
+        />
       </div>
     </div>
   );

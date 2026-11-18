@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client';
 import { expect, test } from 'vitest';
 import { Ship, ShipModelType } from '../game/Ship.ts';
 import { ShipView } from '../ui/ShipView.tsx';
-import '../ui/style.css';
 
 // How much of its container the bar fills right now, from 0 to 1.
 function filled(bar: HTMLElement): number {
@@ -40,7 +39,7 @@ test('after it has appeared, the bar slides to a new width', async () => {
   flushSync(() => root.render(<ShipView ship={ship} enemy fade animate />));
 
   expect(bar.style.width).toBe('50%');
-  expect(bar.classList.contains('bar-width-transition')).toBe(true);
+  expect(getComputedStyle(bar).transitionDuration).toBe('0.2s');
   expect(filled(bar)).toBe(1);
   flushSync(() => root.unmount());
   host.remove();

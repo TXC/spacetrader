@@ -1,0 +1,10 @@
+.picture {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* An opponent faces the player. */
+.flipped {
+  transform: scaleX(-1);
+}
