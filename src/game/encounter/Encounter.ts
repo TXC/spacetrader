@@ -13,7 +13,7 @@ import { EncounterMode, EncounterType, isAutoMode } from './types.ts';
 import type { ActionName, EncounterListener } from './types.ts';
 
 export class Encounter {
-  declare _type: number;
+  declare _type: EncounterType;
   declare _game: Game;
   declare _opponent: Opponent;
   declare _encounterActionUpdate: string | null;
@@ -22,7 +22,7 @@ export class Encounter {
   declare _autoEncounterSession: number;
   declare listener: EncounterListener;
 
-  constructor(type: number, game: Game, opponent: Opponent, listener: EncounterListener) {
+  constructor(type: EncounterType, game: Game, opponent: Opponent, listener: EncounterListener) {
     ensureInteger(type);
     ensureType(game, 'object');
     ensureType(opponent, 'object');

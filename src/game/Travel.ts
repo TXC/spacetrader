@@ -130,7 +130,7 @@ export class Travel extends Store implements EncounterListener {
     }
 
     while (currentClicks > 0) {
-      let encounterType: number = EncounterType.None;
+      let encounterType: EncounterType = EncounterType.None;
 
       this._game.commander.travelClicksRemaining = currentClicks;
       this._setProgress(1 - (currentClicks * 1.0) / this._startClicksRemaining);

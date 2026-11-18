@@ -37,6 +37,6 @@ const CAPTAINS: Record<number, Captain> = {
 
 // The famous captain met in this encounter. As in the original game, any encounter that is
 // not Ahab's or Conrad's is Huie's.
-export function captainFor(type: number): Captain {
+export function captainFor(type: EncounterType): Captain {
   return CAPTAINS[type] ?? HUIE;
 }

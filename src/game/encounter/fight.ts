@@ -409,7 +409,7 @@ function traderReconsiders(
   }
 }
 
-function leaveAutoModeIfChanged(encounter: Encounter, prevType: number): void {
+function leaveAutoModeIfChanged(encounter: Encounter, prevType: EncounterType): void {
   if (prevType !== encounter._type) {
     if (
       !isFleeEncounter(encounter._type) &&
@@ -425,7 +425,7 @@ function leaveAutoModeIfChanged(encounter: Encounter, prevType: number): void {
 // Writes what happened in this round, for the encounter's text.
 function describeRound(
   encounter: Encounter,
-  prevType: number,
+  prevType: EncounterType,
   commanderFlees: boolean,
   commanderGotHit: boolean,
   opponentGotHit: boolean
@@ -470,7 +470,7 @@ function describeRound(
   }
 }
 
-function shipNoun(encounter: Encounter, prevType: number): string | null {
+function shipNoun(encounter: Encounter, prevType: EncounterType): string | null {
   let shipString = null;
 
   if (isEncounterWith(prevType, 'Police')) {
