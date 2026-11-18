@@ -1,5 +1,5 @@
 // The ship yard's rules: fuel, repairs, the escape pod and trading in the ship.
-import { ACCESSORY_FOR_TYPE, AccessoryType } from './Accessory.ts';
+import { accessoryForType, AccessoryType } from './Accessory.ts';
 import { AlertActionType, AlertViewController } from './alerts.ts';
 import type { Game } from './Game.ts';
 import { session } from './session.ts';
@@ -159,7 +159,7 @@ function rareEquipment(game: Game, model: ShipModel) {
       lost.push(`You will lose your ${item.name} due to insufficient ${item.kind} slots.`);
     } else {
       kept.push(item.type);
-      extraCost += Math.floor((ACCESSORY_FOR_TYPE(item.type)!.price * 2) / 3);
+      extraCost += Math.floor((accessoryForType(item.type)!.price * 2) / 3);
     }
   }
   return { kept, lost, extraCost };

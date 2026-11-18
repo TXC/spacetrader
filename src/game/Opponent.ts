@@ -307,8 +307,7 @@ export class Opponent extends CrewMember {
       Utils.ensureInteger(weaponSlots);
 
       for (let i = 0; i < weaponSlots; ++i) {
-        let weaponRoll = 0;
-        weaponRoll = BEST_ROLL(weaponRoll, tries, 100);
+        const weaponRoll = bestRoll(tries, 100);
         Utils.ensureInteger(weaponRoll);
 
         let weaponFreqSum = 0;
@@ -343,8 +342,7 @@ export class Opponent extends CrewMember {
 
       let totalShieldPower = 0;
       for (let i = 0; i < shieldSlots; ++i) {
-        let shieldRoll = 0;
-        shieldRoll = BEST_ROLL(shieldRoll, tries, 100);
+        const shieldRoll = bestRoll(tries, 100);
         Utils.ensureInteger(shieldRoll);
 
         let shieldFreqSum = 0;
@@ -358,8 +356,7 @@ export class Opponent extends CrewMember {
           if (shieldFreqSum >= shieldRoll) {
             ship.addShieldOfType(shieldType);
 
-            let shieldPower = 0;
-            shieldPower = BEST_ROLL(shieldPower, 5, shield.power);
+            const shieldPower = bestRoll(5, shield.power);
             totalShieldPower += shieldPower + 1;
             break;
           }
@@ -375,8 +372,7 @@ export class Opponent extends CrewMember {
       if (ship.currentShieldPower > 0 && runtime.gameRand.randomIntBelow(10) <= 7) {
         // Hull is already at full strength
       } else if (type !== OpponentType.Mantis) {
-        let hullStrength = 0;
-        hullStrength = BEST_ROLL(hullStrength, 5, ship.hull);
+        const hullStrength = bestRoll(5, ship.hull);
 
         ship.damageHullByAmount(ship.hull - hullStrength);
       }
@@ -417,8 +413,9 @@ export class Opponent extends CrewMember {
   }
 }
 
-// Utility function to replicate BEST_ROLL macro
-export function BEST_ROLL(roll: number, tries: number, max: number) {
+// The highest of `tries` random draws below `max`; 0 when there are no tries.
+function bestRoll(tries: number, max: number) {
+  let roll = 0;
   for (let i = 0; i < tries; ++i) {
     roll = Math.max(roll, runtime.gameRand.randomIntBelow(max));
   }

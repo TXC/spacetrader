@@ -3,7 +3,7 @@ import { AlertActionType, AlertViewController } from './alerts.ts';
 import {
   CAUGHT_WITH_WILD_SCORE,
   MAX_SKILL_LEVEL,
-  POLICE_RECORD_MULTIPLIER,
+  policeRecordMultiplier,
   PoliceRecordScore,
   ReputationScore,
 } from './Commander.ts';
@@ -127,7 +127,7 @@ export class Travel extends Store {
     }
 
     while (currentClicks > 0) {
-      let encounterType = EncounterType.None;
+      let encounterType: number = EncounterType.None;
 
       this._game.commander.travelClicksRemaining = currentClicks;
       this._setProgress(1 - (currentClicks * 1.0) / this._startClicksRemaining);
@@ -191,14 +191,14 @@ export class Travel extends Store {
           encounterTest <
           this._destination.politics.occurrencePirates +
             this._destination.politics.occurrencePolice *
-              POLICE_RECORD_MULTIPLIER(this._game.commander.policeRecordScore)
+              policeRecordMultiplier(this._game.commander.policeRecordScore)
         ) {
           opponentType = OpponentType.Police;
         } else if (
           encounterTest <
           this._destination.politics.occurrencePirates +
             this._destination.politics.occurrencePolice *
-              POLICE_RECORD_MULTIPLIER(this._game.commander.policeRecordScore) +
+              policeRecordMultiplier(this._game.commander.policeRecordScore) +
             this._destination.politics.occurrenceTraders
         ) {
           opponentType = OpponentType.Trader;

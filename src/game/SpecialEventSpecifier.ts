@@ -33,7 +33,7 @@ type ActionBlock = (
 
 export const FABRIC_RIP_PROBABILITY_INITIAL = 25;
 
-export function RESET_CURRENT_SPECIAL(game: Game) {
+export function clearCurrentSpecial(game: Game) {
   game.commander.currentSystem.setSpecialEvent(SpecialEvent.None);
 }
 
@@ -86,7 +86,7 @@ const SPECS: Spec[] = [
     action: game => {
       pLog.log(116);
       game.dragonflyStatus += 1;
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
     },
   },
   {
@@ -103,7 +103,7 @@ const SPECS: Spec[] = [
     action: game => {
       pLog.log(117);
       game.dragonflyStatus += 1;
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
     },
   },
   {
@@ -120,7 +120,7 @@ const SPECS: Spec[] = [
     action: game => {
       pLog.log(118);
       game.dragonflyStatus += 1;
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
     },
   },
   {
@@ -151,7 +151,7 @@ const SPECS: Spec[] = [
       game.commander.ship.soldQuantity(10, FAKE_QUEST_CARGO);
       game.commander.increaseSkillRandomly();
       game.commander.increaseSkillRandomly();
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
     },
   },
   {
@@ -186,7 +186,7 @@ const SPECS: Spec[] = [
       AlertViewController.presentAlertWithDismiss(
         'You bought a moon in the Utopia system. Go there to claim it.'
       );
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
     },
   },
   {
@@ -204,7 +204,7 @@ const SPECS: Spec[] = [
         `The alien's machine increases your ${skill} skill.`
       );
 
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
     },
   },
   // Merchant Prince Event
@@ -223,7 +223,7 @@ const SPECS: Spec[] = [
         'You are now the proud owner of a little, cute, furry tribble.'
       );
 
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
     },
   },
   // Erase Record Event
@@ -245,7 +245,7 @@ const SPECS: Spec[] = [
         'The hacker resets your police record to be clean.'
       );
 
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
     },
   },
   // Tribble Buyer Event
@@ -269,7 +269,7 @@ const SPECS: Spec[] = [
         'The alien uses advanced technology to beam your whole collection of tribbles to his ship.'
       );
 
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
     },
   },
   // Space Monster Event
@@ -286,7 +286,7 @@ const SPECS: Spec[] = [
     },
     action: game => {
       game.monsterStatus = MonsterQuestStatus.MonsterExists;
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
       pLog.log(144);
     },
   },
@@ -304,7 +304,7 @@ const SPECS: Spec[] = [
     },
     action: game => {
       game.dragonflyStatus = DragonflyQuestStatus.GoToBaratas;
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
     },
   },
   // Cargo for Sale Event
@@ -327,7 +327,7 @@ const SPECS: Spec[] = [
         `The canisters contain ${tradeItemForType(itemType).name.toLowerCase()}.`
       );
 
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
       pLog.log(130);
     },
   },
@@ -346,7 +346,7 @@ const SPECS: Spec[] = [
         pLog.log(119);
         game.commander.ship.addAccessoryOfType(AccessoryType.ShieldLightning);
         alertString = 'You now have one Lightning shield installed on your ship.';
-        RESET_CURRENT_SPECIAL(game);
+        clearCurrentSpecial(game);
       } else {
         pLog.log(120);
         alertString = 'You have already filled all of your available shield slots.';
@@ -380,7 +380,7 @@ const SPECS: Spec[] = [
         alertString = 'Ten of your cargo bays now contain antidote for the Japori system.';
         game.commander.ship.boughtQuantity(10, FAKE_QUEST_CARGO, 0);
         game.japoriQuestStatus = JaporiQuestStatus.HasMedicine;
-        RESET_CURRENT_SPECIAL(game);
+        clearCurrentSpecial(game);
       }
 
       AlertViewController.presentAlertWithDismiss(alertString);
@@ -410,7 +410,7 @@ const SPECS: Spec[] = [
     },
     action: game => {
       game.commander.artifactOnBoard = false;
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
       pLog.log(136);
     },
   },
@@ -428,7 +428,7 @@ const SPECS: Spec[] = [
     },
     action: game => {
       game.commander.artifactOnBoard = true;
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
       pLog.log(135);
     },
   },
@@ -453,7 +453,7 @@ const SPECS: Spec[] = [
         game.jarekStatus = JarekQuestStatus.OnBoard;
         alertString = 'You have taken Ambassador Jarek on board.';
 
-        RESET_CURRENT_SPECIAL(game);
+        clearCurrentSpecial(game);
         pLog.log(137);
       } else {
         alertString = 'You do not have any crew quarters available for Ambassador Jarek.';
@@ -474,7 +474,7 @@ const SPECS: Spec[] = [
     messageOnly: true,
     action: game => {
       game.invasionStatus = InvasionQuestStatus.DaysUntilInvasion._7;
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
     },
   },
   // Gemulon Invaded Event
@@ -501,7 +501,7 @@ const SPECS: Spec[] = [
         game.commander.ship.addAccessoryOfType(AccessoryType.GadgetFuelCompactor);
         alertString = 'You now have a fuel compactor installed on your ship.';
         game.invasionStatus = InvasionQuestStatus.ClosedRewardClaimed;
-        RESET_CURRENT_SPECIAL(game);
+        clearCurrentSpecial(game);
 
         pLog.log(131);
       } else {
@@ -526,7 +526,7 @@ const SPECS: Spec[] = [
     },
     action: game => {
       game.experimentStatus = ExperimentQuestStatus.DaysRemaining._10;
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
       pLog.log(147);
     },
   },
@@ -579,7 +579,7 @@ const SPECS: Spec[] = [
         game.wildStatus = WildQuestStatus.OnBoard;
         alertString = 'You have taken Jonathan Wild on board.';
 
-        RESET_CURRENT_SPECIAL(game);
+        clearCurrentSpecial(game);
       }
 
       AlertViewController.presentAlertWithDismiss(alertString);
@@ -622,7 +622,7 @@ const SPECS: Spec[] = [
         'Five of your cargo bays now contain the unstable Ion Reactor, and ten of your bays contain enriched fuel.'
       );
 
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
       pLog.log(151);
     },
   },
@@ -641,7 +641,7 @@ const SPECS: Spec[] = [
       if (game.commander.ship.freeSlotsForAccessoryType(AccessoryType.WeaponMorgansLaser) > 0) {
         game.commander.ship.addAccessoryOfType(AccessoryType.WeaponMorgansLaser);
         alertString = "You now have Henry Morgan's special laser installed on your ship.";
-        RESET_CURRENT_SPECIAL(game);
+        clearCurrentSpecial(game);
         pLog.log(162);
       } else {
         alertString = 'You have already filled all of your available weapon slots.';
@@ -668,7 +668,7 @@ const SPECS: Spec[] = [
     },
     action: game => {
       game.scarabStatus = ScarabQuestStatus.ScarabExists;
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
     },
   },
   // Upgrade Hull Event
@@ -686,7 +686,7 @@ const SPECS: Spec[] = [
     action: game => {
       game.commander.ship.setUpgradedHull(true);
       game.scarabStatus = ScarabQuestStatus.Closed;
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
 
       AlertViewController.presentAlertWithDismiss(
         "Technicians spent the day replacing welds and bolts, and adding materials to your ship. When they're done, they tell you your ship should be significantly sturdier."
@@ -751,7 +751,7 @@ const SPECS: Spec[] = [
       game.jarekStatus = JarekQuestStatus.Closed;
       game.commander.carriesMaxTraderBoost = true;
       game.commander.ship.removeCrewMemberWithName('Ambassador Jarek');
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
       pLog.log(139);
     },
   },
@@ -794,7 +794,7 @@ const SPECS: Spec[] = [
     action: game => {
       game.experimentStatus = ExperimentQuestStatus.ClosedSaved;
       game.canSuperWarp = true;
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
       pLog.log(148);
     },
   },
@@ -825,27 +825,27 @@ const SPECS: Spec[] = [
       game.commander.ship.removeCrewMemberWithName('Jonathan Wild');
 
       // Zeethibal has a 10 in the player's biggest weakness, 8 in the second biggest weakness, 5 for the others
-      const ZEETH_SKILL = (index: number) => (index === 0 ? 10 : index === 1 ? 8 : 5);
+      const zeethSkill = (index: number) => (index === 0 ? 10 : index === 1 ? 8 : 5);
       const zeeth = new CrewMember(
         'Zeethibal',
-        ZEETH_SKILL(game.commander.engineerSkillIndex()),
-        ZEETH_SKILL(game.commander.pilotSkillIndex()),
-        ZEETH_SKILL(game.commander.fighterSkillIndex()),
-        ZEETH_SKILL(game.commander.traderSkillIndex())
+        zeethSkill(game.commander.engineerSkillIndex()),
+        zeethSkill(game.commander.pilotSkillIndex()),
+        zeethSkill(game.commander.fighterSkillIndex()),
+        zeethSkill(game.commander.traderSkillIndex())
       );
       zeeth.freeMercenaryCost = true;
 
       game.commander.ship.addCrewMember(zeeth);
       game.commander.policeRecordScore = PoliceRecordScore.Clean;
 
-      RESET_CURRENT_SPECIAL(game);
+      clearCurrentSpecial(game);
     },
   },
 ];
 
 const EVENTS: SpecialEventSpecifier[] = SPECS.map(spec => ({
   shouldHideBlock: () => false,
-  action: RESET_CURRENT_SPECIAL,
+  action: clearCurrentSpecial,
   ...spec,
 }));
 

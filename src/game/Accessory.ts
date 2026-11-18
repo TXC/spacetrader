@@ -221,6 +221,6 @@ export const gadgetForType = (type: number) => GADGETS.get(type);
 export const weaponForType = (type: number) => WEAPONS.get(type);
 export const shieldForType = (type: number) => SHIELDS.get(type);
 
-export function ACCESSORY_FOR_TYPE(type: number) {
+export function accessoryForType(type: number) {
   return gadgetForType(type) || weaponForType(type) || shieldForType(type);
 }

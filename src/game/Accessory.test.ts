@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import {
-  ACCESSORY_FOR_TYPE,
+  accessoryForType,
   AccessoryType,
   Gadget,
   gadgetForType,
@@ -11,9 +11,9 @@ import { TechLevel } from './TradeItem.types.ts';
 
 test('every piece of equipment is in the table under its own number', () => {
   for (let type = AccessoryType.GadgetFirst; type <= AccessoryType.ShieldLast; type++) {
-    expect(ACCESSORY_FOR_TYPE(type)!.type).toBe(type);
+    expect(accessoryForType(type)!.type).toBe(type);
   }
-  expect(ACCESSORY_FOR_TYPE(AccessoryType.None)).toBeUndefined();
+  expect(accessoryForType(AccessoryType.None)).toBeUndefined();
 });
 
 test('equipment keeps the values the old game gave it', () => {
