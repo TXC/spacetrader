@@ -198,7 +198,9 @@ const SPECS: Spec[] = [
       const skill = game.commander.increaseSkillRandomly();
 
       AlertViewController.presentAlertWithDismiss(
-        `The alien's machine increases your ${skill} skill.`
+        skill
+          ? `The alien's machine increases your ${skill} skill.`
+          : "The alien's machine has nothing left to teach you."
       );
 
       clearCurrentSpecial(game);

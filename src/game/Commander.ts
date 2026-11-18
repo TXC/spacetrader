@@ -629,38 +629,19 @@ export class Commander extends CrewMember {
     this._tweakSkillRandomly(false);
   }
 
+  // The name of the skill that changed, or null when none of them could.
   _tweakSkillRandomly(increase: boolean) {
     Utils.ensureBool(increase);
 
-    const skillArray = [];
     const canChange = (x: number) => (increase ? x < MAX_SKILL_LEVEL : x > 0);
+    const skills = (['pilot', 'fighter', 'trader', 'engineer'] as const).filter(skill =>
+      canChange(this[skill])
+    );
+    if (skills.length === 0) return null;
 
-    if (canChange(this.pilot)) skillArray.push(0);
-    if (canChange(this.fighter)) skillArray.push(1);
-    if (canChange(this.trader)) skillArray.push(2);
-    if (canChange(this.engineer)) skillArray.push(3);
-
-    const increaseAmount = increase ? 1 : -1;
-    if (skillArray.length) {
-      const randomSkill = skillArray[runtime.gameRand.randomIntBelow(skillArray.length)];
-      switch (randomSkill) {
-        case 0:
-          this.pilot += increaseAmount;
-          return 'pilot';
-        case 1:
-          this.fighter += increaseAmount;
-          return 'fighter';
-        case 2:
-          this.trader += increaseAmount;
-          return 'trader';
-        case 3:
-          this.engineer += increaseAmount;
-          return 'engineer';
-        default:
-          return '';
-      }
-    }
-    return '';
+    const skill = skills[runtime.gameRand.randomIntBelow(skills.length)];
+    this[skill] += increase ? 1 : -1;
+    return skill;
   }
 
   payInterest() {
