@@ -33,60 +33,67 @@ import { runtime } from './runtime.ts';
 import type { SolarSystemState } from './savedGame.ts';
 export type { SolarSystemState };
 
+// Everything a system is made of.
+type SolarSystemFields = {
+  name: string;
+  x: number;
+  y: number;
+  difficulty: number;
+  mercenary: CrewMember | null;
+  wormhole: SolarSystem | null;
+  specialEvent: SpecialEvent;
+  visited: boolean;
+  techLevel: TechLevel;
+  politics: Politics;
+  specialResource: Resource;
+  size: SystemSize;
+  status: Status;
+  inventoryReplenishCountdown: number;
+  tradeItemInventory: number[];
+};
+
+// One system in three has a special resource.
+function randomSpecialResource(): Resource {
+  if (runtime.gameRand.randomIntBelow(5) >= 3) {
+    return (1 + runtime.gameRand.randomIntBelow(RESOURCE_COUNT - 1)) as Resource;
+  }
+  return Resource.None;
+}
+
 export class SolarSystem {
-  declare static sSystemNames: string[] | undefined;
-  declare name: string;
-  declare x: number;
-  declare y: number;
-  declare _difficulty: number;
-  declare mercenary: CrewMember | null;
-  declare wormhole: SolarSystem | null;
-  declare specialEvent: SpecialEvent;
-  declare visited: boolean;
-  declare techLevel: TechLevel;
-  declare politics: Politics;
-  declare _specialResource: Resource;
-  declare size: SystemSize;
-  declare status: Status;
-  declare _inventoryReplenishCountdown: number;
-  declare _tradeItemInventory: number[];
+  private static sSystemNames: string[] | undefined;
+  readonly name: string;
+  readonly x: number;
+  readonly y: number;
+  private readonly _difficulty: number;
+  mercenary: CrewMember | null;
+  wormhole: SolarSystem | null;
+  specialEvent: SpecialEvent;
+  visited: boolean;
+  techLevel: TechLevel;
+  politics: Politics;
+  private readonly _specialResource: Resource;
+  readonly size: SystemSize;
+  status: Status;
+  private _inventoryReplenishCountdown: number;
+  private _tradeItemInventory: number[];
 
-  constructor(name?: string, x?: number, y?: number, difficulty?: number) {
-    if (!name) {
-      return;
-    }
-
-    ensureType(name, 'string');
-    this.name = name;
-
-    ensureArrayOrNull([x, y, difficulty], 'number');
-    this.x = x!;
-    this.y = y!;
-    this._difficulty = difficulty!;
-
-    this.mercenary = null;
-    this.wormhole = null;
-
-    this.specialEvent = SpecialEvent.None;
-    this.visited = false;
-
-    // Randomize the other properties
-    this.techLevel = runtime.gameRand.randomIntBelow(TECH_LEVEL_COUNT) as TechLevel;
-    this.politics = randomPoliticsForTechLevel(this.techLevel);
-
-    if (runtime.gameRand.randomIntBelow(5) >= 3) {
-      this._specialResource = (1 + runtime.gameRand.randomIntBelow(RESOURCE_COUNT - 1)) as Resource;
-    } else {
-      this._specialResource = Resource.None;
-    }
-
-    this.size = runtime.gameRand.randomIntBelow(SYSTEM_SIZE_COUNT) as SystemSize;
-
-    this.status = Status.Uneventful;
-    this.randomizeStatus();
-
-    this._inventoryReplenishCountdown = 0;
-    this._initializeInventories();
+  private constructor(fields: SolarSystemFields) {
+    this.name = fields.name;
+    this.x = fields.x;
+    this.y = fields.y;
+    this._difficulty = fields.difficulty;
+    this.mercenary = fields.mercenary;
+    this.wormhole = fields.wormhole;
+    this.specialEvent = fields.specialEvent;
+    this.visited = fields.visited;
+    this.techLevel = fields.techLevel;
+    this.politics = fields.politics;
+    this._specialResource = fields.specialResource;
+    this.size = fields.size;
+    this.status = fields.status;
+    this._inventoryReplenishCountdown = fields.inventoryReplenishCountdown;
+    this._tradeItemInventory = fields.tradeItemInventory;
   }
 
   static solarSystemNames() {
@@ -231,50 +238,57 @@ export class SolarSystem {
   }
 
   // A new system, with its tech level, government, resources, size, status and
-  // inventories drawn at random.
+  // inventories drawn at random, in that order.
   static create(name: string, x: number, y: number, difficulty: number): SolarSystem {
-    return new SolarSystem(name, x, y, difficulty);
+    const techLevel = runtime.gameRand.randomIntBelow(TECH_LEVEL_COUNT) as TechLevel;
+    const politics = randomPoliticsForTechLevel(techLevel);
+    const specialResource = randomSpecialResource();
+    const size = runtime.gameRand.randomIntBelow(SYSTEM_SIZE_COUNT) as SystemSize;
+    const system = new SolarSystem({
+      name,
+      x,
+      y,
+      difficulty,
+      mercenary: null,
+      wormhole: null,
+      specialEvent: SpecialEvent.None,
+      visited: false,
+      techLevel,
+      politics,
+      specialResource,
+      size,
+      status: Status.Uneventful,
+      inventoryReplenishCountdown: 0,
+      tradeItemInventory: Array<number>(TRADE_ITEM_COUNT).fill(0),
+    });
+    system.randomizeStatus();
+    system._initializeInventories();
+    return system;
   }
 
   // A system from a saved game, as parseSavedGame checked it. Its wormhole is linked once
   // every system is loaded.
   static load(state: SolarSystemState): SolarSystem {
-    return SolarSystem.fromSerializedState(state);
-  }
-
-  static fromSerializedState(serializedState: SolarSystemState) {
-    const solarSystem = new SolarSystem();
-    solarSystem.name = serializedState.name;
-    solarSystem.techLevel = serializedState.techLevel as TechLevel;
-    solarSystem.status = serializedState.status as Status;
-    solarSystem._specialResource = serializedState.specialResource as Resource;
-    solarSystem.size = serializedState.size as SystemSize;
-    solarSystem.specialEvent = serializedState.specialEvent as SpecialEvent;
-    solarSystem._difficulty = serializedState.difficulty;
-    solarSystem.politics = politicsForType(serializedState.politicsType);
-
-    solarSystem.x = serializedState.x;
-    solarSystem.y = serializedState.y;
-
-    solarSystem._inventoryReplenishCountdown = serializedState.inventoryReplenishCountdown;
-
-    solarSystem.visited = serializedState.visited;
-
-    const mercenaryState = serializedState.mercenary;
-    if (mercenaryState) {
-      solarSystem.mercenary = CrewMember.load(mercenaryState);
-      ensureObjectOrNull(solarSystem.mercenary);
-    } else {
-      solarSystem.mercenary = null;
-    }
-
-    const tradeItemInventoryArray = serializedState.tradeItemInventory;
-    solarSystem._tradeItemInventory = Array<number>(TRADE_ITEM_COUNT).fill(0);
-    for (let tradeItemType = 0; tradeItemType < TRADE_ITEM_COUNT; ++tradeItemType) {
-      solarSystem._tradeItemInventory[tradeItemType] = tradeItemInventoryArray[tradeItemType];
-    }
-
-    return solarSystem;
+    return new SolarSystem({
+      name: state.name,
+      x: state.x,
+      y: state.y,
+      difficulty: state.difficulty,
+      mercenary: state.mercenary ? CrewMember.load(state.mercenary) : null,
+      wormhole: null,
+      specialEvent: state.specialEvent as SpecialEvent,
+      visited: state.visited,
+      techLevel: state.techLevel as TechLevel,
+      politics: politicsForType(state.politicsType),
+      specialResource: state.specialResource as Resource,
+      size: state.size as SystemSize,
+      status: state.status as Status,
+      inventoryReplenishCountdown: state.inventoryReplenishCountdown,
+      tradeItemInventory: Array.from(
+        { length: TRADE_ITEM_COUNT },
+        (_, type) => state.tradeItemInventory[type]
+      ),
+    });
   }
 
   get inventoryReplenishCountdown() {
