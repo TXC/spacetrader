@@ -22,6 +22,7 @@ import { pLog } from '../probes.ts';
 import { runtime } from '../runtime.ts';
 import { pirateMeeting } from './pirates.ts';
 import { policeMeeting } from './police.ts';
+import { dragonflyMeeting, monsterMeeting, scarabMeeting } from './specialShips.ts';
 import { traderMeeting } from './traders.ts';
 import { whoIsMet } from './whoIsMet.ts';
 
@@ -136,41 +137,11 @@ export class Travel extends Store implements EncounterListener {
       } else if (opponentType === OpponentType.Trader) {
         ({ encounterType, opponent } = traderMeeting(this._game, opponentType));
       } else if (opponentType === OpponentType.Scarab) {
-        opponent = Opponent.generateOpponentWithType(opponentType, this._game);
-        encounterType = EncounterType.ScarabAttack;
-
-        if (
-          this._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(
-            this._game.commander,
-            opponent
-          )
-        ) {
-          encounterType = EncounterType.ScarabIgnore;
-        }
+        ({ encounterType, opponent } = scarabMeeting(this._game, opponentType));
       } else if (opponentType === OpponentType.Dragonfly) {
-        opponent = Opponent.generateOpponentWithType(opponentType, this._game);
-        encounterType = EncounterType.DragonflyAttack;
-
-        if (
-          this._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(
-            this._game.commander,
-            opponent
-          )
-        ) {
-          encounterType = EncounterType.DragonflyIgnore;
-        }
+        ({ encounterType, opponent } = dragonflyMeeting(this._game, opponentType));
       } else if (opponentType === OpponentType.Monster) {
-        opponent = Opponent.generateOpponentWithType(opponentType, this._game);
-        encounterType = EncounterType.MonsterAttack;
-
-        if (
-          this._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(
-            this._game.commander,
-            opponent
-          )
-        ) {
-          encounterType = EncounterType.MonsterIgnore;
-        }
+        ({ encounterType, opponent } = monsterMeeting(this._game, opponentType));
       } else {
         // Very Rare Random Events:
         // 1. Encounter the abandoned Marie Celeste, which you may loot.
