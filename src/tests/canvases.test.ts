@@ -242,3 +242,21 @@ test('with reduced motion the ring stands still and the map draws only on a chan
   expect(frames).toHaveLength(0);
   view.dispose();
 });
+
+test('the map tells a screen reader what it is and which system is selected', () => {
+  const view = map();
+  expect(canvas().getAttribute('role')).toBe('img');
+  const here = game.commander.currentSystem.name;
+  expect(canvas().getAttribute('aria-label')).toBe(`Star map. Selected: ${here}`);
+
+  const near = game.solarSystems.find(system => system.wormhole)!;
+  view.selectSystem(near, true);
+  expect(canvas().getAttribute('aria-label')).toBe(`Star map. Selected: ${near.wormhole!.name}`);
+  view.dispose();
+});
+
+test('a map with nothing selected is still named', () => {
+  const view = new GalaxyView(host, game, null, false, false, true, classes);
+  expect(canvas().getAttribute('aria-label')).toBe('Star map');
+  view.dispose();
+});
