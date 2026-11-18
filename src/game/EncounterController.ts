@@ -43,7 +43,6 @@ import { pLog } from './probes.ts';
 import type { Game } from './Game.ts';
 import type { Commander } from './Commander.ts';
 import type { Opponent } from './Opponent.ts';
-import type { Travel } from './Travel.ts';
 import { runtime } from './runtime.ts';
 
 export const EncounterType = {
@@ -209,6 +208,16 @@ export type EncounterMode = number;
 export const isAutoMode = (encounterMode: number) =>
   isOneOf(encounterMode, EncounterMode.AutoAttack, EncounterMode.AutoFlee);
 
+// What the owner of an encounter, the trip, is told about it.
+export type EncounterListener = {
+  continues(fightGoesOn: boolean): void;
+  plundered(anythingTaken: boolean): void;
+  hullChanged(): void;
+  buttonsChanged(): void;
+  arrested(): void;
+  destroyed(): void;
+};
+
 export class EncounterController {
   declare _type: number;
   declare _game: Game;
@@ -217,9 +226,9 @@ export class EncounterController {
   declare _actionTaken: boolean;
   declare _encounterMode: number;
   declare _autoEncounterSession: number;
-  declare delegate: Travel | null;
+  declare listener: EncounterListener;
 
-  constructor(type: number, game: Game, opponent: Opponent) {
+  constructor(type: number, game: Game, opponent: Opponent, listener: EncounterListener) {
     ensureInteger(type);
     ensureType(game, 'object');
     ensureType(opponent, 'object');
@@ -231,7 +240,7 @@ export class EncounterController {
     this._actionTaken = false;
     this._encounterMode = 0;
     this._autoEncounterSession = 0;
-    this.delegate = null;
+    this.listener = listener;
   }
 
   get type() {
@@ -255,7 +264,7 @@ export class EncounterController {
   _submitToSearch(): void {
     const { commander } = this._game;
     const wild = this._game.wildStatus === WildQuestStatus.OnBoard;
-    const done = () => this.delegate!.encounterControllerEncounterContinues(this, false);
+    const done = () => this.listener.continues(false);
     const afterCargo = () => {
       if (wild) this._processArrest();
       else if (this._reactorAboard()) this._confiscateReactor(done);
@@ -526,9 +535,10 @@ export class EncounterController {
     }
   }
 
+  // The owner has let go of this encounter, so it is not told that the buttons changed.
   invalidate() {
-    this.delegate = null;
-    this._endAutoEncounters();
+    this._autoEncounterSession++;
+    this._encounterMode = EncounterMode.Manual;
   }
 
   performAction(action: string) {
@@ -564,7 +574,7 @@ export class EncounterController {
           this._executeAction(false, fightContinues => {
             ensureBool(fightContinues);
             fightContinues = fightContinues && this._game.commander.ship.hull > 0;
-            this.delegate!.encounterControllerEncounterContinues(this, fightContinues);
+            this.listener.continues(fightContinues);
           });
         };
 
@@ -744,7 +754,7 @@ export class EncounterController {
 
         this._executeAction(true, fightContinues => {
           fightContinues = fightContinues && this._game.commander.ship.hull > 0;
-          this.delegate!.encounterControllerEncounterContinues(this, fightContinues);
+          this.listener.continues(fightContinues);
         });
       };
 
@@ -771,7 +781,7 @@ export class EncounterController {
 
       performFlee();
     } else if (action === 'Ignore') {
-      this.delegate!.encounterControllerEncounterContinues(this, false);
+      this.listener.continues(false);
     } else if (action === 'Trade') {
       let itemType: number = NO_TRADE_ITEM;
       const onlyIllegal = this._game.commander.policeRecordScore < PoliceRecordScore.Dubious;
@@ -871,7 +881,7 @@ export class EncounterController {
 
             const aC = new AlertViewController(artifactStolenString);
             aC.addAction('Dismiss', AlertActionType.Default, () => {
-              this.delegate!.encounterControllerEncounterContinues(this, false);
+              this.listener.continues(false);
             });
 
             this._presentAlertController(aC);
@@ -945,7 +955,7 @@ export class EncounterController {
               const aC = new AlertViewController(yieldAlertString);
 
               aC.addAction('Dismiss', AlertActionType.Default, () => {
-                this.delegate!.encounterControllerEncounterContinues(this, false);
+                this.listener.continues(false);
               });
 
               this._presentAlertController(aC);
@@ -1009,7 +1019,7 @@ export class EncounterController {
             const aC = new AlertViewController(alertString);
 
             aC.addAction('Dismiss', AlertActionType.Default, () => {
-              this.delegate!.encounterControllerEncounterContinues(this, false);
+              this.listener.continues(false);
             });
 
             this._presentAlertController(aC);
@@ -1034,7 +1044,7 @@ export class EncounterController {
             const aC = new AlertViewController(alertString);
 
             aC.addAction('Dismiss', AlertActionType.Default, () => {
-              this.delegate!.encounterControllerEncounterContinues(this, false);
+              this.listener.continues(false);
             });
 
             this._presentAlertController(aC);
@@ -1123,7 +1133,7 @@ export class EncounterController {
 
           aC.addAction('Offer bribe', AlertActionType.Default, () => {
             this._game.commander.setCredits(this._game.commander.credits - bribe);
-            this.delegate!.encounterControllerEncounterContinues(this, false);
+            this.listener.continues(false);
           });
 
           aC.addAction('Forget it', AlertActionType.Cancel, null);
@@ -1195,7 +1205,7 @@ export class EncounterController {
         });
 
         aC.addAction('Leave it', AlertActionType.Cancel, () => {
-          this.delegate!.encounterControllerEncounterContinues(this, false);
+          this.listener.continues(false);
         });
 
         this._presentAlertController(aC);
@@ -1241,14 +1251,14 @@ export class EncounterController {
         const aC2 = new AlertViewController(trainStr);
 
         aC2.addAction('Dismiss', AlertActionType.Default, () => {
-          this.delegate!.encounterControllerEncounterContinues(this, false);
+          this.listener.continues(false);
         });
 
         this._presentAlertController(aC2);
       });
 
       aC.addAction('No thanks!', AlertActionType.Cancel, () => {
-        this.delegate!.encounterControllerEncounterContinues(this, false);
+        this.listener.continues(false);
       });
 
       this._presentAlertController(aC);
@@ -1295,7 +1305,7 @@ export class EncounterController {
         const aC2 = new AlertViewController(consumedString);
 
         aC2.addAction('Dismiss', AlertActionType.Default, () => {
-          this.delegate!.encounterControllerEncounterContinues(this, false);
+          this.listener.continues(false);
         });
 
         this._presentAlertController(aC2);
@@ -1303,14 +1313,14 @@ export class EncounterController {
 
       aC.addAction("I'll pass", AlertActionType.Cancel, () => {
         pLog.log(107);
-        this.delegate!.encounterControllerEncounterContinues(this, false);
+        this.listener.continues(false);
       });
 
       this._presentAlertController(aC);
     } else if (action === 'Interrupt') {
       pLog.log(52);
       this._endAutoEncounters();
-      this.delegate!.encounterControllerEncounterContinues(this, true);
+      this.listener.continues(true);
     }
 
     if (isAutoMode(this._encounterMode)) {
@@ -1331,9 +1341,7 @@ export class EncounterController {
   _endAutoEncounters() {
     this._autoEncounterSession++;
     this._encounterMode = EncounterMode.Manual;
-    if (this.delegate) {
-      this.delegate.encounterControllerHasUpdatedButtons();
-    }
+    this.listener.buttonsChanged();
   }
 
   _presentAlertController(alertController: AlertViewController) {
@@ -1478,7 +1486,7 @@ export class EncounterController {
         const aC = new AlertViewController(alertString);
 
         aC.addAction('Dismiss', AlertActionType.Default, () => {
-          this.delegate!.encounterControllerDidCompleteWithDestruction();
+          this.listener.destroyed();
         });
 
         this._presentAlertController(aC);
@@ -1563,7 +1571,7 @@ export class EncounterController {
       this._presentAlertController(aC);
       return;
     } else if (this._game.commander.ship.hull <= 0) {
-      this.delegate!.encounterControllerHasUpdatedHP();
+      this.listener.hullChanged();
 
       if (this._game.commander.hasEscapePod) {
         this._performPodEscape();
@@ -1574,7 +1582,7 @@ export class EncounterController {
 
         aC.addAction('Dismiss', AlertActionType.Default, () => {
           pLog.log(65);
-          this.delegate!.encounterControllerDidCompleteWithDestruction();
+          this.listener.destroyed();
         });
 
         this._presentAlertController(aC);
@@ -1762,7 +1770,7 @@ export class EncounterController {
   }
 
   _performPodEscape() {
-    this.delegate!.encounterControllerDidCompleteWithDestruction();
+    this.listener.destroyed();
   }
 
   _scoopWithCompletion(completion: () => void) {
@@ -2036,7 +2044,7 @@ export class EncounterController {
     const aC = new AlertViewController(alertString);
 
     aC.addAction('Dismiss', AlertActionType.Default, () => {
-      this.delegate!.encounterControllerDidCompleteWithArrest();
+      this.listener.arrested();
     });
 
     this._presentAlertController(aC);
@@ -2071,7 +2079,7 @@ export class EncounterController {
       }
     }
 
-    this.delegate!.encounterControllerEncounterContinues(this, false);
+    this.listener.continues(false);
   }
 
   // #pragma mark - PlunderViewControllerDelegate
@@ -2080,9 +2088,9 @@ export class EncounterController {
     ensureBool(controller.plundered);
 
     if (controller.plundered) {
-      this.delegate!.encounterControllerDidPlunder(this, controller.plundered);
+      this.listener.plundered(controller.plundered);
     }
 
-    this.delegate!.encounterControllerEncounterContinues(this, false);
+    this.listener.continues(false);
   }
 }
