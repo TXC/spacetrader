@@ -1,0 +1,35 @@
+{
+  "idLog": [
+    "createCommander",
+    "Ship Yard",
+    "autoFuelCheckbox",
+    "autoRepairCheckbox",
+    "Chart",
+    "cheat_freeSingularity",
+    "Ship Yard",
+    "Chart",
+    "namedEvent",
+    "galacticChart_useSingularity_1_Campor",
+    "alertButton_Warp_",
+    "ecButton_Ignore",
+    "alertButton_Dismiss",
+    "namedEvent"
+  ],
+  "eventNameLog": [
+    "click",
+    "click",
+    "change",
+    "change",
+    "click",
+    "click",
+    "click",
+    "click",
+    "selectPlanet|Campor",
+    "click",
+    "click",
+    "click",
+    "click",
+    "selectPlanetZoomed|Styris"
+  ],
+  "gameRandSeed": 1734686840048
+}

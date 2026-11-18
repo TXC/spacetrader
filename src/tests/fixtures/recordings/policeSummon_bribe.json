@@ -1,0 +1,43 @@
+{
+  "idLog": [
+    "createCommander",
+    "cheat_freeMoney",
+    "Ship Yard",
+    "autoFuelCheckbox",
+    "autoRepairCheckbox",
+    "Warp",
+    "cargo_FirearmsBuy_1",
+    "warpBlastOff",
+    "ecButton_Ignore",
+    "ecButton_Ignore",
+    "ecButton_Ignore",
+    "ecButton_Attack",
+    "alertButton_Attack",
+    "ecButton_Auto_Flee",
+    "alertButton_Dismiss",
+    "alertButton_Dismiss",
+    "Warp",
+    "warpBlastOff"
+  ],
+  "eventNameLog": [
+    "click",
+    "click",
+    "click",
+    "change",
+    "change",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click"
+  ],
+  "gameRandSeed": 1734669204790
+}

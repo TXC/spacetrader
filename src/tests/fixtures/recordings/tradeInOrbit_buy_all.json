@@ -1,0 +1,35 @@
+{
+  "idLog": [
+    "createCommander",
+    "Ship Yard",
+    "autoFuelCheckbox",
+    "autoRepairCheckbox",
+    "cheat_freeMoney",
+    "Warp",
+    "cargo_WaterBuy_1",
+    "warpBlastOff",
+    "ecButton_Ignore",
+    "ecButton_Submit",
+    "alertButton_Dismiss",
+    "ecButton_Ignore",
+    "ecButton_Trade",
+    "alertButton_All"
+  ],
+  "eventNameLog": [
+    "click",
+    "click",
+    "change",
+    "change",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click"
+  ],
+  "gameRandSeed": 1734494396218
+}

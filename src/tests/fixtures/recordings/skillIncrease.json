@@ -1,0 +1,27 @@
+{
+  "idLog": [
+    "createCommander",
+    "cheat_freeMoney",
+    "cheat_freeSingularity",
+    "cheat_showSpecial",
+    "Chart",
+    "galacticChart_useSingularity_121_Korma",
+    "alertButton_Warp_",
+    "ecButton_Ignore",
+    "ecButton_Ignore",
+    "alertButton_Dismiss"
+  ],
+  "eventNameLog": [
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click"
+  ],
+  "gameRandSeed": 1733546197977
+}

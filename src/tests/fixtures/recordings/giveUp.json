@@ -1,0 +1,5 @@
+{
+  "idLog": ["createCommander", "Commander", "giveup", "alertButton_Abandon_game"],
+  "eventNameLog": ["click", "click", "click", "click"],
+  "gameRandSeed": 1732590998247
+}

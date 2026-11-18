@@ -1,0 +1,15 @@
+{
+  "idLog": [
+    "createCommander",
+    "Warp",
+    "warpBlastOff",
+    "ecButton_Ignore",
+    "ecButton_Submit",
+    "alertButton_Dismiss",
+    "ecButton_Ignore",
+    "ecButton_Ignore",
+    "alertButton_Dismiss"
+  ],
+  "eventNameLog": ["click", "click", "click", "click", "click", "click", "click", "click", "click"],
+  "gameRandSeed": 1734670179065
+}

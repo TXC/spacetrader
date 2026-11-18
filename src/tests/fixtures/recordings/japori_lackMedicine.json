@@ -1,0 +1,41 @@
+{
+  "idLog": [
+    "createCommander",
+    "cheat_freeMoney",
+    "cheat_freeSingularity",
+    "cheat_showSpecial",
+    "Chart",
+    "namedEvent",
+    "galacticChart_useSingularity_1_Japori",
+    "alertButton_Warp_",
+    "ecButton_Auto_Flee",
+    "alertButton_Dismiss",
+    "ecButton_Ignore",
+    "ecButton_Ignore",
+    "ecButton_Ignore",
+    "ecButton_Ignore",
+    "ecButton_Auto_Flee",
+    "alertButton_Dismiss",
+    "alertButton_Dismiss"
+  ],
+  "eventNameLog": [
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "selectPlanet|Japori",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click"
+  ],
+  "gameRandSeed": 1733564400516
+}

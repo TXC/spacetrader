@@ -1,0 +1,37 @@
+{
+  "idLog": [
+    "difficultySelect",
+    "createCommander",
+    "Warp",
+    "namedEvent",
+    "warpBlastOff",
+    "ecButton_Ignore",
+    "ecButton_Ignore",
+    "ecButton_Ignore",
+    "ecButton_Ignore",
+    "ecButton_Ignore",
+    "ecButton_Ignore",
+    "ecButton_Ignore",
+    "ecButton_Ignore",
+    "ecButton_Ignore",
+    "alertButton_Dismiss"
+  ],
+  "eventNameLog": [
+    "select|change|1",
+    "click",
+    "click",
+    "selectPlanetZoomed|Castor",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click",
+    "click"
+  ],
+  "gameRandSeed": 1734668502562
+}

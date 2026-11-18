@@ -47,6 +47,19 @@ export function show(session: Session) {
   if (runtime.debugMode && cheats) mount(cheats, createElement(Cheats, { session }));
 }
 
+const recordings = import.meta.glob<string>('../fixtures/recordings/*.json', {
+  eager: true,
+  query: '?raw',
+  import: 'default',
+});
+
+// The recording kept as fixtures/recordings/<name>.json, as text.
+export function recording(name: string): string {
+  const text = recordings[`../fixtures/recordings/${name}.json`];
+  if (!text) throw new Error(`There is no recording named ${name}.`);
+  return text;
+}
+
 // Starts a new game and replays a recording into it. Returns the replay; its `session`
 // is the game's session.
 type RegisterHandler = (elementID: string, eventName: string) => void;

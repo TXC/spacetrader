@@ -1,0 +1,5 @@
+{
+  "idLog": ["createCommander", "Chart", "namedEvent", "Warp", "namedEvent"],
+  "eventNameLog": ["click", "click", "selectPlanet|Mintaka", "click", "selectPlanetZoomed|Deneb"],
+  "gameRandSeed": 1729657624152
+}

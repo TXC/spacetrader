@@ -1,0 +1,5 @@
+{
+  "idLog": ["createCommander", "Chart", "namedEvent"],
+  "eventNameLog": ["click", "click", "selectPlanet|Yojimbo"],
+  "gameRandSeed": 1730276042104
+}

@@ -1,0 +1,5 @@
+{
+  "idLog": ["difficultySelect", "createCommander"],
+  "eventNameLog": ["select|change|4", "click"],
+  "gameRandSeed": 1732336512130
+}
