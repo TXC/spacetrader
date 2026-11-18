@@ -279,10 +279,6 @@ export function assertEqualArrays(actual: unknown, expected: unknown) {
   expect(actual).toStrictEqual(expected);
 }
 
-export function assertEqualFloats(actual: number, expected: number, tolerance = 0) {
-  expect(Math.abs(actual - expected)).toBeLessThanOrEqual(tolerance);
-}
-
 export function assertEqualDeep(actual: unknown, expected: unknown) {
   let difference = '';
   const equal = Utils.isEqualDeep(actual, expected, (found: string) => {

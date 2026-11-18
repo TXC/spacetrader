@@ -36,13 +36,6 @@ export const AccessoryType = {
 } as const;
 export type AccessoryType = (typeof AccessoryType)[keyof typeof AccessoryType];
 
-export const COUNT_BUYABLE_ACCESSORIES =
-  AccessoryType.GadgetLastBuyable -
-  AccessoryType.GadgetFirst +
-  1 +
-  (AccessoryType.WeaponLastBuyable - AccessoryType.WeaponFirst + 1) +
-  (AccessoryType.ShieldLastBuyable - AccessoryType.ShieldFirst + 1);
-
 type AccessorySpec = {
   type: number;
   name: string;

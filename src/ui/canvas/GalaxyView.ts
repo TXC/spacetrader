@@ -116,8 +116,6 @@ export class GalaxyView {
 
     if (shouldContinueAnimating) {
       requestAnimationFrame(newTimestamp => this.animateGalaxy(newTimestamp));
-    } else {
-      //console.log("GalaxyView removed from document. Stopping animation.")
     }
   }
 
@@ -158,7 +156,6 @@ export class GalaxyView {
       this.cachedBoundingRect.height !== rect.height;
 
     if (needsResize) {
-      //console.log("Canvas resized")
       this.planets = [];
       this.initCanvas();
     }
@@ -193,17 +190,14 @@ export class GalaxyView {
     }
 
     const pos = this.getEventPosition(event);
-    //console.log(`input end (${pos.x}, ${pos.y}) scale ${this.scale}`)
     const planet = this.getPlanetAtPosition(pos.x, pos.y);
     if (planet) {
       let s = planet.solarSystem;
       const isWormhole = planet.isWormhole === true;
-      //console.log("Found planet: " + s.name + " wormhole: " + planet.isWormhole)
       if (planet.isWormhole) {
         s = this.game.solarSystems.find(x => x.wormhole === planet.solarSystem)!;
       }
 
-      //console.log(`selected planet (${planet.x}, ${planet.y})`)
       this.selectSystem(s, isWormhole);
 
       runtime.actionLog.logNamedEvent(
@@ -222,7 +216,6 @@ export class GalaxyView {
     }
 
     const rect = this.canvas.getBoundingClientRect();
-    //console.log(`boundingRect: left ${rect.left} top ${rect.top}  right ${rect.right}  bottom ${rect.bottom}`)
 
     ret.x = ret.x - rect.left;
     ret.y = ret.y - rect.top;
@@ -254,8 +247,6 @@ export class GalaxyView {
   }
 
   selectSystem(s: SolarSystem, wormhole: boolean) {
-    //console.log(`Selected system: ${s.name} wormhole: ${wormhole}`);
-
     let planet: Planet | null | undefined = null;
 
     if (this.planets.length > 0) {
@@ -303,11 +294,9 @@ export class GalaxyView {
   drawGalaxy(timestamp: number) {
     this.resizeCanvasIfNeeded();
     if (this.canvas.width === 0 || this.canvas.height === 0) {
-      //console.log("Canvas is 0 width or height")
       return;
     }
 
-    //console.log("drawGalaxy: canvas width: " + this.canvas.width)
     this.context.fillStyle = 'black';
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -585,7 +574,6 @@ export class GalaxyView {
   }
 
   getPlanetPosition(solarSystem: SolarSystem) {
-    //console.log("getPlanetPosition: canvas width: " + this.canvas.width)
     const solarSystemBounds = this.getSolarSystemBounds();
 
     const xyScaleFactors = this.getXYScaleFactors();

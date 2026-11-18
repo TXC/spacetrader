@@ -94,8 +94,6 @@ export class TravelProgressView {
 
     if (shouldContinueAnimating) {
       requestAnimationFrame(newTimestamp => this.animateView(newTimestamp));
-    } else {
-      //console.log("ProgressView removed from document. Stopping animation.")
     }
   }
 
@@ -123,7 +121,6 @@ export class TravelProgressView {
       this.cachedBoundingRect.width !== rect.width ||
       this.cachedBoundingRect.height !== rect.height
     ) {
-      //console.log("Canvas resized")
       this.initCanvas();
     }
   }
@@ -172,8 +169,6 @@ export class TravelProgressView {
 
     const yOrigin = this.canvas.height / this.scale / 2;
 
-    //console.log(`xOrigin, yOrigin = ${xOrigin}, ${yOrigin}`)
-
     const color = visited ? VisitedSystemColor : UnvisitedSystemColor;
     this.context.fillStyle = color;
     this.context.beginPath();
@@ -203,11 +198,9 @@ export class TravelProgressView {
 
     this.resizeCanvasIfNeeded();
     if (this.canvas.width === 0 || this.canvas.height === 0) {
-      //console.log("Canvas is 0 width or height")
       return;
     }
 
-    //console.log("drawView: canvas width: " + this.canvas.width)
     this.context.fillStyle = 'black';
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 

@@ -65,7 +65,6 @@ export class ActionLogger {
   }
 
   registerNamedEventListener(handlerObject: NamedEventHandler, eventName: string) {
-    console.log('registering named event listener for: ' + eventName);
     this._namedEvents[eventName] = handlerObject;
   }
 
