@@ -10,7 +10,7 @@ import pinned from './newGameState.json';
 async function newGameFingerprint(difficulty: Difficulty) {
   const game = newGame(difficulty);
   // Left out: lastSave is the time of day, and uniqueID is random without a seed.
-  const state = { ...game.serializedState(), lastSave: undefined, uniqueID: undefined };
+  const state = { ...game.toState(), lastSave: undefined, uniqueID: undefined };
   const bytes = new TextEncoder().encode(JSON.stringify(state));
   const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes));
   const sha256 = Array.from(digest, byte => byte.toString(16).padStart(2, '0')).join('');

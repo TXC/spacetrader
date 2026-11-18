@@ -5,7 +5,7 @@ import { parseSavedGame, SAVE_VERSION } from './savedGame.ts';
 
 // A saved game as it comes back out of storage.
 function saved(): Record<string, unknown> {
-  return JSON.parse(JSON.stringify(newGame().serializedState()));
+  return JSON.parse(JSON.stringify(newGame().toState()));
 }
 
 test('a saved game passes the check unchanged, with its version', () => {

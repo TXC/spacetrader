@@ -127,7 +127,7 @@ export class Game {
   declare _remainingRareEvents: number[];
   declare solarSystems: SolarSystem[];
   declare _warpSystem: SolarSystem | null;
-  declare _lastSave?: Date; // unset until the first serializedState()
+  declare _lastSave?: Date; // unset until the first toState()
   // Set by the cheats panel, read by the old screens.
   declare forceRareEvent?: boolean;
   declare showSpecialSystems?: boolean;
@@ -280,7 +280,7 @@ export class Game {
     });
   }
 
-  serializedState() {
+  toState() {
     // Filled in field by field below.
     const state = {} as GameState;
 

@@ -207,7 +207,7 @@ export class Session extends Store {
     const { games } = this.read('games');
     if (game.endStatus === GameEndStatus.None) {
       pLog.log(69);
-      games[game.uniqueID] = game.serializedState();
+      games[game.uniqueID] = game.toState();
     } else {
       delete games[game.uniqueID];
       this.addHighScore(game);
@@ -218,7 +218,7 @@ export class Session extends Store {
   private addHighScore(game: Game): void {
     const { games: scores } = this.read('highScoringGames');
     pLog.log(68);
-    scores[game.uniqueID] = game.serializedState();
+    scores[game.uniqueID] = game.toState();
     Session.byScore(scores)
       .slice(MAX_HIGH_SCORES)
       .forEach(id => delete scores[id]);

@@ -261,7 +261,7 @@ test('clearing the high scores tells whoever is watching', () => {
 
 test('a game nobody watches can be changed all the same', () => {
   session.createCommander('Tester', 2, startingSkills());
-  const game = Game.load(session.game!.serializedState());
+  const game = Game.load(session.game!.toState());
 
   expect(() => game.changed()).not.toThrow();
 });
