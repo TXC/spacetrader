@@ -7,6 +7,7 @@ import {
 import { Difficulty } from '../../SolarSystem.types.ts';
 import { pLog } from '../../probes.ts';
 import { EncounterMode, EncounterType } from '../types.ts';
+import { fightRound } from '../fight.ts';
 import type { EncounterController } from '../../EncounterController.ts';
 
 // The commander flees. Returns whether the automatic action may repeat afterwards.
@@ -62,7 +63,7 @@ function performFlee(encounter: EncounterController): void {
     );
   }
 
-  encounter._executeAction(true, fightContinues => {
+  fightRound(encounter, true, fightContinues => {
     fightContinues = fightContinues && encounter._game.commander.ship.hull > 0;
     encounter.listener.continues(fightContinues);
   });
