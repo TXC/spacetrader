@@ -251,7 +251,7 @@ export class SolarSystem {
     }
 
     const tradeItemInventoryArray = serializedState.tradeItemInventory;
-    solarSystem._tradeItemInventory = Array(TRADE_ITEM_COUNT).fill(0);
+    solarSystem._tradeItemInventory = Array<number>(TRADE_ITEM_COUNT).fill(0);
     for (let tradeItemType = 0; tradeItemType < TRADE_ITEM_COUNT; ++tradeItemType) {
       solarSystem._tradeItemInventory[tradeItemType] = tradeItemInventoryArray[tradeItemType];
     }
@@ -399,7 +399,7 @@ export class SolarSystem {
   }
 
   _initializeInventories() {
-    this._tradeItemInventory = Array(TRADE_ITEM_COUNT).fill(0);
+    this._tradeItemInventory = Array<number>(TRADE_ITEM_COUNT).fill(0);
     for (let itemType = 0; itemType < TRADE_ITEM_COUNT; ++itemType) {
       const item = tradeItemForType(itemType);
 
