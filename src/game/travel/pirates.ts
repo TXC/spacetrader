@@ -8,7 +8,7 @@ import type { Meeting } from './Travel.ts';
 
 // Pirates or the Mantis are met. The Mantis always attack; pirates mostly do, but flee
 // from a commander of high reputation in a ship as large as theirs.
-export function pirateMeeting(game: Game, opponentType: number): Meeting {
+export function pirateMeeting(game: Game, opponentType: OpponentType): Meeting {
   let encounterType: EncounterType;
   const opponent = Opponent.generateOpponentWithType(opponentType, game);
 

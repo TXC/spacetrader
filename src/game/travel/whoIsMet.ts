@@ -1,5 +1,5 @@
 import { policeRecordMultiplier } from '../Commander.ts';
-import { OpponentType, OPPONENT_TYPE_COUNT } from '../opponent/Opponent.ts';
+import { OpponentType } from '../opponent/Opponent.ts';
 import { ShipModelType } from '../Ship.ts';
 import {
   Difficulty,
@@ -15,10 +15,10 @@ import { pLog } from '../probes.ts';
 import { runtime } from '../runtime.ts';
 import type { Travel } from './Travel.ts';
 
-// The dice that pick the kind of opponent met at this click of the trip. Returns
-// OPPONENT_TYPE_COUNT when no one is met.
-export function whoIsMet(travel: Travel, currentClicks: number): number {
-  let opponentType: number = OPPONENT_TYPE_COUNT;
+// The dice that pick the kind of opponent met at this click of the trip. Returns null
+// when no one is met.
+export function whoIsMet(travel: Travel, currentClicks: number): OpponentType | null {
+  let opponentType: OpponentType | null = null;
 
   if (currentClicks === 1 && travel._needPostMarieCustomsPolice) {
     opponentType = OpponentType.Police;
@@ -58,8 +58,8 @@ export function whoIsMet(travel: Travel, currentClicks: number): number {
 
 // On an ordinary click: pirates, police or a trader, as often as the destination's
 // politics has them, or no one.
-function ordinaryDice(travel: Travel): number {
-  let opponentType: number;
+function ordinaryDice(travel: Travel): OpponentType | null {
+  let opponentType: OpponentType | null;
 
   let encounterTest = runtime.gameRand.randomIntBelow(44 - 2 * travel._game.difficulty);
 
@@ -94,9 +94,7 @@ function ordinaryDice(travel: Travel): number {
     opponentType = policeAtKravat(travel);
   }
 
-  ensureInteger(opponentType);
-
-  if (opponentType >= OPPONENT_TYPE_COUNT) {
+  if (opponentType === null) {
     if (travel._game.commander.artifactOnBoard && runtime.gameRand.randomIntBelow(20) <= 3) {
       opponentType = OpponentType.Mantis;
     }
@@ -105,8 +103,8 @@ function ordinaryDice(travel: Travel): number {
   return opponentType;
 }
 
-function policeAtKravat(travel: Travel): number {
-  let opponentType: number = OPPONENT_TYPE_COUNT;
+function policeAtKravat(travel: Travel): OpponentType | null {
+  let opponentType: OpponentType | null = null;
 
   // Welcome to Kravat, outlaw!
   if (

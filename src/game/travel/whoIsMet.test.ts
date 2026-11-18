@@ -1,12 +1,12 @@
 import { expect, test, vi } from 'vitest';
 import { newGame } from '../../tests/support/newGame.ts';
-import { OPPONENT_TYPE_COUNT, OpponentType } from '../opponent/Opponent.ts';
+import { OpponentType } from '../opponent/Opponent.ts';
 import { runtime } from '../runtime.ts';
 import { Difficulty, WildQuestStatus } from '../SolarSystem.types.ts';
 import { Travel } from './Travel.ts';
 import { whoIsMet } from './whoIsMet.ts';
 
-const noOne = OPPONENT_TYPE_COUNT;
+const noOne = null;
 
 const police = OpponentType.Police;
 
