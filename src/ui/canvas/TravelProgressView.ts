@@ -13,22 +13,25 @@ import { drawInCanvas } from './pceDrawing.ts';
 export const TRAVEL_PROGRESS_DURATION = 0.2;
 
 export class TravelProgressView {
-  declare div: HTMLElement;
-  declare game: Game;
-  declare origin: SolarSystem;
-  declare destination: SolarSystem;
-  declare wasVisited: boolean;
-  declare canvasContainer: HTMLDivElement;
-  declare canvas: HTMLCanvasElement;
-  declare context: CanvasRenderingContext2D;
-  declare scale: number;
-  declare cachedBoundingRect: DOMRect;
-  declare shipProgress: number;
-  declare shipTargetProgress: number;
-  declare progressAnimationStartTime: number;
-  declare animationStartTime: number;
-  declare lastInvalidationCheckTimestamp?: number;
-  declare lastDrawTimestamp: number;
+  game: Game;
+  origin: SolarSystem;
+  destination: SolarSystem;
+  wasVisited: boolean;
+  canvasContainer = document.createElement('div');
+  canvas = document.createElement('canvas');
+  context = this.canvas.getContext('2d')!;
+  scale = 1;
+  // The size of the container the canvas was last fitted to.
+  private width = 0;
+  private height = 0;
+  // Where the ship last came to rest, and where it is going, from 0 to 1.
+  shipProgress = 0;
+  shipTargetProgress = 0;
+  // When the slide to the target began. Zero: not sliding, or to begin with the next frame.
+  progressAnimationStartTime = 0;
+  private lastInvalidationCheckTimestamp = 0;
+  // Zero until the first frame.
+  private lastDrawTimestamp = 0;
   private disposed = false;
   private onResize = () => this.resizeCanvasIfNeeded();
 
@@ -47,38 +50,27 @@ export class TravelProgressView {
     // The class names of the two elements made here; their styles are the caller's.
     classes: { host: string; canvas: string }
   ) {
-    this.div = div;
     this.game = game;
     this.origin = origin;
     this.destination = destination;
     this.wasVisited = wasVisited;
 
-    this.canvasContainer = document.createElement('div');
     this.canvasContainer.id = 'travelProgressViewCanvasContainer';
     this.canvasContainer.className = classes.host;
-    this.div.appendChild(this.canvasContainer);
+    div.appendChild(this.canvasContainer);
 
-    this.canvas = document.createElement('canvas');
     this.canvas.id = 'travelProgressViewCanvas';
     this.canvas.className = classes.canvas;
-    this.context = this.canvas.getContext('2d')!;
     this.canvasContainer.appendChild(this.canvas);
     this.initCanvas();
     this.initEvents();
-
-    this.shipProgress = 0;
-    this.shipTargetProgress = 0;
-    this.progressAnimationStartTime = 0;
 
     // Excessive to run this the whole time. Consider animating only during progress animation.
     this.startAnimating();
   }
 
   startAnimating() {
-    requestAnimationFrame(timestamp => {
-      this.animationStartTime = timestamp;
-      this.animateView(timestamp);
-    });
+    requestAnimationFrame(timestamp => this.animateView(timestamp));
   }
 
   animateView(timestamp: number) {
@@ -104,7 +96,8 @@ export class TravelProgressView {
 
   initCanvas() {
     const rect = this.canvasContainer.getBoundingClientRect();
-    this.cachedBoundingRect = rect;
+    this.width = rect.width;
+    this.height = rect.height;
     if (DEBUG_OVERRIDE_SCALE_TO_1) {
       this.scale = 1;
     } else {
@@ -122,10 +115,7 @@ export class TravelProgressView {
 
   resizeCanvasIfNeeded() {
     const rect = this.canvasContainer.getBoundingClientRect();
-    if (
-      this.cachedBoundingRect.width !== rect.width ||
-      this.cachedBoundingRect.height !== rect.height
-    ) {
+    if (this.width !== rect.width || this.height !== rect.height) {
       this.initCanvas();
     }
   }
