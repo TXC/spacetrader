@@ -71,6 +71,12 @@ test('textOf reads line breaks as new lines', () => {
   div.remove();
 });
 
+test('textOf reads paragraphs as lines with an empty line between them', () => {
+  const div = fixture('<h4>a</h4><p>b</p><p>c</p>');
+  expect(textOf(div)).toBe('a\nb\n\nc');
+  div.remove();
+});
+
 test('hasText matches the exact text of a matching element', () => {
   const div = fixture('<table><tr><td>5</td></tr></table>');
   expect(hasText(div, 'td', '5')).toBe(true);

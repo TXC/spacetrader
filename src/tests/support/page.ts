@@ -5,10 +5,17 @@ function resolve(target: Element | null): Element {
   return target;
 }
 
+// A paragraph starts on a new line, with an empty line between two paragraphs.
+function paragraphBreak(node: Node): string {
+  const before = node.previousSibling;
+  if (node.nodeName !== 'P' || !before) return '';
+  return before.nodeName === 'P' ? '\n\n' : '\n';
+}
+
 function nodeText(node: Node): string {
   if (node.nodeType === Node.TEXT_NODE) return node.nodeValue ?? '';
   if (node.nodeName === 'BR') return '\n';
-  return [...node.childNodes].map(nodeText).join('');
+  return paragraphBreak(node) + [...node.childNodes].map(nodeText).join('');
 }
 
 // The visible text of an element, with each line break as "\n".
