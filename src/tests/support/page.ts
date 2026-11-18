@@ -52,6 +52,10 @@ function find<T extends Element>(selector: string, text: string | RegExp): T | n
 // The button or link with this text.
 export const button = (text: string | RegExp) => find<HTMLElement>('button, a', text);
 
+// True when this navigation button's screen is the open one.
+export const isCurrent = (target: Element | null) =>
+  resolve(target).getAttribute('aria-current') === 'page';
+
 // The heading with this text.
 export const heading = (text: string | RegExp) => find<HTMLElement>('h1, h2, h3, h4', text);
 

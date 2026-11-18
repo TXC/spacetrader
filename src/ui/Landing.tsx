@@ -9,6 +9,7 @@ import { Equipment } from './Equipment.tsx';
 import { GalacticChart } from './GalacticChart.tsx';
 import { GalaxyMap } from './GalaxyMap.tsx';
 import { Icon } from './Icon.tsx';
+import styles from './Landing.module.css';
 import { Lines } from './Lines.tsx';
 import { LoggedLink } from './Logged.tsx';
 import { News } from './News.tsx';
@@ -26,14 +27,9 @@ function NavLink({ session, link }: { session: Session; link: NavRow }) {
   // Opening a screen changes the page's height; keep the player where they were.
   const open = () => maintainScrollPosition(() => session.clickRow(row));
   return (
-    <li className="button-item">
-      <LoggedLink
-        id={row}
-        className={session.activeRow === row ? 'active' : undefined}
-        current={session.activeRow === row}
-        onPress={open}
-      >
-        <Icon name={icon} className={row === 'Chart' ? 'button-icon-chart' : shared.buttonIcon} />
+    <li>
+      <LoggedLink id={row} current={session.activeRow === row} onPress={open}>
+        <Icon name={icon} className={row === 'Chart' ? styles.chartIcon : shared.buttonIcon} />
         <span>{row}</span>
       </LoggedLink>
     </li>
@@ -53,7 +49,7 @@ function Options({ session, game }: Props) {
         onSelect={session.mapSelected}
         viewRef={session.setMap}
       />
-      <ul id="subVCButtonsDiv" className="systemLandingButtons">
+      <ul id="subVCButtonsDiv" className={styles.navigation}>
         {session.navRows.map(link => (
           <NavLink key={link.row} session={session} link={link} />
         ))}
@@ -66,13 +62,10 @@ function Welcome({ game }: { game: Game }) {
   const system = game.commander.getCurrentSystem();
   return (
     <>
-      <h1 id="system-info-welcome" className={`${shared.centredBlock} system-info-header`}>
+      <h1 id="system-info-welcome" className={styles.welcome}>
         {'Welcome to ' + system.getName()}
       </h1>
-      <h4
-        id="system-info-text"
-        className={`system-info ${shared.centredBlock} ${shared.centredText}`}
-      >
+      <h4 id="system-info-text" className={styles.systemInfo}>
         <Lines text={system.systemInfoString()} />
       </h4>
     </>
@@ -129,7 +122,7 @@ function SubScreen({ session, game }: Props) {
 export function Landing({ session, game }: Props) {
   const travel = session.travel;
   return (
-    <div id="systemLandingDiv">
+    <div id="systemLandingDiv" className={styles.landing}>
       {!travel && <Options session={session} game={game} />}
       <div id="systemLandingSubContentDiv">
         {travel ? (

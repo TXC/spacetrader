@@ -1,0 +1,32 @@
+/* A column: the map and navigation, then the open screen. */
+.landing {
+  display: flex;
+  flex-direction: column;
+}
+
+.navigation {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0;
+  margin: 0;
+  margin-bottom: var(--space-5);
+  padding: 0;
+  list-style-type: none;
+}
+
+/* The chart's icon is drawn smaller than the others. */
+.chartIcon {
+  composes: icon from './shared.module.css';
+  --icon-size: 1.067rem;
+}
+
+.welcome {
+  composes: centredBlock from './shared.module.css';
+  padding-top: var(--space-10);
+}
+
+.systemInfo {
+  composes: centredBlock centredText from './shared.module.css';
+  padding-top: var(--space-10);
+}
