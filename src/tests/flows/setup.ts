@@ -56,8 +56,9 @@ afterEach(({ task }) => {
 
 afterAll(() => {
   const known = file && (knownMissing as Record<string, number[]>)[file.name];
-  // A run of only some of the tests, or with a failed test, reaches fewer probes.
-  if (!file || !known || !allPassed(file)) return;
+  // A run of only some of the tests, or with a failed test, reaches fewer probes; a stress
+  // test with another seed reaches other ones.
+  if (!file || !known || !allPassed(file) || import.meta.env.STRESS_SEED) return;
   const missing = pLog.missingProbes();
   const noLongerReached = missing.filter(probe => !known.includes(probe));
   const newlyReached = known.filter(probe => !missing.includes(probe));
