@@ -197,3 +197,48 @@ test('the strip draws its ship as one picture, not pixel by pixel', () => {
   expect(pictures).toHaveBeenCalledTimes(1);
   view.dispose();
 });
+
+test('the map reads no styles and asks no media queries to draw a frame', () => {
+  const view = map();
+  frame(1000);
+  const styles = vi.spyOn(window, 'getComputedStyle');
+  const queries = vi.spyOn(window, 'matchMedia');
+  [1016, 1032, 1048].forEach(frame);
+  expect(styles).not.toHaveBeenCalled();
+  expect(queries).not.toHaveBeenCalled();
+  // The ring around the selection pulses, so the map goes on drawing.
+  expect(frames).toHaveLength(1);
+  view.dispose();
+});
+
+test('a map with no ring to pulse draws once, and again when a system is selected', () => {
+  const view = new GalaxyView(host, game, null, false, false, true, classes);
+  frame(1000);
+  expect(frames).toHaveLength(0);
+
+  view.selectSystem(game.commander.currentSystem, false);
+  expect(frames).toHaveLength(1);
+  frame(2000);
+  expect(redPixels()).toBeGreaterThan(0);
+  view.dispose();
+});
+
+const pixels = () =>
+  canvas().getContext('2d')!.getImageData(0, 0, canvas().width, canvas().height).data.join();
+
+test('with reduced motion the ring stands still and the map draws only on a change', () => {
+  mediaQueries('prefers-reduced-motion: reduce');
+  const view = map();
+  frame(1000);
+  expect(frames).toHaveLength(0);
+  expect(redPixels()).toBeGreaterThan(0);
+  const before = pixels();
+
+  // Half a pulse later, when a moving ring would be at its largest.
+  view.requestDraw();
+  expect(frames).toHaveLength(1);
+  frame(1750);
+  expect(pixels()).toBe(before);
+  expect(frames).toHaveLength(0);
+  view.dispose();
+});
