@@ -27,7 +27,7 @@ try {
   await context.setOffline(true)
   await page.reload()
   check(await appears(page, '#newCommanderDiv'), 'the game starts offline')
-  check(await page.evaluate(() => document.querySelector('.landing-page-icon').naturalWidth > 0), 'the title picture shows offline')
+  check(await page.evaluate(() => document.querySelector('#newCommanderDiv img').naturalWidth > 0), 'the title picture shows offline')
   await page.locator('#createCommander').click()
   await page.locator('[id="Ship Yard"]').click()
   check(await appears(page, '#buyship_Flea'), 'a game can be started and played offline')
