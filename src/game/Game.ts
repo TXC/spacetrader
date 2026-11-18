@@ -168,9 +168,9 @@ export class Game {
       ensureInteger(difficulty);
       this.difficulty = difficulty!;
 
-      this._populateSolarSystems();
-      this._setupEventsAndMercenaries();
-      this._setupCommander(recruit);
+      this.solarSystems = Game._populateSolarSystems(this.difficulty);
+      Game._setupEventsAndMercenaries(this.solarSystems);
+      this.commander = Game._setupCommander(recruit, this.difficulty, this.solarSystems);
       this._setupInitialGameState();
     }
   }
@@ -418,9 +418,7 @@ export class Game {
     return `${wholeNumber}.${decimal}%`;
   }
 
-  _populateSolarSystems() {
-    if (this.solarSystems) return;
-
+  private static _populateSolarSystems(difficulty: number): SolarSystem[] {
     const solarSystemCount = SolarSystem.solarSystemNames().length;
     const solarSystems = [];
     const solarSystemNames = [...SolarSystem.solarSystemNames()];
@@ -472,20 +470,13 @@ export class Game {
       if (tooClose || !closeFound) continue;
 
       const randomNameIndex = runtime.gameRand.randomIntBelow(solarSystemNames.length);
-      const solarSystem = SolarSystem.create(
-        solarSystemNames[randomNameIndex],
-        x,
-        y,
-        this.difficulty
-      );
+      const solarSystem = SolarSystem.create(solarSystemNames[randomNameIndex], x, y, difficulty);
       solarSystemNames.splice(randomNameIndex, 1);
 
       solarSystems.push(solarSystem);
 
       i++;
     }
-
-    this.solarSystems = solarSystems;
 
     // Wormholes go in a loop
     const wormholeSystems = solarSystems.slice(0, WORMHOLE_COUNT);
@@ -500,40 +491,42 @@ export class Game {
       randomWormholeSystems[i].wormhole = randomWormholeSystems[i + 1];
     }
     randomWormholeSystems[WORMHOLE_COUNT - 1].wormhole = randomWormholeSystems[0];
+    return solarSystems;
   }
 
-  _setupEventsAndMercenaries() {
+  private static _setupEventsAndMercenaries(solarSystems: SolarSystem[]) {
     // Setup special events and any hard-coded mercenaries
+    const find = (name: string) => SolarSystem.solarSystemForName(name, solarSystems);
 
     const eventsToPlace = randomOccurrenceEventTypes();
 
-    const kravat = this._findSolarSystem('Kravat')!;
+    const kravat = find('Kravat')!;
     kravat.specialEvent = SpecialEvent.WildGetsOut;
 
-    this._findSolarSystem('Acamar')!.specialEvent = SpecialEvent.MonsterKilled;
-    this._findSolarSystem('Baratas')!.specialEvent = SpecialEvent.FlyBaratas;
-    this._findSolarSystem('Melina')!.specialEvent = SpecialEvent.FlyMelina;
-    this._findSolarSystem('Regulas')!.specialEvent = SpecialEvent.FlyRegulas;
-    this._findSolarSystem('Zalkon')!.specialEvent = SpecialEvent.DragonflyDestroyed;
-    this._findSolarSystem('Japori')!.specialEvent = SpecialEvent.MedicineDelivery;
-    this._findSolarSystem('Utopia')!.specialEvent = SpecialEvent.MoonBought;
-    this._findSolarSystem('Devidia')!.specialEvent = SpecialEvent.JarekGetsOut;
+    find('Acamar')!.specialEvent = SpecialEvent.MonsterKilled;
+    find('Baratas')!.specialEvent = SpecialEvent.FlyBaratas;
+    find('Melina')!.specialEvent = SpecialEvent.FlyMelina;
+    find('Regulas')!.specialEvent = SpecialEvent.FlyRegulas;
+    find('Zalkon')!.specialEvent = SpecialEvent.DragonflyDestroyed;
+    find('Japori')!.specialEvent = SpecialEvent.MedicineDelivery;
+    find('Utopia')!.specialEvent = SpecialEvent.MoonBought;
+    find('Devidia')!.specialEvent = SpecialEvent.JarekGetsOut;
 
-    const gemulon = this._findSolarSystem('Gemulon')!;
+    const gemulon = find('Gemulon')!;
     gemulon.specialEvent = SpecialEvent.GemulonRescued;
     // Perform search in reverse to prefer systems without wormholes
-    const solarSystemsReversed = this.solarSystems.slice().reverse();
+    const solarSystemsReversed = solarSystems.slice().reverse();
     nearestFreeSystem(gemulon, solarSystemsReversed)!.specialEvent = SpecialEvent.AlienInvasion;
 
-    const daled = this._findSolarSystem('Daled')!;
+    const daled = find('Daled')!;
     daled.specialEvent = SpecialEvent.ExperimentStopped;
     nearestFreeSystem(daled, solarSystemsReversed)!.specialEvent = SpecialEvent.Experiment;
 
-    const nix = this._findSolarSystem('Nix')!;
+    const nix = find('Nix')!;
     nix.specialEvent = SpecialEvent.ReactorDelivered;
     nearestFreeSystem(nix, solarSystemsReversed)!.specialEvent = SpecialEvent.GetReactor;
 
-    const wormholeSystemsSpecial = this.solarSystems.slice(0, WORMHOLE_COUNT);
+    const wormholeSystemsSpecial = solarSystems.slice(0, WORMHOLE_COUNT);
     while (wormholeSystemsSpecial.length > 0) {
       const randomIndex = runtime.gameRand.randomIntBelow(wormholeSystemsSpecial.length);
       if (wormholeSystemsSpecial[randomIndex].specialEvent === SpecialEvent.None) {
@@ -566,19 +559,19 @@ export class Game {
     // Create and place randomized mercenaries
     const names = CrewMember.mercenaryNames();
     for (let i = 0; i < MERCENARY_COUNT - 1; ++i) {
-      this._placeMercenary(names[i], runtime.gameRand);
+      Game._placeMercenary(solarSystems, names[i], runtime.gameRand);
     }
 
     // The last one draws from a generator of his own, seeded by where the systems lie, so
     // that every other number of a recorded game stays where it was.
-    const seed = this.solarSystems.reduce((sum, system) => sum + system.x + system.y, 0);
-    this._placeMercenary(names[MERCENARY_COUNT - 1], new GameRand(seed));
+    const seed = solarSystems.reduce((sum, system) => sum + system.x + system.y, 0);
+    Game._placeMercenary(solarSystems, names[MERCENARY_COUNT - 1], new GameRand(seed));
   }
 
-  _placeMercenary(name: string, rand: GameRand) {
+  private static _placeMercenary(solarSystems: SolarSystem[], name: string, rand: GameRand) {
     let mercenarySystem = null;
     while (!mercenarySystem) {
-      mercenarySystem = this.solarSystems[rand.randomIntBelow(this.solarSystems.length)];
+      mercenarySystem = solarSystems[rand.randomIntBelow(solarSystems.length)];
       if (mercenarySystem.mercenary) mercenarySystem = null;
     }
 
@@ -587,20 +580,24 @@ export class Game {
     mercenarySystem.mercenary = mercenary;
   }
 
-  _setupCommander(recruit: Recruit) {
-    this.commander = Commander.enlist(recruit, {
-      difficulty: this.difficulty,
+  private static _setupCommander(
+    recruit: Recruit,
+    difficulty: number,
+    solarSystems: SolarSystem[]
+  ): Commander {
+    const commander = Commander.enlist(recruit, {
+      difficulty,
       credits: STARTING_CREDITS,
-      ship: Ship.create(ShipModelType.Gnat, this.difficulty),
-      system: this.solarSystems[this.solarSystems.length - 1],
+      ship: Ship.create(ShipModelType.Gnat, difficulty),
+      system: solarSystems[solarSystems.length - 1],
     });
 
-    let squaredFuel = this.commander.ship.fuel;
+    let squaredFuel = commander.ship.fuel;
     squaredFuel *= squaredFuel;
 
     const inRangeOf = (system: SolarSystem) =>
-      this.solarSystems.filter(other => system.squaredDistanceTo(other) <= squaredFuel);
-    const startSystem = this.solarSystems.findLast(
+      solarSystems.filter(other => system.squaredDistanceTo(other) <= squaredFuel);
+    const startSystem = solarSystems.findLast(
       system =>
         system.specialEvent === SpecialEvent.None &&
         system.techLevel >= TechLevel.Agricultural &&
@@ -608,9 +605,10 @@ export class Game {
         inRangeOf(system).length >= 3
     );
     if (startSystem) {
-      this.commander.currentSystem.visited = false;
-      this.commander.moveTo(startSystem);
+      commander.currentSystem.visited = false;
+      commander.moveTo(startSystem);
     }
+    return commander;
   }
 
   _setupInitialGameState() {
