@@ -18,7 +18,7 @@ function payingOrder(skills: Skills, changed: SkillName): SkillName[] {
   return [...SKILL_NAMES].sort((a, b) => {
     if (a === changed) return -1;
     if (b === changed) return 1;
-    return skills[a] != skills[b] ? skills[a] - skills[b] : a.localeCompare(b);
+    return skills[a] !== skills[b] ? skills[a] - skills[b] : a.localeCompare(b);
   });
 }
 

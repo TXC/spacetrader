@@ -19,7 +19,7 @@ export function describe(game: Game, system: SolarSystem): string {
   const kind =
     `${systemSizeName(system.size)} ${techLevelName(system.techLevel)} ${system.politics.name}`.toLowerCase();
   const distance = `${system.distanceTo(game.commander.currentSystem)} parsecs`;
-  if (!game.showSpecialSystems || system.specialEvent == SpecialEvent.None)
+  if (!game.showSpecialSystems || system.specialEvent === SpecialEvent.None)
     return `${kind}\n${distance}`;
   const special = specialEventForType(system.specialEvent)!;
   return `${kind}\n${distance}\nSpecial: ${special.name}`;

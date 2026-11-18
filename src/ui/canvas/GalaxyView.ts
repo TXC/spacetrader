@@ -129,7 +129,8 @@ export class GalaxyView {
   }
 
   private ringsPulse() {
-    const anyRing = this.selectedPlanet != null || this.game.trackedSystem != null;
+    const isSet = (system: unknown) => system !== null && system !== undefined;
+    const anyRing = isSet(this.selectedPlanet) || isSet(this.game.trackedSystem);
     return anyRing && !this.reducedMotion.matches;
   }
 

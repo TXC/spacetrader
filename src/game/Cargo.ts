@@ -19,7 +19,7 @@ export type CargoView = { buy: boolean; baseSystem?: SolarSystem; relative: bool
 
 // "+$12", "-$3" or "$40"; empty when there is nothing worth showing.
 export function costLabel(relative: boolean, price: number, sellPrice: number): string {
-  const show = (relative && sellPrice != 0) || price != 0;
+  const show = (relative && sellPrice !== 0) || price !== 0;
   if (!show) return '';
   const sign = !relative || price === 0 ? '' : price > 0 ? '+' : '-';
   return `${sign}$${Math.abs(price)}`;
