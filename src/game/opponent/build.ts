@@ -2,6 +2,7 @@ import { AccessoryType, gadgetForType, shieldForType, weaponForType } from '../A
 import { MAX_SKILL_LEVEL, PoliceRecordScore } from '../Commander.ts';
 import { CrewMember } from '../CrewMember.ts';
 import { Ship, shipModelForType, ShipModelType, SHIP_MODEL_COUNT } from '../Ship.ts';
+import type { ShipModel } from '../Ship.ts';
 import { Difficulty, WildQuestStatus } from '../SolarSystem.types.ts';
 import { TradeItemType, TRADE_ITEM_COUNT } from '../TradeItem.types.ts';
 import { ensureInteger, ensureType } from '../ensure.ts';
@@ -351,6 +352,12 @@ function ordinaryOpponent(type: number, game: Game): Opponent {
     ship.damageHullByAmount(ship.hull - hullStrength);
   }
 
+  addMercenaries(ship, model, game);
+
+  return opponentWithSkills(type, game, ship);
+}
+
+function addMercenaries(ship: Ship, model: ShipModel, game: Game): void {
   let numMercenaries = model.mercenaryQuarters();
   if (game.difficulty <= Difficulty.Hard) {
     numMercenaries = 1 + runtime.gameRand.randomIntBelow(model.mercenaryQuarters());
@@ -367,7 +374,10 @@ function ordinaryOpponent(type: number, game: Game): Opponent {
     mercenary.randomizeAttributes();
     ship.addCrewMember(mercenary);
   }
+}
 
+// The captain's own skills are rolled last.
+function opponentWithSkills(type: number, game: Game, ship: Ship): Opponent {
   const pilot = 1 + runtime.gameRand.randomIntBelow(MAX_SKILL_LEVEL);
   const fighter = 1 + runtime.gameRand.randomIntBelow(MAX_SKILL_LEVEL);
   const trader = 1 + runtime.gameRand.randomIntBelow(MAX_SKILL_LEVEL);
