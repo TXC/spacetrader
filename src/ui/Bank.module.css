@@ -1,0 +1,11 @@
+.figures {
+  width: 100%;
+  max-width: 20rem;
+  margin: auto;
+  border-collapse: collapse;
+}
+
+/* The last line of a section, with an empty line after it. */
+.closing {
+  margin-bottom: var(--space-line);
+}
