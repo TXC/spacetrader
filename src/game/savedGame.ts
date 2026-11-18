@@ -46,9 +46,13 @@ function oneOf<T extends Record<string, number>>(list: T) {
 }
 const difficulty = oneOf(Difficulty);
 
-// A whole number from `first` to `last`, such as the equipment of one kind.
+// A whole number from `first` to `last`.
 function between(first: number, last: number) {
   return v.pipe(num, v.integer(), v.minValue(first), v.maxValue(last));
+}
+// The equipment of one kind: the AccessoryType values from `first` to `last`.
+function equipment(first: AccessoryType, last: AccessoryType) {
+  return v.picklist(Object.values(AccessoryType).filter(type => type >= first && type <= last));
 }
 const { GadgetFirst, GadgetLast, WeaponFirst, WeaponLast, ShieldFirst, ShieldLast } = AccessoryType;
 
@@ -79,9 +83,9 @@ const ShipSchema = v.strictObject({
   cargoBuyingPriceKeys: cargoKinds,
   cargoBuyingPriceValues: numbers,
   // Written only when the ship has any.
-  weaponTypes: v.optional(v.array(between(WeaponFirst, WeaponLast))),
-  shieldTypes: v.optional(v.array(between(ShieldFirst, ShieldLast))),
-  gadgetTypes: v.optional(v.array(between(GadgetFirst, GadgetLast))),
+  weaponTypes: v.optional(v.array(equipment(WeaponFirst, WeaponLast))),
+  shieldTypes: v.optional(v.array(equipment(ShieldFirst, ShieldLast))),
+  gadgetTypes: v.optional(v.array(equipment(GadgetFirst, GadgetLast))),
   crewMap: v.optional(v.record(text, CrewMemberSchema)),
 });
 

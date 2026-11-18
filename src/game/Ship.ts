@@ -540,9 +540,9 @@ export class Ship {
     }
   }
 
-  private addSavedAccessories(types: number[] | undefined) {
+  private addSavedAccessories(types: AccessoryType[] | undefined) {
     types?.forEach(type => {
-      this.addAccessoryOfType(type as AccessoryType);
+      this.addAccessoryOfType(type);
     });
   }
 
