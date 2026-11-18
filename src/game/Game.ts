@@ -29,13 +29,6 @@ import {
   randomOccurrenceEventTypes,
 } from './SpecialEventSpecifier.ts';
 import { TechLevel, FAKE_QUEST_CARGO_REACTOR } from './TradeItem.types.ts';
-import {
-  ensureArrayOrNull,
-  ensureBool,
-  ensureInteger,
-  ensureObjectOrNull,
-  ensureType,
-} from './ensure.ts';
 import { GameRand } from './GameRand.ts';
 import { pLog } from './probes.ts';
 import { runtime } from './runtime.ts';
@@ -334,82 +327,32 @@ export class Game {
     // Filled in field by field below.
     const state = {} as GameState;
 
-    ensureInteger(this.monsterStatus);
     state.monsterStatus = this.monsterStatus;
-
-    ensureInteger(this.dragonflyStatus);
     state.dragonflyStatus = this.dragonflyStatus;
-
-    ensureInteger(this.scarabStatus);
     state.scarabStatus = this.scarabStatus;
-
-    ensureInteger(this.japoriQuestStatus);
     state.japoriQuestStatus = this.japoriQuestStatus;
-
-    ensureInteger(this.jarekStatus);
     state.jarekStatus = this.jarekStatus;
-
-    ensureInteger(this.invasionStatus);
     state.invasionStatus = this.invasionStatus;
-
-    ensureInteger(this.experimentStatus);
     state.experimentStatus = this.experimentStatus;
-
-    ensureInteger(this.fabricRipProbability);
     state.fabricRipProbability = this.fabricRipProbability;
-
-    ensureInteger(this.wildStatus);
     state.wildStatus = this.wildStatus;
-
-    ensureInteger(this.reactorStatus);
     state.reactorStatus = this.reactorStatus;
-
-    ensureInteger(this.difficulty);
     state.difficulty = this.difficulty;
-
-    ensureInteger(this.endStatus);
     state.endStatus = this.endStatus;
-
-    ensureInteger(this.monsterHull);
     state.monsterHull = this.monsterHull;
-
     state.score = this.score();
-    ensureInteger(state.score);
-
-    ensureBool(this.remindLoans);
     state.remindLoans = this.remindLoans;
-
-    ensureBool(this.tribbleMessage);
     state.tribbleMessage = this.tribbleMessage;
-
-    ensureBool(this.alreadyPaidForNewspaper);
     state.alreadyPaidForNewspaper = this.alreadyPaidForNewspaper;
-
-    ensureBool(this.alwaysIgnorePirates);
     state.alwaysIgnorePirates = this.alwaysIgnorePirates;
-
-    ensureBool(this.alwaysIgnorePolice);
     state.alwaysIgnorePolice = this.alwaysIgnorePolice;
-
-    ensureBool(this.alwaysIgnoreTraders);
     state.alwaysIgnoreTraders = this.alwaysIgnoreTraders;
-
-    ensureBool(this.alwaysIgnoreTradeInOrbit);
     state.alwaysIgnoreTradeInOrbit = this.alwaysIgnoreTradeInOrbit;
-
-    ensureBool(this.autoFuel);
     state.autoFuel = this.autoFuel;
-
-    ensureBool(this.autoRepairs);
     state.autoRepairs = this.autoRepairs;
-
-    ensureBool(this.autoNews);
     state.autoNews = this.autoNews;
-
-    ensureBool(this.canSuperWarp);
     state.canSuperWarp = this.canSuperWarp;
 
-    ensureArrayOrNull(this._breakingNews, 'string');
     if (this._breakingNews) {
       state.breakingNews = [...this._breakingNews];
       pLog.log(73);
@@ -417,31 +360,23 @@ export class Game {
 
     state.commander = this.commander.toState();
 
-    ensureObjectOrNull(this._warpSystem);
     if (this._warpSystem) {
-      ensureType(this._warpSystem.name, 'string');
       state.warpSystemName = this._warpSystem.name;
     }
 
-    ensureObjectOrNull(this.trackedSystem);
     if (this.trackedSystem) {
-      ensureType(this.trackedSystem.name, 'string');
       state.trackedSystemName = this.trackedSystem.name;
       pLog.log(74);
     }
 
-    ensureType(this.uniqueID, 'string');
     state.uniqueID = this.uniqueID;
 
-    ensureArrayOrNull(this.remainingRareEvents, 'number');
     if (this.remainingRareEvents) {
       state.remainingRareEvents = [...this.remainingRareEvents];
       pLog.log(75);
     }
 
-    ensureArrayOrNull(this.solarSystems, 'object');
     state.solarSystems = this.solarSystems.map(solarSystem => solarSystem.toState());
-
     state.lastSave = new Date();
     state.version = SAVE_VERSION;
 
@@ -483,7 +418,6 @@ export class Game {
     }
 
     score = Math.floor(score);
-    ensureInteger(score);
 
     return score;
   }
@@ -697,8 +631,6 @@ export class Game {
       result.unshift(current.wormhole);
     }
 
-    ensureArrayOrNull(result, 'object');
-
     return result;
   }
 
@@ -722,10 +654,6 @@ export class Game {
   }
 
   addBreakingNewsItem(item: string) {
-    if (!ensureType(item, 'string')) {
-      return;
-    }
-
     if (!this._breakingNews) {
       this._breakingNews = [];
     }
@@ -733,13 +661,6 @@ export class Game {
   }
 
   replaceNewsContainingString(needle: string, item: string) {
-    if (!ensureType(needle, 'string')) {
-      return;
-    }
-    if (!ensureType(item, 'string')) {
-      return;
-    }
-
     const index = this._breakingNews!.findIndex(existingItem => existingItem.includes(needle));
     if (index !== -1) {
       this._breakingNews!.splice(index, 1);
@@ -752,8 +673,6 @@ export class Game {
   }
 
   removeRemainingRareEvent(rareEvent: number) {
-    ensureInteger(rareEvent);
-
     const index = this.remainingRareEvents.indexOf(rareEvent);
     if (index !== -1) {
       this.remainingRareEvents.splice(index, 1);
@@ -768,8 +687,6 @@ export class Game {
   }
 
   timePassed(days: number) {
-    ensureInteger(days);
-
     this.commander.timePassed(days, this.difficulty);
 
     if (invasionUnderway(this.invasionStatus)) {
@@ -821,7 +738,6 @@ export class Game {
       this.fabricRipProbability > 0
     ) {
       this.fabricRipProbability -= Math.min(this.fabricRipProbability, days);
-      ensureInteger(this.fabricRipProbability);
       pLog.log(146);
     }
   }
@@ -831,7 +747,6 @@ export class Game {
       shipModelForType(ShipModelType.SpaceMonster).hullStrength,
       Math.floor((this.monsterHull * 105) / 100)
     );
-    ensureInteger(this.monsterHull);
     pLog.log(142);
   }
 
