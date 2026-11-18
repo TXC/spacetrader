@@ -19,7 +19,7 @@ export function opponentIn(
   model: ShipModelType,
   { weapons = [], gadgets = [], engineer = 5 }: Fitting = {}
 ): Opponent {
-  const ship = new Ship(model, game.difficulty);
+  const ship = Ship.create(model, game.difficulty);
   weapons.forEach(weapon => ship.addWeaponOfType(weapon));
   gadgets.forEach(gadget => ship.addGadgetOfType(gadget));
   return Opponent.captain(type, engineer, 5, 5, 5, ship);

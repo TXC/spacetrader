@@ -87,7 +87,7 @@ test('B2: plundering leaves with the victim what does not fit', () => {
 });
 
 test('B3: removing a shield takes its power with it', () => {
-  const ship = new Ship(ShipModelType.Bumblebee, 2);
+  const ship = Ship.create(ShipModelType.Bumblebee, 2);
   ship.addAccessoryOfType(AccessoryType.ShieldEnergy); // 100
   ship.addAccessoryOfType(AccessoryType.ShieldReflective); // 200
 
@@ -211,7 +211,7 @@ test('G9: equipment confirmed twice is installed once when one slot is free', ()
 
 test('G9: equipment confirmed twice is installed once when the cash is for one', () => {
   const game = newGame();
-  game.commander.ship = new Ship(ShipModelType.Bumblebee, 2); // two gadget slots
+  game.commander.ship = Ship.create(ShipModelType.Bumblebee, 2); // two gadget slots
   game.commander.credits = 1500;
 
   buyTwice(game, 1000);
@@ -247,7 +247,7 @@ test('G9: an escape pod is not sold when the cash is gone before the confirmatio
 
 test('G9: a mercenary hired twice joins the crew once', () => {
   const game = newGame();
-  game.commander.ship = new Ship(ShipModelType.Beetle, 2); // two mercenary quarters
+  game.commander.ship = Ship.create(ShipModelType.Beetle, 2); // two mercenary quarters
   const mercenary = CrewMember.create('Hired Hand', 4, 4, 4, 4);
 
   hire(game, mercenary);

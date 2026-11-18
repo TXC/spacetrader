@@ -187,7 +187,7 @@ function tradeIn(
   price: number,
   rare: ReturnType<typeof rareEquipment>
 ): void {
-  const ship = new Ship(model.type, game.difficulty);
+  const ship = Ship.create(model.type, game.difficulty);
   game.commander.ship.crew.forEach(crewMember => ship.addCrewMember(crewMember));
   rare.kept.forEach(type => ship.addAccessoryOfType(type));
   // Quest cargo stays with the commander. (The reactor never gets here: it blocks the sale.)
