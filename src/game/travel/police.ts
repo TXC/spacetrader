@@ -31,7 +31,13 @@ function policeReaction(game: Game, opponent: Opponent): EncounterType {
   encounterType = EncounterType.PoliceIgnore;
   const policeHaveWeapons = opponent.ship.weapons.length > 0;
 
-  if (game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(game.commander, opponent)) {
+  if (
+    game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(
+      game.commander,
+      opponent,
+      game.difficulty
+    )
+  ) {
     encounterType = EncounterType.PoliceIgnore;
   } else if (game.commander.policeRecordScore < PoliceRecordScore.Dubious) {
     encounterType = policeMeetCriminal(game, opponent, policeHaveWeapons);
@@ -71,7 +77,13 @@ function policeMeetCriminal(
 
   // If you're a criminal, the police will try to attack
   if (!policeHaveWeapons) {
-    if (opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, game.commander)) {
+    if (
+      opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(
+        opponent,
+        game.commander,
+        game.difficulty
+      )
+    ) {
       encounterType = EncounterType.PoliceIgnore;
     } else {
       encounterType = EncounterType.PoliceFlee;
@@ -83,7 +95,9 @@ function policeMeetCriminal(
     Math.floor(game.commander.reputationScore / (1 + opponent.ship.type))
   ) {
     encounterType = EncounterType.PoliceAttack;
-  } else if (opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, game.commander)) {
+  } else if (
+    opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, game.commander, game.difficulty)
+  ) {
     encounterType = EncounterType.PoliceIgnore;
   } else {
     encounterType = EncounterType.PoliceFlee;
@@ -122,7 +136,7 @@ function unlessUnseenOrIgnored(
 
   if (
     noConfrontation &&
-    opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, game.commander)
+    opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, game.commander, game.difficulty)
   ) {
     encounterType = EncounterType.None;
   } else if (noConfrontation && game.alwaysIgnorePolice) {

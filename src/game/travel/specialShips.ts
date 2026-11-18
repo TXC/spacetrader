@@ -10,7 +10,13 @@ export function scarabMeeting(game: Game, opponentType: number): Meeting {
   const opponent = Opponent.generateOpponentWithType(opponentType, game);
   encounterType = EncounterType.ScarabAttack;
 
-  if (game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(game.commander, opponent)) {
+  if (
+    game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(
+      game.commander,
+      opponent,
+      game.difficulty
+    )
+  ) {
     encounterType = EncounterType.ScarabIgnore;
   }
 
@@ -22,7 +28,13 @@ export function dragonflyMeeting(game: Game, opponentType: number): Meeting {
   const opponent = Opponent.generateOpponentWithType(opponentType, game);
   encounterType = EncounterType.DragonflyAttack;
 
-  if (game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(game.commander, opponent)) {
+  if (
+    game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(
+      game.commander,
+      opponent,
+      game.difficulty
+    )
+  ) {
     encounterType = EncounterType.DragonflyIgnore;
   }
 
@@ -34,7 +46,13 @@ export function monsterMeeting(game: Game, opponentType: number): Meeting {
   const opponent = Opponent.generateOpponentWithType(opponentType, game);
   encounterType = EncounterType.MonsterAttack;
 
-  if (game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(game.commander, opponent)) {
+  if (
+    game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(
+      game.commander,
+      opponent,
+      game.difficulty
+    )
+  ) {
     encounterType = EncounterType.MonsterIgnore;
   }
 

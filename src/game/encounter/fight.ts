@@ -137,7 +137,7 @@ function opponentDestroyed(
   ) {
     pLog.log(54);
     getBounty = true;
-    alertString = `You earned a bounty of $${encounter._opponent.ship.bountyForEnemyShipWithOpponent(encounter._opponent)}.`;
+    alertString = `You earned a bounty of $${encounter._opponent.ship.bountyForEnemyShipWithOpponent(encounter._opponent, encounter._game.difficulty)}.`;
   }
 
   const attemptScoop = recordTheKill(encounter, getBounty);
@@ -170,7 +170,10 @@ function recordTheKill(encounter: Encounter, getBounty: boolean): boolean {
   } else if (isEncounterWith(encounter._type, 'Pirate')) {
     if (encounter._opponent.ship.type !== ShipModelType.Mantis) {
       if (getBounty) {
-        const bounty = encounter._opponent.ship.bountyForEnemyShipWithOpponent(encounter._opponent);
+        const bounty = encounter._opponent.ship.bountyForEnemyShipWithOpponent(
+          encounter._opponent,
+          encounter._game.difficulty
+        );
         encounter._game.commander.credits += bounty;
       }
       encounter._game.commander.policeRecordScore += KILL_PIRATE_SCORE;
@@ -265,11 +268,15 @@ function commanderEscapes(
       (runtime.gameRand.randomIntBelow(7) +
         Math.floor(
           encounter._game.commander.ship.crewPilotSkillIncludingCommander(
-            encounter._game.commander
+            encounter._game.commander,
+            encounter._game.difficulty
           ) / 3
         )) >=
     runtime.gameRand.randomIntBelow(
-      encounter._opponent.ship.crewPilotSkillIncludingCommander(encounter._opponent) *
+      encounter._opponent.ship.crewPilotSkillIncludingCommander(
+        encounter._opponent,
+        encounter._game.difficulty
+      ) *
         (2 + encounter._game.difficulty)
     )
   ) {
@@ -307,13 +314,19 @@ function opponentEscapes(
   if (
     4 *
       runtime.gameRand.randomIntBelow(
-        encounter._game.commander.ship.crewPilotSkillIncludingCommander(encounter._game.commander)
+        encounter._game.commander.ship.crewPilotSkillIncludingCommander(
+          encounter._game.commander,
+          encounter._game.difficulty
+        )
       ) <=
     2 *
       runtime.gameRand.randomIntBelow(
         7 +
           Math.floor(
-            encounter._opponent.ship.crewPilotSkillIncludingCommander(encounter._opponent) / 3
+            encounter._opponent.ship.crewPilotSkillIncludingCommander(
+              encounter._opponent,
+              encounter._game.difficulty
+            ) / 3
           )
       )
   ) {
@@ -509,13 +522,15 @@ function executeAttack(
     return false; // Escape unharmed
   }
 
-  if (defenderDodges(attacker, defender, defenderIsFleeing)) {
+  if (defenderDodges(attacker, defender, defenderIsFleeing, encounter._game.difficulty)) {
     return false;
   }
 
   // Ensure we truncate to integer wherever this factor is used
   const ATTACK_SCALE =
-    (100 + 2 * attacker.ship.crewEngineerSkillIncludingCommander(attacker)) / 100;
+    (100 +
+      2 * attacker.ship.crewEngineerSkillIncludingCommander(attacker, encounter._game.difficulty)) /
+    100;
   ensureNumber(ATTACK_SCALE);
 
   const damage = weaponDamage(attacker, defender, ATTACK_SCALE);
@@ -533,17 +548,19 @@ function executeAttack(
 function defenderDodges(
   attacker: Commander | Opponent,
   defender: Commander | Opponent,
-  defenderIsFleeing: boolean
+  defenderIsFleeing: boolean,
+  difficulty: number
 ): boolean {
   const attackDiceRoll = runtime.gameRand.randomIntBelow(
-    attacker.ship.crewFighterSkillIncludingCommander(attacker) + defender.ship.model.size
+    attacker.ship.crewFighterSkillIncludingCommander(attacker, difficulty) +
+      defender.ship.model.size
   );
   ensureInteger(attackDiceRoll);
 
   const dodgeDiceRoll =
     (defenderIsFleeing ? 2 : 1) *
     runtime.gameRand.randomIntBelow(
-      5 + Math.floor(defender.ship.crewPilotSkillIncludingCommander(defender) / 2)
+      5 + Math.floor(defender.ship.crewPilotSkillIncludingCommander(defender, difficulty) / 2)
     );
   ensureInteger(dodgeDiceRoll);
 
@@ -619,7 +636,7 @@ export function damageDefender(
 
   if (damage > 0) {
     damage -= runtime.gameRand.randomIntBelow(
-      defender.ship.crewEngineerSkillIncludingCommander(defender)
+      defender.ship.crewEngineerSkillIncludingCommander(defender, encounter._game.difficulty)
     );
     damage = Math.max(1, damage);
 

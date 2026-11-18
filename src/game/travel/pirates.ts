@@ -15,7 +15,11 @@ export function pirateMeeting(game: Game, opponentType: number): Meeting {
   if (opponentType === OpponentType.Mantis) {
     encounterType = EncounterType.PirateAttack;
   } else if (
-    game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(game.commander, opponent)
+    game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(
+      game.commander,
+      opponent,
+      game.difficulty
+    )
   ) {
     encounterType = EncounterType.PirateIgnore;
   } else if (
@@ -36,7 +40,7 @@ export function pirateMeeting(game: Game, opponentType: number): Meeting {
   // If this isn't a confrontation and we can't see the pirate, skip the encounter
   if (
     noConfrontation &&
-    opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, game.commander)
+    opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, game.commander, game.difficulty)
   ) {
     encounterType = EncounterType.None;
   } else if (noConfrontation && game.alwaysIgnorePirates) {

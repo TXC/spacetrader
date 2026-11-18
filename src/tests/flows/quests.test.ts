@@ -2150,7 +2150,10 @@ test('jarek', () => {
 
   replaySkipEncounters(replay);
 
-  const traderSkillBefore = game.commander.ship.crewTraderSkillIncludingCommander(game.commander);
+  const traderSkillBefore = game.commander.ship.crewTraderSkillIncludingCommander(
+    game.commander,
+    game.difficulty
+  );
 
   replay.replayEvent('Special', 'click');
 
@@ -2164,7 +2167,7 @@ test('jarek', () => {
   assertEqual(game.commander.carriesMaxTraderBoost, true);
   assertEqual(game.commander.ship.crew.length, 0);
   assertEqual(
-    game.commander.ship.crewTraderSkillIncludingCommander(game.commander),
+    game.commander.ship.crewTraderSkillIncludingCommander(game.commander, game.difficulty),
     traderSkillBefore + 1
   );
 
@@ -2175,7 +2178,7 @@ test('jarek', () => {
 
   game2 = assertSurvivesSave(game);
   assertEqual(
-    game2.commander.ship.crewTraderSkillIncludingCommander(game.commander),
+    game2.commander.ship.crewTraderSkillIncludingCommander(game.commander, game.difficulty),
     traderSkillBefore + 1
   );
 

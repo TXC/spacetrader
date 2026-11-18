@@ -404,7 +404,10 @@ export class Commander extends CrewMember {
     let price = this._basePrices![itemType];
     if (price <= 0) return 0;
     price = Math.floor(
-      (price * (103 + (MAX_SKILL_LEVEL - this.ship.crewTraderSkillIncludingCommander(this)))) / 100
+      (price *
+        (103 +
+          (MAX_SKILL_LEVEL - this.ship.crewTraderSkillIncludingCommander(this, this.difficulty)))) /
+        100
     );
     price = Math.max(price, this.sellPriceForItem(itemType) + 1);
 
@@ -419,7 +422,9 @@ export class Commander extends CrewMember {
       accessory.techLevel > this._currentSystem.techLevel
         ? 0
         : Math.floor(
-            (accessory.price * (100 - this.ship.crewTraderSkillIncludingCommander(this))) / 100
+            (accessory.price *
+              (100 - this.ship.crewTraderSkillIncludingCommander(this, this.difficulty))) /
+              100
           );
 
     ensureInteger(price);
@@ -435,7 +440,9 @@ export class Commander extends CrewMember {
 
   buyPriceForShipModel(shipModel: ShipModel) {
     const result = Math.floor(
-      (shipModel.price * (100 - this.ship.crewTraderSkillIncludingCommander(this))) / 100
+      (shipModel.price *
+        (100 - this.ship.crewTraderSkillIncludingCommander(this, this.difficulty))) /
+        100
     );
     ensureInteger(result);
     return result;

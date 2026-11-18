@@ -943,11 +943,15 @@ export class Ship {
     this._hull = Math.max(this._hull, 0);
   }
 
-  shipOwnedByCommanderIsCloakedToOpponent(commander: CrewMember, opponent: ShipOwner) {
+  shipOwnedByCommanderIsCloakedToOpponent(
+    commander: CrewMember,
+    opponent: ShipOwner,
+    difficulty: number
+  ) {
     return (
       this.hasGadgetOfType(AccessoryType.GadgetCloakingDevice) &&
-      this.crewEngineerSkillIncludingCommander(commander) >
-        opponent.ship.crewEngineerSkillIncludingCommander(opponent)
+      this.crewEngineerSkillIncludingCommander(commander, difficulty) >
+        opponent.ship.crewEngineerSkillIncludingCommander(opponent, difficulty)
     );
   }
 
@@ -972,7 +976,7 @@ export class Ship {
     return Math.floor(value);
   }
 
-  _enemyShipValuationWithOpponent(opponent: CrewMember) {
+  _enemyShipValuationWithOpponent(opponent: CrewMember, difficulty: number) {
     // Don't include gadgets since they influnce the skill-based valuation
     let value = [...this.weapons, ...this.shields].reduce(
       (sum, accessory) => sum + accessory.price,
@@ -980,9 +984,9 @@ export class Ship {
     );
     value =
       (value *
-        (2 * this.crewPilotSkillIncludingCommander(opponent) +
-          this.crewEngineerSkillIncludingCommander(opponent) +
-          3 * this.crewFighterSkillIncludingCommander(opponent))) /
+        (2 * this.crewPilotSkillIncludingCommander(opponent, difficulty) +
+          this.crewEngineerSkillIncludingCommander(opponent, difficulty) +
+          3 * this.crewFighterSkillIncludingCommander(opponent, difficulty))) /
       60;
 
     value = Math.floor(value);
@@ -992,8 +996,8 @@ export class Ship {
     return value;
   }
 
-  bountyForEnemyShipWithOpponent(opponent: CrewMember) {
-    let value = this._enemyShipValuationWithOpponent(opponent);
+  bountyForEnemyShipWithOpponent(opponent: CrewMember, difficulty: number) {
+    let value = this._enemyShipValuationWithOpponent(opponent, difficulty);
     value /= 200;
     value /= 25;
     value = Math.floor(value);
@@ -1001,7 +1005,7 @@ export class Ship {
     return Math.min(Math.max(value, 25), 2500);
   }
 
-  crewEngineerSkillIncludingCommander(commander: CrewMember) {
+  crewEngineerSkillIncludingCommander(commander: CrewMember, difficulty: number) {
     let maxSkill = Math.max(
       commander.engineer,
       ...this._crew.map(crewMember => crewMember.engineer)
@@ -1013,10 +1017,10 @@ export class Ship {
 
     ensureInteger(maxSkill);
 
-    return adjustSkillForDifficulty(maxSkill, this._difficulty);
+    return adjustSkillForDifficulty(maxSkill, difficulty);
   }
 
-  crewTraderSkillIncludingCommander(commander: CrewMember) {
+  crewTraderSkillIncludingCommander(commander: CrewMember, difficulty: number) {
     let maxSkill = Math.max(commander.trader, ...this._crew.map(crewMember => crewMember.trader));
 
     if (commander.carriesMaxTraderBoost) {
@@ -1025,10 +1029,10 @@ export class Ship {
 
     ensureInteger(maxSkill);
 
-    return adjustSkillForDifficulty(maxSkill, this._difficulty);
+    return adjustSkillForDifficulty(maxSkill, difficulty);
   }
 
-  crewFighterSkillIncludingCommander(commander: CrewMember) {
+  crewFighterSkillIncludingCommander(commander: CrewMember, difficulty: number) {
     let maxSkill = Math.max(commander.fighter, ...this._crew.map(crewMember => crewMember.fighter));
 
     if (this.hasGadgetOfType(AccessoryType.GadgetTargetingSystem)) {
@@ -1037,10 +1041,10 @@ export class Ship {
 
     ensureInteger(maxSkill);
 
-    return adjustSkillForDifficulty(maxSkill, this._difficulty);
+    return adjustSkillForDifficulty(maxSkill, difficulty);
   }
 
-  crewPilotSkillIncludingCommander(commander: CrewMember) {
+  crewPilotSkillIncludingCommander(commander: CrewMember, difficulty: number) {
     let maxSkill = Math.max(commander.pilot, ...this._crew.map(crewMember => crewMember.pilot));
 
     if (this.hasGadgetOfType(AccessoryType.GadgetNavigationSystem)) {
@@ -1053,7 +1057,7 @@ export class Ship {
 
     ensureInteger(maxSkill);
 
-    return adjustSkillForDifficulty(maxSkill, this._difficulty);
+    return adjustSkillForDifficulty(maxSkill, difficulty);
   }
 
   tradeItemQuantityForType(type: number) {
