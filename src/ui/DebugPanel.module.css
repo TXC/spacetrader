@@ -1,0 +1,10 @@
+.panel {
+  max-width: 100%;
+  margin-top: 3.333rem;
+  word-wrap: break-word;
+}
+
+/* The copy button's line, with an empty line after it. */
+.copy {
+  margin-bottom: var(--space-line);
+}

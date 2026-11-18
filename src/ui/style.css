@@ -234,12 +234,6 @@ nav {
   padding-bottom: 0;
 }
 
-#debug {
-  margin-top: 3.333rem;
-  max-width: 100%;
-  word-wrap: break-word;
-}
-
 .preserve-whitespace {
   white-space: pre-line;
 }
