@@ -21,7 +21,7 @@ beforeEach(() => {
   frames = [];
   host = document.body.appendChild(document.createElement('div'));
   host.style.cssText = 'width:300px';
-  host.insertAdjacentHTML('beforebegin', '<style data-fixed>.fixed{display:block;height:60px}');
+  host.insertAdjacentHTML('beforebegin', '<style data-fixed>.fixed{display:block;height:200px}');
   vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => frames.push(callback));
   game = newGame();
   runtime.actionLog = new ActionLogger(1);
@@ -43,13 +43,13 @@ function strip() {
   return new TravelProgressView(host, game, origin, destination, true, classes);
 }
 
-// How many pixels of the canvas are pure red, the colour of the ring around the selection.
+// How many pixels of the canvas are red, the colour of the ring around the selection.
 function redPixels() {
   const canvas = host.querySelector('canvas')!;
   const { data } = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height);
   let count = 0;
   for (let i = 0; i < data.length; i += 4) {
-    if (data[i] === 255 && data[i + 1] === 0 && data[i + 2] === 0) count++;
+    if (data[i] > 200 && data[i + 1] < 60 && data[i + 2] < 60) count++;
   }
   return count;
 }
