@@ -14,7 +14,7 @@ import { runtime } from './runtime.ts';
 import { CANNOT_SAVE, SAVE_REMOVED, Session } from './session.ts';
 import { setAutoFuel } from './ShipYard.ts';
 import { MockLocalStorage } from '../tests/support/MockLocalStorage.ts';
-import { DebugMode } from './ensure.ts';
+import { DebugMode } from './debug.ts';
 
 let session: Session;
 let storage: MockLocalStorage;

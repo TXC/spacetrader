@@ -1,20 +1,8 @@
 // Checks on values the rules pass around. What a failed check does depends on the debug
 // mode: nothing, an alert, or an exception (which is what the tests use).
 import { AlertViewController } from './alerts.ts';
+import { DebugMode, logStackTrace } from './debug.ts';
 import { runtime } from './runtime.ts';
-
-export const DebugMode = {
-  Disabled: 0,
-  Alert: 1,
-  Assert: 2,
-} as const;
-export type DebugMode = (typeof DebugMode)[keyof typeof DebugMode];
-
-export function logStackTrace() {
-  const stackTrace = new Error().stack;
-  console.log('Log stack trace: ' + stackTrace);
-  return stackTrace;
-}
 
 function handleFatalError(str: string) {
   const stackTrace = logStackTrace();
