@@ -1,4 +1,5 @@
 import { accessoryForType } from './Accessory.ts';
+import type { AccessoryType } from './Accessory.ts';
 import { CrewMember } from './CrewMember.ts';
 import { Ship } from './Ship.ts';
 import type { ShipModel } from './Ship.ts';
@@ -417,7 +418,7 @@ export class Commander extends CrewMember {
     return price;
   }
 
-  buyPriceForAccessory(accessoryType: number) {
+  buyPriceForAccessory(accessoryType: AccessoryType) {
     const accessory = accessoryForType(accessoryType)!;
     const price =
       accessory.techLevel > this._currentSystem.techLevel
@@ -431,7 +432,7 @@ export class Commander extends CrewMember {
     return price;
   }
 
-  sellPriceForAccessory(accessoryType: number) {
+  sellPriceForAccessory(accessoryType: AccessoryType) {
     const result = Math.floor((accessoryForType(accessoryType)!.price * 3) / 4);
     ensureInteger(result);
     return result;
