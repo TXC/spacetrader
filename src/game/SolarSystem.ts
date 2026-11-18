@@ -585,7 +585,7 @@ export class SolarSystem {
     return systemInfo;
   }
 
-  serializedState() {
+  toState() {
     // Filled in field by field below.
     const state = {} as SolarSystemState;
 

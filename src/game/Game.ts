@@ -386,7 +386,7 @@ export class Game {
     }
 
     ensureArrayOrNull(this.solarSystems, 'object');
-    state.solarSystems = this.solarSystems.map(solarSystem => solarSystem.serializedState());
+    state.solarSystems = this.solarSystems.map(solarSystem => solarSystem.toState());
 
     this._lastSave = new Date();
     state.lastSave = this._lastSave;
