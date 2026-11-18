@@ -224,6 +224,18 @@ export class SolarSystem {
     return solarSystems.find(solarSystem => solarSystem._name === name) ?? null;
   }
 
+  // A new system, with its tech level, government, resources, size, status and
+  // inventories drawn at random.
+  static create(name: string, x: number, y: number, difficulty: number): SolarSystem {
+    return new SolarSystem(name, x, y, difficulty);
+  }
+
+  // A system from a saved game, as parseSavedGame checked it. Its wormhole is linked once
+  // every system is loaded.
+  static load(state: SolarSystemState): SolarSystem {
+    return SolarSystem.fromSerializedState(state);
+  }
+
   static fromSerializedState(serializedState: SolarSystemState) {
     const solarSystem = new SolarSystem();
     solarSystem._name = serializedState.name;
