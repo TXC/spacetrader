@@ -65,6 +65,18 @@ import { SAVE_VERSION } from './savedGame.ts';
 import type { GameState } from './savedGame.ts';
 export type { GameState };
 
+const SPECIAL_SQR_DISTANCE = 70 * 70;
+
+// The nearest system without a special event that is at least SPECIAL_SQR_DISTANCE away; of
+// several equally near, the first in `candidates`.
+function nearestFreeSystem(origin: SolarSystem, candidates: SolarSystem[]) {
+  return candidates
+    .filter(other => other.getSpecialEvent() === SpecialEvent.None)
+    .map(other => ({ other, distance: origin.squaredDistanceTo(other) }))
+    .filter(({ distance }) => distance >= SPECIAL_SQR_DISTANCE)
+    .sort((a, b) => a.distance - b.distance)[0]?.other;
+}
+
 export class Game {
   // `new Game()` with no commander returns an empty shell that fromSerializedState() fills in.
   // `_remainingRareEvents` is typed as always set, but is unset until the game is set up.
@@ -504,53 +516,19 @@ export class Game {
     this._findSolarSystem('Utopia')!.setSpecialEvent(SpecialEvent.MoonBought);
     this._findSolarSystem('Devidia')!.setSpecialEvent(SpecialEvent.JarekGetsOut);
 
-    const SPECIAL_SQR_DISTANCE = 70 * 70;
     const gemulon = this._findSolarSystem('Gemulon')!;
     gemulon.setSpecialEvent(SpecialEvent.GemulonRescued);
-    let bestDistance = Infinity;
-    let rescueSystem = null as SolarSystem | null;
     // Perform search in reverse to prefer systems without wormholes
     const solarSystemsReversed = this.solarSystems.slice().reverse();
-    solarSystemsReversed.forEach(other => {
-      if (other.getSpecialEvent() === SpecialEvent.None) {
-        const distance = gemulon.squaredDistanceTo(other);
-        if (distance >= SPECIAL_SQR_DISTANCE && distance < bestDistance) {
-          rescueSystem = other;
-          bestDistance = distance;
-        }
-      }
-    });
-    rescueSystem!.setSpecialEvent(SpecialEvent.AlienInvasion);
+    nearestFreeSystem(gemulon, solarSystemsReversed)!.setSpecialEvent(SpecialEvent.AlienInvasion);
 
     const daled = this._findSolarSystem('Daled')!;
     daled.setSpecialEvent(SpecialEvent.ExperimentStopped);
-    bestDistance = Infinity;
-    let experimentSystem = null as SolarSystem | null;
-    solarSystemsReversed.forEach(other => {
-      if (other.getSpecialEvent() === SpecialEvent.None) {
-        const distance = daled.squaredDistanceTo(other);
-        if (distance >= SPECIAL_SQR_DISTANCE && distance < bestDistance) {
-          experimentSystem = other;
-          bestDistance = distance;
-        }
-      }
-    });
-    experimentSystem!.setSpecialEvent(SpecialEvent.Experiment);
+    nearestFreeSystem(daled, solarSystemsReversed)!.setSpecialEvent(SpecialEvent.Experiment);
 
     const nix = this._findSolarSystem('Nix')!;
     nix.setSpecialEvent(SpecialEvent.ReactorDelivered);
-    bestDistance = Infinity;
-    let getReactorSystem = null as SolarSystem | null;
-    solarSystemsReversed.forEach(other => {
-      if (other.getSpecialEvent() === SpecialEvent.None) {
-        const distance = nix.squaredDistanceTo(other);
-        if (distance >= SPECIAL_SQR_DISTANCE && distance < bestDistance) {
-          getReactorSystem = other;
-          bestDistance = distance;
-        }
-      }
-    });
-    getReactorSystem!.setSpecialEvent(SpecialEvent.GetReactor);
+    nearestFreeSystem(nix, solarSystemsReversed)!.setSpecialEvent(SpecialEvent.GetReactor);
 
     const wormholeSystemsSpecial = this.solarSystems.slice(0, WORMHOLE_COUNT);
     while (wormholeSystemsSpecial.length > 0) {
@@ -563,15 +541,13 @@ export class Game {
       wormholeSystemsSpecial.splice(randomIndex, 1);
     }
 
-    for (const highTech of solarSystemsReversed) {
-      if (
-        highTech.getSpecialEvent() === SpecialEvent.None &&
-        highTech.techLevel >= TechLevel.HighTech
-      ) {
-        highTech.setSpecialEvent(SpecialEvent.ArtifactDelivered);
-        eventsToPlace.push(SpecialEvent.AlienArtifact);
-        break;
-      }
+    const highTech = solarSystemsReversed.find(
+      system =>
+        system.getSpecialEvent() === SpecialEvent.None && system.techLevel >= TechLevel.HighTech
+    );
+    if (highTech) {
+      highTech.setSpecialEvent(SpecialEvent.ArtifactDelivered);
+      eventsToPlace.push(SpecialEvent.AlienArtifact);
     }
 
     for (const eventSystem of solarSystemsReversed) {
@@ -611,26 +587,18 @@ export class Game {
     let squaredFuel = this.commander.ship.fuel;
     squaredFuel *= squaredFuel;
 
-    for (let i = this.solarSystems.length - 1; i >= 0; i--) {
-      const startSystem = this.solarSystems[i];
-      if (
-        startSystem.getSpecialEvent() === SpecialEvent.None &&
-        startSystem.techLevel >= TechLevel.Agricultural &&
-        startSystem.techLevel < TechLevel.PostIndustrial
-      ) {
-        let nearbyCount = 0;
-        for (let j = 0; j < this.solarSystems.length; j++) {
-          const nearbySystem = this.solarSystems[j];
-          if (startSystem.squaredDistanceTo(nearbySystem) <= squaredFuel) {
-            nearbyCount++;
-            if (nearbyCount >= 3) {
-              this.commander.getCurrentSystem().setVisited(false);
-              this.commander.setCurrentSystem(startSystem);
-              return;
-            }
-          }
-        }
-      }
+    const inRangeOf = (system: SolarSystem) =>
+      this.solarSystems.filter(other => system.squaredDistanceTo(other) <= squaredFuel);
+    const startSystem = this.solarSystems.findLast(
+      system =>
+        system.getSpecialEvent() === SpecialEvent.None &&
+        system.techLevel >= TechLevel.Agricultural &&
+        system.techLevel < TechLevel.PostIndustrial &&
+        inRangeOf(system).length >= 3
+    );
+    if (startSystem) {
+      this.commander.getCurrentSystem().setVisited(false);
+      this.commander.setCurrentSystem(startSystem);
     }
   }
 
@@ -662,22 +630,13 @@ export class Game {
   }
 
   solarSystemsWithinRange() {
-    const result: SolarSystem[] = [];
-    let squaredFuel = this.commander.ship.fuel;
-    squaredFuel *= squaredFuel;
-
-    if (this.commander.getCurrentSystem().wormhole) {
-      result.push(this.commander.getCurrentSystem().wormhole!);
-    }
-
-    for (let i = 0; i < this.solarSystems.length; i++) {
-      const nearbySystem = this.solarSystems[i];
-      if (
-        this.commander.getCurrentSystem() !== nearbySystem &&
-        this.commander.getCurrentSystem().squaredDistanceTo(nearbySystem) <= squaredFuel
-      ) {
-        result.push(nearbySystem);
-      }
+    const current = this.commander.getCurrentSystem();
+    const squaredFuel = this.commander.ship.fuel ** 2;
+    const result = this.solarSystems.filter(
+      system => system !== current && current.squaredDistanceTo(system) <= squaredFuel
+    );
+    if (current.wormhole) {
+      result.unshift(current.wormhole);
     }
 
     Utils.ensureArrayOrNull(result, 'object');
