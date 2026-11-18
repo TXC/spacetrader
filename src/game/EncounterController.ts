@@ -5,8 +5,6 @@ import {
   KILL_POLICE_SCORE,
   KILL_TRADER_SCORE,
   MAX_SKILL_LEVEL,
-  PLUNDER_PIRATE_SCORE,
-  PLUNDER_TRADER_SCORE,
   PoliceRecordScore,
   ReputationScore,
 } from './Commander.ts';
@@ -44,6 +42,7 @@ import { trade } from './encounter/actions/trade.ts';
 import { surrender } from './encounter/actions/surrender.ts';
 import { bribe } from './encounter/actions/bribe.ts';
 import { submit } from './encounter/actions/submit.ts';
+import { plunder } from './encounter/actions/plunder.ts';
 import { captainFor } from './encounter/captains.ts';
 import {
   EncounterMode,
@@ -351,41 +350,7 @@ export class EncounterController {
     } else if (action === 'Submit') {
       if (!submit(this)) return;
     } else if (action === 'Plunder' || action === 'Board') {
-      const plunderBlock = () => {
-        const plunderLabel =
-          this._type === EncounterType.MarieCelesteEncounter ? 'Take' : 'Plunder';
-
-        const plunderVC = new Plunder(this._game, this._opponent, plunderLabel);
-        plunderVC.delegate = this;
-        plunderVC.presentView();
-      };
-
-      if (this._type === EncounterType.MarieCelesteEncounter) {
-        const alertString =
-          "The Marie Celeste is completely abandoned and drifting through space. The ship's log is unremarkable except for a tribble infestation a few months ago shortly after visiting Lowry. The crew's quarters are in good shape, with no signs of struggle. Other than being abandoned, the ship is completely normal. By Intergalactic Salvage Law, you can claim the remaining cargo. Do you wish to?";
-
-        const aC = new AlertViewController(alertString);
-
-        aC.addAction('Yes, take cargo', AlertActionType.Default, () => {
-          plunderBlock();
-        });
-
-        aC.addAction('Leave it', AlertActionType.Cancel, () => {
-          this.listener.continues(false);
-        });
-
-        this._presentAlertController(aC);
-
-        return;
-      } else if (isEncounterWith(this._type, 'Trader')) {
-        this._game.commander.policeRecordScore =
-          this._game.commander.policeRecordScore + PLUNDER_TRADER_SCORE;
-      } else {
-        this._game.commander.policeRecordScore =
-          this._game.commander.policeRecordScore + PLUNDER_PIRATE_SCORE;
-      }
-
-      plunderBlock();
+      if (!plunder(this)) return;
     } else if (action === 'Meet') {
       const alertString = captainFor(this._type).prompt;
 
