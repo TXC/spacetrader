@@ -111,7 +111,12 @@ export class CrewMember {
 
   // A crew member from a saved game, as parseSavedGame checked it.
   static load(this: typeof CrewMember, state: CrewMemberState): CrewMember {
-    return new CrewMember({
+    return new CrewMember(CrewMember.savedFields(state));
+  }
+
+  // A saved crew member's fields; a commander is saved with these too.
+  protected static savedFields(state: CrewMemberState): CrewMemberFields {
+    return {
       name: state.name || null,
       engineer: state.engineer,
       pilot: state.pilot,
@@ -120,7 +125,7 @@ export class CrewMember {
       forQuest: state.forQuest,
       carriesMaxTraderBoost: state.carriesMaxTraderBoost,
       freeMercenaryCost: state.freeMercenaryCost,
-    });
+    };
   }
 
   randomizeAttributes(rand = runtime.gameRand) {
