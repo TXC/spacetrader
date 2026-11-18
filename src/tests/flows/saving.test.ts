@@ -50,7 +50,7 @@ test('saveLoad', () => {
   const gameUniqueID = Object.keys(saveGames)[0];
   ensureType(gameUniqueID, 'string');
 
-  const sg = Game.fromSerializedState(saveGames[gameUniqueID]);
+  const sg = Game.load(saveGames[gameUniqueID]);
   assertEqual(sg.commander.name, 'Jean-Luc');
   assertEqual(sg.endStatus, GameEndStatus.None);
 
@@ -78,7 +78,7 @@ test('saveLoad', () => {
   assertEqual(Object.keys(highScoreGames).length, 1);
 
   // Check that the saved high score game looks valid
-  const sg2 = Game.fromSerializedState(highScoreGames[gameUniqueID]);
+  const sg2 = Game.load(highScoreGames[gameUniqueID]);
   assertEqual(sg2.commander.name, 'Jean-Luc');
   assertEqual(sg2.endStatus, GameEndStatus.Retired);
 });

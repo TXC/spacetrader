@@ -183,7 +183,7 @@ export class Session extends Store {
   // A save can pass the check and still not make sense to the rules.
   private load(state: GameState): boolean {
     try {
-      const game = Game.fromSerializedState(state);
+      const game = Game.load(state);
       pLog.log(67);
       this.watch(game);
       this.game = game;

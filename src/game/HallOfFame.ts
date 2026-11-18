@@ -44,7 +44,7 @@ export function scoreMessage(game: Game, inProgress: boolean, scores: Scores): s
 // rebuilt; a record that cannot be rebuilt has no line.
 function entry(saved: GameState): string | null {
   try {
-    return entryFor(Game.fromSerializedState(saved));
+    return entryFor(Game.load(saved));
   } catch {
     return null;
   }
