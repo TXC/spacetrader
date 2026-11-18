@@ -16,7 +16,7 @@ export function buildOpponent(type: OpponentType, game: Game): Opponent {
   ensureType(game, 'object');
 
   let opponent: Opponent;
-  const difficulty = game.commander.difficulty;
+  const difficulty = game.difficulty;
   ensureInteger(difficulty);
 
   if (type === OpponentType.FamousCaptain) {

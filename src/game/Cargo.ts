@@ -29,10 +29,10 @@ function prices(game: Game, view: CargoView, type: number) {
   const { commander } = game;
   const base = view.baseSystem;
   return {
-    buy: base ? base.standardPriceForItem(type) : commander.buyPriceForItem(type),
+    buy: base ? base.standardPriceForItem(type) : commander.buyPriceForItem(type, game.difficulty),
     sell: base ? base.standardPriceForItem(type) : commander.sellPriceForItem(type),
     average: base
-      ? commander.buyPriceForItem(type)
+      ? commander.buyPriceForItem(type, game.difficulty)
       : commander.ship.tradeItemAverageBuyingPriceForType(type),
   };
 }
@@ -61,14 +61,14 @@ export function cargoRows(game: Game, view: CargoView): CargoRow[] {
 
 export function buyCargo(game: Game, type: number, quantity: number): 'ok' | 'debtTooLarge' {
   if (game.commander.debtIsTooLargeToBuy()) return 'debtTooLarge';
-  game.commander.attemptPurchaseOfItem(type, quantity);
+  game.commander.attemptPurchaseOfItem(type, quantity, game.difficulty);
   game.save();
   game.changed();
   return 'ok';
 }
 
 export function sellCargo(game: Game, type: number, quantity: number): void {
-  game.commander.attemptSaleOfItem(type, quantity, false);
+  game.commander.attemptSaleOfItem(type, quantity, false, game.difficulty);
   game.save();
   game.changed();
 }

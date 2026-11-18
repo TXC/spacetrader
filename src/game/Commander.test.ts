@@ -86,7 +86,7 @@ test.each([
   commander.policeRecordScore = record;
   commander.days = day - 1;
 
-  commander.timePassed(1);
+  commander.timePassed(1, difficulty);
 
   expect(commander.policeRecordScore).toBe(after);
 });

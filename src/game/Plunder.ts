@@ -128,6 +128,6 @@ export class Plunder {
         score > PoliceRecordScore.Dubious ? PoliceRecordScore.Dubious : score - 1;
       game.addBreakingNewsItem(`Police Trace Orbiting Space Litter to ${game.commander.name}.`);
     }
-    game.commander.attemptSaleOfItem(type, quantity, true);
+    game.commander.attemptSaleOfItem(type, quantity, true, game.difficulty);
   }
 }

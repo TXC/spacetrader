@@ -772,7 +772,7 @@ export class Game {
   timePassed(days: number) {
     ensureInteger(days);
 
-    this.commander.timePassed(days);
+    this.commander.timePassed(days, this.difficulty);
 
     if (
       this.invasionStatus >= InvasionQuestStatus.DaysUntilInvasion._7 &&

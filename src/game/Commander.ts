@@ -400,13 +400,12 @@ export class Commander extends CrewMember {
     return price;
   }
 
-  buyPriceForItem(itemType: number) {
+  buyPriceForItem(itemType: number, difficulty: number) {
     let price = this._basePrices![itemType];
     if (price <= 0) return 0;
     price = Math.floor(
       (price *
-        (103 +
-          (MAX_SKILL_LEVEL - this.ship.crewTraderSkillIncludingCommander(this, this.difficulty)))) /
+        (103 + (MAX_SKILL_LEVEL - this.ship.crewTraderSkillIncludingCommander(this, difficulty)))) /
         100
     );
     price = Math.max(price, this.sellPriceForItem(itemType) + 1);
@@ -416,14 +415,14 @@ export class Commander extends CrewMember {
     return price;
   }
 
-  buyPriceForAccessory(accessoryType: AccessoryType) {
+  buyPriceForAccessory(accessoryType: AccessoryType, difficulty: number) {
     const accessory = accessoryForType(accessoryType)!;
     const price =
       accessory.techLevel > this._currentSystem.techLevel
         ? 0
         : Math.floor(
             (accessory.price *
-              (100 - this.ship.crewTraderSkillIncludingCommander(this, this.difficulty))) /
+              (100 - this.ship.crewTraderSkillIncludingCommander(this, difficulty))) /
               100
           );
 
@@ -438,10 +437,9 @@ export class Commander extends CrewMember {
     return result;
   }
 
-  buyPriceForShipModel(shipModel: ShipModel) {
+  buyPriceForShipModel(shipModel: ShipModel, difficulty: number) {
     const result = Math.floor(
-      (shipModel.price *
-        (100 - this.ship.crewTraderSkillIncludingCommander(this, this.difficulty))) /
+      (shipModel.price * (100 - this.ship.crewTraderSkillIncludingCommander(this, difficulty))) /
         100
     );
     ensureInteger(result);
@@ -532,32 +530,36 @@ export class Commander extends CrewMember {
     }
   }
 
-  attemptPurchaseOfItem(itemType: number, quantity: number) {
+  attemptPurchaseOfItem(itemType: number, quantity: number, difficulty: number) {
     if (ensureInteger(itemType) && ensureInteger(quantity)) {
       let actualBuyAmount = Math.min(
         quantity,
         this._currentSystem.tradeItemQuantityForType(itemType)
       );
       actualBuyAmount = Math.min(actualBuyAmount, this.ship.freeCargoBays());
-      const buyPrice = this.buyPriceForItem(itemType);
+      const buyPrice = this.buyPriceForItem(itemType, difficulty);
       if (buyPrice > 0) {
         actualBuyAmount = Math.min(actualBuyAmount, Math.floor(this.spendingMoney() / buyPrice));
       } else {
         actualBuyAmount = 0;
       }
 
-      this.ship.boughtQuantity(actualBuyAmount, itemType, this.buyPriceForItem(itemType));
-      this.credits -= actualBuyAmount * this.buyPriceForItem(itemType);
+      this.ship.boughtQuantity(
+        actualBuyAmount,
+        itemType,
+        this.buyPriceForItem(itemType, difficulty)
+      );
+      this.credits -= actualBuyAmount * this.buyPriceForItem(itemType, difficulty);
       this._currentSystem.boughtQuantity(actualBuyAmount, itemType);
     }
   }
 
-  attemptSaleOfItem(itemType: number, quantity: number, forceDump: boolean) {
+  attemptSaleOfItem(itemType: number, quantity: number, forceDump: boolean, difficulty: number) {
     if (ensureInteger(itemType) && ensureInteger(quantity) && ensureBool(forceDump)) {
       let actualSellAmount = Math.min(quantity, this.ship.tradeItemQuantityForType(itemType));
 
       const isDumping = forceDump || this.sellPriceForItem(itemType) === 0;
-      const dumpPenalty = 5 * (this.difficulty + 1);
+      const dumpPenalty = 5 * (difficulty + 1);
       if (isDumping) {
         actualSellAmount = Math.min(
           actualSellAmount,
@@ -616,7 +618,7 @@ export class Commander extends CrewMember {
     }
   }
 
-  timePassed(days: number) {
+  timePassed(days: number, difficulty: number) {
     if (!ensureInteger(days)) {
       return;
     }
@@ -631,7 +633,7 @@ export class Commander extends CrewMember {
         this.policeRecordScore--;
       }
     } else if (this.policeRecordScore < PoliceRecordScore.Dubious) {
-      if (this.difficulty <= Difficulty.Normal || this.days % this.difficulty === 0) {
+      if (difficulty <= Difficulty.Normal || this.days % difficulty === 0) {
         this.policeRecordScore++;
       }
     }
