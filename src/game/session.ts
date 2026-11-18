@@ -56,6 +56,9 @@ const ROW_PROBES: Partial<Record<Row, number>> = {
 };
 
 export type NavRow = { row: Row; icon: string };
+// What the landing screen hears besides a change: it was built afresh, or a sub-screen was
+// opened afresh. It then draws what that concerns from scratch.
+export type Afresh = 'presented' | 'opened';
 type SavedGames = Record<string, GameState>;
 
 export const CANNOT_SAVE =
@@ -78,12 +81,21 @@ export class Session extends Store {
   // landing screen is shown and when the local mercenary is fired, not on every change.
   navRows: NavRow[] = [];
   activeRow: Row | null = null; // the highlighted navigation link
-  opened = 0; // goes up each time a sub-screen is opened afresh
-  presented = 0; // goes up each time the landing screen is rebuilt
   selection: { system: SolarSystem | null; wormhole: boolean } = { system: null, wormhole: false };
   warpSelected: SolarSystem | null = null;
   news: News | null = null;
   travel: Travel | null = null;
+  private afreshListeners = new Set<(what: Afresh) => void>();
+
+  // The landing screen listens while it is shown.
+  onAfresh = (listener: (what: Afresh) => void): (() => void) => {
+    this.afreshListeners.add(listener);
+    return () => this.afreshListeners.delete(listener);
+  };
+
+  private afresh(what: Afresh): void {
+    this.afreshListeners.forEach(listener => listener(what));
+  }
 
   // ---- starting, saving and loading -------------------------------------------------
 
@@ -244,7 +256,7 @@ export class Session extends Store {
     this.row = null;
     this.activeRow = null;
     this.travel = null;
-    this.presented++;
+    this.afresh('presented');
     // A special event can end the game (buying the moon); then there is nothing to show.
     if (this.game) this.buildNavRows();
   }
@@ -282,7 +294,7 @@ export class Session extends Store {
   openRow = (row: Row): void => {
     const game = this.game!;
     this.row = row;
-    this.opened++;
+    this.afresh('opened');
     const probe = ROW_PROBES[row];
     if (probe !== undefined) pLog.log(probe);
     if (row === 'Chart') presentChart(game);
@@ -343,7 +355,7 @@ export class Session extends Store {
   singularity = (system: SolarSystem): void => {
     pLog.log(23);
     this.row = 'Warp';
-    this.opened++;
+    this.afresh('opened');
     this.warpSelected = null;
     this.changed();
     this.beginWarp(true, system);

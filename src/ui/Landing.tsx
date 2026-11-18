@@ -1,7 +1,7 @@
-import { Fragment } from 'react';
+import { Fragment, useLayoutEffect, useState } from 'react';
 import type { Game } from '../game/Game.ts';
 import { GameEndStatus } from '../game/Game.types.ts';
-import type { NavRow } from '../game/session.ts';
+import type { NavRow, Session } from '../game/session.ts';
 import { Bank } from './Bank.tsx';
 import { BuySellCargo } from './BuySellCargo.tsx';
 import { CommanderStatus } from './CommanderStatus.tsx';
@@ -39,12 +39,12 @@ function NavLink({ link }: { link: NavRow }) {
 }
 
 // The map and the navigation links. Hidden while travelling.
-function Options({ game }: Props) {
+function Options({ game, presented }: Props & { presented: number }) {
   const session = useSession();
   return (
     <div id="systemLandingOptionsDiv">
       <GalaxyMap
-        key={session.presented}
+        key={presented}
         game={game}
         zoomed
         selected={game.commander.currentSystem}
@@ -121,19 +121,33 @@ function SubScreen({ game }: Props) {
   }
 }
 
+// How often, while the landing screen is shown, it was built afresh and a sub-screen was
+// opened afresh. What they key starts over each time.
+class AfreshCounts {
+  presented = 0;
+  opened = 0;
+}
+
+function useAfreshCounts(session: Session): AfreshCounts {
+  const [counts] = useState(() => new AfreshCounts());
+  useLayoutEffect(() => session.onAfresh(what => counts[what]++), [session, counts]);
+  return counts;
+}
+
 // The planet hub: map, navigation, and the open sub-screen. During a trip only the
 // trip is shown.
 export function Landing({ game }: Props) {
   const session = useSession();
+  const { presented, opened } = useAfreshCounts(session);
   const travel = session.travel;
   return (
     <div id="systemLandingDiv" className={styles.landing}>
-      {!travel && <Options game={game} />}
+      {!travel && <Options game={game} presented={presented} />}
       <div id="systemLandingSubContentDiv">
         {travel ? (
-          <TravelScreen key={session.opened} travel={travel} />
+          <TravelScreen key={opened} travel={travel} />
         ) : (
-          <Fragment key={`${session.presented}-${session.opened}`}>
+          <Fragment key={`${presented}-${opened}`}>
             <SubScreen game={game} />
           </Fragment>
         )}
