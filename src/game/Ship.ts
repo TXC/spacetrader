@@ -436,7 +436,7 @@ export function shipModelForType(type: number): ShipModel {
 }
 
 export class Ship {
-  declare _type: ShipModelType;
+  declare type: ShipModelType;
   declare _difficulty: number;
   declare _fuel: number;
   declare _hull: number;
@@ -444,9 +444,9 @@ export class Ship {
   declare _currentShieldPower: number;
   declare _cargoBuyingPrice: Map<number, number>;
   declare _cargo: Map<number, number>;
-  declare _weapons: Weapon[];
-  declare _shields: Shield[];
-  declare _gadgets: Gadget[];
+  declare weapons: Weapon[];
+  declare shields: Shield[];
+  declare gadgets: Gadget[];
   declare _crew: CrewMember[];
   declare tribbles: number;
 
@@ -454,7 +454,7 @@ export class Ship {
     if (type >= SHIP_MODEL_COUNT) {
       return;
     }
-    this._type = type as ShipModelType;
+    this.type = type as ShipModelType;
     this._difficulty = difficulty!;
     this._fuel = shipModelForType(type).fuelTanks;
     this._hull = this._hullStrength();
@@ -462,9 +462,9 @@ export class Ship {
     this._currentShieldPower = 0;
     this._cargoBuyingPrice = new Map();
     this._cargo = new Map();
-    this._weapons = [];
-    this._shields = [];
-    this._gadgets = [];
+    this.weapons = [];
+    this.shields = [];
+    this.gadgets = [];
     this._crew = [];
     this.tribbles = 0;
   }
@@ -502,17 +502,17 @@ export class Ship {
     const ship = new Ship(type, previousShip._difficulty);
 
     if (previousShip) {
-      for (const accessory of previousShip._weapons) {
+      for (const accessory of previousShip.weapons) {
         if (!ship.addWeaponOfType(accessory.type)) {
           break;
         }
       }
-      for (const accessory of previousShip._shields) {
+      for (const accessory of previousShip.shields) {
         if (!ship.addShieldOfType(accessory.type)) {
           break;
         }
       }
-      for (const accessory of previousShip._gadgets) {
+      for (const accessory of previousShip.gadgets) {
         if (!ship.addGadgetOfType(accessory.type)) {
           break;
         }
@@ -541,7 +541,7 @@ export class Ship {
     const ship = new Ship(SHIP_MODEL_COUNT);
 
     ship._upgradedHull = serializedState.upgradedHull;
-    ship._type = serializedState.type as ShipModelType;
+    ship.type = serializedState.type as ShipModelType;
     ship._difficulty = serializedState.difficulty;
     ship._fuel = serializedState.fuel;
     ship._hull = serializedState.hull;
@@ -578,7 +578,7 @@ export class Ship {
       });
     }
 
-    ship._weapons = [];
+    ship.weapons = [];
     if (serializedState.weaponTypes) {
       serializedState.weaponTypes.forEach(accessoryType => {
         ensureInteger(accessoryType);
@@ -586,7 +586,7 @@ export class Ship {
       });
     }
 
-    ship._shields = [];
+    ship.shields = [];
     if (serializedState.shieldTypes) {
       serializedState.shieldTypes.forEach(accessoryType => {
         ensureInteger(accessoryType);
@@ -597,7 +597,7 @@ export class Ship {
     // Set this after adding shields to correct the current shield power
     ship._currentShieldPower = serializedState.currentShieldPower;
 
-    ship._gadgets = [];
+    ship.gadgets = [];
     if (serializedState.gadgetTypes) {
       serializedState.gadgetTypes.forEach(accessoryType => {
         ensureInteger(accessoryType);
@@ -608,33 +608,16 @@ export class Ship {
     return ship;
   }
 
-  // Accessors
-  get type() {
-    return this._type;
-  }
-
-  get gadgets() {
-    return this._gadgets;
-  }
-
-  get weapons() {
-    return this._weapons;
-  }
-
-  get shields() {
-    return this._shields;
-  }
-
   get gadgetSlots() {
-    return shipModelForType(this._type).gadgetSlots;
+    return shipModelForType(this.type).gadgetSlots;
   }
 
   get weaponSlots() {
-    return shipModelForType(this._type).weaponSlots;
+    return shipModelForType(this.type).weaponSlots;
   }
 
   get shieldSlots() {
-    return shipModelForType(this._type).shieldSlots;
+    return shipModelForType(this.type).shieldSlots;
   }
 
   // Static method to get crew member by name
@@ -650,7 +633,7 @@ export class Ship {
 
   // Method to add a crew member
   addCrewMember(crew: CrewMember) {
-    if (this._crew.length >= shipModelForType(this._type).mercenaryQuarters()) {
+    if (this._crew.length >= shipModelForType(this.type).mercenaryQuarters()) {
       return false;
     }
 
@@ -709,7 +692,7 @@ export class Ship {
 
   // Private method to calculate hull strength
   _hullStrength() {
-    const baseStrength = shipModelForType(this._type).hullStrength;
+    const baseStrength = shipModelForType(this.type).hullStrength;
     const result = baseStrength + (this._upgradedHull ? 50 : 0);
     ensureInteger(result);
     return result;
@@ -741,7 +724,7 @@ export class Ship {
 
   // Method to calculate weapon power within a range
   weaponPowerBetweenMinMaxInclusive(min: number, max: number) {
-    const power = this._weapons
+    const power = this.weapons
       .filter(weapon => weapon.type >= min && weapon.type <= max)
       .reduce((sum, weapon) => sum + weapon.power, 0);
 
@@ -761,19 +744,19 @@ export class Ship {
 
   // Method to count gadgets of a specific type
   countGadgetOfType(gadgetType: AccessoryType, limitOne: boolean) {
-    const count = this._gadgets.filter(gadget => gadget.type === gadgetType).length;
+    const count = this.gadgets.filter(gadget => gadget.type === gadgetType).length;
     return limitOne ? Math.min(count, 1) : count;
   }
 
   // Method to check if the ship has a shield of a specific type
   hasShieldOfType(type: AccessoryType) {
-    return this._shields && this._shields.includes(shieldForType(type)!);
+    return this.shields && this.shields.includes(shieldForType(type)!);
   }
 
   // Method to check if the ship has any shields
   hasAnyShield() {
-    ensureType(this._shields, 'object');
-    return this._shields.length !== 0;
+    ensureType(this.shields, 'object');
+    return this.shields.length !== 0;
   }
 
   // Method to calculate free slots for an accessory type
@@ -782,14 +765,14 @@ export class Ship {
     let accessories: Accessory[] = [];
 
     if (shieldForType(type)) {
-      totalSlots = shipModelForType(this._type).shieldSlots;
-      accessories = this._shields;
+      totalSlots = shipModelForType(this.type).shieldSlots;
+      accessories = this.shields;
     } else if (gadgetForType(type)) {
-      totalSlots = shipModelForType(this._type).gadgetSlots;
-      accessories = this._gadgets;
+      totalSlots = shipModelForType(this.type).gadgetSlots;
+      accessories = this.gadgets;
     } else if (weaponForType(type)) {
-      totalSlots = shipModelForType(this._type).weaponSlots;
-      accessories = this._weapons;
+      totalSlots = shipModelForType(this.type).weaponSlots;
+      accessories = this.weapons;
     }
 
     ensureInteger(totalSlots);
@@ -819,10 +802,10 @@ export class Ship {
 
   // Method to remove an accessory of a specific type
   removeAccessoryOfType(type: AccessoryType) {
-    if (this._removeType(type, this._gadgets) || this._removeType(type, this._weapons)) return true;
-    if (!this._removeType(type, this._shields)) return false;
+    if (this._removeType(type, this.gadgets) || this._removeType(type, this.weapons)) return true;
+    if (!this._removeType(type, this.shields)) return false;
     // A shield takes its charge with it: the rest cannot hold more than their own power.
-    const most = this._shields.reduce((sum, shield) => sum + shield.power, 0);
+    const most = this.shields.reduce((sum, shield) => sum + shield.power, 0);
     this._currentShieldPower = Math.min(this._currentShieldPower, most);
     return true;
   }
@@ -831,11 +814,11 @@ export class Ship {
   addShieldOfType(type: AccessoryType) {
     const shield = shieldForType(type);
 
-    if (!shield || this._shields.length >= shipModelForType(this._type).shieldSlots) {
+    if (!shield || this.shields.length >= shipModelForType(this.type).shieldSlots) {
       return false;
     }
 
-    this._shields.push(shield);
+    this.shields.push(shield);
     this._currentShieldPower += shield.power;
 
     return true;
@@ -845,11 +828,11 @@ export class Ship {
   addWeaponOfType(type: AccessoryType) {
     const weapon = weaponForType(type);
 
-    if (!weapon || this._weapons.length >= shipModelForType(this._type).weaponSlots) {
+    if (!weapon || this.weapons.length >= shipModelForType(this.type).weaponSlots) {
       return false;
     }
 
-    this._weapons.push(weapon);
+    this.weapons.push(weapon);
 
     return true;
   }
@@ -858,11 +841,11 @@ export class Ship {
   addGadgetOfType(type: AccessoryType) {
     const gadget = gadgetForType(type);
 
-    if (!gadget || this._gadgets.length >= shipModelForType(this._type).gadgetSlots) {
+    if (!gadget || this.gadgets.length >= shipModelForType(this.type).gadgetSlots) {
       return false;
     }
 
-    this._gadgets.push(gadget);
+    this.gadgets.push(gadget);
 
     return true;
   }
@@ -870,7 +853,7 @@ export class Ship {
   fuelTankCapacity() {
     return this.hasGadgetOfType(AccessoryType.GadgetFuelCompactor)
       ? 18
-      : shipModelForType(this._type).fuelTanks;
+      : shipModelForType(this.type).fuelTanks;
   }
 
   get currentShieldPower() {
@@ -908,7 +891,7 @@ export class Ship {
   }
 
   rechargeShieldPower() {
-    this._currentShieldPower = this._shields.reduce((sum, shield) => sum + shield.power, 0);
+    this._currentShieldPower = this.shields.reduce((sum, shield) => sum + shield.power, 0);
   }
 
   rechargeShieldPowerByAmount(amount: number) {
@@ -985,7 +968,7 @@ export class Ship {
 
   shipValuationForInsurance(insurance: boolean) {
     let value = 0;
-    const model = shipModelForType(this._type);
+    const model = shipModelForType(this.type);
     const resalePrice = (x: number) => Math.floor((x * 3) / 4);
 
     value +=
@@ -994,7 +977,7 @@ export class Ship {
     value -= (this._hullStrength() - this._hull) * model.repairCosts;
     value -= (model.fuelTanks - this._fuel) * model.costOfFuel;
 
-    value += [...this._weapons, ...this._shields, ...this._gadgets].reduce(
+    value += [...this.weapons, ...this.shields, ...this.gadgets].reduce(
       (sum, accessory) => sum + resalePrice(accessory.price),
       0
     );
@@ -1006,9 +989,9 @@ export class Ship {
 
   _enemyShipValuationWithOpponent(opponent: CrewMember) {
     // Don't include gadgets since they influnce the skill-based valuation
-    let value = [...this._weapons, ...this._shields].reduce(
+    let value = [...this.weapons, ...this.shields].reduce(
       (sum, accessory) => sum + accessory.price,
-      shipModelForType(this._type).price
+      shipModelForType(this.type).price
     );
     value =
       (value *
@@ -1195,7 +1178,7 @@ export class Ship {
 
   totalCargoBays() {
     const extraCount = this.countGadgetOfType(AccessoryType.GadgetFiveExtraCargoBays, false);
-    const result = shipModelForType(this._type).cargoBays + 5 * extraCount;
+    const result = shipModelForType(this.type).cargoBays + 5 * extraCount;
     ensureInteger(result);
     return result;
   }
@@ -1214,11 +1197,11 @@ export class Ship {
   }
 
   costOfFuel() {
-    return shipModelForType(this._type).costOfFuel;
+    return shipModelForType(this.type).costOfFuel;
   }
 
   get model() {
-    return shipModelForType(this._type);
+    return shipModelForType(this.type);
   }
 
   hasIllegalGoods() {
@@ -1238,8 +1221,8 @@ export class Ship {
     state.upgradedHull = this._upgradedHull;
 
     // char
-    ensureInteger(this._type);
-    state.type = this._type;
+    ensureInteger(this.type);
+    state.type = this.type;
 
     ensureInteger(this._difficulty);
     state.difficulty = this._difficulty;
@@ -1287,21 +1270,21 @@ export class Ship {
     }
 
     // NSArray
-    ensureArrayOrNull(this._weapons, 'object');
-    if (this._weapons.length) {
-      state.weaponTypes = this._weapons.map(weapon => weapon.type);
+    ensureArrayOrNull(this.weapons, 'object');
+    if (this.weapons.length) {
+      state.weaponTypes = this.weapons.map(weapon => weapon.type);
       ensureArrayOrNull(state.weaponTypes, 'number');
     }
 
-    ensureArrayOrNull(this._shields, 'object');
-    if (this._shields.length) {
-      state.shieldTypes = this._shields.map(shield => shield.type);
+    ensureArrayOrNull(this.shields, 'object');
+    if (this.shields.length) {
+      state.shieldTypes = this.shields.map(shield => shield.type);
       ensureArrayOrNull(state.shieldTypes, 'number');
     }
 
-    ensureArrayOrNull(this._gadgets, 'object');
-    if (this._gadgets.length) {
-      state.gadgetTypes = this._gadgets.map(gadget => gadget.type);
+    ensureArrayOrNull(this.gadgets, 'object');
+    if (this.gadgets.length) {
+      state.gadgetTypes = this.gadgets.map(gadget => gadget.type);
       ensureArrayOrNull(state.gadgetTypes, 'number');
     }
 
