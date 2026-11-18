@@ -34,6 +34,8 @@ export function ShipView({ ship, enemy, fade, leaving, animate }: Props) {
   const visible = appeared && !leaving;
   // The bars slide when the ship is hit, not when it first appears at its first widths.
   const slide = animate && appeared ? ' ' + styles.sliding : '';
+  // Ids must be unique: a ship fading out leaves them to the one that replaced it.
+  const id = (name: string) => (leaving ? undefined : name);
   return (
     <div
       className={fade ? `${styles.ship} ${styles.fading}` : styles.ship}
@@ -43,12 +45,12 @@ export function ShipView({ ship, enemy, fade, leaving, animate }: Props) {
       <ShipPicture model={ship.model} flipped={enemy} />
       <div
         className={styles.hull}
-        id={`battle-hpContainer-${side}-${ship.model.name}`}
+        id={id(`battle-hpContainer-${side}-${ship.model.name}`)}
         style={{ visibility: ship.model.hullStrength === 0 ? 'hidden' : 'visible' }}
       >
         <div
           className={styles.hullFill + slide}
-          id={`battle-hpBar-${side}`}
+          id={id(`battle-hpBar-${side}`)}
           style={{ width: share(ship.hullPercentage()) }}
         />
       </div>

@@ -1,5 +1,7 @@
 import { expect, onTestFinished, test } from 'vitest';
+import { AccessoryType } from '../game/Accessory.ts';
 import { alertStore, AlertViewController } from '../game/alerts.ts';
+import { Ship, ShipModelType } from '../game/Ship.ts';
 import { runReplayLog } from './flows/harness.ts';
 import { textOf } from './support/page.ts';
 
@@ -89,4 +91,17 @@ test('the bank does not show the same amount on two buttons', () => {
 
   const ids = [...document.querySelectorAll('#game button')].map(button => button.id);
   expect(ids.length).toBe(new Set(ids).size);
+});
+
+test('two identical pieces of equipment have sell buttons with different ids', () => {
+  const replay = runReplayLog(LANDED);
+  const { commander } = replay.session.game!;
+  commander.ship = new Ship(ShipModelType.Hornet, 2); // three weapon slots
+  commander.ship.addAccessoryOfType(AccessoryType.WeaponPulseLaser);
+  commander.ship.addAccessoryOfType(AccessoryType.WeaponPulseLaser);
+  replay.replayEvent('Equipment', 'click');
+
+  const ids = [...document.querySelectorAll('#game [id^="sell_"]')].map(button => button.id);
+  // The first keeps the id that recordings press; the second gets a number.
+  expect(ids).toEqual(['sell_Pulse_laser', 'sell_Pulse_laser_2']);
 });
