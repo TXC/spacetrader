@@ -9,6 +9,7 @@ import type { Game } from './Game.ts';
 import type { Opponent } from './Opponent.ts';
 import { runtime } from './runtime.ts';
 import { ACTIONS } from './encounter/actions/index.ts';
+import { encounterButtons } from './encounter/buttons.ts';
 import { captainFor } from './encounter/captains.ts';
 import {
   EncounterMode,
@@ -18,7 +19,6 @@ import {
   isEncounterWith,
   isFleeEncounter,
   isIgnoreEncounter,
-  isOneOf,
 } from './encounter/types.ts';
 import type { ActionName, EncounterListener } from './encounter/types.ts';
 
@@ -165,114 +165,7 @@ export class EncounterController {
   }
 
   encounterButtons(): ActionName[] {
-    const buttons: ActionName[] = [];
-
-    ensureInteger(this._encounterMode);
-
-    if (isAutoMode(this._encounterMode)) {
-      buttons.push('Interrupt');
-    }
-
-    if (this._type === EncounterType.PoliceInspection) {
-      buttons.push('Attack', 'Flee', 'Submit', 'Bribe');
-    } else if (
-      isOneOf(
-        this._type,
-        EncounterType.PoliceFlee,
-        EncounterType.TraderFlee,
-        EncounterType.PirateFlee
-      )
-    ) {
-      buttons.push('Attack', 'Ignore');
-    } else if (
-      isOneOf(
-        this._type,
-        EncounterType.PirateAttack,
-        EncounterType.PoliceAttack,
-        EncounterType.ScarabAttack
-      )
-    ) {
-      buttons.push('Attack', 'Flee', 'Surrender');
-    } else if (
-      isOneOf(
-        this._type,
-        EncounterType.TraderAttack,
-        EncounterType.MonsterAttack,
-        EncounterType.DragonflyAttack
-      ) ||
-      (isEncounterWith(this._type, 'FamousCaptain') && isAttackEncounter(this._type))
-    ) {
-      buttons.push('Attack', 'Flee');
-    } else if (
-      isOneOf(
-        this._type,
-        EncounterType.TraderIgnore,
-        EncounterType.PoliceIgnore,
-        EncounterType.PirateIgnore,
-        EncounterType.ScarabIgnore,
-        EncounterType.MonsterIgnore,
-        EncounterType.DragonflyIgnore
-      )
-    ) {
-      buttons.push('Attack', 'Ignore');
-    } else if (isOneOf(this._type, EncounterType.TraderSurrender, EncounterType.PirateSurrender)) {
-      buttons.push('Attack', 'Plunder');
-    } else if (isOneOf(this._type, EncounterType.TraderSell, EncounterType.TraderBuy)) {
-      buttons.push('Attack', 'Ignore', 'Trade');
-    } else if (isEncounterWith(this._type, 'FamousCaptain') && !isAttackEncounter(this._type)) {
-      buttons.push('Attack', 'Ignore', 'Meet');
-    } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
-      buttons.push('Attack', 'Flee', 'Yield', 'Bribe');
-    } else if (this._type === EncounterType.MarieCelesteEncounter) {
-      buttons.push('Board', 'Ignore');
-    } else if (isOneOf(this._type, EncounterType.BottleGood, EncounterType.BottleOld)) {
-      buttons.push('Drink', 'Ignore');
-    }
-
-    const encounterClass = this.constructor as typeof EncounterController;
-    encounterClass._addAutoFor('Attack', buttons);
-    encounterClass._addAutoFor('Flee', buttons);
-
-    encounterClass._pruneActionsFor(
-      this._encounterMode === EncounterMode.AutoFlee
-        ? 'Flee'
-        : this._encounterMode === EncounterMode.AutoAttack
-          ? 'Attack'
-          : null,
-      buttons
-    );
-
-    return buttons;
-  }
-
-  static _pruneActionsFor(toPrune: string | null, buttons: ActionName[]) {
-    if (!toPrune) {
-      return;
-    }
-
-    const toRemoveIndexes: number[] = [];
-    buttons.forEach((label, idx) => {
-      if (label.endsWith(toPrune)) {
-        toRemoveIndexes.push(idx);
-      }
-    });
-
-    for (let i = toRemoveIndexes.length - 1; i >= 0; i--) {
-      buttons.splice(toRemoveIndexes[i], 1);
-    }
-  }
-
-  static _addAutoFor(label: 'Attack' | 'Flee', buttons: ActionName[]) {
-    let addIndex = -1;
-    buttons.forEach((buttonLabel, idx) => {
-      if (buttonLabel === label) {
-        addIndex = idx;
-      }
-    });
-
-    if (addIndex !== -1) {
-      buttons.splice(addIndex + 1, 0, `Auto-${label}`);
-    }
+    return encounterButtons(this);
   }
 
   // The owner has let go of this encounter, so it is not told that the buttons changed.
