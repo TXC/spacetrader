@@ -220,9 +220,7 @@ export class Game {
     instance._remainingRareEvents = [...serializedState.remainingRareEvents];
     ensureArrayOrNull(instance._remainingRareEvents, 'number');
 
-    instance.solarSystems = serializedState.solarSystems.map(ss =>
-      SolarSystem.fromSerializedState(ss)
-    );
+    instance.solarSystems = serializedState.solarSystems.map(ss => SolarSystem.load(ss));
 
     instance.solarSystems.forEach((solarSystem, idx) => {
       solarSystem.updateWormholeForSerializedState(
