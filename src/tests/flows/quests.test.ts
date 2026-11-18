@@ -1194,11 +1194,7 @@ test('ionReactor_early', () => {
 
   replay.replayEvent('Warp', 'click');
   replay.replayEvent('warpBlastOff', 'click');
-  // The first two opponents get away.
-  replay.replayEvent('ecButton_Auto_Attack', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
-  replay.replayEvent('ecButton_Auto_Attack', 'click');
-  replay.replayEvent('alertButton_Dismiss', 'click');
+  // Morgan's laser destroys the first opponent met.
   replay.replayEvent('ecButton_Auto_Attack', 'click');
   assertEqual(AlertViewController.currentAlertTitle(), 'You have destroyed your opponent.');
   replay.replayEvent('alertButton_Dismiss', 'click');

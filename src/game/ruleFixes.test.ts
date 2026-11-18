@@ -6,6 +6,7 @@ import { alertStore } from './alerts.ts';
 import { Encounter } from './encounter/Encounter.ts';
 import { performTradeWithAmount } from './encounter/actions/trade.ts';
 import { arrest } from './encounter/arrest.ts';
+import { damageDefender } from './encounter/fight.ts';
 import { EncounterType } from './encounter/types.ts';
 import type { EncounterListener } from './encounter/types.ts';
 import { GameRand } from './GameRand.ts';
@@ -18,7 +19,12 @@ import { runtime } from './runtime.ts';
 import { Ship, shipModelForType, ShipModelType } from './Ship.ts';
 import { hire } from './Roster.ts';
 import { buyEscapePod, buyShip, kEscapePodPrice } from './ShipYard.ts';
-import { JaporiQuestStatus, ReactorQuestStatus, WildQuestStatus } from './SolarSystem.types.ts';
+import {
+  Difficulty,
+  JaporiQuestStatus,
+  ReactorQuestStatus,
+  WildQuestStatus,
+} from './SolarSystem.types.ts';
 import {
   FAKE_QUEST_CARGO,
   FAKE_QUEST_CARGO_REACTOR,
@@ -409,4 +415,26 @@ test('Q5: the damage roll in a fight has a whole number as its limit', () => {
   const limits = rolls.mock.calls.flat();
   expect(limits).toContain(15); // a laser's 15, scaled to 15.9 by the engineer
   expect(limits.filter(limit => !Number.isInteger(limit))).toEqual([]);
+});
+
+// The original multiplies a hit by the reactor's factor and then drops the fraction
+// (Encounter.c:825-833). The port dropped the fraction of the factor first, so the reactor
+// added nothing below Hard.
+test.each([
+  [Difficulty.Beginner, 12], // 10 * 1.25
+  [Difficulty.Easy, 15], // 10 * 1.5
+  [Difficulty.Normal, 19], // 10 * 1.99
+  [Difficulty.Hard, 23], // 10 * 2.32
+  [Difficulty.Absurd, 26], // 10 * 2.65
+])('Q11: with the reactor aboard, a hit of 10 at difficulty %i does %i', (difficulty, hit) => {
+  const game = newGame(difficulty);
+  game.reactorStatus = ReactorQuestStatus.DaysRemaining._20;
+  const { commander } = game;
+  const before = commander.ship.hull;
+  const police = Opponent.generateOpponentWithType(OpponentType.Police, game);
+  vi.spyOn(runtime.gameRand, 'randomIntBelow').mockReturnValue(0); // no engineer's luck
+
+  damageDefender(encounter(game, EncounterType.PoliceAttack, police), commander, 10, true);
+
+  expect(before - commander.ship.hull).toBe(hit);
 });

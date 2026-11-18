@@ -114,6 +114,7 @@ decision on the rules more than they need work.
 | 2026-11-18 | All | Stacked pull requests | Order in `docs/superpowers/plans/2026-11-18-review-roadmap.md`. |
 | 2026-11-18 | Q7 | Fix, with a generator of his own | Extending the placement loop breaks 117 tests; a separate generator for Yorvick breaks none. The original game does the same for its newspaper. |
 | 2026-11-18 | Q5 | Fix the damage roll, last | Only the damage roll matters: it breaks 19 tests from about eight recordings. The tribble roll breaks none. The repair roll already gives the original's result and is not a bug. |
+| 2026-11-18 | Q11 | Fix | Found during step 15: carrying the reactor multiplies a hit by a factor such as 1.99, and the port dropped the factor's fraction first. Fixed to keep the fraction, as in the original (`Encounter.c:825-833`). |
 
 ## 3. Rule bugs
 
