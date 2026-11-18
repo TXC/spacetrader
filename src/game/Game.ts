@@ -270,7 +270,7 @@ export class Game {
   // A game from a saved game, as parseSavedGame checked it, with its wormholes linked.
   static load(state: GameState): Game {
     const breakingNews = Game.savedNews(state.breakingNews);
-    const solarSystems = state.solarSystems.map(ss => SolarSystem.load(ss, state.difficulty));
+    const solarSystems = state.solarSystems.map(ss => SolarSystem.load(ss));
     solarSystems.forEach((solarSystem, idx) => {
       const wormholeName = state.solarSystems[idx].wormholeName;
       solarSystem.wormhole = SolarSystem.solarSystemForName(wormholeName, solarSystems);
@@ -784,7 +784,7 @@ export class Game {
         gemulon.specialEvent = SpecialEvent.GemulonInvaded;
         gemulon.techLevel = TechLevel.PreAgricultural;
         gemulon.politics = politicsForType(PoliticsType.Anarchy);
-        gemulon.updateInventories();
+        gemulon.updateInventories(this.difficulty);
         pLog.log(134);
       }
     }
@@ -847,7 +847,7 @@ export class Game {
   }
 
   updateInventories() {
-    this.solarSystems.forEach(solarSystem => solarSystem.updateInventories());
+    this.solarSystems.forEach(solarSystem => solarSystem.updateInventories(this.difficulty));
   }
 
   specialCargoDescription() {

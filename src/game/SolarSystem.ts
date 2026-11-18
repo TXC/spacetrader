@@ -38,7 +38,6 @@ type SolarSystemFields = {
   name: string;
   x: number;
   y: number;
-  difficulty: number;
   mercenary: CrewMember | null;
   wormhole: SolarSystem | null;
   specialEvent: SpecialEvent;
@@ -65,7 +64,6 @@ export class SolarSystem {
   readonly name: string;
   readonly x: number;
   readonly y: number;
-  private readonly _difficulty: number;
   mercenary: CrewMember | null;
   wormhole: SolarSystem | null;
   specialEvent: SpecialEvent;
@@ -82,7 +80,6 @@ export class SolarSystem {
     this.name = fields.name;
     this.x = fields.x;
     this.y = fields.y;
-    this._difficulty = fields.difficulty;
     this.mercenary = fields.mercenary;
     this.wormhole = fields.wormhole;
     this.specialEvent = fields.specialEvent;
@@ -248,7 +245,6 @@ export class SolarSystem {
       name,
       x,
       y,
-      difficulty,
       mercenary: null,
       wormhole: null,
       specialEvent: SpecialEvent.None,
@@ -262,18 +258,17 @@ export class SolarSystem {
       tradeItemInventory: Array<number>(TRADE_ITEM_COUNT).fill(0),
     });
     system.randomizeStatus();
-    system._initializeInventories();
+    system._initializeInventories(difficulty);
     return system;
   }
 
   // A system from a saved game, as parseSavedGame checked it. Its wormhole is linked once
   // every system is loaded.
-  static load(state: SolarSystemState, difficulty: number): SolarSystem {
+  static load(state: SolarSystemState): SolarSystem {
     return new SolarSystem({
       name: state.name,
       x: state.x,
       y: state.y,
-      difficulty,
       mercenary: state.mercenary ? CrewMember.load(state.mercenary) : null,
       wormhole: null,
       specialEvent: state.specialEvent as SpecialEvent,
@@ -317,7 +312,7 @@ export class SolarSystem {
     return hash;
   }
 
-  _initializeInventories() {
+  _initializeInventories(difficulty: number) {
     this._tradeItemInventory = Array<number>(TRADE_ITEM_COUNT).fill(0);
     for (let itemType = 0; itemType < TRADE_ITEM_COUNT; ++itemType) {
       const item = tradeItemForType(itemType);
@@ -335,9 +330,8 @@ export class SolarSystem {
 
       if (itemType === TradeItemType.Robots || itemType === TradeItemType.Narcotics) {
         this._tradeItemInventory[itemType] =
-          Math.floor(
-            (this._tradeItemInventory[itemType] * (5 - this._difficulty)) / (6 - this._difficulty)
-          ) + 1;
+          Math.floor((this._tradeItemInventory[itemType] * (5 - difficulty)) / (6 - difficulty)) +
+          1;
       }
 
       if (item.cheapResource !== Resource.None) {
@@ -446,12 +440,12 @@ export class SolarSystem {
     return !cantProduceItem;
   }
 
-  updateInventories() {
+  updateInventories(difficulty: number) {
     if (this._inventoryReplenishCountdown > 0) {
       this._inventoryReplenishCountdown--;
 
       if (this._inventoryReplenishCountdown <= 0) {
-        this._initializeInventories();
+        this._initializeInventories(difficulty);
       } else {
         for (let itemType = 0; itemType < TRADE_ITEM_COUNT; ++itemType) {
           if (!this._canProduceItem(itemType)) {
