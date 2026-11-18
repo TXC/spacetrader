@@ -1,6 +1,6 @@
 import { runtime } from './game/runtime.ts';
 import type { Session } from './game/session.ts';
-import { DebugMode } from './game/ensure.ts';
+import { DebugMode } from './game/debug.ts';
 import styles from './App.module.css';
 import { AlertHost } from './ui/AlertHost.tsx';
 import { DebugPanel } from './ui/DebugPanel.tsx';

@@ -1,4 +1,4 @@
-import { logStackTrace } from './ensure.ts';
+import { logStackTrace } from './debug.ts';
 
 export class GameRand {
   declare randHigh: number;

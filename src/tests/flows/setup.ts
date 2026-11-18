@@ -3,7 +3,7 @@
 import { afterAll, afterEach, beforeAll, expect, type RunnerTestSuite } from 'vitest';
 import { AlertViewController } from '../../game/alerts.ts';
 import { runtime } from '../../game/runtime.ts';
-import { DebugMode } from '../../game/ensure.ts';
+import { DebugMode } from '../../game/debug.ts';
 import { pLog } from '../../game/probes.ts';
 import { unmountAll } from './harness.ts';
 import knownMissing from './probes.json';

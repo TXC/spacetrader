@@ -3,7 +3,7 @@ import { borrow, borrowable, payBack, steps, toggleInsurance } from './Bank.ts';
 import { Game } from './Game.ts';
 import { GameRand } from './GameRand.ts';
 import { runtime } from './runtime.ts';
-import { DebugMode } from './ensure.ts';
+import { DebugMode } from './debug.ts';
 
 let game: Game;
 
