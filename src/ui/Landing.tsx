@@ -50,7 +50,7 @@ function Options({ game }: Props) {
         selected={game.commander.currentSystem}
         wormhole={false}
         onSelect={session.mapSelected}
-        viewRef={session.setMap}
+        selection={session.selection}
       />
       <ul id="subVCButtonsDiv" className={styles.navigation}>
         {session.navRows.map(link => (

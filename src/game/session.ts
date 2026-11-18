@@ -61,8 +61,6 @@ type SavedGames = Record<string, GameState>;
 export const CANNOT_SAVE =
   'Your game cannot be saved in this browser right now. You can keep playing, but your progress will be lost when you close the page.';
 export const SAVE_REMOVED = 'A saved game could not be read and was removed.';
-// The part of the map the session needs: a way to move its selection.
-export type MapHandle = { selectSystem(system: SolarSystem, wormhole: boolean): void };
 
 export class Session extends Store {
   game: Game | null = null;
@@ -84,14 +82,8 @@ export class Session extends Store {
   presented = 0; // goes up each time the landing screen is rebuilt
   selection: { system: SolarSystem | null; wormhole: boolean } = { system: null, wormhole: false };
   warpSelected: SolarSystem | null = null;
-  map: MapHandle | null = null;
   news: News | null = null;
   travel: Travel | null = null;
-
-  // The map tells the session how to reach it when it appears, and that it is gone.
-  setMap = (map: MapHandle | null): void => {
-    this.map = map;
-  };
 
   // ---- starting, saving and loading -------------------------------------------------
 
@@ -301,8 +293,8 @@ export class Session extends Store {
     this.changed();
   };
 
-  // With nothing picked yet, picks the nearest system on the map; the map then reports
-  // the pick, which opens the warp screen again. Returns true when that happened.
+  // With nothing picked yet, picks the nearest system, which the map then shows, and opens
+  // the warp screen again. Returns true when that happened.
   private pickWarpDestination(game: Game): boolean {
     if (!this.selection.system) {
       const current = game.commander.currentSystem;
@@ -310,7 +302,7 @@ export class Session extends Store {
       const viaWormhole = !!nearest && current.wormhole === nearest;
       this.selection = { system: viaWormhole ? current : nearest, wormhole: viaWormhole };
       if (this.selection.system) {
-        this.map!.selectSystem(this.selection.system, this.selection.wormhole);
+        this.mapSelected(this.selection.system, this.selection.wormhole);
         return true;
       }
     }
@@ -324,7 +316,7 @@ export class Session extends Store {
     return wormhole ? system!.wormhole : system;
   };
 
-  // The player picked a system on the map.
+  // A system was picked for the map's selection, on the map or by the session.
   mapSelected = (system: SolarSystem, wormhole: boolean): void => {
     this.selection = { system, wormhole };
     this.activeRow = 'Warp';
@@ -335,7 +327,7 @@ export class Session extends Store {
   warpSelect = (system: SolarSystem): void => {
     const current = this.game!.commander.currentSystem;
     const viaWormhole = current.wormhole === system;
-    this.map!.selectSystem(viaWormhole ? current : system, viaWormhole);
+    this.mapSelected(viaWormhole ? current : system, viaWormhole);
   };
 
   fuelBought = (): void => {
