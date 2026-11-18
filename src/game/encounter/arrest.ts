@@ -11,7 +11,6 @@ import {
   reactorAboard,
 } from '../SolarSystem.types.ts';
 import { TradeItemType, FAKE_QUEST_CARGO, FAKE_QUEST_CARGO_REACTOR } from '../TradeItem.types.ts';
-import { ensureInteger } from '../ensure.ts';
 import { pLog } from '../probes.ts';
 import type { Encounter } from './Encounter.ts';
 
@@ -20,7 +19,6 @@ export function arrest(encounter: Encounter): void {
   const fine = arrestFine(encounter);
 
   const imprisonment = Math.max(30, -encounter._game.commander.policeRecordScore);
-  ensureInteger(imprisonment);
 
   let alertString = `You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to ${imprisonment} days in prison and a fine of $${fine}.`;
 
@@ -56,7 +54,6 @@ function arrestFine(encounter: Encounter): number {
           500
       )) *
     500;
-  ensureInteger(fine);
 
   if (encounter._game.wildStatus === WildQuestStatus.OnBoard) {
     fine = Math.floor(fine * 1.05);

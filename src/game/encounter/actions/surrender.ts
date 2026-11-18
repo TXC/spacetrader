@@ -3,7 +3,6 @@ import { PoliceRecordScore } from '../../Commander.ts';
 import { OpponentType } from '../../opponent/Opponent.ts';
 import { WildQuestStatus, reactorAboard } from '../../SolarSystem.types.ts';
 import { TradeItemType, NO_TRADE_ITEM } from '../../TradeItem.types.ts';
-import { ensureBool, ensureInteger } from '../../ensure.ts';
 import { pLog } from '../../probes.ts';
 import { EncounterType, isEncounterWith } from '../types.ts';
 import { arrest } from '../arrest.ts';
@@ -20,8 +19,6 @@ type Terms = {
 // The commander gives up. Returns whether the automatic action may repeat afterwards.
 export function surrender(encounter: Encounter): boolean {
   const { surrenderAllowed, surrenderPrompt, surrenderBlock } = surrenderTerms(encounter);
-
-  ensureBool(surrenderAllowed);
 
   if (surrenderAllowed) {
     if (surrenderPrompt) {
@@ -191,8 +188,6 @@ function surrenderToPirates(encounter: Encounter): void {
     encounter._game.commander.ship.totalCargoBays() -
     encounter._game.commander.ship.freeCargoBays();
 
-  ensureInteger(totalCargo);
-
   if (totalCargo <= 0) {
     payBlackmail(encounter, questString, wildString);
   } else {
@@ -222,7 +217,6 @@ function payBlackmail(encounter: Encounter, questString: string, wildString: str
     25000,
     Math.max(500, Math.floor(encounter._game.commander.netWorth() / 20))
   );
-  ensureInteger(blackmail);
 
   let credits = encounter._game.commander.credits;
   let debt = encounter._game.commander.debt;
@@ -249,7 +243,6 @@ function payBlackmail(encounter: Encounter, questString: string, wildString: str
 
 function loseCargo(encounter: Encounter, questString: string, wildString: string | null): void {
   let freePirateBays = encounter._opponent.ship.freeCargoBays();
-  ensureInteger(freePirateBays);
 
   while (freePirateBays > 0) {
     const itemType = encounter._game.commander.ship.randomTradeableItem();
