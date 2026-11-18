@@ -438,7 +438,6 @@ export function shipModelForType(type: number): ShipModel {
 // Everything a ship is made of.
 type ShipFields = {
   type: ShipModelType;
-  difficulty: number;
   fuel: number;
   hull: number;
   upgradedHull: boolean;
@@ -465,7 +464,6 @@ function savedMap(keys: number[], values: number[]): Map<number, number> {
 
 export class Ship {
   readonly type: ShipModelType;
-  private readonly _difficulty: number;
   private _fuel: number;
   private _hull: number;
   private _upgradedHull: boolean;
@@ -480,7 +478,6 @@ export class Ship {
 
   private constructor(fields: ShipFields) {
     this.type = fields.type;
-    this._difficulty = fields.difficulty;
     this._fuel = fields.fuel;
     this._hull = fields.hull;
     this._upgradedHull = fields.upgradedHull;
@@ -495,11 +492,10 @@ export class Ship {
   }
 
   // A new ship of this model: full tanks, a whole hull, and nothing on board.
-  static create(model: ShipModelType, difficulty: number): Ship {
+  static create(model: ShipModelType): Ship {
     const { fuelTanks, hullStrength } = shipModelForType(model);
     return new Ship({
       type: model,
-      difficulty,
       fuel: fuelTanks,
       hull: hullStrength,
       upgradedHull: false,
@@ -516,10 +512,9 @@ export class Ship {
 
   // A ship from a saved game, as parseSavedGame checked it. A crew member who is also a
   // system's mercenary is that same mercenary.
-  static load(state: ShipState, solarSystems: SolarSystem[], difficulty: number): Ship {
+  static load(state: ShipState, solarSystems: SolarSystem[]): Ship {
     const ship = new Ship({
       type: state.type as ShipModelType,
-      difficulty,
       fuel: state.fuel,
       hull: state.hull,
       upgradedHull: state.upgradedHull,
@@ -560,10 +555,8 @@ export class Ship {
     });
   }
 
-  static bestShipWithDifficulty(difficulty: number) {
-    ensureInteger(difficulty);
-
-    const ship = Ship.create(ShipModelType.Best, difficulty);
+  static bestShipWithDifficulty() {
+    const ship = Ship.create(ShipModelType.Best);
 
     while (ship.addShieldOfType(AccessoryType.ShieldLastBuyable)) {
       /* until every slot is full */
@@ -579,7 +572,7 @@ export class Ship {
   }
 
   static createFromPreviousShip(type: ShipModelType, previousShip: Ship) {
-    const ship = Ship.create(type, previousShip._difficulty);
+    const ship = Ship.create(type);
 
     if (previousShip) {
       for (const accessory of previousShip.weapons) {

@@ -20,7 +20,7 @@ export function buildOpponent(type: OpponentType, game: Game): Opponent {
   ensureInteger(difficulty);
 
   if (type === OpponentType.FamousCaptain) {
-    opponent = famousCaptain(type, difficulty);
+    opponent = famousCaptain(type);
   } else if (type === OpponentType.Dragonfly) {
     opponent = dragonfly(difficulty);
   } else if (type === OpponentType.Scarab) {
@@ -28,7 +28,7 @@ export function buildOpponent(type: OpponentType, game: Game): Opponent {
   } else if (type === OpponentType.Monster) {
     opponent = monster(game, difficulty);
   } else if (type === OpponentType.Bottle) {
-    opponent = bottle(game);
+    opponent = bottle();
   } else {
     opponent = ordinaryOpponent(type, game);
   }
@@ -36,8 +36,8 @@ export function buildOpponent(type: OpponentType, game: Game): Opponent {
   return opponent;
 }
 
-function famousCaptain(type: OpponentType, difficulty: number): Opponent {
-  const ship = Ship.bestShipWithDifficulty(difficulty);
+function famousCaptain(type: OpponentType): Opponent {
+  const ship = Ship.bestShipWithDifficulty();
   return Opponent.captain(
     type,
     MAX_SKILL_LEVEL,
@@ -49,7 +49,7 @@ function famousCaptain(type: OpponentType, difficulty: number): Opponent {
 }
 
 function dragonfly(difficulty: number): Opponent {
-  const ship = Ship.create(ShipModelType.Dragonfly, difficulty);
+  const ship = Ship.create(ShipModelType.Dragonfly);
   ship.addShieldOfType(AccessoryType.ShieldLightning);
   ship.addShieldOfType(AccessoryType.ShieldLightning);
   ship.addShieldOfType(AccessoryType.ShieldLightning);
@@ -68,7 +68,7 @@ function dragonfly(difficulty: number): Opponent {
 }
 
 function scarab(difficulty: number): Opponent {
-  const ship = Ship.create(ShipModelType.Scarab, difficulty);
+  const ship = Ship.create(ShipModelType.Scarab);
   ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
   ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
   return Opponent.captain(
@@ -82,7 +82,7 @@ function scarab(difficulty: number): Opponent {
 }
 
 function monster(game: Game, difficulty: number): Opponent {
-  const ship = Ship.create(ShipModelType.SpaceMonster, difficulty);
+  const ship = Ship.create(ShipModelType.SpaceMonster);
   const currentHull = ship.hull;
   ship.damageHullByAmount(currentHull - game.monsterHull);
   ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
@@ -98,8 +98,8 @@ function monster(game: Game, difficulty: number): Opponent {
   );
 }
 
-function bottle(game: Game): Opponent {
-  const ship = Ship.create(ShipModelType.Bottle, game.difficulty);
+function bottle(): Opponent {
+  const ship = Ship.create(ShipModelType.Bottle);
   return Opponent.captain(OpponentType.Bottle, 0, 0, 0, 0, ship);
 }
 
@@ -116,7 +116,7 @@ function ordinaryOpponent(type: OpponentType, game: Game): Opponent {
   ensureInteger(chosenShipType);
   ensureInteger(game.difficulty);
 
-  const ship = Ship.create(chosenShipType, game.difficulty);
+  const ship = Ship.create(chosenShipType);
   const model = shipModelForType(chosenShipType);
 
   const tries = equipmentTries(type, game);

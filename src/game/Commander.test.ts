@@ -41,7 +41,7 @@ test.each([
   ['a Flea', ShipModelType.Flea, 90, 1],
 ])('insurance for %s after %i days without a claim costs $%i a day', (_, model, days, price) => {
   const { commander } = newGame();
-  commander.ship = Ship.create(model, Difficulty.Normal);
+  commander.ship = Ship.create(model);
   commander.noClaim = days;
 
   expect(commander.insurancePrice()).toBe(price);

@@ -10,8 +10,8 @@ afterEach(() => vi.useRealTimers());
 // new one fades in. For the fade to show, the old ship must stay the same element.
 test('a departing opponent stays on the page, fading, for two seconds', () => {
   vi.useFakeTimers();
-  const first = Ship.create(ShipModelType.Gnat, 2);
-  const second = Ship.create(ShipModelType.Firefly, 2);
+  const first = Ship.create(ShipModelType.Gnat);
+  const second = Ship.create(ShipModelType.Firefly);
   const { host, root } = render(<Opponents ship={first} />);
   flushSync(() => vi.advanceTimersByTime(20));
   const firstView = host.querySelector('[data-ship]')!;
@@ -32,7 +32,7 @@ test('a departing opponent stays on the page, fading, for two seconds', () => {
 test('two opponents leaving in quick succession are each removed in their own time', () => {
   vi.useFakeTimers();
   const ships = [ShipModelType.Gnat, ShipModelType.Firefly, ShipModelType.Mosquito].map(type =>
-    Ship.create(type, 2)
+    Ship.create(type)
   );
   const { host, root } = render(<Opponents ship={ships[0]} />);
   const count = () => host.querySelectorAll('[data-ship]').length;
@@ -52,7 +52,7 @@ test('two opponents leaving in quick succession are each removed in their own ti
 // the hull bar and its frame, not the ones still fading out.
 test('only the current opponent carries the hull bar ids', () => {
   const ships = [ShipModelType.Gnat, ShipModelType.Gnat, ShipModelType.Firefly].map(type =>
-    Ship.create(type, 2)
+    Ship.create(type)
   );
   const { host, root } = render(<Opponents ship={ships[0]} />);
   flushSync(() => root.render(<Opponents ship={ships[1]} />));

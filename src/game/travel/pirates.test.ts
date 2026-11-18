@@ -23,7 +23,7 @@ function pirateReaction(
   fitting = {},
   type: OpponentType = OpponentType.Pirate
 ) {
-  nextOpponentIs(opponentIn(game, type, model, fitting));
+  nextOpponentIs(opponentIn(type, model, fitting));
   return pirateMeeting(game, type).encounterType;
 }
 
@@ -79,7 +79,7 @@ test.each([
   ['a Grasshopper attack a feared commander in a Wasp', Grasshopper, ShipModelType.Wasp],
 ])('pirates in %s', (_, model, commanderModel) => {
   const game = feared();
-  game.commander.ship = Ship.create(commanderModel, game.difficulty);
+  game.commander.ship = Ship.create(commanderModel);
 
   expect(pirateReaction(game, model)).toBe(EncounterType.PirateAttack);
 });

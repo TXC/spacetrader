@@ -121,7 +121,7 @@ function podBecomesAFlea(game: Game): string[] {
 
   game.timePassed(3);
 
-  const ship = Ship.create(ShipModelType.Flea, game.difficulty);
+  const ship = Ship.create(ShipModelType.Flea);
   game.commander.ship = ship;
 
   return alerts;

@@ -18,7 +18,7 @@ type Police = { model: ShipModelType; weapons: AccessoryType[]; cloak?: boolean 
 // How police in this ship take the commander, who flies a Gnat.
 function policeReaction(game: Game, { model, weapons, cloak = false }: Police) {
   const fitting = cloak ? { ...cloaked, weapons } : { weapons };
-  nextOpponentIs(opponentIn(game, OpponentType.Police, model, fitting));
+  nextOpponentIs(opponentIn(OpponentType.Police, model, fitting));
   return policeMeeting(tripFor(game).travel, OpponentType.Police, 5).encounterType;
 }
 
