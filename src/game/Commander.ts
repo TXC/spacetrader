@@ -111,6 +111,18 @@ export function reputationName(x: number) {
 import type { CommanderState } from './savedGame.ts';
 export type { CommanderState };
 
+// What the player chose for a new commander: a name and four skills.
+export type Recruit = {
+  name: string;
+  engineer: number;
+  pilot: number;
+  fighter: number;
+  trader: number;
+};
+
+// How a new commander starts: the money, the ship, and the first system.
+type Start = { difficulty: number; credits: number; ship: Ship; system: SolarSystem };
+
 export class Commander extends CrewMember {
   declare _basePrices: number[] | null;
   declare days: number;
@@ -159,6 +171,23 @@ export class Commander extends CrewMember {
     this._boughtMoon = false;
     this._hasEscapePod = false;
     this._hasInsurance = false;
+  }
+
+  // A new commander, arriving at their first system, whose prices are drawn. Not called
+  // `create`: a subclass's static methods must accept what its base class's accept.
+  static enlist(recruit: Recruit, start: Start): Commander {
+    const { name, engineer, pilot, fighter, trader } = recruit;
+    const commander = new Commander(name, engineer, pilot, fighter, trader);
+    commander.setDifficulty(start.difficulty);
+    commander.credits = start.credits;
+    commander.ship = start.ship;
+    commander.moveTo(start.system);
+    return commander;
+  }
+
+  // A commander from a saved game, as parseSavedGame checked it, at one of its systems.
+  static restore(state: CommanderState, solarSystems: SolarSystem[]): Commander {
+    return Commander.fromSerializedState(state, solarSystems);
   }
 
   static fromSerializedState(serializedState: CommanderState, solarSystems?: SolarSystem[]) {
