@@ -15,7 +15,7 @@ type Fitting = { weapons?: number[]; gadgets?: number[]; engineer?: number };
 // An opponent in a bare ship of the given model, fitted with only what the test names.
 export function opponentIn(
   game: Game,
-  type: number,
+  type: OpponentType,
   model: number,
   { weapons = [], gadgets = [], engineer = 5 }: Fitting = {}
 ): Opponent {
