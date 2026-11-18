@@ -111,7 +111,7 @@ function offeredPrice(record: number, type: EncounterType, roll: number, [item, 
   const game = newGame();
   game.commander.policeRecordScore = record;
   game.commander.credits = 100000;
-  game.commander._basePrices![item] = market;
+  game.commander['_basePrices']![item] = market;
   game.commander.ship.boughtQuantity(5, item, 0);
   const trader = traderWith(game, [[item, 5]]);
   // The first roll picks the goods, of which there is one kind; the second moves the price.

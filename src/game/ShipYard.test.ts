@@ -24,7 +24,7 @@ test.each([
     'a Firefly costs less for a Gnat with cargo',
     Firefly,
     (game: Game) => {
-      game.commander._basePrices![TradeItemType.Water] = 40;
+      game.commander['_basePrices']![TradeItemType.Water] = 40;
       game.commander.ship.boughtQuantity(10, TradeItemType.Water, 0);
     },
     23_750 - 7_500 - 400,
@@ -33,7 +33,7 @@ test.each([
     'a ship the trade-in pays for exactly costs $1',
     Firefly,
     (game: Game) => {
-      game.commander._basePrices![TradeItemType.Water] = 23_750 - 7_500;
+      game.commander['_basePrices']![TradeItemType.Water] = 23_750 - 7_500;
       game.commander.ship.boughtQuantity(1, TradeItemType.Water, 0);
     },
     1,
