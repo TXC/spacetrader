@@ -425,11 +425,3 @@ export class Session extends Store {
     this.changed();
   }
 }
-
-// The session the page shows.
-export let session = new Session();
-
-// Makes another session the one in use, for a new game on the page or in a test.
-export function activate(next: Session): void {
-  session = next;
-}

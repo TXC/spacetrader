@@ -10,10 +10,10 @@ import {
   startingSkills,
 } from '../game/NewCommander.ts';
 import type { SkillName } from '../game/NewCommander.ts';
-import type { Session } from '../game/session.ts';
 import { Difficulty, difficultyName, DIFFICULTY_COUNT } from '../game/SolarSystem.types.ts';
 import { LoggedButton } from './Logged.tsx';
 import { useLogged } from './useLogged.ts';
+import { useSession } from './useStore.ts';
 import styles from './NewCommander.module.css';
 
 const LABELS: Record<SkillName, string> = {
@@ -82,7 +82,8 @@ function DifficultyPicker({ level, onLevel }: { level: number; onLevel: (level: 
   );
 }
 
-export function NewCommander({ session }: { session: Session }) {
+export function NewCommander() {
+  const session = useSession();
   const [name, setName] = useState('Jean-Luc');
   const [level, setLevel] = useState<number>(Difficulty.Normal);
   const [points, setPoints] = useState({ skills: startingSkills(), remaining: 0 });

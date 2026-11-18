@@ -1,7 +1,7 @@
 import { ActionLogger } from './game/ActionLogger.ts';
 import { GameRand } from './game/GameRand.ts';
 import { runtime } from './game/runtime.ts';
-import { activate, Session } from './game/session.ts';
+import { Session } from './game/session.ts';
 import { browserStorage } from './game/storage.ts';
 import { DebugMode } from './game/ensure.ts';
 
@@ -20,7 +20,6 @@ export function startSession(): Session {
   runtime.actionLog = new ActionLogger(randSeed);
   runtime.stLocalStorage = browserStorage();
   const session = new Session();
-  activate(session);
   session.start();
   return session;
 }

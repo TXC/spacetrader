@@ -1,9 +1,10 @@
 import { CHEATS } from '../game/Cheats.ts';
-import type { Session } from '../game/session.ts';
 import { LoggedButton } from './Logged.tsx';
+import { useSession } from './useStore.ts';
 
 // The cheat buttons. A cheat does nothing until there is a game.
-export function Cheats({ session }: { session: Session }) {
+export function Cheats() {
+  const session = useSession();
   return CHEATS.map(cheat => (
     <LoggedButton
       key={cheat.id}
