@@ -27,13 +27,18 @@ export function slotSections(game: Game): SlotSection[] {
   ];
 }
 
-function offer(game: Game, type: number, accessory: Accessory): Offer {
-  const { commander } = game;
-  // A gadget can be owned only once, except the extra cargo bays.
-  const owned =
+// A gadget can be owned only once, except the extra cargo bays.
+function alreadyOwned(game: Game, type: number, accessory: Accessory): boolean {
+  return (
     accessory instanceof Gadget &&
     type !== AccessoryType.GadgetFiveExtraCargoBays &&
-    commander.ship.hasGadgetOfType(type);
+    game.commander.ship.hasGadgetOfType(type)
+  );
+}
+
+function offer(game: Game, type: number, accessory: Accessory): Offer {
+  const { commander } = game;
+  const owned = alreadyOwned(game, type, accessory);
   const price = commander.buyPriceForAccessory(type);
   return {
     type,
@@ -68,12 +73,19 @@ function whyNotBuy(game: Game, type: number, accessory: Accessory): string | nul
   return `You have no available ${category} slots.`;
 }
 
+// Asked when the confirmation is accepted: another one may have been accepted before it.
+function canStillBuy(game: Game, type: number, accessory: Accessory, price: number): boolean {
+  if (whyNotBuy(game, type, accessory) !== null) return false;
+  return !alreadyOwned(game, type, accessory) && price <= game.commander.spendingMoney();
+}
+
 // `price` is the price that was on the screen when the button was pressed.
 export function buyEquipment(game: Game, type: number, price: number): void {
   const accessory = accessoryForType(type)!;
   const refusal = whyNotBuy(game, type, accessory);
   if (refusal) return AlertViewController.presentAlertWithDismiss(refusal);
   confirm(`Do you want to install ${accessory.name} for $${price}?`, () => {
+    if (!canStillBuy(game, type, accessory, price)) return;
     game.commander.ship.addAccessoryOfType(type);
     game.commander.setCredits(game.commander.credits - price);
     game.save();

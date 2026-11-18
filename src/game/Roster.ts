@@ -37,6 +37,7 @@ export function fire(game: Game, member: CrewMember, onFired?: (member: CrewMemb
 }
 
 export function hire(game: Game, member: CrewMember): void {
+  if (!canHire(game) || game.commander.ship.crew.includes(member)) return;
   game.commander.ship.addCrewMember(member);
   game.save();
   session.changed();
