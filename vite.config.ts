@@ -41,7 +41,19 @@ export default defineConfig({
       provider: 'v8',
       include: ['src/**/*.{ts,tsx}'],
       exclude: ['src/tests/**', 'src/**/*.test.{ts,tsx}', 'src/game/Images.ts', 'src/sw.ts'],
-      reporter: ['text-summary', 'html', 'json-summary'],
+      // json-summary and json feed the coverage comment on pull requests.
+      reporter: ['text-summary', 'html', 'json-summary', 'json'],
+      // The least coverage allowed: below it `pnpm coverage` fails, here and in the
+      // pipeline. Raise these when the tests reach more; never lower them to let a change in.
+      thresholds: {
+        lines: 97,
+        statements: 97,
+        functions: 98,
+        branches: 92,
+        // Every branch of the travel code and nearly every encounter action are tested.
+        'src/game/travel/**': { branches: 100, lines: 100 },
+        'src/game/encounter/actions/**': { branches: 95, lines: 99 },
+      },
     },
     projects: [
       {

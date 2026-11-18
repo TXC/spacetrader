@@ -13,6 +13,9 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # the coverage comment
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -40,3 +43,12 @@ jobs:
       # The same command a developer runs locally before pushing.
       - name: Check
         run: pnpm run check
+
+      # Reports the coverage that `pnpm run check` measured, as a comment on the pull
+      # request and on the run's summary page. The check itself fails the job when
+      # coverage drops below the minimums in vite.config.ts; this only reports.
+      - name: Coverage report
+        if: always() && github.event_name == 'pull_request'
+        uses: davelosert/vitest-coverage-report-action@74c2d9210b4fc44c84d8213f61d7ec99837b7aa0 # v2.13.2
+        with:
+          file-coverage-mode: changes
