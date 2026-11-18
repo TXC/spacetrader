@@ -62,7 +62,7 @@ function Options({ game }: Props) {
 }
 
 function Welcome({ game }: { game: Game }) {
-  const system = game.commander.getCurrentSystem();
+  const system = game.commander.currentSystem;
   return (
     <>
       <h1 id="system-info-welcome" className={styles.welcome}>

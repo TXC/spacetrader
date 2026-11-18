@@ -91,7 +91,7 @@ export function buyEquipment(game: Game, type: AccessoryType, price: number): vo
   confirm(`Do you want to install ${accessory.name} for $${price}?`, () => {
     if (!canStillBuy(game, type, accessory, price)) return;
     game.commander.ship.addAccessoryOfType(type);
-    game.commander.setCredits(game.commander.credits - price);
+    game.commander.credits = game.commander.credits - price;
     game.save();
     game.changed();
   });
@@ -106,7 +106,7 @@ export function sellEquipment(game: Game, type: AccessoryType, price: number): v
   }
   confirm(`Are you sure you want to sell your ${accessory.name} for $${price}?`, () => {
     game.commander.ship.removeAccessoryOfType(type);
-    game.commander.setCredits(game.commander.credits + price);
+    game.commander.credits = game.commander.credits + price;
     game.save();
     game.changed();
   });

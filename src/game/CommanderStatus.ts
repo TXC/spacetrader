@@ -45,8 +45,8 @@ export function figures(game: Game): Figure[] {
     { item: 'Police Record:', value: policeRecordName(commander.policeRecordScore) },
     { item: 'Reputation:', value: reputationName(commander.reputationScore) },
     { item: 'Kills:', value: `${kills}`, number: true },
-    { item: 'Cash:', value: `$${commander.getCredits()}`, number: true },
-    { item: 'Debt:', value: `$${commander.getDebt()}`, number: true },
+    { item: 'Cash:', value: `$${commander.credits}`, number: true },
+    { item: 'Debt:', value: `$${commander.debt}`, number: true },
     { item: 'Net Worth:', value: `$${commander.netWorth()}`, number: true },
   ];
 }

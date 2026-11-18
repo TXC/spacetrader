@@ -625,7 +625,7 @@ export class Game {
         inRangeOf(system).length >= 3
     );
     if (startSystem) {
-      this.commander.getCurrentSystem().visited = false;
+      this.commander.currentSystem.visited = false;
       this.commander.moveTo(startSystem);
     }
   }
@@ -641,14 +641,14 @@ export class Game {
       RareEvent.BottleOld,
     ]); // Some extra skill enhancements
 
-    this._warpSystem = this.commander.getCurrentSystem();
+    this._warpSystem = this.commander.currentSystem;
     this.remindLoans = true;
     this._monsterHull = shipModelForType(ShipModelType.SpaceMonster).hullStrength;
 
     if (this.difficulty < Difficulty.Normal) {
-      if (this.commander.getCurrentSystem().specialEvent === SpecialEvent.None) {
+      if (this.commander.currentSystem.specialEvent === SpecialEvent.None) {
         pLog.log(109);
-        this.commander.getCurrentSystem().specialEvent = SpecialEvent.LotteryWinner;
+        this.commander.currentSystem.specialEvent = SpecialEvent.LotteryWinner;
       }
     }
   }
@@ -658,7 +658,7 @@ export class Game {
   }
 
   solarSystemsWithinRange() {
-    const current = this.commander.getCurrentSystem();
+    const current = this.commander.currentSystem;
     const squaredFuel = this.commander.ship.fuel ** 2;
     const result = this.solarSystems.filter(
       system => system !== current && current.squaredDistanceTo(system) <= squaredFuel

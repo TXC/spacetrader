@@ -238,7 +238,7 @@ function payBlackmail(encounter: Encounter, questString: string, wildString: str
     credits = 0;
   }
   pLog.log(59);
-  encounter._game.commander.setCredits(credits);
+  encounter._game.commander.credits = credits;
   encounter._game.commander.debt = debt;
 
   const alertString = `The pirates are upset that they found no cargo on your ship. To save yourself, you have no choice but to pay them 5% of your current net worth.${questString}${wildString || ''}`;

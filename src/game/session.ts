@@ -263,7 +263,7 @@ export class Session extends Store {
   // The navigation links on offer in the current system.
   rows = (): Row[] => {
     const game = this.game!;
-    const system = game.commander.getCurrentSystem();
+    const system = game.commander.currentSystem;
     const hidden = new Set<Row>();
     const crew = game.commander.ship.crew;
     if (!system.mercenary || (crew && crew.includes(system.mercenary))) {
@@ -385,7 +385,7 @@ export class Session extends Store {
 
   private offerSpecial(game: Game): void {
     pLog.log(14);
-    const special = specialEventForType(game.commander.getCurrentSystem().specialEvent)!;
+    const special = specialEventForType(game.commander.currentSystem.specialEvent)!;
     const alert = new AlertViewController(special.prompt);
     const accept = (probe: number) => () => {
       pLog.log(probe);
@@ -408,7 +408,7 @@ export class Session extends Store {
       );
     }
     pLog.log(16);
-    game.commander.setCredits(game.commander.getCredits() - special.price);
+    game.commander.credits = game.commander.credits - special.price;
     pLog.log(17);
     special.action(game, { gameDidEndWithStatus: this.endGame });
     game.save();

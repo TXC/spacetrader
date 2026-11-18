@@ -90,7 +90,7 @@ function fineForContraband(encounter: Encounter): string {
   ensureInteger(fine);
 
   const paid = Math.min(commander.credits, fine);
-  commander.setCredits(commander.credits - paid);
+  commander.credits = commander.credits - paid;
   commander.debt = commander.debt + (fine - paid);
   commander.policeRecordScore = commander.policeRecordScore + TRAFFICKING_SCORE;
   return `The police discover illegal goods in your cargo holds. These goods are confiscated and you are fined $${fine}`;

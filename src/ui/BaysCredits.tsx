@@ -8,7 +8,7 @@ export function BaysCredits({ game }: { game: Game }) {
   return (
     <div className={styles.line}>
       <span>{`Bays: ${total - ship.freeCargoBays()}/${total}`}</span>
-      <span>{`$${game.commander.getCredits()}`}</span>
+      <span>{`$${game.commander.credits}`}</span>
     </div>
   );
 }

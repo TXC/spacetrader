@@ -59,7 +59,7 @@ function offerBribe(encounter: Encounter): void {
     const aC = new AlertViewController(alertString);
 
     aC.addAction('Offer bribe', AlertActionType.Default, () => {
-      encounter._game.commander.setCredits(encounter._game.commander.credits - bribe);
+      encounter._game.commander.credits = encounter._game.commander.credits - bribe;
       encounter.listener.continues(false);
     });
 

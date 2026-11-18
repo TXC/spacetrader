@@ -99,7 +99,7 @@ function leaveOrigin(
   credits: number
 ): void {
   const { commander } = game;
-  commander.setCredits(credits);
+  commander.credits = credits;
   commander.ship.rechargeShieldPower();
   commander.currentSystem.inventoryReplenishCountdown = game.difficulty + 3;
   const viaWormhole = viaSingularity || commander.currentSystem.wormhole === destination;
