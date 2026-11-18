@@ -267,19 +267,19 @@ function ordinaryOpponent(type: number, game: Game): Opponent {
     }
   }
 
-  let weaponSlots = model.weaponSlots;
-  if (model.weaponSlots > 1 && game.difficulty <= Difficulty.Hard) {
-    weaponSlots = 1 + runtime.gameRand.randomIntBelow(model.weaponSlots);
-    if (weaponSlots < model.weaponSlots) {
-      if (tries > 4 && game.difficulty >= Difficulty.Hard) {
-        weaponSlots++;
-      } else if (tries > 3 || game.difficulty >= Difficulty.Hard) {
-        weaponSlots += runtime.gameRand.randomIntBelow(2);
-      }
-    }
-  }
+  addWeapons(ship, model, game, tries);
 
-  ensureInteger(weaponSlots);
+  addShields(ship, model, game, tries);
+
+  weakenHull(ship, type);
+
+  addMercenaries(ship, model, game);
+
+  return opponentWithSkills(type, game, ship);
+}
+
+function addWeapons(ship: Ship, model: ShipModel, game: Game, tries: number): void {
+  const weaponSlots = weaponCount(model, game, tries);
 
   for (let i = 0; i < weaponSlots; ++i) {
     const weaponRoll = bestRoll(tries, 100);
@@ -300,14 +300,24 @@ function ordinaryOpponent(type: number, game: Game): Opponent {
       }
     }
   }
+}
 
-  addShields(ship, model, game, tries);
+function weaponCount(model: ShipModel, game: Game, tries: number): number {
+  let weaponSlots = model.weaponSlots;
+  if (model.weaponSlots > 1 && game.difficulty <= Difficulty.Hard) {
+    weaponSlots = 1 + runtime.gameRand.randomIntBelow(model.weaponSlots);
+    if (weaponSlots < model.weaponSlots) {
+      if (tries > 4 && game.difficulty >= Difficulty.Hard) {
+        weaponSlots++;
+      } else if (tries > 3 || game.difficulty >= Difficulty.Hard) {
+        weaponSlots += runtime.gameRand.randomIntBelow(2);
+      }
+    }
+  }
 
-  weakenHull(ship, type);
+  ensureInteger(weaponSlots);
 
-  addMercenaries(ship, model, game);
-
-  return opponentWithSkills(type, game, ship);
+  return weaponSlots;
 }
 
 function addShields(ship: Ship, model: ShipModel, game: Game, tries: number): void {
