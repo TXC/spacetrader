@@ -17,7 +17,7 @@ import type { SpecialEventSpecifier } from './SpecialEventSpecifier.ts';
 import { readJson, writeJson } from './storage.ts';
 import type { GameStorage } from './storage.ts';
 import { Store } from './Store.ts';
-import { Travel } from './Travel.ts';
+import { Travel } from './travel/Travel.ts';
 import { pLog } from './probes.ts';
 import { systemsWithinRange, warp } from './Warp.ts';
 
