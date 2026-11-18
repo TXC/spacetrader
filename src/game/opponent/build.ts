@@ -232,27 +232,27 @@ function ordinaryOpponent(type: number, game: Game): Opponent {
     }
   }
 
+  addCargo(ship, type, game, allNarcotics);
+
+  addWeapons(ship, model, game, tries);
+
+  addShields(ship, model, game, tries);
+
+  weakenHull(ship, type);
+
+  addMercenaries(ship, model, game);
+
+  return opponentWithSkills(type, game, ship);
+}
+
+function addCargo(ship: Ship, type: number, game: Game, allNarcotics: boolean): void {
   const totalCargoBays = ship.totalCargoBays();
   ensureInteger(totalCargoBays);
 
   if (allNarcotics) {
     ship.boughtQuantity(Math.min(totalCargoBays, 5), TradeItemType.Narcotics, 0);
   } else if (type !== OpponentType.Police && totalCargoBays > 5) {
-    let amountCargo = totalCargoBays;
-
-    if (game.difficulty >= Difficulty.Normal) {
-      amountCargo = Math.min(15, 3 + runtime.gameRand.randomIntBelow(totalCargoBays - 5));
-    }
-
-    if (type === OpponentType.Pirate) {
-      if (game.difficulty < Difficulty.Normal) {
-        amountCargo = Math.floor((amountCargo * 4) / 5);
-      } else {
-        amountCargo = Math.floor(amountCargo / game.difficulty);
-      }
-    }
-
-    amountCargo = Math.max(1, amountCargo);
+    const amountCargo = cargoAmount(type, game, totalCargoBays);
 
     let cargoToDistribute = amountCargo;
     ensureInteger(cargoToDistribute);
@@ -266,16 +266,26 @@ function ordinaryOpponent(type: number, game: Game): Opponent {
       cargoToDistribute -= amount;
     }
   }
+}
 
-  addWeapons(ship, model, game, tries);
+function cargoAmount(type: number, game: Game, totalCargoBays: number): number {
+  let amountCargo = totalCargoBays;
 
-  addShields(ship, model, game, tries);
+  if (game.difficulty >= Difficulty.Normal) {
+    amountCargo = Math.min(15, 3 + runtime.gameRand.randomIntBelow(totalCargoBays - 5));
+  }
 
-  weakenHull(ship, type);
+  if (type === OpponentType.Pirate) {
+    if (game.difficulty < Difficulty.Normal) {
+      amountCargo = Math.floor((amountCargo * 4) / 5);
+    } else {
+      amountCargo = Math.floor(amountCargo / game.difficulty);
+    }
+  }
 
-  addMercenaries(ship, model, game);
+  amountCargo = Math.max(1, amountCargo);
 
-  return opponentWithSkills(type, game, ship);
+  return amountCargo;
 }
 
 function addWeapons(ship: Ship, model: ShipModel, game: Game, tries: number): void {
