@@ -252,7 +252,22 @@ export class GalaxyView {
     return closestPlanet;
   }
 
+  // A system picked on the map: selected, and whoever shows the map is told.
   selectSystem(s: SolarSystem, wormhole: boolean) {
+    this.setSelection(s, wormhole);
+    if (this.delegate) {
+      this.delegate.galaxyViewSelectedSolarSystem(this, s, wormhole);
+    }
+    this.showSelection(s, wormhole);
+  }
+
+  // A system picked somewhere else: selected, and no one is told.
+  moveSelection(s: SolarSystem, wormhole: boolean) {
+    this.setSelection(s, wormhole);
+    this.showSelection(s, wormhole);
+  }
+
+  private setSelection(s: SolarSystem, wormhole: boolean) {
     let planet: Planet | null | undefined = null;
 
     if (this.planets.length > 0) {
@@ -266,9 +281,9 @@ export class GalaxyView {
     this.selectedPlanet = planet;
     this.selectedSystem = s;
     this.selectedWormhole = wormhole;
-    if (this.delegate) {
-      this.delegate.galaxyViewSelectedSolarSystem(this, s, wormhole);
-    }
+  }
+
+  private showSelection(s: SolarSystem, wormhole: boolean) {
     this.requestDraw();
     this.nameCanvas();
 
