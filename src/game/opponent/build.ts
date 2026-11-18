@@ -48,7 +48,7 @@ function famousCaptain(type: OpponentType): Opponent {
   );
 }
 
-function dragonfly(difficulty: number): Opponent {
+function dragonfly(difficulty: Difficulty): Opponent {
   const ship = Ship.create(ShipModelType.Dragonfly);
   ship.addShieldOfType(AccessoryType.ShieldLightning);
   ship.addShieldOfType(AccessoryType.ShieldLightning);
@@ -67,7 +67,7 @@ function dragonfly(difficulty: number): Opponent {
   );
 }
 
-function scarab(difficulty: number): Opponent {
+function scarab(difficulty: Difficulty): Opponent {
   const ship = Ship.create(ShipModelType.Scarab);
   ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
   ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
@@ -81,7 +81,7 @@ function scarab(difficulty: number): Opponent {
   );
 }
 
-function monster(game: Game, difficulty: number): Opponent {
+function monster(game: Game, difficulty: Difficulty): Opponent {
   const ship = Ship.create(ShipModelType.SpaceMonster);
   const currentHull = ship.hull;
   ship.damageHullByAmount(currentHull - game.monsterHull);
@@ -136,7 +136,7 @@ function ordinaryOpponent(type: OpponentType, game: Game): Opponent {
   return opponentWithSkills(type, game, ship);
 }
 
-function chooseShipType(type: number, game: Game): ShipModelType {
+function chooseShipType(type: OpponentType, game: Game): ShipModelType {
   let tries = 1; // We'll roll a die `tries` times and pick the best roll
 
   // Police are more likely to be stronger against worse police records
@@ -166,7 +166,7 @@ function chooseShipType(type: number, game: Game): ShipModelType {
   return randomShipType(type, game, tries);
 }
 
-function randomShipType(type: number, game: Game, tries: number): ShipModelType {
+function randomShipType(type: OpponentType, game: Game, tries: number): ShipModelType {
   let chosenShipType: ShipModelType;
 
   const { possibleShipTypes, totalShipOccurrence } = shipsFor(type, game);
@@ -192,7 +192,7 @@ function randomShipType(type: number, game: Game, tries: number): ShipModelType 
 
 // The ships this kind of opponent flies in the commander's system, and how common they
 // are together.
-function shipsFor(type: number, game: Game) {
+function shipsFor(type: OpponentType, game: Game) {
   const handicap = Math.max(game.difficulty - Difficulty.Normal, 0);
   let totalShipOccurrence = 0;
   const possibleShipTypes: ShipModelType[] = [
@@ -228,7 +228,7 @@ function shipsFor(type: number, game: Game) {
 }
 
 // How many times the dice are rolled for each piece of equipment; the best roll counts.
-function equipmentTries(type: number, game: Game): number {
+function equipmentTries(type: OpponentType, game: Game): number {
   let tries: number;
 
   if (type === OpponentType.Mantis) {
@@ -299,7 +299,7 @@ function gadgetCount(model: ShipModel, game: Game, tries: number): number {
   return gadgetSlots;
 }
 
-function addCargo(ship: Ship, type: number, game: Game, allNarcotics: boolean): void {
+function addCargo(ship: Ship, type: OpponentType, game: Game, allNarcotics: boolean): void {
   const totalCargoBays = ship.totalCargoBays();
   ensureInteger(totalCargoBays);
 
@@ -322,7 +322,7 @@ function addCargo(ship: Ship, type: number, game: Game, allNarcotics: boolean): 
   }
 }
 
-function cargoAmount(type: number, game: Game, totalCargoBays: number): number {
+function cargoAmount(type: OpponentType, game: Game, totalCargoBays: number): number {
   let amountCargo = totalCargoBays;
 
   if (game.difficulty >= Difficulty.Normal) {
@@ -434,7 +434,7 @@ function shieldCount(model: ShipModel, game: Game, tries: number): number {
   return shieldSlots;
 }
 
-function weakenHull(ship: Ship, type: number): void {
+function weakenHull(ship: Ship, type: OpponentType): void {
   // Shields means there's likely a stronger hull
   if (ship.currentShieldPower > 0 && runtime.gameRand.randomIntBelow(10) <= 7) {
     // Hull is already at full strength
