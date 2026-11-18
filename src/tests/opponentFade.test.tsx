@@ -47,3 +47,19 @@ test('two opponents leaving in quick succession are each removed in their own ti
   flushSync(() => vi.advanceTimersByTime(1000));
   expect(count()).toBe(1);
 });
+
+// Element ids must be unique on the page: only the opponent being met carries the ids of
+// the hull bar and its frame, not the ones still fading out.
+test('only the current opponent carries the hull bar ids', () => {
+  const ships = [ShipModelType.Gnat, ShipModelType.Gnat, ShipModelType.Firefly].map(
+    type => new Ship(type, 2)
+  );
+  const { host, root } = render(<Opponents ship={ships[0]} />);
+  flushSync(() => root.render(<Opponents ship={ships[1]} />));
+  flushSync(() => root.render(<Opponents ship={ships[2]} />));
+
+  expect(host.querySelectorAll('[data-ship]').length).toBe(3);
+  expect(host.querySelectorAll('#battle-hpBar-enemy').length).toBe(1);
+  expect(host.querySelectorAll('#battle-hpContainer-enemy-Gnat').length).toBe(0);
+  expect(host.querySelectorAll('#battle-hpContainer-enemy-Firefly').length).toBe(1);
+});

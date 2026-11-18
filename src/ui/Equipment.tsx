@@ -30,7 +30,10 @@ function PlaceholderRow({ label }: { label: string }) {
   );
 }
 
-function InstalledRow({ game, item }: GameProps & { item: Installed }) {
+// `copy` counts identical items in the slot list, from 1. The first keeps the plain id,
+// which recordings press; later ones get their number, so every id stays unique.
+function InstalledRow({ game, item, copy }: GameProps & { item: Installed; copy: number }) {
+  const id = 'sell_' + item.name + (copy > 1 ? `_${copy}` : '');
   const sell = () => sellEquipment(game, item.type, item.value);
   return (
     <tr>
@@ -41,7 +44,7 @@ function InstalledRow({ game, item }: GameProps & { item: Installed }) {
         <td />
       ) : (
         <td className={shared.centredText}>
-          <LoggedButton id={'sell_' + item.name} label={`Sell for $${item.value}`} onPress={sell} />
+          <LoggedButton id={id} label={`Sell for $${item.value}`} onPress={sell} />
         </td>
       )}
     </tr>
@@ -59,7 +62,12 @@ function Section({ game, section }: GameProps & { section: SlotSection }) {
       {section.slots === 0 && <PlaceholderRow label="No slots" />}
       {section.slots > 0 &&
         section.installed.map((item, index) => (
-          <InstalledRow key={index} game={game} item={item} />
+          <InstalledRow
+            key={index}
+            game={game}
+            item={item}
+            copy={1 + section.installed.slice(0, index).filter(o => o.name === item.name).length}
+          />
         ))}
       {section.slots > 0 &&
         Array.from({ length: section.empty }, (_, index) => (
