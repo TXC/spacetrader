@@ -1,0 +1,4 @@
+/* A system's name, on a line of its own above the description. */
+.name {
+  display: block;
+}

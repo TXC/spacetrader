@@ -7,6 +7,7 @@ import { GalaxyMap } from './GalaxyMap.tsx';
 import { Lines } from './Lines.tsx';
 import { LoggedButton } from './Logged.tsx';
 import { useSession } from './useStore.ts';
+import styles from './GalacticChart.module.css';
 import shared from './shared.module.css';
 
 type Props = { game: Game; onSingularity: (system: SolarSystem) => void };
@@ -17,7 +18,7 @@ function Actions({ game, system, rows, onSingularity }: RowProps) {
   const tracked = game.trackedSystem === system;
   const here = system === game.commander.currentSystem;
   return (
-    <td style={{ textAlign: 'center' }}>
+    <td className={shared.centredText}>
       <LoggedButton
         key={tracked ? 'untrack' : 'track'}
         id={`galacticChart_track_${rows}_${system.name}`}
@@ -25,15 +26,14 @@ function Actions({ game, system, rows, onSingularity }: RowProps) {
         onPress={() => toggleTracking(game, system)}
       />
       {game.canSuperWarp && (
-        <>
-          <br />
+        <div>
           <LoggedButton
             id={`galacticChart_useSingularity_${rows}_${system.name}`}
             label="Use Singularity"
             disabled={here}
             onPress={() => askSingularity(game, system, onSingularity)}
           />
-        </>
+        </div>
       )}
     </td>
   );
@@ -54,8 +54,7 @@ function SystemTable({
         {systems.map(system => (
           <tr key={system.name}>
             <td>
-              <b>{system.name}</b>
-              <br />
+              <b className={styles.name}>{system.name}</b>
               <Lines text={describe(game, system)} />
             </td>
             <Actions
