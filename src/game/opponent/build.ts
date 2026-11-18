@@ -189,8 +189,8 @@ function shipsFor(type: OpponentType, game: Game) {
     type === OpponentType.Trader ? ShipModelType.Flea : ShipModelType.Gnat,
   ];
 
-  for (let i = 0; i <= ShipModelType.Best; ++i) {
-    const model = shipModelForType(i);
+  for (let shipType = ShipModelType.Flea; shipType <= ShipModelType.Best; ++shipType) {
+    const model = shipModelForType(shipType);
     if (
       type === OpponentType.Police &&
       (model.police < 0 ||
@@ -211,7 +211,7 @@ function shipsFor(type: OpponentType, game: Game) {
       continue;
     }
     totalShipOccurrence += model.frequency;
-    addToOrderedSet(possibleShipTypes, i as ShipModelType);
+    addToOrderedSet(possibleShipTypes, shipType);
   }
 
   return { possibleShipTypes, totalShipOccurrence };
