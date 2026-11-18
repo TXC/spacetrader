@@ -43,6 +43,7 @@ import { bribe } from './encounter/actions/bribe.ts';
 import { submit } from './encounter/actions/submit.ts';
 import { plunder } from './encounter/actions/plunder.ts';
 import { meet } from './encounter/actions/meet.ts';
+import { drink } from './encounter/actions/drink.ts';
 import { captainFor } from './encounter/captains.ts';
 import {
   EncounterMode,
@@ -354,60 +355,7 @@ export class EncounterController {
     } else if (action === 'Meet') {
       if (!meet(this)) return;
     } else if (action === 'Drink') {
-      let alertString: string;
-      let consumedString = null;
-      let drinkAction = null;
-
-      if (this._type === EncounterType.BottleGood) {
-        alertString =
-          'This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. In the old days, this stuff went for thousands of credits a bottle since people reported significant gains in their abilities after quaffing a bottle. Would you like to drink it?';
-        consumedString =
-          "Mmmmm. Captain Marmoset's Amazing Skill Tonic not only fills you with energy, but tastes like a fine single-malt. You feel a slight tingling in your fingertips.";
-        drinkAction = () => {
-          pLog.log(105);
-          this._game.commander.increaseSkillRandomly();
-          if (this._game.difficulty < Difficulty.Hard) {
-            this._game.commander.increaseSkillRandomly();
-          }
-        };
-      } else {
-        alertString =
-          'This concoction has been extremely hard to find since the elusive Captain Marmoset left on a mission to the heart of a comet. The "best used by" date stamped on the bottle has become illegible. The tonic might still be good. Then again, it\'s not clear what happens when the Tonic breaks down...';
-        consumedString =
-          "While you don't know what it was supposed to taste like, you get the feeling that this dose of tonic was a bit off. This bottle tasted very strange, like slightly salty red wine. You feel a bit dizzy and your teeth itch for a while.";
-        drinkAction = () => {
-          pLog.log(106);
-          this._game.commander.increaseSkillRandomly();
-          this._game.commander.decreaseSkillRandomly();
-          if (this._game.difficulty >= Difficulty.Hard) {
-            this._game.commander.increaseSkillRandomly();
-            this._game.commander.decreaseSkillRandomly();
-            this._game.commander.decreaseSkillRandomly();
-          }
-        };
-      }
-
-      const aC = new AlertViewController(alertString);
-
-      aC.addAction('Yes, drink it', AlertActionType.Default, () => {
-        pLog.log(108);
-        drinkAction();
-
-        const aC2 = new AlertViewController(consumedString);
-
-        aC2.addAction('Dismiss', AlertActionType.Default, () => {
-          this.listener.continues(false);
-        });
-
-        this._presentAlertController(aC2);
-      });
-
-      aC.addAction("I'll pass", AlertActionType.Cancel, () => {
-        pLog.log(107);
-        this.listener.continues(false);
-      });
-
-      this._presentAlertController(aC);
+      if (!drink(this)) return;
     } else if (action === 'Interrupt') {
       pLog.log(52);
       this._endAutoEncounters();
