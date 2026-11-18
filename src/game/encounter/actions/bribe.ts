@@ -1,6 +1,5 @@
 import { AlertActionType, AlertViewController } from '../../alerts.ts';
 import { Difficulty, WildQuestStatus, reactorAboard } from '../../SolarSystem.types.ts';
-import { ensureInteger } from '../../ensure.ts';
 import { pLog } from '../../probes.ts';
 import { EncounterType } from '../types.ts';
 import type { Encounter } from '../Encounter.ts';
@@ -76,7 +75,6 @@ function bribePrice(encounter: Encounter): number {
       encounter._game.commander.currentSystem.politics.bribeWillingness);
 
   bribe = Math.ceil(bribe / 100) * 100; // round up to the next 100
-  ensureInteger(bribe);
 
   if (
     encounter._game.wildStatus === WildQuestStatus.OnBoard ||
@@ -87,7 +85,6 @@ function bribePrice(encounter: Encounter): number {
   }
 
   bribe = Math.max(100, Math.min(bribe, 10000));
-  ensureInteger(bribe);
 
   return bribe;
 }

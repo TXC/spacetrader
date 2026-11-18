@@ -5,7 +5,6 @@ import {
   PoliceRecordScore,
   ReputationScore,
 } from '../../Commander.ts';
-import { ensureBool, ensureInteger } from '../../ensure.ts';
 import { pLog } from '../../probes.ts';
 import { runtime } from '../../runtime.ts';
 import { fightRound } from '../fight.ts';
@@ -200,10 +199,7 @@ function fightCaptain(encounter: Encounter): void {
 }
 
 function fight(encounter: Encounter): void {
-  ensureInteger(encounter._type);
-
   fightRound(encounter, false, fightContinues => {
-    ensureBool(fightContinues);
     fightContinues = fightContinues && encounter._game.commander.ship.hull > 0;
     encounter.listener.continues(fightContinues);
   });

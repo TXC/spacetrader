@@ -8,7 +8,6 @@ import {
   WildQuestStatus,
 } from '../../SolarSystem.types.ts';
 import { TradeItemType, FAKE_QUEST_CARGO_REACTOR } from '../../TradeItem.types.ts';
-import { ensureInteger } from '../../ensure.ts';
 import { EncounterType } from '../types.ts';
 import { arrest } from '../arrest.ts';
 import type { Encounter } from '../Encounter.ts';
@@ -87,7 +86,6 @@ function fineForContraband(encounter: Encounter): string {
   let fine = commander.netWorth() / ((Difficulty.Absurd + 2 - encounter._game.difficulty) * 10);
   fine = Math.ceil(fine / 50) * 50; // Round up to the nearest 50
   fine = Math.max(100, Math.min(fine, 10000));
-  ensureInteger(fine);
 
   const paid = Math.min(commander.credits, fine);
   commander.credits = commander.credits - paid;

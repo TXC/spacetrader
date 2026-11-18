@@ -1,7 +1,6 @@
 import { AlertActionType, AlertViewController } from '../alerts.ts';
 import { Plunder } from '../Plunder.ts';
 import { WildQuestStatus, reactorAboard } from '../SolarSystem.types.ts';
-import { ensureBool, ensureInteger, ensureType } from '../ensure.ts';
 import { pLog } from '../probes.ts';
 import type { Game } from '../Game.ts';
 import type { Opponent } from '../opponent/Opponent.ts';
@@ -23,10 +22,6 @@ export class Encounter {
   declare listener: EncounterListener;
 
   constructor(type: EncounterType, game: Game, opponent: Opponent, listener: EncounterListener) {
-    ensureInteger(type);
-    ensureType(game, 'object');
-    ensureType(opponent, 'object');
-
     this._type = type;
     this._game = game;
     this._opponent = opponent;
@@ -82,9 +77,6 @@ export class Encounter {
   }
 
   performAction(action: ActionName) {
-    ensureType(action, 'string');
-    ensureInteger(this._encounterMode);
-
     this._actionTaken = true;
     this._endAutoModeUnlessContinuedBy(action);
 
@@ -108,8 +100,6 @@ export class Encounter {
   // mode has ended by then.
   _repeatAutoAction() {
     if (isAutoMode(this._encounterMode)) {
-      ensureInteger(this._autoEncounterSession);
-
       const sessionID = this._game.uniqueID + '-' + this._autoEncounterSession;
       const actionType = this._encounterMode === EncounterMode.AutoAttack ? 'Attack' : 'Flee';
 
@@ -136,8 +126,6 @@ export class Encounter {
   // The plunder screen was closed.
 
   plunderViewControllerDidFinishPlundering(controller: Plunder) {
-    ensureBool(controller.plundered);
-
     if (controller.plundered) {
       this.listener.plundered(controller.plundered);
     }

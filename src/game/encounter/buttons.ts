@@ -1,4 +1,3 @@
-import { ensureInteger } from '../ensure.ts';
 import {
   EncounterMode,
   EncounterType,
@@ -13,8 +12,6 @@ import type { Encounter } from './Encounter.ts';
 // The buttons an encounter offers, in the order they are shown.
 export function encounterButtons(encounter: Encounter): ActionName[] {
   const buttons: ActionName[] = [];
-
-  ensureInteger(encounter._encounterMode);
 
   if (isAutoMode(encounter._encounterMode)) {
     buttons.push('Interrupt');
