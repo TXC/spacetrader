@@ -686,7 +686,7 @@ const SPECS: Spec[] = [
       return game.scarabStatus !== ScarabQuestStatus.ScarabDestroyed;
     },
     action: game => {
-      game.commander.ship.setUpgradedHull(true);
+      game.commander.ship.upgradeHull();
       game.scarabStatus = ScarabQuestStatus.Closed;
       clearCurrentSpecial(game);
 
