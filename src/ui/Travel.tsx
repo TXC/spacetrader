@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { sanitizedElementID } from '../game/elementId.ts';
+import type { ActionName } from '../game/encounter/types.ts';
 import type { Ship } from '../game/Ship.ts';
 import type { Travel } from '../game/Travel.ts';
 import { TravelProgressView } from './canvas/TravelProgressView.ts';
@@ -103,7 +104,7 @@ export function Opponents({ ship }: { ship: Ship | null }) {
   );
 }
 
-function ActionButtons({ travel, titles }: Props & { titles: string[] }) {
+function ActionButtons({ travel, titles }: Props & { titles: ActionName[] }) {
   return (
     <ul className={styles.actions}>
       {titles.map(title => (

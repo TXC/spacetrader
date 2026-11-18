@@ -121,6 +121,25 @@ export type EncounterMode = number;
 export const isAutoMode = (encounterMode: number) =>
   isOneOf(encounterMode, EncounterMode.AutoAttack, EncounterMode.AutoFlee);
 
+// What the commander can do in an encounter. These are the words on the buttons: element
+// ids are built from them and recorded games press them.
+export type ActionName =
+  | 'Attack'
+  | 'Auto-Attack'
+  | 'Flee'
+  | 'Auto-Flee'
+  | 'Ignore'
+  | 'Trade'
+  | 'Surrender'
+  | 'Yield'
+  | 'Bribe'
+  | 'Submit'
+  | 'Plunder'
+  | 'Board'
+  | 'Meet'
+  | 'Drink'
+  | 'Interrupt';
+
 // What the owner of an encounter, the trip, is told about it.
 export type EncounterListener = {
   continues(fightGoesOn: boolean): void;

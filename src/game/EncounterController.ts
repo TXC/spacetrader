@@ -57,7 +57,7 @@ import {
   isOneOf,
   isSurrenderEncounter,
 } from './encounter/types.ts';
-import type { EncounterListener } from './encounter/types.ts';
+import type { ActionName, EncounterListener } from './encounter/types.ts';
 
 export class EncounterController {
   declare _type: number;
@@ -201,8 +201,8 @@ export class EncounterController {
     return text;
   }
 
-  encounterButtons() {
-    const buttons = [];
+  encounterButtons(): ActionName[] {
+    const buttons: ActionName[] = [];
 
     ensureInteger(this._encounterMode);
 
@@ -282,7 +282,7 @@ export class EncounterController {
     return buttons;
   }
 
-  static _pruneActionsFor(toPrune: string | null, buttons: string[]) {
+  static _pruneActionsFor(toPrune: string | null, buttons: ActionName[]) {
     if (!toPrune) {
       return;
     }
@@ -299,7 +299,7 @@ export class EncounterController {
     }
   }
 
-  static _addAutoFor(label: string, buttons: string[]) {
+  static _addAutoFor(label: 'Attack' | 'Flee', buttons: ActionName[]) {
     let addIndex = -1;
     buttons.forEach((buttonLabel, idx) => {
       if (buttonLabel === label) {
@@ -318,7 +318,7 @@ export class EncounterController {
     this._encounterMode = EncounterMode.Manual;
   }
 
-  performAction(action: string) {
+  performAction(action: ActionName) {
     ensureType(action, 'string');
     ensureInteger(this._encounterMode);
 

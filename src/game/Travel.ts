@@ -9,7 +9,7 @@ import {
 } from './Commander.ts';
 import { EncounterController } from './EncounterController.ts';
 import { EncounterType } from './encounter/types.ts';
-import type { EncounterListener } from './encounter/types.ts';
+import type { ActionName, EncounterListener } from './encounter/types.ts';
 import { GameEndStatus, RareEvent, RARE_EVENT_COUNT } from './Game.ts';
 import { Opponent, OpponentType, OPPONENT_TYPE_COUNT } from './Opponent.ts';
 import { MAX_TRIBBLES, Ship, ShipModelType } from './Ship.ts';
@@ -115,7 +115,7 @@ export class Travel extends Store implements EncounterListener {
   }
 
   // The player picked one of the encounter's buttons.
-  perform(action: string) {
+  perform(action: ActionName) {
     this._encounterController!.performAction(action);
   }
 
