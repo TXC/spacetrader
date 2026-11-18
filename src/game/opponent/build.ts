@@ -301,19 +301,17 @@ function ordinaryOpponent(type: number, game: Game): Opponent {
     }
   }
 
-  let shieldSlots = model.shieldSlots;
-  if (model.shieldSlots > 0 && game.difficulty <= Difficulty.Hard) {
-    shieldSlots = runtime.gameRand.randomIntBelow(1 + model.shieldSlots);
-    if (shieldSlots < model.shieldSlots) {
-      if (tries > 3) {
-        shieldSlots++;
-      } else if (tries > 1) {
-        shieldSlots += runtime.gameRand.randomIntBelow(2);
-      }
-    }
-  }
+  addShields(ship, model, game, tries);
 
-  ensureInteger(shieldSlots);
+  weakenHull(ship, type);
+
+  addMercenaries(ship, model, game);
+
+  return opponentWithSkills(type, game, ship);
+}
+
+function addShields(ship: Ship, model: ShipModel, game: Game, tries: number): void {
+  const shieldSlots = shieldCount(model, game, tries);
 
   let totalShieldPower = 0;
   for (let i = 0; i < shieldSlots; ++i) {
@@ -342,12 +340,24 @@ function ordinaryOpponent(type: number, game: Game): Opponent {
 
   const damage = ship.currentShieldPower - totalShieldPower;
   ship.damageShieldsByAmount(damage);
+}
 
-  weakenHull(ship, type);
+function shieldCount(model: ShipModel, game: Game, tries: number): number {
+  let shieldSlots = model.shieldSlots;
+  if (model.shieldSlots > 0 && game.difficulty <= Difficulty.Hard) {
+    shieldSlots = runtime.gameRand.randomIntBelow(1 + model.shieldSlots);
+    if (shieldSlots < model.shieldSlots) {
+      if (tries > 3) {
+        shieldSlots++;
+      } else if (tries > 1) {
+        shieldSlots += runtime.gameRand.randomIntBelow(2);
+      }
+    }
+  }
 
-  addMercenaries(ship, model, game);
+  ensureInteger(shieldSlots);
 
-  return opponentWithSkills(type, game, ship);
+  return shieldSlots;
 }
 
 function weakenHull(ship: Ship, type: number): void {
