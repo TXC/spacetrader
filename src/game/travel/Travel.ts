@@ -104,39 +104,13 @@ export class Travel extends Store implements EncounterListener {
     }
 
     while (currentClicks > 0) {
-      let encounterType: EncounterType;
-
       this._game.commander.travelClicksRemaining = currentClicks;
       this._setProgress(1 - (currentClicks * 1.0) / this._startClicksRemaining);
 
-      // Automatic repairs based on engineering skill
-      const engineerSkill = this._game.commander.ship.crewEngineerSkillIncludingCommander(
-        this._game.commander
-      );
-      let repairAmount = runtime.gameRand.randomIntBelow(engineerSkill / 2);
-
-      repairAmount = this._game.commander.ship.repairHullByAmount(repairAmount);
-      this._game.commander.ship.rechargeShieldPowerByAmount(2 * repairAmount); // Shields are easier to recharge
+      repairOnTheWay(this._game);
 
       const opponentType = whoIsMet(this, currentClicks);
-
-      let opponent: Opponent | null;
-
-      if (opponentType === OpponentType.Police) {
-        ({ encounterType, opponent } = policeMeeting(this, opponentType, currentClicks));
-      } else if (opponentType === OpponentType.Pirate || opponentType === OpponentType.Mantis) {
-        ({ encounterType, opponent } = pirateMeeting(this._game, opponentType));
-      } else if (opponentType === OpponentType.Trader) {
-        ({ encounterType, opponent } = traderMeeting(this._game, opponentType));
-      } else if (opponentType === OpponentType.Scarab) {
-        ({ encounterType, opponent } = scarabMeeting(this._game, opponentType));
-      } else if (opponentType === OpponentType.Dragonfly) {
-        ({ encounterType, opponent } = dragonflyMeeting(this._game, opponentType));
-      } else if (opponentType === OpponentType.Monster) {
-        ({ encounterType, opponent } = monsterMeeting(this._game, opponentType));
-      } else {
-        ({ encounterType, opponent } = rareEventMeeting(this._game));
-      }
+      const { encounterType, opponent } = meeting(this, opponentType, currentClicks);
 
       if (encounterType !== EncounterType.None && opponent) {
         const encounterController = new Encounter(encounterType, this._game, opponent, this);
@@ -233,3 +207,31 @@ export class Travel extends Store implements EncounterListener {
 // What a click of the trip brings: the opponent and how the encounter with it starts.
 // No encounter starts when the type is None or there is no opponent.
 export type Meeting = { encounterType: EncounterType; opponent: Opponent | null };
+
+function repairOnTheWay(game: Game): void {
+  // Automatic repairs based on engineering skill
+  const engineerSkill = game.commander.ship.crewEngineerSkillIncludingCommander(game.commander);
+  let repairAmount = runtime.gameRand.randomIntBelow(engineerSkill / 2);
+
+  repairAmount = game.commander.ship.repairHullByAmount(repairAmount);
+  game.commander.ship.rechargeShieldPowerByAmount(2 * repairAmount); // Shields are easier to recharge
+}
+
+// Asks the kind of opponent that was picked how it behaves.
+function meeting(travel: Travel, opponentType: number, currentClicks: number): Meeting {
+  if (opponentType === OpponentType.Police) {
+    return policeMeeting(travel, opponentType, currentClicks);
+  } else if (opponentType === OpponentType.Pirate || opponentType === OpponentType.Mantis) {
+    return pirateMeeting(travel._game, opponentType);
+  } else if (opponentType === OpponentType.Trader) {
+    return traderMeeting(travel._game, opponentType);
+  } else if (opponentType === OpponentType.Scarab) {
+    return scarabMeeting(travel._game, opponentType);
+  } else if (opponentType === OpponentType.Dragonfly) {
+    return dragonflyMeeting(travel._game, opponentType);
+  } else if (opponentType === OpponentType.Monster) {
+    return monsterMeeting(travel._game, opponentType);
+  } else {
+    return rareEventMeeting(travel._game);
+  }
+}
