@@ -21,7 +21,7 @@ function handleFatalError(str: string) {
   if (runtime.debugMode === DebugMode.Alert) {
     AlertViewController.presentAlertWithDismiss('DEBUG: ' + str + stackTrace);
   } else if (runtime.debugMode === DebugMode.Assert) {
-    throw 'Throw error: ' + str + '\n' + new Error().stack;
+    throw new Error('Throw error: ' + str);
   }
 }
 
@@ -34,7 +34,7 @@ export function ensureInteger(n: unknown) {
 }
 
 export function ensureNumber(n: unknown) {
-  if (isNaN(n as number)) {
+  if (typeof n !== 'number' || !Number.isFinite(n)) {
     handleFatalError('ensureNumber failed');
     return false;
   }
