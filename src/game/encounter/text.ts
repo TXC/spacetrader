@@ -93,7 +93,8 @@ function whatItDoes(encounter: Encounter): string {
     if (
       encounter._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(
         encounter._game.commander,
-        encounter._opponent
+        encounter._opponent,
+        encounter._game.difficulty
       )
     ) {
       text += "It doesn't notice you.";

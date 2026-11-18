@@ -14,22 +14,22 @@ export function skills(game: Game): Skill[] {
     {
       name: 'Pilot',
       base: commander.pilot,
-      withCrew: ship.crewPilotSkillIncludingCommander(commander),
+      withCrew: ship.crewPilotSkillIncludingCommander(commander, game.difficulty),
     },
     {
       name: 'Fighter',
       base: commander.fighter,
-      withCrew: ship.crewFighterSkillIncludingCommander(commander),
+      withCrew: ship.crewFighterSkillIncludingCommander(commander, game.difficulty),
     },
     {
       name: 'Trader',
       base: commander.trader,
-      withCrew: ship.crewTraderSkillIncludingCommander(commander),
+      withCrew: ship.crewTraderSkillIncludingCommander(commander, game.difficulty),
     },
     {
       name: 'Engineer',
       base: commander.engineer,
-      withCrew: ship.crewEngineerSkillIncludingCommander(commander),
+      withCrew: ship.crewEngineerSkillIncludingCommander(commander, game.difficulty),
     },
   ];
 }

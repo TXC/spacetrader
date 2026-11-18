@@ -194,7 +194,10 @@ function tribblesOnArrival(game: Game): string[] {
 }
 
 function repairOnArrival(game: Game): void {
-  const engineerSkill = game.commander.ship.crewEngineerSkillIncludingCommander(game.commander);
+  const engineerSkill = game.commander.ship.crewEngineerSkillIncludingCommander(
+    game.commander,
+    game.difficulty
+  );
   const repairAmount = runtime.gameRand.randomIntBelow(engineerSkill);
   game.commander.ship.repairHullByAmount(repairAmount);
 }

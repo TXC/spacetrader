@@ -23,7 +23,9 @@ export function traderMeeting(game: Game, opponentType: number): Meeting {
   encounterType = traderReaction(game, opponent);
   encounterType = withTradeOffer(game, opponent, encounterType);
 
-  if (opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, game.commander)) {
+  if (
+    opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, game.commander, game.difficulty)
+  ) {
     encounterType = EncounterType.None;
   } else if (hiddenByOptions(encounterType, game)) {
     encounterType = EncounterType.None;
@@ -36,7 +38,13 @@ function traderReaction(game: Game, opponent: Opponent): EncounterType {
   let encounterType: EncounterType;
   encounterType = EncounterType.TraderIgnore;
 
-  if (game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(game.commander, opponent)) {
+  if (
+    game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(
+      game.commander,
+      opponent,
+      game.difficulty
+    )
+  ) {
     encounterType = EncounterType.TraderIgnore;
   } else if (game.commander.policeRecordScore <= PoliceRecordScore.Criminal) {
     // Traders flee from sketchy commanders
@@ -44,7 +52,13 @@ function traderReaction(game: Game, opponent: Opponent): EncounterType {
       runtime.gameRand.randomIntBelow(ReputationScore.Elite) <=
       Math.floor((game.commander.reputationScore * 10) / (1 + opponent.ship.type))
     ) {
-      if (opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, game.commander)) {
+      if (
+        opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(
+          opponent,
+          game.commander,
+          game.difficulty
+        )
+      ) {
         encounterType = EncounterType.TraderIgnore;
       } else {
         encounterType = EncounterType.TraderFlee;
