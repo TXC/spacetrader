@@ -54,7 +54,6 @@ export function LoggedCheckbox({ id, checked, onToggle, children }: CheckboxProp
 
 type LinkProps = {
   id: string;
-  className?: string;
   // True for the navigation button of the screen that is open.
   current?: boolean;
   onPress: () => void;
@@ -63,13 +62,13 @@ type LinkProps = {
 
 // A button with an icon and a text: the navigation and encounter buttons. (The name is from
 // the old screens, where these were links.)
-export function LoggedLink({ id, className, current, onPress, children }: LinkProps) {
+export function LoggedLink({ id, current, onPress, children }: LinkProps) {
   const onClick = useLogged(id, 'click', onPress);
   return (
     <button
       type="button"
       id={id}
-      className={look(className)}
+      className={styles.button}
       aria-current={current ? 'page' : undefined}
       onClick={onClick}
     >

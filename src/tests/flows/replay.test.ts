@@ -28,6 +28,7 @@ import {
   hasText,
   highScores,
   hullBar,
+  isCurrent,
   mapInfo,
   news,
   rowAfterHeading,
@@ -538,7 +539,7 @@ test('hireMercenary_fireMercenary', () => {
   // for hire button should appear
   assertTrue(button('For Hire') !== null, 'For hire button reappears');
   const roster = button('Roster');
-  assertEqual(roster!.classList.contains('active'), true);
+  assertEqual(isCurrent(roster), true);
 });
 
 test('mercenary_arrest', () => {
@@ -1256,7 +1257,7 @@ test('galaxyView_systemLanding_selectWarpTarget', () => {
   const session = replay.session;
   assertEqual(session.selection.system!.name, 'Acamar');
   assertEqual(mapOf(session).selectedSystem!.name, 'Acamar');
-  assertTrue(button('Warp')!.classList.contains('active'));
+  assertTrue(isCurrent(button('Warp')));
 });
 
 test('galaxyView_systemLanding_showsSystemInfo', () => {
@@ -1402,7 +1403,7 @@ test('galaxyView_systemLanding_selectSecondWarpTarget', () => {
   const session = replay.session;
   assertEqual(session.selection.system!.name, 'Acamar');
   assertEqual(mapOf(session).selectedSystem!.name, 'Acamar');
-  assertTrue(button('Warp')!.classList.contains('active'));
+  assertTrue(isCurrent(button('Warp')));
 });
 
 test('galaxyView_systemLanding_cycleAllWarpSystems_includingWormhole_next', () => {
@@ -1624,7 +1625,7 @@ test('galaxyView_systemLanding_selectWarpTarget_outOfRange', () => {
   const session = replay.session;
   assertEqual(session.selection.system!.name, 'Tantalos');
   assertEqual(mapOf(session).selectedSystem!.name, 'Tantalos');
-  assertTrue(button('Warp')!.classList.contains('active'), 'warp is active');
+  assertTrue(isCurrent(button('Warp')), 'warp is active');
   assertEqual(textOf(warpMessage()), 'Out of range.');
 });
 
@@ -1641,7 +1642,7 @@ test('galaxyView_systemLanding_selectWarpTarget_wormhole_outOfRange', () => {
   assertEqual(session.selection.wormhole, true);
   assertEqual(mapOf(session).selectedSystem!.name, 'Styris');
   assertEqual(mapOf(session).selectedWormhole, true);
-  assertTrue(button('Warp')!.classList.contains('active'), 'warp is active');
+  assertTrue(isCurrent(button('Warp')), 'warp is active');
   assertEqual(textOf(warpMessage()), 'Out of range.');
 
   // Force initialization of all the planets
@@ -1662,7 +1663,7 @@ test('galaxyView_systemLanding_selectWarpTarget_wormholeParent_inRange', () => {
   assertEqual(session.selection.wormhole, false);
   assertEqual(mapOf(session).selectedSystem!.name, 'Styris');
   assertEqual(mapOf(session).selectedWormhole, false);
-  assertTrue(button('Warp')!.classList.contains('active'), 'warp is active');
+  assertTrue(isCurrent(button('Warp')), 'warp is active');
 
   // Force initialization of all the planets
   mapOf(session).drawGalaxy(0);
@@ -1683,12 +1684,12 @@ test('galaxyView_systemLanding_selectWarpTarget_noSystemsInRange_buyFuel', () =>
   const session = replay.session;
   assertEqual(session.selection.system, null);
   assertEqual(mapOf(session).selectedSystem!.name, 'Castor');
-  assertTrue(button('Warp')!.classList.contains('active'), 'warp is active');
+  assertTrue(isCurrent(button('Warp')), 'warp is active');
   assertEqual(textOf(warpMessage()), 'No systems within range Fill tank for $14');
 
   replay.replayEvent('fulltank', 'click');
 
-  assertTrue(button('Warp')!.classList.contains('active'), 'warp is active');
+  assertTrue(isCurrent(button('Warp')), 'warp is active');
 
   warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Cestus');
@@ -1706,13 +1707,13 @@ test('galaxyView_systemLanding_chart_selectingInEitherWorks', () => {
 
   assertTrue(hasText(rowAfterHeading('Selected System'), 'b', 'Yojimbo'), 'Yojimbo is selected');
 
-  assertTrue(button('Chart')!.classList.contains('active'), 'chart is active');
-  assertTrue(!button('Warp')!.classList.contains('active'), 'warp is not active');
+  assertTrue(isCurrent(button('Chart')), 'chart is active');
+  assertTrue(!isCurrent(button('Warp')), 'warp is not active');
 
   replay.replayEvent('namedEvent', 'selectPlanetZoomed|Kira');
 
-  assertTrue(!button('Chart')!.classList.contains('active'), 'chart is not active');
-  assertTrue(button('Warp')!.classList.contains('active'), 'warp is active');
+  assertTrue(!isCurrent(button('Chart')), 'chart is not active');
+  assertTrue(isCurrent(button('Warp')), 'warp is active');
 
   const warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Kira');
@@ -1728,8 +1729,8 @@ test('galaxyView_systemLanding_chart_selectingWormhole', () => {
 
   assertTrue(hasText(rowAfterHeading('Selected System'), 'b', 'Pollux'), 'Pollux is selected');
 
-  assertTrue(button('Chart')!.classList.contains('active'), 'chart is active');
-  assertTrue(!button('Warp')!.classList.contains('active'), 'warp is not active');
+  assertTrue(isCurrent(button('Chart')), 'chart is active');
+  assertTrue(!isCurrent(button('Warp')), 'warp is not active');
 
   const chartGalaxyView = runtime.actionLog._namedEvents['selectPlanet'] as unknown as GalaxyView;
   // Force initialization of all the planets

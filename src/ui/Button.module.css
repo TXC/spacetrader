@@ -40,7 +40,7 @@
 }
 
 /* The navigation link of the screen that is open. */
-.button:global(.active) {
+.button[aria-current='page'] {
   border-color: var(--button-accent);
   background: var(--button-accent-soft);
   color: var(--button-accent-soft-text);
