@@ -176,6 +176,17 @@ export class Game {
     }
   }
 
+  // A new game: the galaxy, its special events and mercenaries, and the commander, drawn at
+  // random in that order.
+  static create(difficulty: number, recruit: Recruit): Game {
+    return new Game(difficulty, recruit);
+  }
+
+  // A game from a saved game, as parseSavedGame checked it.
+  static load(state: GameState): Game {
+    return Game.fromSerializedState(state);
+  }
+
   static fromSerializedState(serializedState: GameState) {
     const instance = new Game();
 
