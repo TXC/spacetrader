@@ -12,7 +12,7 @@ import { runtime } from './runtime.ts';
 import { parseSavedGame } from './savedGame.ts';
 import { present as presentShipYard } from './ShipYard.ts';
 import type { SolarSystem } from './SolarSystem.ts';
-import { SpecialEvent } from './SolarSystem.types.ts';
+import { Difficulty, SpecialEvent } from './SolarSystem.types.ts';
 import { specialEventForType } from './SpecialEventSpecifier.ts';
 import type { SpecialEventSpecifier } from './SpecialEventSpecifier.ts';
 import { readJson, writeJson } from './storage.ts';
@@ -103,7 +103,7 @@ export class Session extends Store {
     this.changed();
   };
 
-  createCommander = (name: string, difficulty: number, skills: Skills): void => {
+  createCommander = (name: string, difficulty: Difficulty, skills: Skills): void => {
     if (this.game) return;
     this.game = Game.create(difficulty, { name, ...skills });
     this.game.commander.reserveMoney = true;

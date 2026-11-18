@@ -97,7 +97,7 @@ function nearestFreeSystem(
 // Everything a game is made of.
 type GameFields = {
   uniqueID: string;
-  difficulty: number;
+  difficulty: Difficulty;
   endStatus: number;
   trackedSystem: SolarSystem | null;
   breakingNews: string[] | null;
@@ -194,7 +194,7 @@ export class Game {
   wildStatus: number;
   reactorStatus: number;
   readonly commander: Commander;
-  difficulty: number;
+  difficulty: Difficulty;
   monsterHull: number;
   remainingRareEvents: number[];
   readonly solarSystems: SolarSystem[];
@@ -240,7 +240,7 @@ export class Game {
 
   // A new game: the galaxy, its special events and mercenaries, and the commander, drawn at
   // random in that order.
-  static create(difficulty: number, recruit: Recruit): Game {
+  static create(difficulty: Difficulty, recruit: Recruit): Game {
     const uniqueID = generateUniqueID();
     const solarSystems = Game._populateSolarSystems(difficulty);
     Game._setupEventsAndMercenaries(solarSystems);
@@ -495,7 +495,7 @@ export class Game {
     return `${wholeNumber}.${decimal}%`;
   }
 
-  private static _populateSolarSystems(difficulty: number): SolarSystem[] {
+  private static _populateSolarSystems(difficulty: Difficulty): SolarSystem[] {
     const solarSystemCount = SolarSystem.solarSystemNames().length;
     const solarSystems = [];
     const solarSystemNames = [...SolarSystem.solarSystemNames()];

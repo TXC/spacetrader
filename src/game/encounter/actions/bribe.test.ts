@@ -8,7 +8,7 @@ import { TradeItemType } from '../../TradeItem.types.ts';
 import { EncounterType } from '../types.ts';
 
 // A commander with narcotics aboard, in a system whose police take bribes.
-function smuggler(difficulty: number = Difficulty.Normal): Game {
+function smuggler(difficulty: Difficulty = Difficulty.Normal): Game {
   const game = newGame(difficulty);
   game.commander.moveTo(game.solarSystems.find(system => system.politics.bribeWillingness > 0)!);
   game.commander.ship.boughtQuantity(2, TradeItemType.Narcotics, 0);

@@ -4,6 +4,7 @@
 import { expect, test } from 'vitest';
 import { KILL_PIRATE_SCORE, PoliceRecordScore } from '../../game/Commander.ts';
 import { shipModelForType, ShipModelType } from '../../game/Ship.ts';
+import type { Difficulty } from '../../game/SolarSystem.types.ts';
 import { TradeItemType } from '../../game/TradeItem.types.ts';
 import { runtime } from '../../game/runtime.ts';
 import { AlertViewController } from '../../game/alerts.ts';
@@ -994,7 +995,7 @@ test('plunder_dump_litter_yes', () => {
 
   assertEqual(commander.litterWarning, false);
 
-  game.difficulty = 10; // force us to lose the die roll about getting caught littering by the police
+  game.difficulty = 10 as Difficulty; // force us to lose the die roll about getting caught littering by the police
 
   replay.replayEvent('cargo_FursDump_1', 'click');
 

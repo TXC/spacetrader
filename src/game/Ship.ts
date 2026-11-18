@@ -13,6 +13,7 @@ import type { Accessory, Gadget, Shield, Weapon } from './Accessory.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import { CrewMember } from './CrewMember.ts';
 import { adjustSkillForDifficulty, CLOAK_BONUS, SKILL_BONUS } from './SolarSystem.types.ts';
+import type { Difficulty } from './SolarSystem.types.ts';
 import {
   TechLevel,
   TradeItemType,
@@ -514,7 +515,7 @@ export class Ship {
   // system's mercenary is that same mercenary.
   static load(state: ShipState, solarSystems: SolarSystem[]): Ship {
     const ship = new Ship({
-      type: state.type as ShipModelType,
+      type: state.type,
       fuel: state.fuel,
       hull: state.hull,
       upgradedHull: state.upgradedHull,
@@ -939,7 +940,7 @@ export class Ship {
   shipOwnedByCommanderIsCloakedToOpponent(
     commander: CrewMember,
     opponent: ShipOwner,
-    difficulty: number
+    difficulty: Difficulty
   ) {
     return (
       this.hasGadgetOfType(AccessoryType.GadgetCloakingDevice) &&
@@ -969,7 +970,7 @@ export class Ship {
     return Math.floor(value);
   }
 
-  _enemyShipValuationWithOpponent(opponent: CrewMember, difficulty: number) {
+  _enemyShipValuationWithOpponent(opponent: CrewMember, difficulty: Difficulty) {
     // Don't include gadgets since they influnce the skill-based valuation
     let value = [...this.weapons, ...this.shields].reduce(
       (sum, accessory) => sum + accessory.price,
@@ -989,7 +990,7 @@ export class Ship {
     return value;
   }
 
-  bountyForEnemyShipWithOpponent(opponent: CrewMember, difficulty: number) {
+  bountyForEnemyShipWithOpponent(opponent: CrewMember, difficulty: Difficulty) {
     let value = this._enemyShipValuationWithOpponent(opponent, difficulty);
     value /= 200;
     value /= 25;
@@ -998,7 +999,7 @@ export class Ship {
     return Math.min(Math.max(value, 25), 2500);
   }
 
-  crewEngineerSkillIncludingCommander(commander: CrewMember, difficulty: number) {
+  crewEngineerSkillIncludingCommander(commander: CrewMember, difficulty: Difficulty) {
     let maxSkill = Math.max(
       commander.engineer,
       ...this._crew.map(crewMember => crewMember.engineer)
@@ -1013,7 +1014,7 @@ export class Ship {
     return adjustSkillForDifficulty(maxSkill, difficulty);
   }
 
-  crewTraderSkillIncludingCommander(commander: CrewMember, difficulty: number) {
+  crewTraderSkillIncludingCommander(commander: CrewMember, difficulty: Difficulty) {
     let maxSkill = Math.max(commander.trader, ...this._crew.map(crewMember => crewMember.trader));
 
     if (commander.carriesMaxTraderBoost) {
@@ -1025,7 +1026,7 @@ export class Ship {
     return adjustSkillForDifficulty(maxSkill, difficulty);
   }
 
-  crewFighterSkillIncludingCommander(commander: CrewMember, difficulty: number) {
+  crewFighterSkillIncludingCommander(commander: CrewMember, difficulty: Difficulty) {
     let maxSkill = Math.max(commander.fighter, ...this._crew.map(crewMember => crewMember.fighter));
 
     if (this.hasGadgetOfType(AccessoryType.GadgetTargetingSystem)) {
@@ -1037,7 +1038,7 @@ export class Ship {
     return adjustSkillForDifficulty(maxSkill, difficulty);
   }
 
-  crewPilotSkillIncludingCommander(commander: CrewMember, difficulty: number) {
+  crewPilotSkillIncludingCommander(commander: CrewMember, difficulty: Difficulty) {
     let maxSkill = Math.max(commander.pilot, ...this._crew.map(crewMember => crewMember.pilot));
 
     if (this.hasGadgetOfType(AccessoryType.GadgetNavigationSystem)) {

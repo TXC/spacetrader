@@ -15,13 +15,10 @@ const numbers = v.array(num);
 const bool = v.boolean();
 const text = v.string();
 
-// A number that must be one of a list's values, such as a ship model or a difficulty.
-function oneOf(list: Record<string, number>) {
-  const allowed = new Set(Object.values(list));
-  return v.pipe(
-    num,
-    v.check(value => allowed.has(value))
-  );
+// A number that must be one of a list's values, such as a ship model or a difficulty. It
+// is read as that list's type.
+function oneOf<T extends Record<string, number>>(list: T) {
+  return v.picklist(Object.values(list) as T[keyof T][]);
 }
 const difficulty = oneOf(Difficulty);
 

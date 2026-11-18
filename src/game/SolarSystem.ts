@@ -2,6 +2,7 @@ import { CrewMember } from './CrewMember.ts';
 import { occurrenceStr, politicsForType, randomPoliticsForTechLevel } from './Politics.ts';
 import type { Politics } from './Politics.ts';
 import {
+  Difficulty,
   SpecialEvent,
   SystemSize,
   systemSizeName,
@@ -236,7 +237,7 @@ export class SolarSystem {
 
   // A new system, with its tech level, government, resources, size, status and
   // inventories drawn at random, in that order.
-  static create(name: string, x: number, y: number, difficulty: number): SolarSystem {
+  static create(name: string, x: number, y: number, difficulty: Difficulty): SolarSystem {
     const techLevel = runtime.gameRand.randomIntBelow(TECH_LEVEL_COUNT) as TechLevel;
     const politics = randomPoliticsForTechLevel(techLevel);
     const specialResource = randomSpecialResource();
@@ -273,10 +274,10 @@ export class SolarSystem {
       wormhole: null,
       specialEvent: state.specialEvent as SpecialEvent,
       visited: state.visited,
-      techLevel: state.techLevel as TechLevel,
+      techLevel: state.techLevel,
       politics: politicsForType(state.politicsType),
       specialResource: state.specialResource as Resource,
-      size: state.size as SystemSize,
+      size: state.size,
       status: state.status as Status,
       inventoryReplenishCountdown: state.inventoryReplenishCountdown,
       tradeItemInventory: Array.from(
@@ -312,7 +313,7 @@ export class SolarSystem {
     return hash;
   }
 
-  _initializeInventories(difficulty: number) {
+  _initializeInventories(difficulty: Difficulty) {
     this._tradeItemInventory = Array<number>(TRADE_ITEM_COUNT).fill(0);
     for (let itemType = 0; itemType < TRADE_ITEM_COUNT; ++itemType) {
       const item = tradeItemForType(itemType);
@@ -440,7 +441,7 @@ export class SolarSystem {
     return !cantProduceItem;
   }
 
-  updateInventories(difficulty: number) {
+  updateInventories(difficulty: Difficulty) {
     if (this._inventoryReplenishCountdown > 0) {
       this._inventoryReplenishCountdown--;
 
