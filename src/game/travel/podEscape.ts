@@ -1,3 +1,4 @@
+import type { Game } from '../Game.ts';
 import { CAUGHT_WITH_WILD_SCORE } from '../Commander.ts';
 import { Ship, ShipModelType } from '../Ship.ts';
 import {
@@ -14,14 +15,27 @@ import type { Travel } from './Travel.ts';
 export function podEscape(travel: Travel): void {
   const alerts = [];
 
+  alerts.push(...ejected(travel._game));
+  alerts.push(...leftBehind(travel._game));
+  alerts.push(...insurancePays(travel._game));
+  alerts.push(...podBecomesAFlea(travel._game));
+
+  travel._promptForStrings(alerts, () => {
+    travel._done('arrived');
+  });
+}
+
+function ejected(game: Game): string[] {
+  const alerts: string[] = [];
+
   let reactorStr = '';
   if (
-    travel._game.reactorStatus > ReactorQuestStatus.Open &&
-    travel._game.reactorStatus < ReactorQuestStatus.ClosedTooLate
+    game.reactorStatus > ReactorQuestStatus.Open &&
+    game.reactorStatus < ReactorQuestStatus.ClosedTooLate
   ) {
     reactorStr =
       ' The destruction of your ship is made much more spectacular by the added explosion of the Ion Reactor.';
-    travel._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
+    game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
     pLog.log(160);
   }
 
@@ -29,70 +43,86 @@ export function podEscape(travel: Travel): void {
     `Just before the final demise of your ship, your escape pod gets activated and ejects you.${reactorStr} After a few days, the Space Corps picks you up and drops you off at a nearby space port.`
   );
 
-  if (travel._game.japoriQuestStatus === JaporiQuestStatus.HasMedicine) {
-    travel._game.japoriQuestStatus = JaporiQuestStatus.Open;
+  return alerts;
+}
+
+// What the pod could not take, and the passengers the Space Corps takes away.
+function leftBehind(game: Game): string[] {
+  const alerts: string[] = [];
+
+  if (game.japoriQuestStatus === JaporiQuestStatus.HasMedicine) {
+    game.japoriQuestStatus = JaporiQuestStatus.Open;
     alerts.push(
       'The antidote for the Japori system was destroyed with your ship. Fortunately, they probably have some new antidote in the system where you originally got it.'
     );
   }
 
-  if (travel._game.commander.artifactOnBoard) {
-    travel._game.commander.artifactOnBoard = false;
+  if (game.commander.artifactOnBoard) {
+    game.commander.artifactOnBoard = false;
     alerts.push(
       "You couldn't take the artifact with you in the escape pod, so now it's lost in the wreckage. The aliens will probably pick it up there."
     );
   }
 
-  if (travel._game.jarekStatus === JarekQuestStatus.OnBoard) {
+  if (game.jarekStatus === JarekQuestStatus.OnBoard) {
     alerts.push('The Space Corps decides to give ambassador Jarek a lift home to Devidia.');
-    travel._game.jarekStatus = JarekQuestStatus.Closed;
+    game.jarekStatus = JarekQuestStatus.Closed;
   }
 
-  if (travel._game.wildStatus === WildQuestStatus.OnBoard) {
+  if (game.wildStatus === WildQuestStatus.OnBoard) {
     alerts.push('Jonathan Wild is arrested, and taken away to stand trial.');
-    travel._game.wildStatus = WildQuestStatus.Closed;
-    travel._game.commander.ship.removeCrewMemberWithName('Jonathan Wild');
-    travel._game.addBreakingNewsItem('Notorious Criminal Jonathan Wild Arrested!');
-    travel._game.commander.policeRecordScore =
-      travel._game.commander.policeRecordScore + CAUGHT_WITH_WILD_SCORE;
+    game.wildStatus = WildQuestStatus.Closed;
+    game.commander.ship.removeCrewMemberWithName('Jonathan Wild');
+    game.addBreakingNewsItem('Notorious Criminal Jonathan Wild Arrested!');
+    game.commander.policeRecordScore = game.commander.policeRecordScore + CAUGHT_WITH_WILD_SCORE;
     pLog.log(31);
   }
 
-  if (travel._game.commander.ship.tribbles > 0) {
+  if (game.commander.ship.tribbles > 0) {
     alerts.push('Your tribbles all died in the explosion.');
-    travel._game.commander.ship.tribbles = 0;
+    game.commander.ship.tribbles = 0;
   }
 
-  if (travel._game.commander.hasInsurance) {
-    const shipValue = travel._game.commander.ship.shipValuationForInsurance(true);
-    travel._game.commander.credits = travel._game.commander.credits + shipValue;
+  return alerts;
+}
+
+function insurancePays(game: Game): string[] {
+  const alerts: string[] = [];
+
+  if (game.commander.hasInsurance) {
+    const shipValue = game.commander.ship.shipValuationForInsurance(true);
+    game.commander.credits = game.commander.credits + shipValue;
     alerts.push(
       `Since your ship was insured, the bank pays you $${shipValue}, the total value of the destroyed ship.`
     );
     pLog.log(32);
   }
 
-  travel._game.commander.hasInsurance = false;
-  travel._game.commander.noClaim = 0;
-  travel._game.commander.hasEscapePod = false;
+  game.commander.hasInsurance = false;
+  game.commander.noClaim = 0;
+  game.commander.hasEscapePod = false;
+
+  return alerts;
+}
+
+function podBecomesAFlea(game: Game): string[] {
+  const alerts: string[] = [];
 
   alerts.push('In 3 days and with $500, you manage to convert your pod into a Flea.');
 
-  let credits = travel._game.commander.credits;
+  let credits = game.commander.credits;
   credits -= 500;
   if (credits < 0) {
-    travel._game.commander.debt = travel._game.commander.debt - credits;
+    game.commander.debt = game.commander.debt - credits;
     credits = 0;
     pLog.log(33);
   }
-  travel._game.commander.credits = credits;
+  game.commander.credits = credits;
 
-  travel._game.timePassed(3);
+  game.timePassed(3);
 
-  const ship = new Ship(ShipModelType.Flea, travel._game.difficulty);
-  travel._game.commander.ship = ship;
+  const ship = new Ship(ShipModelType.Flea, game.difficulty);
+  game.commander.ship = ship;
 
-  travel._promptForStrings(alerts, () => {
-    travel._done('arrived');
-  });
+  return alerts;
 }
