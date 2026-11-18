@@ -72,7 +72,7 @@ export const systemInfo = () => welcome()?.nextElementSibling ?? null;
 // The few things with no role or fixed text of their own. Only this file knows their names.
 const part = (selector: string) => () => document.querySelector<HTMLElement>(selector);
 export const news = part('#newsStrDiv');
-export const mapInfo = part('.gv-system-info');
+export const mapInfo = part('[data-map-info]');
 export const warpMessage = part('#warpMessage');
 export const encounterBox = part('#eVC_dialog');
 export const scoreMessage = part('#end-message');
