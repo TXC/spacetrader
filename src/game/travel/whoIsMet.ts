@@ -50,59 +50,77 @@ export function whoIsMet(travel: Travel, currentClicks: number): number {
       opponentType = OpponentType.Mantis;
     }
   } else {
-    let encounterTest = runtime.gameRand.randomIntBelow(44 - 2 * travel._game.difficulty);
+    opponentType = ordinaryDice(travel);
+  }
 
-    // Fleas have half as many encounters
-    if (travel._game.commander.ship.type === ShipModelType.Flea) {
-      encounterTest *= 2;
+  return opponentType;
+}
+
+// On an ordinary click: pirates, police or a trader, as often as the destination's
+// politics has them, or no one.
+function ordinaryDice(travel: Travel): number {
+  let opponentType: number;
+
+  let encounterTest = runtime.gameRand.randomIntBelow(44 - 2 * travel._game.difficulty);
+
+  // Fleas have half as many encounters
+  if (travel._game.commander.ship.type === ShipModelType.Flea) {
+    encounterTest *= 2;
+  }
+
+  ensureInteger(encounterTest);
+
+  if (
+    encounterTest < travel._destination.politics.occurrencePirates &&
+    !travel._game.commander.raided
+  ) {
+    opponentType = OpponentType.Pirate;
+  } else if (
+    encounterTest <
+    travel._destination.politics.occurrencePirates +
+      travel._destination.politics.occurrencePolice *
+        policeRecordMultiplier(travel._game.commander.policeRecordScore)
+  ) {
+    opponentType = OpponentType.Police;
+  } else if (
+    encounterTest <
+    travel._destination.politics.occurrencePirates +
+      travel._destination.politics.occurrencePolice *
+        policeRecordMultiplier(travel._game.commander.policeRecordScore) +
+      travel._destination.politics.occurrenceTraders
+  ) {
+    opponentType = OpponentType.Trader;
+  } else {
+    opponentType = policeAtKravat(travel);
+  }
+
+  ensureInteger(opponentType);
+
+  if (opponentType >= OPPONENT_TYPE_COUNT) {
+    if (travel._game.commander.artifactOnBoard && runtime.gameRand.randomIntBelow(20) <= 3) {
+      opponentType = OpponentType.Mantis;
     }
+  }
 
-    ensureInteger(encounterTest);
+  return opponentType;
+}
 
+function policeAtKravat(travel: Travel): number {
+  let opponentType: number = OPPONENT_TYPE_COUNT;
+
+  // Welcome to Kravat, outlaw!
+  if (
+    travel._game.wildStatus === WildQuestStatus.OnBoard &&
+    travel._destination.name === 'Kravat'
+  ) {
+    const diceRoll = runtime.gameRand.randomIntBelow(100);
     if (
-      encounterTest < travel._destination.politics.occurrencePirates &&
-      !travel._game.commander.raided
+      (travel._game.difficulty <= Difficulty.Easy && diceRoll < 25) ||
+      (travel._game.difficulty === Difficulty.Normal && diceRoll < 33) ||
+      (travel._game.difficulty > Difficulty.Normal && diceRoll < 50)
     ) {
-      opponentType = OpponentType.Pirate;
-    } else if (
-      encounterTest <
-      travel._destination.politics.occurrencePirates +
-        travel._destination.politics.occurrencePolice *
-          policeRecordMultiplier(travel._game.commander.policeRecordScore)
-    ) {
+      pLog.log(125);
       opponentType = OpponentType.Police;
-    } else if (
-      encounterTest <
-      travel._destination.politics.occurrencePirates +
-        travel._destination.politics.occurrencePolice *
-          policeRecordMultiplier(travel._game.commander.policeRecordScore) +
-        travel._destination.politics.occurrenceTraders
-    ) {
-      opponentType = OpponentType.Trader;
-    } else {
-      // Welcome to Kravat, outlaw!
-      if (
-        travel._game.wildStatus === WildQuestStatus.OnBoard &&
-        travel._destination.name === 'Kravat'
-      ) {
-        const diceRoll = runtime.gameRand.randomIntBelow(100);
-        if (
-          (travel._game.difficulty <= Difficulty.Easy && diceRoll < 25) ||
-          (travel._game.difficulty === Difficulty.Normal && diceRoll < 33) ||
-          (travel._game.difficulty > Difficulty.Normal && diceRoll < 50)
-        ) {
-          pLog.log(125);
-          opponentType = OpponentType.Police;
-        }
-      }
-    }
-
-    ensureInteger(opponentType);
-
-    if (opponentType >= OPPONENT_TYPE_COUNT) {
-      if (travel._game.commander.artifactOnBoard && runtime.gameRand.randomIntBelow(20) <= 3) {
-        opponentType = OpponentType.Mantis;
-      }
     }
   }
 
