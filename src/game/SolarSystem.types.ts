@@ -109,7 +109,7 @@ export const InvasionQuestStatus = {
   ClosedSaved: 9,
   ClosedRewardClaimed: 10,
 } as const;
-export type InvasionQuestStatus = number;
+export type InvasionQuestStatus = ValueOf<typeof InvasionQuestStatus>;
 
 // The aliens are on their way to Gemulon: one of the seven days before the invasion.
 export function invasionUnderway(status: InvasionQuestStatus): boolean {
@@ -134,7 +134,7 @@ export const ExperimentQuestStatus = {
   ClosedTooLate: 11,
   ClosedSaved: 12,
 } as const;
-export type ExperimentQuestStatus = number;
+export type ExperimentQuestStatus = ValueOf<typeof ExperimentQuestStatus>;
 
 // Dr. Fehler's experiment is running: one of its ten days before it goes wrong.
 export function experimentUnderway(status: ExperimentQuestStatus): boolean {
@@ -154,6 +154,8 @@ export const ReactorQuestStatus = {
   ClosedTooLate: 21,
   ClosedSaved: 22,
 } as const;
+// Only the first and the last day of the reactor's countdown are named; the days between
+// are the numbers between them.
 export type ReactorQuestStatus = number;
 
 // The unstable reactor is aboard, burning its fuel day by day.
