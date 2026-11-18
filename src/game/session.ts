@@ -106,7 +106,7 @@ export class Session extends Store {
   createCommander = (name: string, difficulty: number, skills: Skills): void => {
     if (this.game) return;
     this.game = new Game(difficulty, { name, ...skills });
-    this.game.commander.setReserveMoney(true);
+    this.game.commander.reserveMoney = true;
     this.watch(this.game);
     this.game.save();
     this.start();

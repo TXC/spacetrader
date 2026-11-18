@@ -16,7 +16,7 @@ export function newGame(difficulty = 2): Game {
     fighter: 5,
     trader: 5,
   });
-  game.commander.setReserveMoney(false);
+  game.commander.reserveMoney = false;
   return game;
 }
 
