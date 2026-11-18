@@ -161,3 +161,51 @@ Nothing else should change.
   by attribute or element, so no class name is a promise to the tests.
 - Header cells and the hidden cargo heading row (A5) are done here.
 - The comparison by photographs as the check for "looks the same".
+
+## What the build did differently
+
+- **The name field in dark mode.** The old rule that painted the text
+  field dark is gone. A rule that sets a field's colours also switches
+  off the browser's own look for it, in light mode too, so it could not
+  be written with the colour names. With `color-scheme` the browser
+  draws the field dark by itself. Its dark grey is a little lighter
+  than the old one. This is counted under Y2.
+- **Shared pieces without `composes`.** A component that needs a shared
+  piece exactly as it is (a right-aligned cell, a tight table) uses the
+  class from `shared.module.css` directly. `composes` is used where a
+  module adds something of its own. A module never sets a property the
+  piece it composes already sets, so the result does not depend on the
+  order the files are loaded in.
+- **Empty lines are measured in `lh`.** A removed line break becomes a
+  margin or padding of `1lh`, the height of one line of the text around
+  it. This is why no screen moved, not even by a pixel. The unit needs
+  Chrome 109, Safari 16.4 or Firefox 120. An older browser ignores the
+  rule and shows the blocks without the empty line between them.
+- **Paragraphs in the tests' text reader.** News headlines and the
+  repair options are now paragraphs. `textOf` in the tests gives a
+  paragraph a line of its own, and an empty line between two
+  paragraphs. The recorded expectations therefore read as before and
+  were not rewritten.
+- **The cargo table's unseen heading row.** A row that is taken out of
+  view still counts as a row, so the table would start two pixels
+  lower. The table has a negative top margin of one gap to make up for
+  it.
+- **Ship pictures in the tests.** A ship's view carries `data-ship`,
+  and `data-shown` while it is visible; the fade is styled by that
+  attribute. The tests read these, and the bar's own transition,
+  instead of class names.
+- **Other finders.** The roster tests look for a picture in the row
+  instead of the class `roster-icon`, and the offline check finds the
+  title picture inside `#newCommanderDiv`.
+- **The game's column.** The rule on `#game` became a class in
+  `src/App.module.css`, set by `App.tsx`. The tests make their own
+  `#game` element, which no longer gets that rule; they pass unchanged.
+- **The escape pod sentence** is now a line of the repair text instead
+  of a line break followed by text.
+- **Class name passing removed.** `LoggedButton` and `LoggedLink` no
+  longer take a `className`; nothing needed it once `active` and the
+  alert's button class were gone.
+- **Noise in the photographs.** The same rounded corner can differ by
+  one step of one colour between two runs of identical code. The
+  comparison ignores a difference that small and counts everything
+  else.
