@@ -36,6 +36,13 @@ export default defineConfig({
   test: {
     testTimeout: 120_000,
     restoreMocks: true,
+    // Which lines and branches the tests run: `pnpm coverage`, report in coverage/.
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/tests/**', 'src/**/*.test.{ts,tsx}', 'src/game/Images.ts', 'src/sw.ts'],
+      reporter: ['text-summary', 'html', 'json-summary'],
+    },
     projects: [
       {
         extends: true,

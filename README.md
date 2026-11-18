@@ -14,6 +14,7 @@ unchanged in `old/` for reference) into TypeScript and React.
 | `pnpm dev`         | Run the game locally with live reload            |
 | `pnpm test`        | Run the tests: rules in Node, screens in Chromium |
 | `pnpm test:stress` | Run the slower stress tests                      |
+| `pnpm coverage`    | Run every test and report which code they reach   |
 | `pnpm test:offline`| Check the built game offline, and that it updates |
 | `pnpm check`       | Run everything the pipeline runs, in one go      |
 | `pnpm format`      | Check the formatting (`format:fix` corrects it)  |
