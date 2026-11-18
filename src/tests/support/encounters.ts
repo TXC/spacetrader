@@ -22,7 +22,7 @@ export function opponentIn(
   const ship = new Ship(model, game.difficulty);
   weapons.forEach(weapon => ship.addWeaponOfType(weapon));
   gadgets.forEach(gadget => ship.addGadgetOfType(gadget));
-  return new Opponent(type, engineer, 5, 5, 5, ship);
+  return Opponent.captain(type, engineer, 5, 5, 5, ship);
 }
 
 // The next opponent the trip generates is this one.
