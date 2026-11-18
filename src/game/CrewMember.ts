@@ -1,4 +1,3 @@
-import { ensureBool, ensureInteger, ensureType } from './ensure.ts';
 import { runtime } from './runtime.ts';
 
 import type { CrewMemberState } from './savedGame.ts';
@@ -177,14 +176,6 @@ export class CrewMember {
   }
 
   toState(): CrewMemberState {
-    ensureType(this.name, 'string');
-    ensureInteger(this.pilot);
-    ensureInteger(this.fighter);
-    ensureInteger(this.trader);
-    ensureInteger(this.engineer);
-    ensureBool(this.forQuest);
-    ensureBool(this.carriesMaxTraderBoost);
-    ensureBool(this.freeMercenaryCost);
     return {
       name: this.name ?? '',
       pilot: this.pilot,
