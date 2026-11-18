@@ -2,6 +2,7 @@ import { buyEquipment, offers, sellEquipment, slotSections } from '../game/Equip
 import type { Installed, Offer, SlotSection } from '../game/Equipment.ts';
 import type { Game } from '../game/Game.ts';
 import { BaysCredits } from './BaysCredits.tsx';
+import styles from './Equipment.module.css';
 import { Icon } from './Icon.tsx';
 import { LoggedButton } from './Logged.tsx';
 import { useSession } from './useStore.ts';
@@ -103,15 +104,16 @@ export function Equipment({ game }: GameProps) {
         </tbody>
       </table>
       <BaysCredits game={game} />
-      <br />
-      <h4>Buy Equipment</h4>
-      <table className={shared.tightTable}>
-        <tbody>
-          {offers(game).map(offer => (
-            <OfferRow key={offer.type} game={game} offer={offer} />
-          ))}
-        </tbody>
-      </table>
+      <div className={styles.offers}>
+        <h4>Buy Equipment</h4>
+        <table className={shared.tightTable}>
+          <tbody>
+            {offers(game).map(offer => (
+              <OfferRow key={offer.type} game={game} offer={offer} />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }

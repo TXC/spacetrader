@@ -1,0 +1,4 @@
+/* An empty line between the ship's slots and what is for sale. */
+.offers {
+  margin-top: var(--space-line);
+}
