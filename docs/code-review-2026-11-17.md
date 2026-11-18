@@ -112,6 +112,8 @@ decision on the rules more than they need work.
 | 2026-11-18 | L3, L4 | Free to change the saved format | There are no users, so no saved game has to keep loading. |
 | 2026-11-18 | T6, O1 | `vite-plugin-pwa` may be used | If it works with this Vite version; otherwise our own build step. |
 | 2026-11-18 | All | Stacked pull requests | Order in `docs/superpowers/plans/2026-11-18-review-roadmap.md`. |
+| 2026-11-18 | Q7 | Fix, with a generator of his own | Extending the placement loop breaks 117 tests; a separate generator for Yorvick breaks none. The original game does the same for its newspaper. |
+| 2026-11-18 | Q5 | Fix the damage roll, last | Only the damage roll matters: it breaks 19 tests from about eight recordings. The tribble roll breaks none. The repair roll already gives the original's result and is not a bug. |
 
 ## 3. Rule bugs
 
