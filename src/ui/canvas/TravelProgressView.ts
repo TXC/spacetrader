@@ -149,40 +149,34 @@ export class TravelProgressView {
   }
 
   _drawSolarSystem(s: SolarSystem, left: boolean, visited: boolean) {
-    this.context.textAlign = 'center';
-    this.context.textBaseline = 'middle';
-    const textHeight = this._textHeight();
-    this.context.font = this.font;
-
-    const sname = s.name;
-    const textMetrics = this.context.measureText(sname);
-
     const radius = this.planetRadius();
-
     const edgePadding = 2;
-
     const xOrigin = this._solarSystemXOrigin(left);
-
     const yOrigin = this.canvas.height / this.scale / 2;
 
-    const color = visited ? VisitedSystemColor : UnvisitedSystemColor;
-    this.context.fillStyle = color;
+    this.context.fillStyle = visited ? VisitedSystemColor : UnvisitedSystemColor;
     this.context.beginPath();
     this.context.arc(xOrigin, yOrigin, radius, 0, Math.PI * 2);
     this.context.fill();
 
-    const nameY = yOrigin + radius + edgePadding + textHeight / 2;
+    const nameY = yOrigin + radius + edgePadding + this._textHeight() / 2;
+    this.drawName(s.name, xOrigin, nameY, left);
+  }
+
+  // The name sits under its system, moved inwards where it would cross the canvas's edge.
+  private drawName(sname: string, xOrigin: number, nameY: number, left: boolean) {
+    this.context.textAlign = 'center';
+    this.context.textBaseline = 'middle';
+    this.context.font = this.font;
+    const textMetrics = this.context.measureText(sname);
+
+    const edgePadding = 2;
+    const rightEdge = this.canvas.width / this.scale - textMetrics.width - edgePadding;
     let nameX = xOrigin - Math.floor(textMetrics.width / 2);
-    if (left) {
-      nameX = Math.max(edgePadding, nameX) + textMetrics.width / 2;
-    } else {
-      nameX =
-        Math.min(this.canvas.width / this.scale - textMetrics.width - edgePadding, nameX) +
-        textMetrics.width / 2;
-    }
+    nameX = left ? Math.max(edgePadding, nameX) : Math.min(rightEdge, nameX);
 
     this.context.fillStyle = LabelColor;
-    this.context.fillText(sname, nameX, nameY);
+    this.context.fillText(sname, nameX + textMetrics.width / 2, nameY);
   }
 
   drawView(timestamp: number) {
