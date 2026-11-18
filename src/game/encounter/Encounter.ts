@@ -86,8 +86,15 @@ export class Encounter {
     ensureInteger(this._encounterMode);
 
     this._actionTaken = true;
+    this._endAutoModeUnlessContinuedBy(action);
 
-    // End auto-encounters before the action is performed and our delegate is called to update the UI
+    if (!ACTIONS[action](this)) return;
+
+    this._repeatAutoAction();
+  }
+
+  // An automatic mode ends before another action is performed and the owner is told.
+  _endAutoModeUnlessContinuedBy(action: ActionName) {
     if (this._encounterMode === EncounterMode.AutoAttack && !action.endsWith('Attack')) {
       pLog.log(48);
       this._endAutoEncounters();
@@ -95,9 +102,11 @@ export class Encounter {
       pLog.log(49);
       this._endAutoEncounters();
     }
+  }
 
-    if (!ACTIONS[action](this)) return;
-
+  // In an automatic mode the same action is performed again after a moment, unless the
+  // mode has ended by then.
+  _repeatAutoAction() {
     if (isAutoMode(this._encounterMode)) {
       ensureInteger(this._autoEncounterSession);
 
@@ -111,7 +120,7 @@ export class Encounter {
         }
       }, 1500);
     }
-  } // END OF performAction
+  }
 
   _endAutoEncounters() {
     this._autoEncounterSession++;
@@ -124,7 +133,7 @@ export class Encounter {
     alertController.presentView();
   }
 
-  // #pragma mark - PlunderViewControllerDelegate
+  // The plunder screen was closed.
 
   plunderViewControllerDidFinishPlundering(controller: Plunder) {
     ensureBool(controller.plundered);
