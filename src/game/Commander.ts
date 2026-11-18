@@ -384,7 +384,7 @@ export class Commander extends CrewMember {
 
     if (this._currentSystem !== currentSystem) {
       this._currentSystem = currentSystem;
-      this._currentSystem.setVisited(true);
+      this._currentSystem.visited = true;
 
       const basePrices = [];
       for (let item = 0; item < TRADE_ITEM_COUNT; ++item) {

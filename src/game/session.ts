@@ -279,8 +279,8 @@ export class Session extends Store {
       pLog.log(27);
       hidden.add('For Hire');
     }
-    const special = specialEventForType(system.getSpecialEvent());
-    if (system.getSpecialEvent() === SpecialEvent.None || special?.isHidden(game)) {
+    const special = specialEventForType(system.specialEvent);
+    if (system.specialEvent === SpecialEvent.None || special?.isHidden(game)) {
       pLog.log(28);
       hidden.add('Special');
     }
@@ -394,7 +394,7 @@ export class Session extends Store {
 
   private offerSpecial(game: Game): void {
     pLog.log(14);
-    const special = specialEventForType(game.commander.getCurrentSystem().getSpecialEvent())!;
+    const special = specialEventForType(game.commander.getCurrentSystem().specialEvent)!;
     const alert = new AlertViewController(special.prompt);
     const accept = (probe: number) => () => {
       pLog.log(probe);

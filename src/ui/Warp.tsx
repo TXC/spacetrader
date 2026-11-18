@@ -27,7 +27,7 @@ function Buttons({
       <LoggedButton
         id="warpBlastOff"
         kind="main"
-        label={`Blast Off to ${systems[index].getName()}`}
+        label={`Blast Off to ${systems[index].name}`}
         onPress={() => onBlastOff(systems[index])}
       />
       <LoggedButton id="warpPrev" label="Prev" onPress={move(false)} />

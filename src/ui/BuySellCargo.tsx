@@ -84,7 +84,7 @@ function PricesHeader({
   const label = `Show ${relative ? 'Absolute' : 'Relative'}`;
   return (
     <h4 className={shared.headerWithButtons}>
-      {`Average prices on ${system.getName()} `}
+      {`Average prices on ${system.name} `}
       <div className={shared.buttonRow}>
         <LoggedButton key={label} id={'togglePrices_' + label} label={label} onPress={toggle} />
       </div>

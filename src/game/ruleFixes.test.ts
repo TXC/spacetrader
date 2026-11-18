@@ -387,7 +387,7 @@ test('Q9: the news is written anew on a later day in the same system', () => {
 test('Q7: every mercenary has a home system, and placing the last one draws nothing', () => {
   const game = newGame();
 
-  const atHome = game.solarSystems.flatMap(system => system.getMercenary()?.name ?? []);
+  const atHome = game.solarSystems.flatMap(system => system.mercenary?.name ?? []);
   expect(atHome.toSorted()).toEqual(CrewMember.mercenaryNames().toSorted());
   expect(runtime.gameRand._numInvocations).toBe(4345); // as before the last one was placed
 });

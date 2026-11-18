@@ -34,7 +34,7 @@ type Action = (
 export const FABRIC_RIP_PROBABILITY_INITIAL = 25;
 
 export function clearCurrentSpecial(game: Game) {
-  game.commander.currentSystem.setSpecialEvent(SpecialEvent.None);
+  game.commander.currentSystem.specialEvent = SpecialEvent.None;
 }
 
 // A special event a system can offer: what it says, what it costs and what it does.
@@ -69,7 +69,7 @@ const SPECS: Spec[] = [
     },
     action: game => {
       pLog.log(115);
-      game.commander.currentSystem.setSpecialEvent(SpecialEvent.InstallLightningShield);
+      game.commander.currentSystem.specialEvent = SpecialEvent.InstallLightningShield;
     },
   },
   {
@@ -709,7 +709,7 @@ const SPECS: Spec[] = [
       return game.scarabStatus !== ScarabQuestStatus.ScarabDestroyed;
     },
     action: game => {
-      game.commander.currentSystem.setSpecialEvent(SpecialEvent.GetHullUpgraded);
+      game.commander.currentSystem.specialEvent = SpecialEvent.GetHullUpgraded;
     },
   },
   // Reactor Delivered Event
@@ -732,7 +732,7 @@ const SPECS: Spec[] = [
         REACTOR_BAY_COUNT + REACTOR_MAX_FUEL,
         FAKE_QUEST_CARGO_REACTOR
       );
-      game.commander.currentSystem.setSpecialEvent(SpecialEvent.GetSpecialLaser);
+      game.commander.currentSystem.specialEvent = SpecialEvent.GetSpecialLaser;
       game.reactorStatus = ReactorQuestStatus.ClosedSaved;
       pLog.log(161);
     },
@@ -774,7 +774,7 @@ const SPECS: Spec[] = [
     },
     action: game => {
       game.invasionStatus = InvasionQuestStatus.ClosedSaved;
-      game.commander.currentSystem.setSpecialEvent(SpecialEvent.GetFuelCompactor);
+      game.commander.currentSystem.specialEvent = SpecialEvent.GetFuelCompactor;
       pLog.log(133);
     },
   },
