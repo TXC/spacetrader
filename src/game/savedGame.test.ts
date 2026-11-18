@@ -94,6 +94,13 @@ test.each([
         [AccessoryType.ShieldEnergy]),
   ],
   [
+    'cargo that is neither goods nor quest cargo',
+    (state: Record<string, unknown>) =>
+      (((state.commander as Record<string, unknown>).ship as Record<string, unknown>).cargoKeys = [
+        10,
+      ]),
+  ],
+  [
     'a special event that does not exist',
     (state: Record<string, unknown>) =>
       ((state.solarSystems as Record<string, unknown>[])[0].specialEvent = 99),
