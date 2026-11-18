@@ -1,6 +1,7 @@
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { expect, test, vi } from 'vitest';
+import type { Game } from '../game/Game.ts';
 import type { GalaxyView } from '../ui/canvas/GalaxyView.ts';
 import { GalaxyMap } from '../ui/GalaxyMap.tsx';
 import './flows/setup.ts';
@@ -8,32 +9,41 @@ import { runReplayLog } from './flows/harness.ts';
 
 const nextFrame = () => new Promise(resolve => requestAnimationFrame(resolve));
 
-// The old map kept drawing for up to five seconds after it left the page, and never
-// stopped listening for window resizes.
-test('a map that leaves the page stops drawing and stops listening', async () => {
+// Puts a map on the page, with the player's system selected so that its ring pulses and
+// the map keeps drawing.
+function mount() {
   const log = '{"idLog":["createCommander"],"eventNameLog":["click"],"gameRandSeed":1733543535142}';
   const game = runReplayLog(log).session.game!;
   const host = document.body.appendChild(document.createElement('div'));
   const root = createRoot(host);
   let view: GalaxyView | null = null;
-  const map = (
+  const keep = (v: GalaxyView | null) => (view = v ?? view);
+  const render = () => flushSync(() => root.render(map(game, keep)));
+  render();
+  return { host, root, render, view: view! as GalaxyView };
+}
+
+function map(game: Game, viewRef: (view: GalaxyView | null) => void) {
+  return (
     <GalaxyMap
       game={game}
       zoomed={false}
-      selected={null}
+      selected={game.commander.currentSystem}
       wormhole={false}
       onSelect={() => {}}
-      viewRef={v => {
-        view = v ?? view;
-      }}
+      viewRef={viewRef}
     />
   );
-  flushSync(() => root.render(map));
-  const mounted = view!;
+}
+
+// The old map kept drawing for up to five seconds after it left the page, and never
+// stopped listening for changes of size.
+test('a map that leaves the page stops drawing and stops listening', async () => {
+  const { host, root, view } = mount();
   await nextFrame();
   await nextFrame();
-  const draw = vi.spyOn(mounted, 'drawGalaxy');
-  const resize = vi.spyOn(mounted, 'resizeCanvasIfNeeded');
+  const draw = vi.spyOn(view, 'drawGalaxy');
+  const resize = vi.spyOn(view, 'resizeCanvasIfNeeded');
   await nextFrame();
   expect(draw).toHaveBeenCalled();
 
@@ -47,5 +57,15 @@ test('a map that leaves the page stops drawing and stops listening', async () =>
   expect(draw).not.toHaveBeenCalled();
   expect(resize).not.toHaveBeenCalled();
   expect(host.querySelector('canvas')).toBeNull();
+  host.remove();
+});
+
+// A map at rest cannot see the game change, for instance when fuel is bought.
+test('a map is asked to draw whenever the screen around it is drawn again', () => {
+  const { host, root, render, view } = mount();
+  const asked = vi.spyOn(view, 'requestDraw');
+  render();
+  expect(asked).toHaveBeenCalled();
+  flushSync(() => root.unmount());
   host.remove();
 });

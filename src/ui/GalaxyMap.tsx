@@ -20,6 +20,7 @@ type Props = {
 // and takes it off again.
 export function GalaxyMap({ game, zoomed, selected, wormhole, onSelect, viewRef }: Props) {
   const host = useRef<HTMLDivElement>(null);
+  const drawing = useRef<GalaxyView | null>(null);
   const latest = useRef({ onSelect, viewRef, selected, wormhole });
   useLayoutEffect(() => {
     latest.current = { onSelect, viewRef, selected, wormhole };
@@ -44,12 +45,17 @@ export function GalaxyMap({ game, zoomed, selected, wormhole, onSelect, viewRef 
       galaxyViewSelectedSolarSystem: (_view, system, viaWormhole) =>
         latest.current.onSelect(system, viaWormhole),
     };
+    drawing.current = view;
     latest.current.viewRef?.(view);
     return () => {
+      drawing.current = null;
       view.dispose();
       view.canvasContainer.remove();
       latest.current.viewRef?.(null);
     };
   }, [game, zoomed]);
+  // The map cannot see the game change under it (fuel bought, a system tracked), and it
+  // may be at rest. The screen is drawn again after every such change, so ask then.
+  useLayoutEffect(() => drawing.current?.requestDraw());
   return <div ref={host} />;
 }

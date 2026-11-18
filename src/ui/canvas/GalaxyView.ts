@@ -53,10 +53,14 @@ export class GalaxyView {
   private height = 0;
   // Zero until the first frame; the rings pulse from then.
   animationStartTime = 0;
-  private lastInvalidationCheckTimestamp = 0;
   private _prevXYScaleFactors: ScaleFactors | null = null;
   private solarSystemBounds: Bounds | null = null;
   private lastTimestamp = 0;
+  // Read from the page when the canvas is fitted, not while drawing.
+  private labelFont = '';
+  private reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  // The frame that has been asked for; zero when there is none.
+  private frame = 0;
   private disposed = false;
   private stopWatchingSize = watchSize(this.canvasContainer, () => this.resizeCanvasIfNeeded());
   private onMouseUp = (event: MouseEvent) => this.onInputEnd(event);
@@ -65,6 +69,7 @@ export class GalaxyView {
   dispose() {
     this.disposed = true;
     this.stopWatchingSize();
+    this.reducedMotion.removeEventListener('change', this.requestDraw);
     this.canvas.removeEventListener('mouseup', this.onMouseUp);
     runtime.actionLog.unregisterNamedEventListener(this, this.selectEventName());
   }
@@ -98,42 +103,40 @@ export class GalaxyView {
     this.initCanvas();
     this.initEvents();
 
-    this.startAnimating();
+    this.requestDraw();
   }
 
-  startAnimating() {
-    requestAnimationFrame(timestamp => {
-      this.animationStartTime = timestamp;
-      this.animateGalaxy(timestamp);
-    });
-  }
+  // Asks for the map to be drawn at the next frame. The map draws by itself while a ring
+  // pulses; this is for the changes it cannot see, such as fuel bought or a system tracked.
+  requestDraw = () => {
+    if (!this.disposed && !this.frame) {
+      this.frame = requestAnimationFrame(timestamp => this.animateGalaxy(timestamp));
+    }
+  };
 
   animateGalaxy(timestamp: number) {
+    this.frame = 0;
     if (this.disposed) {
       return;
     }
+    this.animationStartTime ||= timestamp;
     this.lastTimestamp = timestamp;
     this.drawGalaxy(timestamp);
-
-    // Allow us to get garbage collected if the view is removed from the document
-    let shouldContinueAnimating = !this.disposed;
-    if (!this.lastInvalidationCheckTimestamp) {
-      this.lastInvalidationCheckTimestamp = timestamp;
+    if (this.ringsPulse()) {
+      this.requestDraw();
     }
+  }
 
-    if (shouldContinueAnimating && timestamp - this.lastInvalidationCheckTimestamp > 5000) {
-      shouldContinueAnimating = document.body.contains(this.canvasContainer);
-    }
-
-    if (shouldContinueAnimating) {
-      requestAnimationFrame(newTimestamp => this.animateGalaxy(newTimestamp));
-    }
+  private ringsPulse() {
+    const anyRing = this.selectedPlanet != null || this.game.trackedSystem != null;
+    return anyRing && !this.reducedMotion.matches;
   }
 
   initCanvas(rect = this.canvasContainer.getBoundingClientRect()) {
     this.width = rect.width;
     this.height = rect.height;
     this.scale = window.devicePixelRatio;
+    this.labelFont = labelFont();
 
     this.canvas.style.width = `${rect.width}px`;
     this.canvas.style.height = `${rect.height}px`;
@@ -180,6 +183,7 @@ export class GalaxyView {
     this.canvas.addEventListener('mouseup', this.onMouseUp);
 
     runtime.actionLog.registerNamedEventListener(this, this.selectEventName());
+    this.reducedMotion.addEventListener('change', this.requestDraw);
   }
 
   handleNamedEvent(eventName: string, eventContext: string) {
@@ -263,6 +267,7 @@ export class GalaxyView {
     if (this.delegate) {
       this.delegate.galaxyViewSelectedSolarSystem(this, s, wormhole);
     }
+    this.requestDraw();
 
     if (this.zoomed) {
       let systemInfoEl = document.getElementById('gv-system-info');
@@ -303,102 +308,85 @@ export class GalaxyView {
     this.context.fillStyle = 'black';
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    const solarSystems = this.game.solarSystems;
-    const radius = this.planetRadius();
-
     if (this.planets.length <= 0) {
-      solarSystems.forEach(solarSystem => {
-        const center = this.getPlanetPosition(solarSystem);
-
-        const planet = {
-          x: center.x,
-          y: center.y,
-          radius: radius,
-          solarSystem: solarSystem,
-          isWormhole: false,
-        };
-        this.planets.push(planet);
-
-        if (!this.selectedWormhole && solarSystem === this.selectedSystem) {
-          this.selectedPlanet = planet;
-        }
-
-        const wormholeCenter = { x: 0, y: 0 };
-        if (solarSystem.wormhole) {
-          const wormholePadding = Math.floor(radius / 4);
-          wormholeCenter.x = center.x + 2 * radius + wormholePadding;
-          wormholeCenter.y = center.y;
-
-          const wormholePlanet = {
-            x: wormholeCenter.x,
-            y: wormholeCenter.y,
-            radius: radius,
-            solarSystem: solarSystem.wormhole,
-            isWormhole: true,
-          };
-          this.planets.push(wormholePlanet);
-
-          if (this.selectedWormhole && solarSystem === this.selectedSystem) {
-            this.selectedPlanet = wormholePlanet;
-          }
-        }
-      });
+      this.buildPlanets();
     }
 
-    // Drawing:
-
     this.drawPilotRange();
-
     this.drawTrackedArrow();
+    this.drawPlanets();
+    this.drawTrackingRings(timestamp);
+    // Draw names last so they are not obscured by any planets
+    if (this.showNames) {
+      this.drawNames();
+    }
+  }
 
-    // Draw a circle for every planet
-    this.planets.forEach(planet => {
-      let color = planet.isWormhole
-        ? WormholeSystemColor
-        : planet.solarSystem.visited
-          ? VisitedSystemColor
-          : UnvisitedSystemColor;
+  private buildPlanets() {
+    const radius = this.planetRadius();
+    this.game.solarSystems.forEach(solarSystem => {
+      const center = this.getPlanetPosition(solarSystem);
+      this.addPlanet({ ...center, radius, solarSystem, isWormhole: false }, solarSystem);
 
-      // If showSpecialSystems cheat is enabled
-      if (this.game.showSpecialSystems && planet.solarSystem.specialEvent !== SpecialEvent.None) {
-        color = SpecialSystemColor;
+      const wormhole = solarSystem.wormhole;
+      if (wormhole) {
+        const wormholePadding = Math.floor(radius / 4);
+        const x = center.x + 2 * radius + wormholePadding;
+        const planet = { x, y: center.y, radius, solarSystem: wormhole, isWormhole: true };
+        this.addPlanet(planet, solarSystem);
       }
+    });
+  }
 
-      this.context.fillStyle = color;
+  // `owner` is the system the planet is selected by: itself, or for the far end of a
+  // wormhole the system at the near end.
+  private addPlanet(planet: Planet, owner: SolarSystem) {
+    this.planets.push(planet);
+    if (planet.isWormhole === this.selectedWormhole && owner === this.selectedSystem) {
+      this.selectedPlanet = planet;
+    }
+  }
+
+  private planetColor(planet: Planet) {
+    // If showSpecialSystems cheat is enabled
+    if (this.game.showSpecialSystems && planet.solarSystem.specialEvent !== SpecialEvent.None) {
+      return SpecialSystemColor;
+    }
+    if (planet.isWormhole) {
+      return WormholeSystemColor;
+    }
+    return planet.solarSystem.visited ? VisitedSystemColor : UnvisitedSystemColor;
+  }
+
+  // Draw a circle for every planet
+  private drawPlanets() {
+    const radius = this.planetRadius();
+    this.planets.forEach(planet => {
+      this.context.fillStyle = this.planetColor(planet);
       this.context.beginPath();
       this.context.arc(planet.x, planet.y, radius, 0, Math.PI * 2);
       this.context.fill();
     });
+  }
 
-    this.drawTrackingRings(timestamp);
-
-    // Draw names last so they are not obscured by any planets
-    if (this.showNames) {
-      this.planets.forEach(planet => {
-        const namePadding = Math.floor(radius);
-        this.context.fillStyle = LabelColor;
-        this.context.textAlign = 'center';
-        this.context.textBaseline = 'middle';
-        this.context.font = labelFont();
-        if (!planet.isWormhole) {
-          this.context.fillText(
-            planet.solarSystem.name,
-            planet.x,
-            planet.y - planet.radius - namePadding
-          );
-        } else {
-          this.context.fillText(
-            planet.solarSystem.name,
-            planet.x,
-            planet.y + planet.radius + namePadding
-          );
-        }
-      });
-    }
+  // A system's name goes above it; the far end of a wormhole has its name below.
+  private drawNames() {
+    const namePadding = Math.floor(this.planetRadius());
+    this.context.fillStyle = LabelColor;
+    this.context.textAlign = 'center';
+    this.context.textBaseline = 'middle';
+    this.context.font = this.labelFont;
+    this.planets.forEach(planet => {
+      const y = planet.isWormhole
+        ? planet.y + planet.radius + namePadding
+        : planet.y - planet.radius - namePadding;
+      this.context.fillText(planet.solarSystem.name, planet.x, y);
+    });
   }
 
   drawTrackingRings(timestamp: number) {
-    const elapsedTime = timestamp - this.animationStartTime;
+    // With reduced motion the rings stand still, at their smallest.
+    const elapsedTime = this.reducedMotion.matches ? 0 : timestamp - this.animationStartTime;
 
     if (this.selectedPlanet) {
       this.drawTrackingRing(
