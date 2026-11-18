@@ -499,7 +499,7 @@ export class Commander extends CrewMember {
     return skill;
   }
 
-  // The out-of-date skill tonic (TonicTweakRandomSkill, Skill.c:246-275).
+  // The out-of-date skill tonic (TonicTweakRandomSkill, Skill.c:248-275).
   drinkOldTonic(difficulty: Difficulty) {
     if (difficulty >= Difficulty.Hard) {
       this._raiseDrawnSkill();
@@ -524,13 +524,13 @@ export class Commander extends CrewMember {
     return SKILLS.every(skill => this[skill] >= MAX_SKILL_LEVEL);
   }
 
-  // IncreaseRandomSkill (Skill.c:170-202).
+  // IncreaseRandomSkill (Skill.c:170-203).
   _raiseDrawnSkill() {
     const skill = this._drawSkill(level => level < MAX_SKILL_LEVEL);
     if (skill) this[skill] += 1;
   }
 
-  // DecreaseRandomSkill (Skill.c:207-238), which also gives up when every skill is at its top.
+  // DecreaseRandomSkill (Skill.c:208-241), which also gives up when every skill is at its top.
   _lowerDrawnSkill(amount: number) {
     if (this._allSkillsAtTop()) return;
     const skill = this._drawSkill(level => level > amount);
