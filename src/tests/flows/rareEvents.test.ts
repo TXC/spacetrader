@@ -82,7 +82,7 @@ test.each(BOTTLES)('%s_Ignore', name => {
   assertEqual(game.commander.engineer, 5);
   assertEqual(game.commander.fighter, 5);
 
-  assertEqualArrays(game._remainingRareEvents, []);
+  assertEqualArrays(game.remainingRareEvents, []);
   assertSurvivesSave(game);
 });
 
@@ -117,7 +117,7 @@ test.each(BOTTLES)('%s_Pass', (name, bottle) => {
   assertEqual(game.commander.engineer, 5);
   assertEqual(game.commander.fighter, 5);
 
-  assertEqualArrays(game._remainingRareEvents, []);
+  assertEqualArrays(game.remainingRareEvents, []);
   assertSurvivesSave(game);
 });
 
@@ -162,7 +162,7 @@ test.each(BOTTLES)('%s_Drink', (name, bottle) => {
   assertEqual(game.commander.engineer, 6);
   assertEqual(game.commander.fighter, bottle.fighter);
 
-  assertEqualArrays(game._remainingRareEvents, []);
+  assertEqualArrays(game.remainingRareEvents, []);
   assertSurvivesSave(game);
 });
 
@@ -224,7 +224,7 @@ test.each(CAPTAINS)('%s_notEligible', (name, captain) => {
     'At 15 clicks from Japori you encounter a police Firefly.\n\nIt ignores you.'
   );
 
-  assertEqualArrays(game._remainingRareEvents, [captain.rareEvent]);
+  assertEqualArrays(game.remainingRareEvents, [captain.rareEvent]);
   assertSurvivesSave(game);
 });
 
@@ -263,7 +263,7 @@ test.each(CAPTAINS)('%s_accept', (name, captain) => {
 
   assertEqual(captain.hasItem(game.commander.ship), false);
 
-  assertEqualArrays(game._remainingRareEvents, []);
+  assertEqualArrays(game.remainingRareEvents, []);
   const game2 = assertSurvivesSave(game);
   assertEqual(captain.hasItem(game2.commander.ship), false);
   const skillAfter2 = game2.commander[captain.skill];
@@ -304,7 +304,7 @@ test.each(CAPTAINS)('%s_noThanks', (name, captain) => {
 
   assertEqual(captain.hasItem(game.commander.ship), true);
 
-  assertEqualArrays(game._remainingRareEvents, []);
+  assertEqualArrays(game.remainingRareEvents, []);
   const game2 = assertSurvivesSave(game);
   assertEqual(captain.hasItem(game2.commander.ship), true);
   const skillAfter2 = game2.commander[captain.skill];
@@ -341,7 +341,7 @@ test.each(CAPTAINS)('%s_ignore', (name, captain) => {
 
   assertEqual(captain.hasItem(game.commander.ship), true);
 
-  assertEqualArrays(game._remainingRareEvents, []);
+  assertEqualArrays(game.remainingRareEvents, []);
   const game2 = assertSurvivesSave(game);
   assertEqual(captain.hasItem(game2.commander.ship), true);
   const skillAfter2 = game2.commander[captain.skill];
@@ -419,7 +419,7 @@ test.each(CAPTAINS)('%s_attack', (name, captain) => {
   const systemInfoHeader = welcome();
   assertEqual(textOf(systemInfoHeader), 'Welcome to Yew');
 
-  assertEqualArrays(game._breakingNews, [captain.attackNews]);
+  assertEqualArrays(game.breakingNews, [captain.attackNews]);
 
   replay.replayEvent('News', 'click');
   replay.replayEvent('purchaseNews', 'click');
@@ -431,7 +431,7 @@ test.each(CAPTAINS)('%s_attack', (name, captain) => {
     `The Command\n${captain.attackNews}\n\nTerror Strikes Locals on Arrival of Jean-Luc!\n\nNew Palace Planned; Taxes Increase.`
   );
 
-  assertEqual(game._breakingNews, null);
+  assertEqual(game.breakingNews, null);
 
   assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Villain + ATTACK_TRADER_SCORE);
 
@@ -440,7 +440,7 @@ test.each(CAPTAINS)('%s_attack', (name, captain) => {
 
   assertEqual(captain.hasItem(game.commander.ship), true);
 
-  assertEqualArrays(game._remainingRareEvents, []);
+  assertEqualArrays(game.remainingRareEvents, []);
   const game2 = assertSurvivesSave(game);
   assertEqual(captain.hasItem(game2.commander.ship), true);
   const skillAfter2 = game2.commander[captain.skill];
@@ -466,7 +466,7 @@ test('MarieCeleste_ignore', () => {
   const systemInfoHeader = welcome();
   assertEqual(textOf(systemInfoHeader), 'Welcome to Jason');
 
-  assertEqualArrays(game._remainingRareEvents, []);
+  assertEqualArrays(game.remainingRareEvents, []);
   assertSurvivesSave(game);
 });
 
@@ -491,7 +491,7 @@ test('MarieCeleste_boardLeave', () => {
   const systemInfoHeader = welcome();
   assertEqual(textOf(systemInfoHeader), 'Welcome to Jason');
 
-  assertEqualArrays(game._remainingRareEvents, []);
+  assertEqualArrays(game.remainingRareEvents, []);
   assertSurvivesSave(game);
 });
 
@@ -519,7 +519,7 @@ test('MarieCeleste_boardDontTake', () => {
   const systemInfoHeader = welcome();
   assertEqual(textOf(systemInfoHeader), 'Welcome to Jason');
 
-  assertEqualArrays(game._remainingRareEvents, []);
+  assertEqualArrays(game.remainingRareEvents, []);
   assertSurvivesSave(game);
 });
 
@@ -567,7 +567,7 @@ test('MarieCeleste_boardTakeDumpYield', () => {
   assertEqual(game.commander.policeRecordScore, policeRecordBefore);
   assertEqual(game.commander.reputationScore, reputationBefore);
 
-  assertEqualArrays(game._remainingRareEvents, []);
+  assertEqualArrays(game.remainingRareEvents, []);
   assertSurvivesSave(game);
 });
 
@@ -610,7 +610,7 @@ test('MarieCeleste_boardTakeYield', () => {
   assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Dubious);
   assertEqual(game.commander.reputationScore, reputationBefore);
 
-  assertEqualArrays(game._remainingRareEvents, []);
+  assertEqualArrays(game.remainingRareEvents, []);
   assertSurvivesSave(game);
 });
 
@@ -640,7 +640,7 @@ test('MarieCeleste_boardTakeBribe', () => {
   );
   assertTrue(button('Yield') != null, 'yield option available');
 
-  assertEqualArrays(game._remainingRareEvents, []);
+  assertEqualArrays(game.remainingRareEvents, []);
   assertSurvivesSave(game);
 });
 
@@ -685,7 +685,7 @@ test('MarieCeleste_boardTakeFlee', () => {
   assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Criminal);
   assertEqual(game.commander.reputationScore, reputationBefore);
 
-  assertEqualArrays(game._remainingRareEvents, []);
+  assertEqualArrays(game.remainingRareEvents, []);
   assertSurvivesSave(game);
 });
 
@@ -732,6 +732,6 @@ test('MarieCeleste_boardTakeAttack', () => {
   assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Criminal + ATTACK_POLICE_SCORE);
   assertEqual(game.commander.reputationScore, reputationBefore);
 
-  assertEqualArrays(game._remainingRareEvents, []);
+  assertEqualArrays(game.remainingRareEvents, []);
   assertSurvivesSave(game);
 });
