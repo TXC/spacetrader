@@ -20,6 +20,20 @@ export function hiddenByOptions(encounterType: number, game: Game): boolean {
 export function traderMeeting(game: Game, opponentType: number): Meeting {
   let encounterType: EncounterType;
   const opponent = Opponent.generateOpponentWithType(opponentType, game);
+  encounterType = traderReaction(game, opponent);
+  encounterType = withTradeOffer(game, opponent, encounterType);
+
+  if (opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, game.commander)) {
+    encounterType = EncounterType.None;
+  } else if (hiddenByOptions(encounterType, game)) {
+    encounterType = EncounterType.None;
+  }
+
+  return { encounterType, opponent };
+}
+
+function traderReaction(game: Game, opponent: Opponent): EncounterType {
+  let encounterType: EncounterType;
   encounterType = EncounterType.TraderIgnore;
 
   if (game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(game.commander, opponent)) {
@@ -38,6 +52,15 @@ export function traderMeeting(game: Game, opponentType: number): Meeting {
     }
   }
 
+  return encounterType;
+}
+
+// A trader that passes by sometimes offers to sell, or to buy.
+function withTradeOffer(
+  game: Game,
+  opponent: Opponent,
+  encounterType: EncounterType
+): EncounterType {
   if (
     encounterType === EncounterType.TraderIgnore &&
     runtime.gameRand.randomIntBelow(1000) < CHANCE_OF_TRADE_IN_ORBIT
@@ -60,11 +83,5 @@ export function traderMeeting(game: Game, opponentType: number): Meeting {
     }
   }
 
-  if (opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, game.commander)) {
-    encounterType = EncounterType.None;
-  } else if (hiddenByOptions(encounterType, game)) {
-    encounterType = EncounterType.None;
-  }
-
-  return { encounterType, opponent };
+  return encounterType;
 }
