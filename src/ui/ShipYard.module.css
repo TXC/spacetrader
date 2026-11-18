@@ -1,0 +1,28 @@
+.fuel {
+  composes: centredBlock centredText from './shared.module.css';
+}
+
+/* The player's ship, an empty line below the fuel. */
+.ship {
+  width: 100%;
+  margin-top: var(--space-line);
+}
+
+.repairs {
+  text-align: center;
+}
+
+/* The repair options, one to a line, with an empty line between two of them. */
+.repairs p {
+  margin: 0;
+}
+
+.repairs p + p {
+  margin-top: var(--space-line);
+}
+
+.shipName {
+  display: block;
+  margin-top: 0.533rem;
+  text-align: center;
+}

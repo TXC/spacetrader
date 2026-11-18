@@ -83,23 +83,9 @@
   margin-top: 0.2rem;
 }
 
-.shipYardCommanderShip {
-  width: 100%;
-}
-
 .crossfade-container {
   position: relative;
   width: 40%;
-  text-align: center;
-}
-
-#repairDiv {
-  text-align: center;
-}
-
-.centered-text {
-  display: block;
-  margin-top: 0.533rem;
   text-align: center;
 }
 
