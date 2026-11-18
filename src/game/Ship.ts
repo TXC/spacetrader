@@ -469,6 +469,17 @@ export class Ship {
     this.tribbles = 0;
   }
 
+  // A new ship of this model: full tanks, a whole hull, and nothing on board.
+  static create(model: ShipModelType, difficulty: number): Ship {
+    return new Ship(model, difficulty);
+  }
+
+  // A ship from a saved game, as parseSavedGame checked it. A crew member who is also a
+  // system's mercenary is that same mercenary.
+  static load(state: ShipState, solarSystems: SolarSystem[]): Ship {
+    return Ship.fromSerializedState(state, solarSystems);
+  }
+
   static bestShipWithDifficulty(difficulty: number) {
     ensureInteger(difficulty);
 
