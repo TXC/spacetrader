@@ -3,7 +3,6 @@ import { expect, test, vi } from 'vitest';
 import type { Game } from '../game/Game.ts';
 import type { GalaxyView } from '../ui/canvas/GalaxyView.ts';
 import { GalaxyMap } from '../ui/GalaxyMap.tsx';
-import './flows/setup.ts';
 import { runReplayLog } from './flows/harness.ts';
 import { render } from './support/render.tsx';
 

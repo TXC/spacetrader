@@ -1,6 +1,5 @@
 import { expect, onTestFinished, test } from 'vitest';
 import { alertStore, AlertViewController } from '../game/alerts.ts';
-import './flows/setup.ts';
 import { runReplayLog } from './flows/harness.ts';
 import { textOf } from './support/page.ts';
 

@@ -1,6 +1,5 @@
 import { afterEach, expect, test, vi } from 'vitest';
 import { runtime } from '../game/runtime.ts';
-import './flows/setup.ts';
 import { runReplayLog } from './flows/harness.ts';
 import { button, encounterBox, textOf } from './support/page.ts';
 

@@ -10,7 +10,6 @@ import { MockLocalStorage } from './support/MockLocalStorage.ts';
 import { Session } from '../game/session.ts';
 import ahabEncounter from './fixtures/ahab-encounter.json';
 import oldSave from './fixtures/old-save.json';
-import './flows/setup.ts';
 import { runReplayLog, show } from './flows/harness.ts';
 import { cellAfter, hasText, rowAfterHeading, textOf } from './support/page.ts';
 

@@ -1,5 +1,5 @@
-// Set-up and clean-up shared by every test that puts the game on the page. Import it for
-// its effect.
+// Set-up and clean-up shared by every browser test. vite.config.ts runs it before each
+// test file.
 import { afterEach, beforeAll } from 'vitest';
 import { AlertViewController } from '../../game/alerts.ts';
 import { runtime } from '../../game/runtime.ts';
@@ -22,10 +22,15 @@ beforeAll(() => {
 });
 
 afterEach(() => {
-  unmountAll();
-  document.getElementById('game')!.innerHTML = '';
-  AlertViewController.clearAlerts();
-  const error = handlerError;
-  handlerError = null;
+  let error: unknown;
+  try {
+    unmountAll();
+    document.getElementById('game')!.innerHTML = '';
+    AlertViewController.clearAlerts();
+  } finally {
+    // Read after the clean-up, so an error from unmounting fails this test, not the next.
+    error = handlerError;
+    handlerError = null;
+  }
   if (error) throw error;
 });

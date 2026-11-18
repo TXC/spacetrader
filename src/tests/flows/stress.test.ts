@@ -2,7 +2,6 @@
 // checks what the player sees and what the game holds. Converted from the original
 // project's UnitTests.js; the recordings and expected values are unchanged.
 import { test } from 'vitest';
-import './setup.ts';
 import { performStressTest } from './harness.ts';
 
 test('beginnerDifficulty', () => {

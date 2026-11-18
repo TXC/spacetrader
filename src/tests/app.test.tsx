@@ -24,7 +24,8 @@ test('App starts one game under StrictMode, and it responds', async () => {
       </StrictMode>
     );
   });
-  expect(document.querySelectorAll('#game').length).toBe(1);
+  // The shared set-up puts its own #game on the page, so count the ones App drew.
+  expect(host.querySelectorAll('#game').length).toBe(1);
   expect(document.querySelectorAll('#newCommanderDiv').length).toBe(1);
 
   document.getElementById('createCommander')!.click();

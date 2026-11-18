@@ -12,7 +12,6 @@ import { MockLocalStorage } from '../support/MockLocalStorage.ts';
 import { runtime } from '../../game/runtime.ts';
 import { AlertViewController } from '../../game/alerts.ts';
 import { Session } from '../../game/session.ts';
-import './setup.ts';
 import {
   ActionLogReplay,
   assertEqual,

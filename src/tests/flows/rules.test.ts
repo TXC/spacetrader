@@ -5,7 +5,6 @@ import { test } from 'vitest';
 import { GameRand } from '../../game/GameRand.ts';
 import { ShipModelType } from '../../game/Ship.ts';
 import { Utils } from '../../game/Utilities.ts';
-import './setup.ts';
 import { assertEqualArrays } from './harness.ts';
 
 // GameRand
