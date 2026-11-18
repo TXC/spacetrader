@@ -25,17 +25,17 @@ function NavLink({ session, link }: { session: Session; link: NavRow }) {
   // Opening a screen changes the page's height; keep the player where they were.
   const open = () => maintainScrollPosition(() => session.clickRow(row));
   return (
-    <>
-      <li className="button-item" />
+    <li className="button-item">
       <LoggedLink
         id={row}
         className={session.activeRow === row ? 'active' : undefined}
+        current={session.activeRow === row}
         onPress={open}
       >
         <Icon name={icon} className={row === 'Chart' ? 'button-icon-chart' : 'button-icon'} />
         <span>{row}</span>
       </LoggedLink>
-    </>
+    </li>
   );
 }
 

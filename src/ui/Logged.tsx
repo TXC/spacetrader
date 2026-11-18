@@ -1,5 +1,5 @@
 // Buttons and checkboxes that record themselves in the action log.
-import type { MouseEvent, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Utils } from '../game/Utilities.ts';
 import styles from './Button.module.css';
 import { useLogged } from './useLogged.ts';
@@ -52,17 +52,28 @@ export function LoggedCheckbox({ id, checked, onToggle, children }: CheckboxProp
   );
 }
 
-type LinkProps = { id: string; className?: string; onPress: () => void; children: ReactNode };
+type LinkProps = {
+  id: string;
+  className?: string;
+  // True for the navigation button of the screen that is open.
+  current?: boolean;
+  onPress: () => void;
+  children: ReactNode;
+};
 
-// A link used as a button, as the old navigation and encounter buttons were.
-export function LoggedLink({ id, className, onPress, children }: LinkProps) {
-  const onClick = useLogged(id, 'click', (event: MouseEvent) => {
-    event.preventDefault();
-    onPress();
-  });
+// A button with an icon and a text: the navigation and encounter buttons. (The name is from
+// the old screens, where these were links.)
+export function LoggedLink({ id, className, current, onPress, children }: LinkProps) {
+  const onClick = useLogged(id, 'click', onPress);
   return (
-    <a id={id} className={look(className)} href="#" onClick={onClick}>
+    <button
+      type="button"
+      id={id}
+      className={look(className)}
+      aria-current={current ? 'page' : undefined}
+      onClick={onClick}
+    >
       {children}
-    </a>
+    </button>
   );
 }

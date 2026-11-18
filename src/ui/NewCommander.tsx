@@ -43,7 +43,7 @@ function SkillRow({
   return (
     <tr>
       <td className="skill-label-cell">
-        <span>{LABELS[name]}</span>
+        <label htmlFor={name}>{LABELS[name]}</label>
       </td>
       <td>
         <input
@@ -69,7 +69,7 @@ function DifficultyPicker({ level, onLevel }: { level: number; onLevel: (level: 
   );
   return (
     <div className="difficulty">
-      <label>Difficulty: </label>
+      <label htmlFor="difficultySelect">Difficulty: </label>
       <select id="difficultySelect" value={DIFFICULTIES[level]} onChange={onChange}>
         {DIFFICULTIES.map(name => (
           <option key={name} value={name}>
@@ -90,7 +90,7 @@ export function NewCommander({ session }: { session: Session }) {
   return (
     <div id="newCommanderDiv">
       <div className="centered">
-        <img className="landing-page-icon" src={titleImage} />
+        <img className="landing-page-icon" alt="" src={titleImage} />
         <h1 className="centered-div main-title">Space Trader</h1>
         <h1 className="new-commander-title">New Commander</h1>
         <div>

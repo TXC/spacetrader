@@ -45,8 +45,12 @@ function StepButtons({ verb, prefix, max, apply }: StepsProps) {
     <tr>
       <td>
         <LoggedButton label={`${verb} $${tiny}`} onPress={act(tiny)} />
-        <LoggedButton id={`${prefix}$${medium}`} label={`$${medium}`} onPress={act(medium)} />
-        <LoggedButton id={`${prefix}$${max}`} label={`$${max}`} onPress={act(max)} />
+        {medium < max && (
+          <LoggedButton id={`${prefix}$${medium}`} label={`$${medium}`} onPress={act(medium)} />
+        )}
+        {tiny < max && (
+          <LoggedButton id={`${prefix}$${max}`} label={`$${max}`} onPress={act(max)} />
+        )}
       </td>
     </tr>
   );

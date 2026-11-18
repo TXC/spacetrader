@@ -68,6 +68,7 @@
 
 /* The encounter's buttons fill the row, icon first. */
 :global(.battleButtons) .button {
+  flex: 1;
   justify-content: flex-start;
 }
 
