@@ -138,7 +138,7 @@ export class Travel extends Store {
       );
       let repairAmount = runtime.gameRand.randomIntBelow(engineerSkill / 2);
 
-      repairAmount = this._game.commander.ship.repairHullByAmount(repairAmount)!;
+      repairAmount = this._game.commander.ship.repairHullByAmount(repairAmount);
       this._game.commander.ship.rechargeShieldPowerByAmount(2 * repairAmount); // Shields are easier to recharge
 
       let opponentType: number = OPPONENT_TYPE_COUNT;

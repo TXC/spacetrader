@@ -1886,7 +1886,7 @@ export class EncounterController {
     }
 
     Utils.ensureInteger(damage);
-    damage = defender.ship.damageShieldsByAmount(damage)!;
+    damage = defender.ship.damageShieldsByAmount(damage);
     Utils.ensureInteger(damage);
 
     if (damage > 0) {

@@ -898,9 +898,10 @@ export class Ship {
     this._currentShieldPower = Math.min(this._currentShieldPower, allowedRechargedShieldPower);
   }
 
+  // Returns the damage the shields could not take.
   damageShieldsByAmount(amount: number) {
     if (!Utils.ensureInteger(amount)) {
-      return;
+      return 0;
     }
 
     if (amount <= 0) return 0;
@@ -920,9 +921,10 @@ export class Ship {
     this._fuel = Math.min(this._fuel + amount, this.fuelTankCapacity());
   }
 
+  // Returns the part of `amount` that was not needed.
   repairHullByAmount(amount: number) {
     if (!Utils.ensureInteger(amount)) {
-      return;
+      return 0;
     }
 
     const previousHullStrength = this._hull;
