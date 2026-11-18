@@ -770,8 +770,8 @@ export class Game {
     this.commander.timePassed(days, this.difficulty);
 
     if (
-      this.invasionStatus >= InvasionQuestStatus.DaysUntilInvasion._7 &&
-      this.invasionStatus <= InvasionQuestStatus.DaysUntilInvasion._1
+      this.invasionStatus >= InvasionQuestStatus.DaysUntilInvasion7 &&
+      this.invasionStatus <= InvasionQuestStatus.DaysUntilInvasion1
     ) {
       this.invasionStatus = Math.min(InvasionQuestStatus.ClosedTooLate, this.invasionStatus + days);
       if (this.invasionStatus === InvasionQuestStatus.ClosedTooLate) {
@@ -788,7 +788,7 @@ export class Game {
       this.reactorStatus > ReactorQuestStatus.Open &&
       this.reactorStatus < ReactorQuestStatus.ClosedTooLate
     ) {
-      this.reactorStatus = Math.min(ReactorQuestStatus.DaysRemaining._1, this.reactorStatus + days);
+      this.reactorStatus = Math.min(ReactorQuestStatus.DaysRemaining1, this.reactorStatus + days);
 
       const currentQuantity =
         this.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR);
@@ -803,8 +803,8 @@ export class Game {
     }
 
     if (
-      this.experimentStatus >= ExperimentQuestStatus.DaysRemaining._10 &&
-      this.experimentStatus <= ExperimentQuestStatus.DaysRemaining._1
+      this.experimentStatus >= ExperimentQuestStatus.DaysRemaining10 &&
+      this.experimentStatus <= ExperimentQuestStatus.DaysRemaining1
     ) {
       this.experimentStatus = Math.min(
         ExperimentQuestStatus.ClosedTooLate,
@@ -981,13 +981,13 @@ export class Game {
     }
 
     if (
-      this.invasionStatus >= InvasionQuestStatus.DaysUntilInvasion._7 &&
-      this.invasionStatus <= InvasionQuestStatus.DaysUntilInvasion._1
+      this.invasionStatus >= InvasionQuestStatus.DaysUntilInvasion7 &&
+      this.invasionStatus <= InvasionQuestStatus.DaysUntilInvasion1
     ) {
       const whenString =
-        this.invasionStatus === InvasionQuestStatus.DaysUntilInvasion._2
+        this.invasionStatus === InvasionQuestStatus.DaysUntilInvasion2
           ? 'by end of tomorrow'
-          : this.invasionStatus === InvasionQuestStatus.DaysUntilInvasion._1
+          : this.invasionStatus === InvasionQuestStatus.DaysUntilInvasion1
             ? 'today'
             : `within ${InvasionQuestStatus.ClosedTooLate - this.invasionStatus} days`;
       pLog.log(84);
@@ -1000,14 +1000,14 @@ export class Game {
     }
 
     if (
-      this.experimentStatus >= ExperimentQuestStatus.DaysRemaining._10 &&
-      this.experimentStatus <= ExperimentQuestStatus.DaysRemaining._1
+      this.experimentStatus >= ExperimentQuestStatus.DaysRemaining10 &&
+      this.experimentStatus <= ExperimentQuestStatus.DaysRemaining1
     ) {
       pLog.log(86);
       const whenString =
-        this.experimentStatus === ExperimentQuestStatus.DaysRemaining._2
+        this.experimentStatus === ExperimentQuestStatus.DaysRemaining2
           ? 'by end of tomorrow'
-          : this.experimentStatus === ExperimentQuestStatus.DaysRemaining._1
+          : this.experimentStatus === ExperimentQuestStatus.DaysRemaining1
             ? 'today'
             : `within ${ExperimentQuestStatus.ClosedTooLate - this.experimentStatus} days`;
       questList += `${comma}Stop Dr. Fehler's experiment at Daled ${whenString}.`;
@@ -1019,7 +1019,7 @@ export class Game {
       this.reactorStatus < ReactorQuestStatus.ClosedTooLate
     ) {
       questList += `${comma}Deliver the unstable reactor to Nix `;
-      if (this.reactorStatus <= ReactorQuestStatus.DaysRemaining._20) {
+      if (this.reactorStatus <= ReactorQuestStatus.DaysRemaining20) {
         pLog.log(87);
         questList += 'for Henry Morgan.';
       } else {

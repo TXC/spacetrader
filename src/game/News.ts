@@ -198,8 +198,8 @@ export class News {
         break;
       case SpecialEvent.GemulonRescued:
         if (
-          invasionStatus >= InvasionQuestStatus.DaysUntilInvasion._7 &&
-          invasionStatus <= InvasionQuestStatus.DaysUntilInvasion._1
+          invasionStatus >= InvasionQuestStatus.DaysUntilInvasion7 &&
+          invasionStatus <= InvasionQuestStatus.DaysUntilInvasion1
         ) {
           specialHeadline = 'Invasion Imminent! Plans in Place to Repel Hostile Invaders.';
         } else if (invasionStatus === InvasionQuestStatus.ClosedTooLate) {
@@ -211,8 +211,8 @@ export class News {
         break;
       case SpecialEvent.ExperimentStopped:
         if (
-          experimentStatus >= ExperimentQuestStatus.DaysRemaining._10 &&
-          experimentStatus <= ExperimentQuestStatus.DaysRemaining._1
+          experimentStatus >= ExperimentQuestStatus.DaysRemaining10 &&
+          experimentStatus <= ExperimentQuestStatus.DaysRemaining1
         ) {
           specialHeadline = 'Scientists Cancel High-profile Test! Committee to Investigate Design.';
         }
