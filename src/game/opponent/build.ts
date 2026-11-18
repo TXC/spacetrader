@@ -38,7 +38,7 @@ export function buildOpponent(type: OpponentType, game: Game): Opponent {
 
 function famousCaptain(type: OpponentType, difficulty: number): Opponent {
   const ship = Ship.bestShipWithDifficulty(difficulty);
-  return new Opponent(
+  return Opponent.captain(
     type,
     MAX_SKILL_LEVEL,
     MAX_SKILL_LEVEL,
@@ -57,7 +57,7 @@ function dragonfly(difficulty: number): Opponent {
   ship.addGadgetOfType(AccessoryType.GadgetTargetingSystem);
   ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
   ship.addWeaponOfType(AccessoryType.WeaponPulseLaser);
-  return new Opponent(
+  return Opponent.captain(
     OpponentType.Dragonfly,
     6 + difficulty,
     4 + difficulty,
@@ -71,7 +71,14 @@ function scarab(difficulty: number): Opponent {
   const ship = new Ship(ShipModelType.Scarab, difficulty);
   ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
   ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
-  return new Opponent(OpponentType.Scarab, 6 + difficulty, 5 + difficulty, 6 + difficulty, 1, ship);
+  return Opponent.captain(
+    OpponentType.Scarab,
+    6 + difficulty,
+    5 + difficulty,
+    6 + difficulty,
+    1,
+    ship
+  );
 }
 
 function monster(game: Game, difficulty: number): Opponent {
@@ -81,7 +88,7 @@ function monster(game: Game, difficulty: number): Opponent {
   ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
   ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
   ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
-  return new Opponent(
+  return Opponent.captain(
     OpponentType.Monster,
     1 + difficulty,
     8 + difficulty,
@@ -93,7 +100,7 @@ function monster(game: Game, difficulty: number): Opponent {
 
 function bottle(game: Game): Opponent {
   const ship = new Ship(ShipModelType.Bottle, game.difficulty);
-  return new Opponent(OpponentType.Bottle, 0, 0, 0, 0, ship);
+  return Opponent.captain(OpponentType.Bottle, 0, 0, 0, 0, ship);
 }
 
 // A trader, a pirate, the police or a Mantis: a ship picked by chance, fitted out by chance.
@@ -478,7 +485,7 @@ function opponentWithSkills(type: OpponentType, game: Game, ship: Ship): Opponen
     engineer = MAX_SKILL_LEVEL;
   }
 
-  return new Opponent(type, engineer, pilot, fighter, trader, ship);
+  return Opponent.captain(type, engineer, pilot, fighter, trader, ship);
 }
 
 // Treat an array like an ordered set
