@@ -322,14 +322,20 @@ export class Commander extends CrewMember {
 
     if (this._currentSystem !== currentSystem) {
       this._currentSystem = currentSystem;
-      this._currentSystem.visited = true;
-
-      const basePrices = [];
-      for (let item = 0; item < TRADE_ITEM_COUNT; ++item) {
-        basePrices.push(this._calculateBasePriceForItem(item));
-      }
-      this._basePrices = basePrices;
+      this.arrive();
     }
+  }
+
+  // The system is visited before its prices are drawn: a visited system's special
+  // resource changes them.
+  private arrive() {
+    this._currentSystem.visited = true;
+
+    const basePrices = [];
+    for (let item = 0; item < TRADE_ITEM_COUNT; ++item) {
+      basePrices.push(this._calculateBasePriceForItem(item));
+    }
+    this._basePrices = basePrices;
   }
 
   get currentSystem() {
