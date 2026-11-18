@@ -2,10 +2,24 @@
 // rest of the code may trust it. The types the game uses for saved state come from this
 // description, so the check and the types cannot drift apart.
 import * as v from 'valibot';
+import { AccessoryType } from './Accessory.ts';
 import { PoliticsType } from './Politics.ts';
 import { ShipModelType } from './Ship.ts';
-import { Difficulty, SystemSize } from './SolarSystem.types.ts';
-import { TechLevel } from './TradeItem.types.ts';
+import {
+  Difficulty,
+  DragonflyQuestStatus,
+  ExperimentQuestStatus,
+  InvasionQuestStatus,
+  JaporiQuestStatus,
+  JarekQuestStatus,
+  MonsterQuestStatus,
+  ReactorQuestStatus,
+  ScarabQuestStatus,
+  SpecialEvent,
+  SystemSize,
+  WildQuestStatus,
+} from './SolarSystem.types.ts';
+import { Resource, Status, TechLevel } from './TradeItem.types.ts';
 
 // Raise this when the saved format changes, and teach parseSavedGame the older ones.
 export const SAVE_VERSION = 2;
@@ -21,6 +35,12 @@ function oneOf<T extends Record<string, number>>(list: T) {
   return v.picklist(Object.values(list) as T[keyof T][]);
 }
 const difficulty = oneOf(Difficulty);
+
+// A whole number from `first` to `last`, such as the equipment of one kind.
+function between(first: number, last: number) {
+  return v.pipe(num, v.integer(), v.minValue(first), v.maxValue(last));
+}
+const { GadgetFirst, GadgetLast, WeaponFirst, WeaponLast, ShieldFirst, ShieldLast } = AccessoryType;
 
 const CrewMemberSchema = v.strictObject({
   name: text,
@@ -46,9 +66,9 @@ const ShipSchema = v.strictObject({
   cargoBuyingPriceKeys: numbers,
   cargoBuyingPriceValues: numbers,
   // Written only when the ship has any.
-  weaponTypes: v.optional(numbers),
-  shieldTypes: v.optional(numbers),
-  gadgetTypes: v.optional(numbers),
+  weaponTypes: v.optional(v.array(between(WeaponFirst, WeaponLast))),
+  shieldTypes: v.optional(v.array(between(ShieldFirst, ShieldLast))),
+  gadgetTypes: v.optional(v.array(between(GadgetFirst, GadgetLast))),
   crewMap: v.optional(v.record(text, CrewMemberSchema)),
 });
 
@@ -81,10 +101,10 @@ const CommanderSchema = v.strictObject({
 const SolarSystemSchema = v.strictObject({
   name: text,
   techLevel: oneOf(TechLevel),
-  status: num,
-  specialResource: num,
+  status: oneOf(Status),
+  specialResource: oneOf(Resource),
   size: oneOf(SystemSize),
-  specialEvent: num,
+  specialEvent: oneOf(SpecialEvent),
   politicsType: oneOf(PoliticsType),
   x: num,
   y: num,
@@ -96,16 +116,17 @@ const SolarSystemSchema = v.strictObject({
 });
 
 const gameEntries = {
-  monsterStatus: num,
-  dragonflyStatus: num,
-  scarabStatus: num,
-  japoriQuestStatus: num,
-  jarekStatus: num,
-  invasionStatus: num,
-  experimentStatus: num,
+  monsterStatus: oneOf(MonsterQuestStatus),
+  dragonflyStatus: oneOf(DragonflyQuestStatus),
+  scarabStatus: oneOf(ScarabQuestStatus),
+  japoriQuestStatus: oneOf(JaporiQuestStatus),
+  jarekStatus: oneOf(JarekQuestStatus),
+  invasionStatus: oneOf(InvasionQuestStatus),
+  experimentStatus: oneOf(ExperimentQuestStatus),
   fabricRipProbability: num,
-  wildStatus: num,
-  reactorStatus: num,
+  wildStatus: oneOf(WildQuestStatus),
+  // Only the first and the last day of the reactor's countdown are named.
+  reactorStatus: between(ReactorQuestStatus.Open, ReactorQuestStatus.ClosedSaved),
   difficulty,
   endStatus: num,
   monsterHull: num,

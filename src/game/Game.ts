@@ -303,15 +303,15 @@ export class Game {
   // The values a saved game keeps as they are.
   private static savedValues(state: GameState) {
     return {
-      monsterStatus: state.monsterStatus as MonsterQuestStatus,
-      dragonflyStatus: state.dragonflyStatus as DragonflyQuestStatus,
-      scarabStatus: state.scarabStatus as ScarabQuestStatus,
-      japoriQuestStatus: state.japoriQuestStatus as JaporiQuestStatus,
-      jarekStatus: state.jarekStatus as JarekQuestStatus,
-      invasionStatus: state.invasionStatus as InvasionQuestStatus,
-      experimentStatus: state.experimentStatus as ExperimentQuestStatus,
+      monsterStatus: state.monsterStatus,
+      dragonflyStatus: state.dragonflyStatus,
+      scarabStatus: state.scarabStatus,
+      japoriQuestStatus: state.japoriQuestStatus,
+      jarekStatus: state.jarekStatus,
+      invasionStatus: state.invasionStatus,
+      experimentStatus: state.experimentStatus,
       fabricRipProbability: state.fabricRipProbability,
-      wildStatus: state.wildStatus as WildQuestStatus,
+      wildStatus: state.wildStatus,
       reactorStatus: state.reactorStatus,
       difficulty: state.difficulty,
       endStatus: state.endStatus as GameEndStatus,
