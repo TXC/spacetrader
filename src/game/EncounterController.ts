@@ -230,6 +230,82 @@ export class EncounterController {
     return this._type;
   }
 
+  _reactorAboard(): boolean {
+    const status = this._game.reactorStatus;
+    return status > ReactorQuestStatus.Open && status < ReactorQuestStatus.ClosedTooLate;
+  }
+
+  // Shows a message; the encounter goes on with `then` once it is dismissed.
+  _notice(text: string, then: () => void): void {
+    const alert = new AlertViewController(text);
+    alert.addAction('Dismiss', AlertActionType.Default, then);
+    this._presentAlertController(alert);
+  }
+
+  // The police search the ship. In the order of the original game: contraband is
+  // confiscated and fined, then Wild means arrest, then the reactor is taken.
+  _submitToSearch(): void {
+    const { commander } = this._game;
+    const wild = this._game.wildStatus === WildQuestStatus.OnBoard;
+    const done = () => this.delegate!.encounterControllerEncounterContinues(this, false);
+    const afterCargo = () => {
+      if (wild) this._processArrest();
+      else if (this._reactorAboard()) this._confiscateReactor(done);
+      else done();
+    };
+
+    if (this._contraband() > 0) {
+      this._notice(this._fineForContraband(), afterCargo);
+    } else if (!wild && !this._reactorAboard()) {
+      commander.policeRecordScore = commander.policeRecordScore - TRAFFICKING_SCORE;
+      this._notice(
+        'The police find nothing illegal in your cargo holds and apologize for the inconvenience.',
+        done
+      );
+    } else {
+      afterCargo();
+    }
+  }
+
+  _contraband(): number {
+    const { ship } = this._game.commander;
+    return (
+      ship.tradeItemQuantityForType(TradeItemType.Narcotics) +
+      ship.tradeItemQuantityForType(TradeItemType.Firearms)
+    );
+  }
+
+  // Takes the narcotics and firearms and fines the commander. Returns what the police say.
+  _fineForContraband(): string {
+    const { commander } = this._game;
+    const { Narcotics, Firearms } = TradeItemType;
+    commander.ship.soldQuantity(commander.ship.tradeItemQuantityForType(Narcotics), Narcotics);
+    commander.ship.soldQuantity(commander.ship.tradeItemQuantityForType(Firearms), Firearms);
+
+    let fine = commander.netWorth() / ((Difficulty.Absurd + 2 - this._game.difficulty) * 10);
+    fine = Math.ceil(fine / 50) * 50; // Round up to the nearest 50
+    fine = Math.max(100, Math.min(fine, 10000));
+    Utils.ensureInteger(fine);
+
+    const paid = Math.min(commander.credits, fine);
+    commander.setCredits(commander.credits - paid);
+    commander.debt = commander.debt + (fine - paid);
+    commander.policeRecordScore = commander.policeRecordScore + TRAFFICKING_SCORE;
+    return `The police discover illegal goods in your cargo holds. These goods are confiscated and you are fined $${fine}`;
+  }
+
+  _confiscateReactor(then: () => void): void {
+    this._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
+    this._game.commander.ship.soldQuantity(
+      REACTOR_BAY_COUNT + REACTOR_MAX_FUEL,
+      FAKE_QUEST_CARGO_REACTOR
+    );
+    this._notice(
+      "The police confiscate the Ion Reactor as evidence of your dealings with unsavory characters. The bad news is that you've lost the Ion Reactor. The good news is that you no longer have to worry about managing its depleting fuel store.",
+      then
+    );
+  }
+
   // At a police inspection with nothing to hide, submitting costs nothing. Attack, Flee and
   // Bribe all ask "are you sure?" in that case, and only then.
   _safeToSubmit(): boolean {
@@ -926,7 +1002,7 @@ export class EncounterController {
             let freePirateBays = this._opponent.ship.freeCargoBays();
             Utils.ensureInteger(freePirateBays);
 
-            do {
+            while (freePirateBays > 0) {
               const itemType = this._game.commander.ship.randomTradeableItem();
               if (itemType === NO_TRADE_ITEM) {
                 break;
@@ -934,7 +1010,7 @@ export class EncounterController {
 
               this._game.commander.ship.soldQuantity(1, itemType);
               freePirateBays--;
-            } while (freePirateBays > 0);
+            }
 
             pLog.log(60);
 
@@ -1056,89 +1132,7 @@ export class EncounterController {
         bribeBlock();
       }
     } else if (action === 'Submit') {
-      const submitBlock = () => {
-        if (
-          this._game.reactorStatus > ReactorQuestStatus.Open &&
-          this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate
-        ) {
-          this._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
-          this._game.commander.ship.soldQuantity(
-            REACTOR_BAY_COUNT + REACTOR_MAX_FUEL,
-            FAKE_QUEST_CARGO_REACTOR
-          );
-
-          const alertString =
-            "The police confiscate the Ion Reactor as evidence of your dealings with unsavory characters. The bad news is that you've lost the Ion Reactor. The good news is that you no longer have to worry about managing its depleting fuel store.";
-
-          const aC = new AlertViewController(alertString);
-
-          aC.addAction('Dismiss', AlertActionType.Default, () => {
-            this.delegate!.encounterControllerEncounterContinues(this, false);
-          });
-
-          this._presentAlertController(aC);
-        } else if (this._game.wildStatus === WildQuestStatus.OnBoard) {
-          this._processArrest();
-        } else if (this._game.commander.ship.hasIllegalGoods()) {
-          const numNarcotics = this._game.commander.ship.tradeItemQuantityForType(
-            TradeItemType.Narcotics
-          );
-          const numFirearms = this._game.commander.ship.tradeItemQuantityForType(
-            TradeItemType.Firearms
-          );
-          this._game.commander.ship.soldQuantity(numNarcotics, TradeItemType.Narcotics);
-          this._game.commander.ship.soldQuantity(numFirearms, TradeItemType.Firearms);
-
-          let fine =
-            this._game.commander.netWorth() /
-            ((Difficulty.Absurd + 2 - this._game.difficulty) * 10);
-          Utils.ensureNumber(fine);
-          fine = Math.ceil(fine / 50) * 50; // Round up to the nearest 50
-          fine = Math.max(100, Math.min(fine, 10000));
-
-          Utils.ensureInteger(fine);
-
-          let credits = this._game.commander.credits;
-          let debt = this._game.commander.debt;
-
-          if (credits >= fine) {
-            credits -= fine;
-          } else {
-            debt += fine - credits;
-            credits = 0;
-          }
-          this._game.commander.setCredits(credits);
-          this._game.commander.debt = debt;
-
-          this._game.commander.policeRecordScore =
-            this._game.commander.policeRecordScore + TRAFFICKING_SCORE;
-
-          const alertString = `The police discover illegal goods in your cargo holds. These goods are confiscated and you are fined $${fine}`;
-
-          const aC = new AlertViewController(alertString);
-
-          aC.addAction('Dismiss', AlertActionType.Default, () => {
-            this.delegate!.encounterControllerEncounterContinues(this, false);
-          });
-
-          this._presentAlertController(aC);
-        } else {
-          // Improve your police record score
-          this._game.commander.policeRecordScore =
-            this._game.commander.policeRecordScore - TRAFFICKING_SCORE;
-
-          const alertString =
-            'The police find nothing illegal in your cargo holds and apologize for the inconvenience.';
-
-          const aC = new AlertViewController(alertString);
-
-          aC.addAction('Dismiss', AlertActionType.Default, () => {
-            this.delegate!.encounterControllerEncounterContinues(this, false);
-          });
-
-          this._presentAlertController(aC);
-        }
-      };
+      const submitBlock = () => this._submitToSearch();
 
       if (
         this._type === EncounterType.PoliceInspection &&

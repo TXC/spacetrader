@@ -35,7 +35,7 @@ the decisions taken so far.
 | 1 | The review and this roadmap | | | |
 | 2 | Tooling: one `check` command, run on every change, stricter lint | T1, T3, T4, T5, T7, T8, T9, I9 | | No |
 | 3 | Rule bugs that leave recordings alone | B1 to B5, B7, B9, B10, Q4, Q10 | | Three tests, for Q4 |
-| 4 | Rule bugs that change the games walking those paths | B6, B8, Q1, Q2, Q3, Q8, Q9 | | Yes, a few |
+| 4 | Rule bugs that change the games walking those paths | B6, B8, Q1, Q2, Q3, Q8, Q9 | | Four tests, for Q2 and Q8 |
 | 5 | Safe saving and loading | L1 to L5, Q11, X2, X3 | Yes | No |
 | 6 | Delete dead code and leftovers | D1 to D7 | | No |
 | 7 | Accessibility: alerts as dialogs, real buttons, labels, unique ids | A1 to A8, B11, Q12 | | No |
