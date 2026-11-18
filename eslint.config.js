@@ -40,6 +40,24 @@ export default defineConfig([
     },
   },
   {
+    files: ['src/game/**/*.ts'],
+    ignores: ['src/game/session.ts', 'src/game/session.test.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              regex: '(^|/)session\\.ts$',
+              message:
+                'The rules must not know the session: it imports them, so this makes an import cycle. Call game.changed() to redraw the page, and take anything else as an argument.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     // Plain scripts: the build tooling runs in Node, the service worker in its own scope.
     files: ['**/*.{js,mjs}'],
     extends: [js.configs.recommended],
