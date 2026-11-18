@@ -7,7 +7,7 @@ import { ensureBool, ensureInteger } from '../../ensure.ts';
 import { pLog } from '../../probes.ts';
 import { EncounterType, isEncounterWith } from '../types.ts';
 import { arrest } from '../arrest.ts';
-import type { EncounterController } from '../../EncounterController.ts';
+import type { Encounter } from '../Encounter.ts';
 
 // Whether the opponent accepts a surrender, what the commander is asked first, and what
 // then happens.
@@ -18,7 +18,7 @@ type Terms = {
 };
 
 // The commander gives up. Returns whether the automatic action may repeat afterwards.
-export function surrender(encounter: EncounterController): boolean {
+export function surrender(encounter: Encounter): boolean {
   const { surrenderAllowed, surrenderPrompt, surrenderBlock } = surrenderTerms(encounter);
 
   ensureBool(surrenderAllowed);
@@ -53,7 +53,7 @@ export function surrender(encounter: EncounterController): boolean {
   return true;
 }
 
-function surrenderTerms(encounter: EncounterController): Terms {
+function surrenderTerms(encounter: Encounter): Terms {
   if (encounter._opponent.type === OpponentType.Mantis) {
     return alienTerms(encounter);
   } else if (
@@ -70,7 +70,7 @@ function surrenderTerms(encounter: EncounterController): Terms {
   };
 }
 
-function alienTerms(encounter: EncounterController): Terms {
+function alienTerms(encounter: Encounter): Terms {
   let surrenderAllowed: boolean;
   let surrenderPrompt: string;
   let surrenderBlock: (() => void) | null = null;
@@ -88,7 +88,7 @@ function alienTerms(encounter: EncounterController): Terms {
   return { surrenderAllowed, surrenderPrompt, surrenderBlock };
 }
 
-function giveUpArtifact(encounter: EncounterController): void {
+function giveUpArtifact(encounter: Encounter): void {
   pLog.log(55);
   encounter._game.commander.artifactOnBoard = false;
 
@@ -103,7 +103,7 @@ function giveUpArtifact(encounter: EncounterController): void {
   encounter._presentAlertController(aC);
 }
 
-function policeTerms(encounter: EncounterController): Terms {
+function policeTerms(encounter: Encounter): Terms {
   let surrenderAllowed: boolean;
   let surrenderPrompt = null;
   let surrenderBlock = null;
@@ -145,7 +145,7 @@ function policeTerms(encounter: EncounterController): Terms {
   return { surrenderAllowed, surrenderPrompt, surrenderBlock };
 }
 
-function yieldToCustoms(encounter: EncounterController): void {
+function yieldToCustoms(encounter: Encounter): void {
   pLog.log(58);
   const numNarcotics = encounter._game.commander.ship.tradeItemQuantityForType(
     TradeItemType.Narcotics
@@ -180,7 +180,7 @@ function yieldToCustoms(encounter: EncounterController): void {
   encounter._presentAlertController(aC);
 }
 
-function surrenderToPirates(encounter: EncounterController): void {
+function surrenderToPirates(encounter: Encounter): void {
   const wildString = wildMeetsThePirates(encounter);
 
   let questString = '';
@@ -207,7 +207,7 @@ function surrenderToPirates(encounter: EncounterController): void {
   }
 }
 
-function wildMeetsThePirates(encounter: EncounterController): string | null {
+function wildMeetsThePirates(encounter: Encounter): string | null {
   let wildString = null;
   if (encounter._game.wildStatus === WildQuestStatus.OnBoard) {
     if (encounter._opponent.ship.model.mercenaryQuarters() > 0) {
@@ -224,11 +224,7 @@ function wildMeetsThePirates(encounter: EncounterController): string | null {
   return wildString;
 }
 
-function payBlackmail(
-  encounter: EncounterController,
-  questString: string,
-  wildString: string | null
-): void {
+function payBlackmail(encounter: Encounter, questString: string, wildString: string | null): void {
   const blackmail = Math.min(
     25000,
     Math.max(500, Math.floor(encounter._game.commander.netWorth() / 20))
@@ -258,11 +254,7 @@ function payBlackmail(
   encounter._presentAlertController(aC);
 }
 
-function loseCargo(
-  encounter: EncounterController,
-  questString: string,
-  wildString: string | null
-): void {
+function loseCargo(encounter: Encounter, questString: string, wildString: string | null): void {
   let freePirateBays = encounter._opponent.ship.freeCargoBays();
   ensureInteger(freePirateBays);
 

@@ -18,10 +18,10 @@ import {
   isEncounterWith,
   isOneOf,
 } from '../types.ts';
-import type { EncounterController } from '../../EncounterController.ts';
+import type { Encounter } from '../Encounter.ts';
 
 // The commander attacks. Returns whether the automatic action may repeat afterwards.
-export function attack(encounter: EncounterController): boolean {
+export function attack(encounter: Encounter): boolean {
   if (encounter._safeToSubmit()) {
     const alertString =
       "Are you sure you want to attack? You're not carrying illegal goods so it should be safe to submit.";
@@ -41,14 +41,14 @@ export function attack(encounter: EncounterController): boolean {
   return true;
 }
 
-export function autoAttack(encounter: EncounterController): boolean {
+export function autoAttack(encounter: Encounter): boolean {
   encounter._encounterMode = EncounterMode.AutoAttack;
   encounter.performAction('Attack');
   pLog.log(50);
   return false;
 }
 
-function performAttack(encounter: EncounterController): void {
+function performAttack(encounter: Encounter): void {
   if (
     isEncounterWith(encounter._type, 'Police') ||
     encounter._type === EncounterType.PostMarieCelestePoliceEncounter
@@ -82,7 +82,7 @@ function performAttack(encounter: EncounterController): void {
   fight(encounter);
 }
 
-function attackPolice(encounter: EncounterController): void {
+function attackPolice(encounter: Encounter): void {
   if (encounter._game.commander.policeRecordScore > PoliceRecordScore.Criminal) {
     const alertString =
       'Are you sure you wish to attack the police? This will turn you into a criminal!';
@@ -102,7 +102,7 @@ function attackPolice(encounter: EncounterController): void {
   fightPolice(encounter);
 }
 
-function fightPolice(encounter: EncounterController): void {
+function fightPolice(encounter: Encounter): void {
   if (encounter._game.commander.policeRecordScore > PoliceRecordScore.Criminal) {
     encounter._game.commander.policeRecordScore = PoliceRecordScore.Criminal;
   }
@@ -117,7 +117,7 @@ function fightPolice(encounter: EncounterController): void {
   fight(encounter);
 }
 
-function attackTrader(encounter: EncounterController): void {
+function attackTrader(encounter: Encounter): void {
   if (
     isOneOf(
       encounter._type,
@@ -151,7 +151,7 @@ function attackTrader(encounter: EncounterController): void {
   fightTrader(encounter);
 }
 
-function fightTrader(encounter: EncounterController): void {
+function fightTrader(encounter: Encounter): void {
   if (encounter._type !== EncounterType.TraderFlee) {
     if (encounter._opponent.ship.weapons.length <= 0) {
       encounter._type = EncounterType.TraderFlee;
@@ -168,7 +168,7 @@ function fightTrader(encounter: EncounterController): void {
   fight(encounter);
 }
 
-function attackCaptain(encounter: EncounterController): void {
+function attackCaptain(encounter: Encounter): void {
   if (!isAttackEncounter(encounter._type)) {
     const alertString =
       'Famous captains get famous by, among other things, destroying everyone who attacks them. Do you really want to attack?';
@@ -194,12 +194,12 @@ function attackCaptain(encounter: EncounterController): void {
   fightCaptain(encounter);
 }
 
-function fightCaptain(encounter: EncounterController): void {
+function fightCaptain(encounter: Encounter): void {
   encounter._type = famousCaptainAttackType(encounter._type);
   fight(encounter);
 }
 
-function fight(encounter: EncounterController): void {
+function fight(encounter: Encounter): void {
   ensureInteger(encounter._type);
 
   fightRound(encounter, false, fightContinues => {

@@ -7,7 +7,7 @@ import {
   PoliceRecordScore,
   ReputationScore,
 } from './Commander.ts';
-import { EncounterController } from './EncounterController.ts';
+import { Encounter } from './encounter/Encounter.ts';
 import { EncounterType } from './encounter/types.ts';
 import type { ActionName, EncounterListener } from './encounter/types.ts';
 import { GameEndStatus, RareEvent, RARE_EVENT_COUNT } from './Game.ts';
@@ -57,7 +57,7 @@ export class Travel extends Store implements EncounterListener {
   declare _startClicksRemaining: number;
   declare _startedEncounters: boolean;
   declare _needPostMarieCustomsPolice: boolean;
-  declare _encounterController: EncounterController | null;
+  declare _encounterController: Encounter | null;
   declare _done: (result: TravelResult) => void;
   // How far along the trip is, from 0 to 1.
   progress = 0;
@@ -555,12 +555,7 @@ export class Travel extends Store implements EncounterListener {
       }
 
       if (encounterType !== EncounterType.None && opponent) {
-        const encounterController = new EncounterController(
-          encounterType,
-          this._game,
-          opponent,
-          this
-        );
+        const encounterController = new Encounter(encounterType, this._game, opponent, this);
         this.setEncounterController(encounterController);
         return;
       }
@@ -767,7 +762,7 @@ export class Travel extends Store implements EncounterListener {
     }
   }
 
-  setEncounterController(eC: EncounterController | null) {
+  setEncounterController(eC: Encounter | null) {
     if (eC !== this._encounterController) {
       if (this._encounterController) {
         this._encounterController.invalidate();

@@ -3,11 +3,11 @@ import { Difficulty, ReactorQuestStatus, WildQuestStatus } from '../../SolarSyst
 import { ensureInteger } from '../../ensure.ts';
 import { pLog } from '../../probes.ts';
 import { EncounterType } from '../types.ts';
-import type { EncounterController } from '../../EncounterController.ts';
+import type { Encounter } from '../Encounter.ts';
 
 // The commander offers the police money. Returns whether the automatic action may repeat
 // afterwards.
-export function bribe(encounter: EncounterController): boolean {
+export function bribe(encounter: Encounter): boolean {
   let cantBribeAlertString = null;
   if (encounter._type === EncounterType.PostMarieCelestePoliceEncounter) {
     cantBribeAlertString =
@@ -43,7 +43,7 @@ export function bribe(encounter: EncounterController): boolean {
   return true;
 }
 
-function offerBribe(encounter: EncounterController): void {
+function offerBribe(encounter: Encounter): void {
   const bribe = bribePrice(encounter);
 
   if (encounter._game.commander.credits < bribe) {
@@ -69,7 +69,7 @@ function offerBribe(encounter: EncounterController): void {
   }
 }
 
-function bribePrice(encounter: EncounterController): number {
+function bribePrice(encounter: Encounter): number {
   let bribe =
     encounter._game.commander.netWorth() /
     ((10 + 5 * (Difficulty.Absurd - encounter._game.difficulty)) *

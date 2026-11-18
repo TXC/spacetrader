@@ -11,11 +11,11 @@ import { TradeItemType, FAKE_QUEST_CARGO_REACTOR } from '../../TradeItem.types.t
 import { ensureInteger } from '../../ensure.ts';
 import { EncounterType } from '../types.ts';
 import { arrest } from '../arrest.ts';
-import type { EncounterController } from '../../EncounterController.ts';
+import type { Encounter } from '../Encounter.ts';
 
 // The commander lets the police search the ship. Returns whether the automatic action may
 // repeat afterwards.
-export function submit(encounter: EncounterController): boolean {
+export function submit(encounter: Encounter): boolean {
   const submitBlock = () => submitToSearch(encounter);
 
   if (
@@ -46,7 +46,7 @@ export function submit(encounter: EncounterController): boolean {
 
 // The police search the ship. In the order of the original game: contraband is
 // confiscated and fined, then Wild means arrest, then the reactor is taken.
-function submitToSearch(encounter: EncounterController): void {
+function submitToSearch(encounter: Encounter): void {
   const { commander } = encounter._game;
   const wild = encounter._game.wildStatus === WildQuestStatus.OnBoard;
   const done = () => encounter.listener.continues(false);
@@ -69,7 +69,7 @@ function submitToSearch(encounter: EncounterController): void {
   }
 }
 
-function contraband(encounter: EncounterController): number {
+function contraband(encounter: Encounter): number {
   const { ship } = encounter._game.commander;
   return (
     ship.tradeItemQuantityForType(TradeItemType.Narcotics) +
@@ -78,7 +78,7 @@ function contraband(encounter: EncounterController): number {
 }
 
 // Takes the narcotics and firearms and fines the commander. Returns what the police say.
-function fineForContraband(encounter: EncounterController): string {
+function fineForContraband(encounter: Encounter): string {
   const { commander } = encounter._game;
   const { Narcotics, Firearms } = TradeItemType;
   commander.ship.soldQuantity(commander.ship.tradeItemQuantityForType(Narcotics), Narcotics);
@@ -96,7 +96,7 @@ function fineForContraband(encounter: EncounterController): string {
   return `The police discover illegal goods in your cargo holds. These goods are confiscated and you are fined $${fine}`;
 }
 
-function confiscateReactor(encounter: EncounterController, then: () => void): void {
+function confiscateReactor(encounter: Encounter, then: () => void): void {
   encounter._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
   encounter._game.commander.ship.soldQuantity(
     REACTOR_BAY_COUNT + REACTOR_MAX_FUEL,

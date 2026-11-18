@@ -8,10 +8,10 @@ import {
   isOneOf,
 } from './types.ts';
 import type { ActionName } from './types.ts';
-import type { EncounterController } from '../EncounterController.ts';
+import type { Encounter } from './Encounter.ts';
 
 // The buttons an encounter offers, in the order they are shown.
-export function encounterButtons(encounter: EncounterController): ActionName[] {
+export function encounterButtons(encounter: Encounter): ActionName[] {
   const buttons: ActionName[] = [];
 
   ensureInteger(encounter._encounterMode);

@@ -3,7 +3,7 @@ import { expect, test, vi } from 'vitest';
 import { newGame, press, topAlert } from '../tests/support/newGame.ts';
 import { AccessoryType } from './Accessory.ts';
 import { alertStore } from './alerts.ts';
-import { EncounterController } from './EncounterController.ts';
+import { Encounter } from './encounter/Encounter.ts';
 import { performTradeWithAmount } from './encounter/actions/trade.ts';
 import { arrest } from './encounter/arrest.ts';
 import { EncounterType } from './encounter/types.ts';
@@ -39,7 +39,7 @@ function traderWith(game: ReturnType<typeof newGame>, cargo: [number, number][])
 // An encounter whose owner ignores what it is told.
 function encounter(game: ReturnType<typeof newGame>, type: number, opponent: Opponent) {
   const owner = new Proxy({}, { get: () => () => {} }) as EncounterListener;
-  return new EncounterController(type, game, opponent, owner);
+  return new Encounter(type, game, opponent, owner);
 }
 
 test('B1: dumping more than the fee allows dumps only what is paid for', () => {

@@ -30,12 +30,12 @@ import {
   isSurrenderEncounter,
 } from './types.ts';
 import { scoop } from './scoop.ts';
-import type { EncounterController } from '../EncounterController.ts';
+import type { Encounter } from './Encounter.ts';
 
 // One round of a fight: both sides fire, then someone is destroyed or gets away, or the
 // opponent thinks again and the fight goes on. `completionBlock` is told whether it does.
 export function fightRound(
-  encounter: EncounterController,
+  encounter: Encounter,
   commanderFlees: boolean,
   completionBlock: (fightContinues: boolean) => void
 ): void {
@@ -62,7 +62,7 @@ export function fightRound(
   completionBlock(true);
 }
 
-function exchangeFire(encounter: EncounterController, commanderFlees: boolean) {
+function exchangeFire(encounter: Encounter, commanderFlees: boolean) {
   let commanderGotHit = false;
 
   if (
@@ -92,7 +92,7 @@ function exchangeFire(encounter: EncounterController, commanderFlees: boolean) {
 }
 
 function someoneIsDestroyed(
-  encounter: EncounterController,
+  encounter: Encounter,
   completionBlock: (fightContinues: boolean) => void
 ): boolean {
   if (encounter._game.commander.ship.hull <= 0 && encounter._opponent.ship.hull <= 0) {
@@ -109,7 +109,7 @@ function someoneIsDestroyed(
   return false;
 }
 
-function bothDestroyed(encounter: EncounterController): void {
+function bothDestroyed(encounter: Encounter): void {
   if (encounter._game.commander.hasEscapePod) {
     performPodEscape(encounter);
     return;
@@ -128,7 +128,7 @@ function bothDestroyed(encounter: EncounterController): void {
 }
 
 function opponentDestroyed(
-  encounter: EncounterController,
+  encounter: Encounter,
   completionBlock: (fightContinues: boolean) => void
 ): void {
   let getBounty = false;
@@ -164,7 +164,7 @@ function opponentDestroyed(
 }
 
 // Counts the kill for the kind of opponent. Returns whether its cargo may drift by.
-function recordTheKill(encounter: EncounterController, getBounty: boolean): boolean {
+function recordTheKill(encounter: Encounter, getBounty: boolean): boolean {
   let attemptScoop = false;
 
   if (isEncounterWith(encounter._type, 'Police')) {
@@ -216,7 +216,7 @@ function recordTheKill(encounter: EncounterController, getBounty: boolean): bool
   return attemptScoop;
 }
 
-function commanderDestroyed(encounter: EncounterController): void {
+function commanderDestroyed(encounter: Encounter): void {
   encounter.listener.hullChanged();
 
   if (encounter._game.commander.hasEscapePod) {
@@ -236,12 +236,12 @@ function commanderDestroyed(encounter: EncounterController): void {
   }
 }
 
-function performPodEscape(encounter: EncounterController): void {
+function performPodEscape(encounter: Encounter): void {
   encounter.listener.destroyed();
 }
 
 function someoneEscapes(
-  encounter: EncounterController,
+  encounter: Encounter,
   commanderFlees: boolean,
   commanderGotHit: boolean,
   completionBlock: (fightContinues: boolean) => void
@@ -256,7 +256,7 @@ function someoneEscapes(
 }
 
 function commanderEscapes(
-  encounter: EncounterController,
+  encounter: Encounter,
   commanderGotHit: boolean,
   completionBlock: (fightContinues: boolean) => void
 ): boolean {
@@ -304,7 +304,7 @@ function commanderEscapes(
 }
 
 function opponentEscapes(
-  encounter: EncounterController,
+  encounter: Encounter,
   completionBlock: (fightContinues: boolean) => void
 ): boolean {
   if (
@@ -338,7 +338,7 @@ function opponentEscapes(
 
 // A damaged opponent may turn to flee or give up.
 function opponentReconsiders(
-  encounter: EncounterController,
+  encounter: Encounter,
   opponentHull: number,
   commanderHull: number
 ): void {
@@ -355,11 +355,7 @@ function opponentReconsiders(
   }
 }
 
-function policeReconsider(
-  encounter: EncounterController,
-  opponentHull: number,
-  commanderHull: number
-): void {
+function policeReconsider(encounter: Encounter, opponentHull: number, commanderHull: number): void {
   if (encounter._opponent.ship.hull < opponentHull / 2) {
     if (encounter._game.commander.ship.hull < commanderHull / 2) {
       encounter._type =
@@ -371,7 +367,7 @@ function policeReconsider(
 }
 
 function pirateReconsiders(
-  encounter: EncounterController,
+  encounter: Encounter,
   opponentHull: number,
   commanderHull: number
 ): void {
@@ -390,7 +386,7 @@ function pirateReconsiders(
 }
 
 function traderReconsiders(
-  encounter: EncounterController,
+  encounter: Encounter,
   opponentHull: number,
   commanderHull: number
 ): void {
@@ -413,7 +409,7 @@ function traderReconsiders(
   }
 }
 
-function leaveAutoModeIfChanged(encounter: EncounterController, prevType: number): void {
+function leaveAutoModeIfChanged(encounter: Encounter, prevType: number): void {
   if (prevType !== encounter._type) {
     if (
       !isFleeEncounter(encounter._type) &&
@@ -428,7 +424,7 @@ function leaveAutoModeIfChanged(encounter: EncounterController, prevType: number
 
 // Writes what happened in this round, for the encounter's text.
 function describeRound(
-  encounter: EncounterController,
+  encounter: Encounter,
   prevType: number,
   commanderFlees: boolean,
   commanderGotHit: boolean,
@@ -474,7 +470,7 @@ function describeRound(
   }
 }
 
-function shipNoun(encounter: EncounterController, prevType: number): string | null {
+function shipNoun(encounter: Encounter, prevType: number): string | null {
   let shipString = null;
 
   if (isEncounterWith(prevType, 'Police')) {
@@ -499,7 +495,7 @@ function shipNoun(encounter: EncounterController, prevType: number): string | nu
 
 // One side fires at the other. Returns whether it hit.
 function executeAttack(
-  encounter: EncounterController,
+  encounter: Encounter,
   attacker: Commander | Opponent,
   defender: Commander | Opponent,
   defenderIsFleeing: boolean
@@ -601,7 +597,7 @@ function weaponDamage(
 }
 
 function damageDefender(
-  encounter: EncounterController,
+  encounter: Encounter,
   defender: Commander | Opponent,
   damage: number,
   commanderUnderAttack: boolean

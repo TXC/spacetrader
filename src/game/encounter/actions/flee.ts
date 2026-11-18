@@ -8,10 +8,10 @@ import { Difficulty } from '../../SolarSystem.types.ts';
 import { pLog } from '../../probes.ts';
 import { EncounterMode, EncounterType } from '../types.ts';
 import { fightRound } from '../fight.ts';
-import type { EncounterController } from '../../EncounterController.ts';
+import type { Encounter } from '../Encounter.ts';
 
 // The commander flees. Returns whether the automatic action may repeat afterwards.
-export function flee(encounter: EncounterController): boolean {
+export function flee(encounter: Encounter): boolean {
   let alertString = null;
   if (encounter._safeToSubmit()) {
     alertString =
@@ -37,14 +37,14 @@ export function flee(encounter: EncounterController): boolean {
   return true;
 }
 
-export function autoFlee(encounter: EncounterController): boolean {
+export function autoFlee(encounter: Encounter): boolean {
   encounter._encounterMode = EncounterMode.AutoFlee;
   encounter.performAction('Flee');
   pLog.log(51);
   return false;
 }
 
-function performFlee(encounter: EncounterController): void {
+function performFlee(encounter: Encounter): void {
   if (encounter._type === EncounterType.PoliceInspection) {
     encounter._type = EncounterType.PoliceAttack;
 

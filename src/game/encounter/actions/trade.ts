@@ -6,7 +6,7 @@ import { NO_TRADE_ITEM } from '../../TradeItem.types.ts';
 import { ensureBool, ensureInteger, ensureType } from '../../ensure.ts';
 import { runtime } from '../../runtime.ts';
 import { EncounterType } from '../types.ts';
-import type { EncounterController } from '../../EncounterController.ts';
+import type { Encounter } from '../Encounter.ts';
 
 // What a trader offers, to buy or to sell.
 type Offer = {
@@ -19,7 +19,7 @@ type Offer = {
 
 // The commander hears the trader's offer. Returns whether the automatic action may repeat
 // afterwards.
-export function trade(encounter: EncounterController): boolean {
+export function trade(encounter: Encounter): boolean {
   const onlyIllegal = encounter._game.commander.policeRecordScore < PoliceRecordScore.Dubious;
   let offer: Offer = {
     itemType: NO_TRADE_ITEM,
@@ -50,7 +50,7 @@ export function trade(encounter: EncounterController): boolean {
   return true;
 }
 
-function offerToBuy(encounter: EncounterController, onlyIllegal: boolean): Offer {
+function offerToBuy(encounter: Encounter, onlyIllegal: boolean): Offer {
   let tradePrice = 0;
   let maxUnits = 0;
   let comparisonPrice = 0;
@@ -90,7 +90,7 @@ function offerToBuy(encounter: EncounterController, onlyIllegal: boolean): Offer
   return { itemType, itemName, tradePrice, maxUnits, comparisonPrice };
 }
 
-function offerToSell(encounter: EncounterController, onlyIllegal: boolean): Offer {
+function offerToSell(encounter: Encounter, onlyIllegal: boolean): Offer {
   let tradePrice = 0;
   let maxUnits = 0;
   const comparisonPrice = 0;
@@ -129,7 +129,7 @@ function offerToSell(encounter: EncounterController, onlyIllegal: boolean): Offe
 }
 
 function presentTradeAlert(
-  encounter: EncounterController,
+  encounter: Encounter,
   itemName: string | null,
   itemType: number,
   tradePrice: number,
@@ -253,7 +253,7 @@ function presentThanksForTheTrade(completion: () => void) {
 }
 
 export function performTradeWithAmount(
-  encounter: EncounterController,
+  encounter: Encounter,
   amount: number,
   itemType: number,
   tradePrice: number,

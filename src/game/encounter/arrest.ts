@@ -12,10 +12,10 @@ import {
 import { TradeItemType, FAKE_QUEST_CARGO, FAKE_QUEST_CARGO_REACTOR } from '../TradeItem.types.ts';
 import { ensureInteger } from '../ensure.ts';
 import { pLog } from '../probes.ts';
-import type { EncounterController } from '../EncounterController.ts';
+import type { Encounter } from './Encounter.ts';
 
 // The commander is arrested: a fine, time in prison, and whatever the police take.
-export function arrest(encounter: EncounterController): void {
+export function arrest(encounter: Encounter): void {
   const fine = arrestFine(encounter);
 
   const imprisonment = Math.max(30, -encounter._game.commander.policeRecordScore);
@@ -44,7 +44,7 @@ export function arrest(encounter: EncounterController): void {
   encounter._presentAlertController(aC);
 }
 
-function arrestFine(encounter: EncounterController): number {
+function arrestFine(encounter: Encounter): number {
   let fine =
     (1 +
       Math.floor(
@@ -65,7 +65,7 @@ function arrestFine(encounter: EncounterController): number {
 }
 
 // Each of these returns what it adds to the court's message.
-function loseGoodsInsuranceAndCrew(encounter: EncounterController): string {
+function loseGoodsInsuranceAndCrew(encounter: Encounter): string {
   let alertString = '';
 
   const numNarcotics = encounter._game.commander.ship.tradeItemQuantityForType(
@@ -98,7 +98,7 @@ function loseGoodsInsuranceAndCrew(encounter: EncounterController): string {
   return alertString;
 }
 
-function closeQuests(encounter: EncounterController): string {
+function closeQuests(encounter: Encounter): string {
   let alertString = '';
 
   if (encounter._game.japoriQuestStatus === JaporiQuestStatus.HasMedicine) {
@@ -138,7 +138,7 @@ function closeQuests(encounter: EncounterController): string {
   return alertString;
 }
 
-function payFineAndDebt(encounter: EncounterController, fine: number): string {
+function payFineAndDebt(encounter: Encounter, fine: number): string {
   let alertString = '';
 
   let credits = encounter._game.commander.credits;

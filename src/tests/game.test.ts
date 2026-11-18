@@ -1,5 +1,5 @@
 import { expect, onTestFinished, test } from 'vitest';
-import { EncounterController } from '../game/EncounterController.ts';
+import { Encounter } from '../game/encounter/Encounter.ts';
 import { captainFor } from '../game/encounter/captains.ts';
 import { fightRound } from '../game/encounter/fight.ts';
 import { EncounterType } from '../game/encounter/types.ts';
@@ -50,7 +50,7 @@ test('destroying a famous captain raises reputation to at least Dangerous', () =
   captain.ship.damageHullByAmount(100000);
   const owner = new Proxy({}, { get: () => () => {} }) as EncounterListener;
   const type = EncounterType.FamousCaptainAhabAttack;
-  const encounter = new EncounterController(type, game, captain, owner);
+  const encounter = new Encounter(type, game, captain, owner);
   // Choosing to attack a captain posts this news item; the kill then replaces it.
   game.addBreakingNewsItem(captainFor(encounter.type).attackNews);
   fightRound(encounter, false, () => {});
