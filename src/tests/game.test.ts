@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, onTestFinished, test } from 'vitest';
 import { captainFor, EncounterController, EncounterType } from '../game/EncounterController.ts';
 import { ActionLogger } from '../game/ActionLogger.ts';
 import { GameRand } from '../game/GameRand.ts';
@@ -62,26 +62,24 @@ function fixture(html: string): HTMLElement {
   const div = document.createElement('div');
   div.innerHTML = html;
   document.body.appendChild(div);
+  onTestFinished(() => div.remove());
   return div;
 }
 
 test('textOf reads line breaks as new lines', () => {
   const div = fixture('a<br>b<br><br><h4>c</h4>');
   expect(textOf(div)).toBe('a\nb\n\nc');
-  div.remove();
 });
 
 test('textOf reads paragraphs as lines with an empty line between them', () => {
   const div = fixture('<h4>a</h4><p>b</p><p>c</p>');
   expect(textOf(div)).toBe('a\nb\n\nc');
-  div.remove();
 });
 
 test('hasText matches the exact text of a matching element', () => {
   const div = fixture('<table><tr><td>5</td></tr></table>');
   expect(hasText(div, 'td', '5')).toBe(true);
   expect(hasText(div, 'td', '4')).toBe(false);
-  div.remove();
 });
 
 test('cellAfter and rowAfterHeading find neighbouring table content', () => {
@@ -91,7 +89,6 @@ test('cellAfter and rowAfterHeading find neighbouring table content', () => {
   expect(cellAfter(div, 'Furs')).toBe('4');
   expect(cellAfter(div, 'Ore')).toBeNull();
   expect(textOf(rowAfterHeading('Picked')!)).toBe('Furs4');
-  div.remove();
 });
 
 test('a replayed checkbox change reaches a React screen', () => {
