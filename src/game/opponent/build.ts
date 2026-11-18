@@ -37,7 +37,7 @@ export function buildOpponent(type: OpponentType, game: Game): Opponent {
 }
 
 function famousCaptain(type: OpponentType): Opponent {
-  const ship = Ship.bestShipWithDifficulty();
+  const ship = Ship.bestShip();
   return Opponent.captain(
     type,
     MAX_SKILL_LEVEL,
