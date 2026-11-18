@@ -43,8 +43,9 @@ in good shape. Three things stand out:
 
 1. **There are real rule bugs**, eleven confirmed. Most sit in paths no
    recording walks: dumping or plundering more than fits, selling a
-   shield, an arrest with a good record. Several were inherited from the
-   old JavaScript version.
+   shield, an arrest with a good record. Only three of them exist in the
+   original Palm game; the rest came in with the JavaScript version or
+   later (see "Compared with the original game" in section 3).
 2. **Saving and loading is fragile.** Storage that is full, blocked or
    damaged can leave a player stuck, and a saved game is trusted without
    any check.
@@ -64,7 +65,7 @@ effort, highest first. "Replays" is the worst case among its findings.
 | [ ] | P1 | Make saving and loading safe | L1 to L5 | medium | No |
 | [ ] | P2 | Fix the confirmed rule bugs that cannot change recordings | B1, B2, B3, B4, B5, B7, B10, B11 | medium | No, see note |
 | [ ] | P3 | Decide and fix the rule bugs that do change recordings | B6, B8, B9 | small | Diverge |
-| [ ] | P4 | Decide the "possible" bugs against the original game | Q1 to Q12 | small each | Mostly diverge |
+| [ ] | P4 | Fix the departures from the original game (all but Q6) | Q1 to Q12 | small each | Mostly diverge |
 | [ ] | P5 | Tooling clean-up: CI filter, check script, release config, lint | T1 to T9 | small | No |
 | [ ] | P6 | Accessibility of alerts, buttons, images and inputs | A1 to A8 | medium | No, see note |
 | [ ] | P7 | Delete dead code and leftovers | D1 to D7 | small | No |
@@ -92,6 +93,26 @@ My recommendation is P1, P2 and P5 first. They remove the ways a player
 can lose a game or get stuck, and they are cheap. P3 and P4 need your
 decision on the rules more than they need work.
 
+### Decisions so far
+
+| Date | Finding | Decision | Note |
+|------|---------|----------|------|
+| 2026-11-18 | B8 | Fix | The test `ionReactor_tooLate_escapePod` walks this path, so its expected values will change with the fix. |
+| 2026-11-18 | B5 | Fix | Treat a good record as zero, which gives the minimum fine of 500. |
+| 2026-11-18 | B10 | Fix | One shared "is it safe to submit" check for Attack, Flee and Bribe. |
+| 2026-11-18 | A1 | Fix | Alerts become modal dialogs that take the focus off the page. |
+| 2026-11-18 | G1, G2 | Do, shape open | Owner suggests a folder of actions, one file each, behind an interface. |
+| 2026-11-18 | Y1 to Y6 | Do, as CSS Modules | Possibly with `composes`. |
+| 2026-11-18 | T2 | Done by owner | `.releaserc.json` is fixed. The release job stays commented out until there is a host. |
+| 2026-11-18 | T5 | Fix | Remove the lint exceptions for tests. |
+| 2026-11-18 | T6 | Do | Generate `sw.js` from TypeScript. |
+| 2026-11-18 | T7 | Fix | Enable `eslint-config-prettier`, remove `eslint-plugin-prettier`. Claude's proposal, not contradicted. |
+| 2026-11-18 | Q5 | Fix | Changes most recordings with a fight in them. Done last, after counting the tests it breaks. |
+| 2026-11-18 | Q7 | Fix | Changes every new galaxy. Done last, after counting the tests it breaks. |
+| 2026-11-18 | L3, L4 | Free to change the saved format | There are no users, so no saved game has to keep loading. |
+| 2026-11-18 | T6, O1 | `vite-plugin-pwa` may be used | If it works with this Vite version; otherwise our own build step. |
+| 2026-11-18 | All | Stacked pull requests | Order in `docs/superpowers/plans/2026-11-18-review-roadmap.md`. |
+
 ## 3. Rule bugs
 
 ### Confirmed
@@ -115,8 +136,9 @@ other results and break every recording.
 
 ### Possible, to decide against the original game
 
-The reviewers could not see the original Palm or iOS source. These rest
-on how that game is remembered to behave, so each needs your call.
+The reviewers could not see the original source, so these were reported
+as "possible". They have since been compared with the Palm source; the
+result for each is in the next table.
 
 | Id | What looks wrong | Where | Replays | Effort |
 |----|------------------|-------|---------|--------|
@@ -133,8 +155,55 @@ on how that game is remembered to behave, so each needs your call.
 | Q11 | A damaged high-score record makes the commander screen fail to draw. | `HallOfFame.ts:44-55` | No | small |
 | Q12 | The alert box cannot scroll. A long plunder list on a short phone screen may push the buttons out of reach. | `style.css:499-519` | No | small |
 
-For Q5, Q6 and Q7, I would leave the behaviour and add a comment. The
-gain is small and every recording would change.
+### Compared with the original game
+
+Added 2026-11-18. Each rule finding was compared with the Palm source,
+version 1.2.2 (`old/SpaceTraderSource_1.2.2.zip`). "In the original?"
+answers whether the original game has the same fault.
+
+| Id | In the original? | What the original does | Original file |
+|----|------------------|------------------------|---------------|
+| B1 | No | Removes only the amount that is paid for. | `Cargo.c:939-949` |
+| B2 | No | Takes the smallest of the amount asked, what the victim holds, and your free bays, and moves exactly that. | `Cargo.c:803-807` |
+| B3 | No | Keeps a strength per shield and removes the sold shield's strength with it. | `SellEquipEvent.c:86-89` |
+| B4 | No | Asks about Wild first, in its own alert, and checks the debt after that, in another. | `Traveler.c:484-505` |
+| B5 | **Yes** | The same formula, so the fine is negative for a good record there too. | `Encounter.c:666` |
+| B6 | No | Skips only trader buy and sell offers when the option is on. | `Traveler.c:2091-2096` |
+| B7 | No | Refuses with "can't afford" and takes no money. | `SystemInfoEvent.c:399-403` |
+| B8 | **Yes** | Runs arrival, then the escape pod runs arrival again. | `Traveler.c:2232, 2249`; `Encounter.c:592` |
+| B9 | Not comparable | Uses another generator, with a remainder, which cannot overshoot. | `Math.c:85-88` |
+| B10 | **Yes** | The same check: only firearms and narcotics. | `Encounter.c:1484-1489` |
+| B11 | Not comparable | Element ids belong to the web version. | |
+| Q1 | No | Fines for contraband, arrests for Wild, and also confiscates the reactor. The port stops after the reactor. | `Encounter.c:2079-2132` |
+| Q2 | No | Sets the tribbles to 1 to 3. The port adds to them. | `Traveler.c:2284` |
+| Q3 | No | Loops only while the pirate has free bays, so takes nothing with a full hold. | `Encounter.c:1937` |
+| Q4 | No | Limits a purchase to what the trader carries, and a sale to the trader's bays. | `Encounter.c:1787-1794, 1708` |
+| Q5 | No | Works in whole numbers. In-flight repairs are a roll up to the skill, then halved; the port rolls up to half the skill. | `Traveler.c:1780`; `Encounter.c:821` |
+| Q6 | **Yes** | Picks the first ship whose running total reaches the roll, as the port does. | `Traveler.c:918-928` |
+| Q7 | No | Places every mercenary, Yorvick included. Only Zeethibal is held back. | `Traveler.c:1450-1481` |
+| Q8 | No | Limits a loan to between 1,000 and 25,000. | `Bank.c:40-44` |
+| Q9 | No | Makes the news from the system and the day, so a later visit gets new headlines. | `SystemInfoEvent.c:465` |
+| Q10 | No | Counts the antidote's ten bays from the quest's state, so a new ship still carries it. | `Cargo.c:1025-1026` |
+| Q11, Q12 | Not comparable | Storage and alert layout belong to the web version. | |
+
+What this changes:
+
+- **Three confirmed bugs are the original's own:** B5, B8 and B10. They
+  are still wrong (a negative fine pays the player), so fixing them is a
+  choice to improve on the original.
+- **Q6 is faithful to the original.** Leave it.
+- **Every other finding is a departure from the original,** made by the
+  JavaScript version or later. That settles the "possible" ones: Q1 to
+  Q5 and Q7 to Q10 are bugs in the port, not rules to debate.
+- **B6 and B7** were described above as "inherited". They are inherited
+  from the JavaScript version, not from the original, which has both
+  right.
+
+The cost of fixing has not changed. Q2, Q3, Q5, Q7, Q8 and Q9 still make
+recordings diverge, and Q7 would also change every new galaxy. For Q5
+and Q7 I would still leave the behaviour and add a comment, because
+every recording would change. Q2, Q3, Q8 and Q9 change only the games
+that walk those paths.
 
 ## 4. Saving and loading
 
@@ -340,9 +409,9 @@ apart from one helper), `Travel.ts`, `Ship.ts` beyond its model table,
 
 ## 11. Not checked
 
-- **The original game.** The reviewers had no Palm or iOS source. The
-  items in the "possible" table rest on how that game is remembered to
-  behave.
+- **The original game beyond the rule findings.** The Palm source was
+  compared only for the findings in section 3, not read as a whole, so
+  other departures from it may exist. The iOS version was not seen.
 - **Running anything.** No test, browser or phone was used for this
   review. Contrast figures were worked out by hand. No bug was
   reproduced by playing; each was read from the code.
