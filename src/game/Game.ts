@@ -223,10 +223,8 @@ export class Game {
     instance.solarSystems = serializedState.solarSystems.map(ss => SolarSystem.load(ss));
 
     instance.solarSystems.forEach((solarSystem, idx) => {
-      solarSystem.updateWormholeForSerializedState(
-        serializedState.solarSystems[idx],
-        instance.solarSystems
-      );
+      const wormholeName = serializedState.solarSystems[idx].wormholeName;
+      solarSystem.wormhole = SolarSystem.solarSystemForName(wormholeName, instance.solarSystems);
     });
 
     instance._warpSystem = instance._findSolarSystem(serializedState.warpSystemName);

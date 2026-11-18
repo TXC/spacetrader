@@ -277,11 +277,6 @@ export class SolarSystem {
     return solarSystem;
   }
 
-  updateWormholeForSerializedState(serializedState: SolarSystemState, solarSystems: SolarSystem[]) {
-    const wormholeName = serializedState.wormholeName;
-    this.wormhole = SolarSystem.solarSystemForName(wormholeName, solarSystems);
-  }
-
   get inventoryReplenishCountdown() {
     return this._inventoryReplenishCountdown;
   }
