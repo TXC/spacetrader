@@ -269,11 +269,6 @@ nav {
   padding-bottom: 0.333rem;
 }
 
-.commanderTable {
-  text-align: center;
-  margin: auto;
-}
-
 /* Styling for the backdrop (overlay) */
 .alert-backdrop {
   position: fixed;

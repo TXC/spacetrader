@@ -1,0 +1,9 @@
+.figures {
+  margin: 0 auto var(--space-line);
+  text-align: center;
+}
+
+/* A block with an empty line after it. */
+.block {
+  margin-bottom: var(--space-line);
+}

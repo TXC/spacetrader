@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import {
   askToGiveUp,
   figures,
@@ -9,6 +9,7 @@ import {
 import type { IgnoreOption } from '../game/CommanderStatus.ts';
 import type { Game } from '../game/Game.ts';
 import type { Scores } from '../game/HallOfFame.ts';
+import styles from './CommanderStatus.module.css';
 import { HallOfFame } from './HallOfFame.tsx';
 import { Lines } from './Lines.tsx';
 import { LoggedButton, LoggedCheckbox } from './Logged.tsx';
@@ -20,7 +21,7 @@ type GameProps = { game: Game };
 
 function SkillTable({ game }: GameProps) {
   return (
-    <table className="commanderTable">
+    <table className={styles.figures}>
       <tbody>
         <tr>
           <th />
@@ -41,7 +42,7 @@ function SkillTable({ game }: GameProps) {
 
 function FigureTable({ game }: GameProps) {
   return (
-    <table className="commanderTable">
+    <table className={styles.figures}>
       <tbody>
         {figures(game).map(figure => (
           <tr key={figure.item}>
@@ -63,9 +64,9 @@ const IGNORE: [id: string, option: IgnoreOption, label: string][] = [
 
 function Options({ game }: GameProps) {
   return (
-    <>
+    <div className={styles.block}>
       {IGNORE.map(([id, option, label]) => (
-        <Fragment key={id}>
+        <div key={id}>
           <LoggedCheckbox
             id={id}
             checked={game[option]}
@@ -73,8 +74,7 @@ function Options({ game }: GameProps) {
           >
             {label}
           </LoggedCheckbox>
-          <br />
-        </Fragment>
+        </div>
       ))}
       <LoggedCheckbox
         id="reserveMoney"
@@ -83,7 +83,7 @@ function Options({ game }: GameProps) {
       >
         Reserve money for recurring costs
       </LoggedCheckbox>
-    </>
+    </div>
   );
 }
 
@@ -96,24 +96,19 @@ function Status({
     <div className={shared.centredText}>
       <h1>{game.commander.name}</h1>
       <SkillTable game={game} />
-      <br />
       <FigureTable game={game} />
-      <br />
       <h4>Special Cargo</h4>
-      <div id="cargoListDiv">
+      <div id="cargoListDiv" className={styles.block}>
         <Lines text={game.specialCargoDescription()} />
       </div>
-      <br />
       <h4>Open Quests</h4>
-      <div id="questListDiv">
+      <div id="questListDiv" className={styles.block}>
         <Lines text={game.questListDescription()} />
       </div>
-      <br />
       <Options game={game} />
-      <br />
-      <br />
-      <LoggedButton id="showhighscores" label="Commander Hall of Fame" onPress={showHallOfFame} />
-      <br />
+      <div>
+        <LoggedButton id="showhighscores" label="Commander Hall of Fame" onPress={showHallOfFame} />
+      </div>
       <LoggedButton id="giveup" label="Give Up" onPress={() => askToGiveUp(onGiveUp)} />
     </div>
   );
