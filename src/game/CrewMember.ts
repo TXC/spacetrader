@@ -92,9 +92,8 @@ export class CrewMember {
     return crewMember;
   }
 
-  randomizeAttributes() {
-    const randomSkill = () =>
-      runtime.gameRand.randomIntBelow(5) + runtime.gameRand.randomIntBelow(6) + 1;
+  randomizeAttributes(rand = runtime.gameRand) {
+    const randomSkill = () => rand.randomIntBelow(5) + rand.randomIntBelow(6) + 1;
     this.pilot = randomSkill();
     this.fighter = randomSkill();
     this.trader = randomSkill();
