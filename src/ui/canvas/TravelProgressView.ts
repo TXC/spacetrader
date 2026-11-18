@@ -5,10 +5,10 @@ import {
   UnvisitedSystemColor,
   VisitedSystemColor,
 } from './GalaxyView.ts';
+import { easeInOutCubic } from './easing.ts';
 import type { Game } from '../../game/Game.ts';
 import type { PCEImage } from '../../game/PCEImage.ts';
 import type { SolarSystem } from '../../game/SolarSystem.ts';
-import { Utils } from '../../game/Utilities.ts';
 import { drawInCanvas } from './pceDrawing.ts';
 import { watchSize } from './watchSize.ts';
 
@@ -197,7 +197,7 @@ export class TravelProgressView {
 
     const animationTimeElapsed = timestamp - this.progressAnimationStartTime;
     const animationPercent = Math.min(1, animationTimeElapsed / (TRAVEL_PROGRESS_DURATION * 1000));
-    const distancePercent = Utils.easeInOutCubic(animationPercent);
+    const distancePercent = easeInOutCubic(animationPercent);
     const shipDistance =
       this.shipProgress + distancePercent * (this.shipTargetProgress - this.shipProgress);
 

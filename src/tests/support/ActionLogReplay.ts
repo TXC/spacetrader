@@ -2,7 +2,7 @@
 // Only the tests need this, and it works on the page, so it lives with the tests.
 import { GameRand } from '../../game/GameRand.ts';
 import { runtime } from '../../game/runtime.ts';
-import { Utils } from '../../game/Utilities.ts';
+import { ensureType } from '../../game/ensure.ts';
 import type { Session } from '../../game/session.ts';
 
 export class ActionLogReplay {
@@ -67,7 +67,7 @@ export class ActionLogReplay {
         console.log(`Did not find element for ${elementID}. EventName: ${eventName}`);
         console.log(`Current replayLog: ${runtime.actionLog.serializedString()}`);
       }
-      Utils.ensureType(element, 'object');
+      ensureType(element, 'object');
 
       if (eventName.startsWith('slider')) {
         const eventComponents = eventName.split(/\|/);

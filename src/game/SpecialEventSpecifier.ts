@@ -20,7 +20,7 @@ import {
 } from './SolarSystem.types.ts';
 import { tradeItemForType } from './TradeItem.ts';
 import { FAKE_QUEST_CARGO, FAKE_QUEST_CARGO_REACTOR, TRADE_ITEM_COUNT } from './TradeItem.types.ts';
-import { pLog } from './Utilities.ts';
+import { pLog } from './probes.ts';
 import type { Game, GameEndedStatus } from './Game.ts';
 import { runtime } from './runtime.ts';
 

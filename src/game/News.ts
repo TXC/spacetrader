@@ -18,7 +18,7 @@ import {
   WildQuestStatus,
 } from './SolarSystem.types.ts';
 import { Status, TECH_LEVEL_COUNT } from './TradeItem.types.ts';
-import { pLog } from './Utilities.ts';
+import { pLog } from './probes.ts';
 
 // One of these lives as long as the landing screen, as the old news screen did: its
 // headlines for a system are built once and shown again on the next visit to the screen.

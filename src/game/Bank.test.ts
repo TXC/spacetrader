@@ -4,7 +4,7 @@ import { Commander } from './Commander.ts';
 import { Game } from './Game.ts';
 import { GameRand } from './GameRand.ts';
 import { runtime } from './runtime.ts';
-import { DebugMode } from './Utilities.ts';
+import { DebugMode } from './ensure.ts';
 
 let game: Game;
 

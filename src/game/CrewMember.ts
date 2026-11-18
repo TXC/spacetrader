@@ -1,4 +1,4 @@
-import { Utils } from './Utilities.ts';
+import { ensureArrayOrNull, ensureBool, ensureInteger, ensureType } from './ensure.ts';
 import { runtime } from './runtime.ts';
 
 import type { CrewMemberState } from './savedGame.ts';
@@ -60,10 +60,10 @@ export class CrewMember {
     fighter: number = 0,
     trader: number = 0
   ) {
-    Utils.ensureType(name, 'string');
+    ensureType(name, 'string');
     this.name = name || null;
 
-    Utils.ensureArrayOrNull([engineer, pilot, fighter, trader], 'number');
+    ensureArrayOrNull([engineer, pilot, fighter, trader], 'number');
 
     this.engineer = engineer;
     this.pilot = pilot;
@@ -106,7 +106,7 @@ export class CrewMember {
   }
 
   set forQuest(f: boolean) {
-    if (Utils.ensureBool(f)) {
+    if (ensureBool(f)) {
       this._forQuest = f;
     }
   }
@@ -152,14 +152,14 @@ export class CrewMember {
   }
 
   serializedState(): CrewMemberState {
-    Utils.ensureType(this.name, 'string');
-    Utils.ensureInteger(this.pilot);
-    Utils.ensureInteger(this.fighter);
-    Utils.ensureInteger(this.trader);
-    Utils.ensureInteger(this.engineer);
-    Utils.ensureBool(this._forQuest);
-    Utils.ensureBool(this.carriesMaxTraderBoost);
-    Utils.ensureBool(this.freeMercenaryCost);
+    ensureType(this.name, 'string');
+    ensureInteger(this.pilot);
+    ensureInteger(this.fighter);
+    ensureInteger(this.trader);
+    ensureInteger(this.engineer);
+    ensureBool(this._forQuest);
+    ensureBool(this.carriesMaxTraderBoost);
+    ensureBool(this.freeMercenaryCost);
     return {
       name: this.name ?? '',
       pilot: this.pilot,

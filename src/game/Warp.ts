@@ -6,7 +6,8 @@ import { runtime } from './runtime.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import { ExperimentQuestStatus, WildQuestStatus } from './SolarSystem.types.ts';
 import { FABRIC_RIP_PROBABILITY_INITIAL } from './SpecialEventSpecifier.ts';
-import { Utils, pLog } from './Utilities.ts';
+import { ensureBool, ensureInteger, ensureType } from './ensure.ts';
+import { pLog } from './probes.ts';
 
 export const WARP_START_CLICKS = 21;
 
@@ -46,7 +47,7 @@ function costOfLeaving(game: Game, destination: SolarSystem) {
   credits -= commander.wormholeTaxToWarpToSystem(destination);
   if (!shortfall && credits < 0)
     shortfall = "You don't have enough money to pay for the wormhole tax.";
-  Utils.ensureInteger(credits);
+  ensureInteger(credits);
   return { credits, shortfall };
 }
 
@@ -124,10 +125,10 @@ function startTravelling(game: Game, viaSingularity: boolean): void {
 }
 
 function checked(game: Game, viaSingularity: boolean, destination: SolarSystem): void {
-  Utils.ensureType(game, 'object');
-  Utils.ensureBool(viaSingularity);
-  Utils.ensureType(destination, 'object');
-  Utils.ensureInteger(game.commander.credits);
+  ensureType(game, 'object');
+  ensureBool(viaSingularity);
+  ensureType(destination, 'object');
+  ensureInteger(game.commander.credits);
 }
 
 // Leaves for `destination`, or says why not. `begin` is called when the trip starts, which
@@ -152,7 +153,7 @@ export function warp(
   const rip = fabricRip(game);
   if (rip) {
     destination = game.solarSystems[runtime.gameRand.randomIntBelow(game.solarSystems.length)];
-    Utils.ensureType(destination, 'object');
+    ensureType(destination, 'object');
     pLog.log(149);
   }
   startTravelling(game, viaSingularity);

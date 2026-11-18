@@ -5,7 +5,8 @@ import { expect } from 'vitest';
 import { GameRand } from '../../game/GameRand.ts';
 import { ActionLogger } from '../../game/ActionLogger.ts';
 import { Game } from '../../game/Game.ts';
-import { Utils, pLog } from '../../game/Utilities.ts';
+import { pLog } from '../../game/probes.ts';
+import { isEqualDeep } from '../support/isEqualDeep.ts';
 import { MockLocalStorage } from '../support/MockLocalStorage.ts';
 import { runtime } from '../../game/runtime.ts';
 import { parseSavedGame } from '../../game/savedGame.ts';
@@ -321,7 +322,7 @@ export function assertEqualArrays(actual: unknown, expected: unknown) {
 
 export function assertEqualDeep(actual: unknown, expected: unknown) {
   let difference = '';
-  const equal = Utils.isEqualDeep(actual, expected, (found: string) => {
+  const equal = isEqualDeep(actual, expected, (found: string) => {
     difference = found;
   });
   expect(equal, difference).toBe(true);

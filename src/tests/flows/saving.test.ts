@@ -7,7 +7,7 @@ import { ActionLogger } from '../../game/ActionLogger.ts';
 import { Game, GameEndStatus } from '../../game/Game.ts';
 import { Difficulty, JarekQuestStatus, WildQuestStatus } from '../../game/SolarSystem.types.ts';
 import { TradeItemType } from '../../game/TradeItem.types.ts';
-import { Utils } from '../../game/Utilities.ts';
+import { ensureType } from '../../game/ensure.ts';
 import { MockLocalStorage } from '../support/MockLocalStorage.ts';
 import { runtime } from '../../game/runtime.ts';
 import { AlertViewController } from '../../game/alerts.ts';
@@ -48,7 +48,7 @@ test('saveLoad', () => {
 
   // Check that the saved game looks valid
   const gameUniqueID = Object.keys(saveGames)[0];
-  Utils.ensureType(gameUniqueID, 'string');
+  ensureType(gameUniqueID, 'string');
 
   const sg = Game.fromSerializedState(saveGames[gameUniqueID]);
   assertEqual(sg.commander.name, 'Jean-Luc');

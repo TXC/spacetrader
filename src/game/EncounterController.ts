@@ -38,7 +38,8 @@ import {
   NO_TRADE_ITEM,
   TRADE_ITEM_COUNT,
 } from './TradeItem.types.ts';
-import { Utils, pLog } from './Utilities.ts';
+import { ensureBool, ensureInteger, ensureNumber, ensureType } from './ensure.ts';
+import { pLog } from './probes.ts';
 import type { Game } from './Game.ts';
 import type { Commander } from './Commander.ts';
 import type { Opponent } from './Opponent.ts';
@@ -219,9 +220,9 @@ export class EncounterController {
   declare delegate: Travel | null;
 
   constructor(type: number, game: Game, opponent: Opponent) {
-    Utils.ensureInteger(type);
-    Utils.ensureType(game, 'object');
-    Utils.ensureType(opponent, 'object');
+    ensureInteger(type);
+    ensureType(game, 'object');
+    ensureType(opponent, 'object');
 
     this._type = type;
     this._game = game;
@@ -292,7 +293,7 @@ export class EncounterController {
     let fine = commander.netWorth() / ((Difficulty.Absurd + 2 - this._game.difficulty) * 10);
     fine = Math.ceil(fine / 50) * 50; // Round up to the nearest 50
     fine = Math.max(100, Math.min(fine, 10000));
-    Utils.ensureInteger(fine);
+    ensureInteger(fine);
 
     const paid = Math.min(commander.credits, fine);
     commander.setCredits(commander.credits - paid);
@@ -417,7 +418,7 @@ export class EncounterController {
   encounterButtons() {
     const buttons = [];
 
-    Utils.ensureInteger(this._encounterMode);
+    ensureInteger(this._encounterMode);
 
     if (isAutoMode(this._encounterMode)) {
       buttons.push('Interrupt');
@@ -531,8 +532,8 @@ export class EncounterController {
   }
 
   performAction(action: string) {
-    Utils.ensureType(action, 'string');
-    Utils.ensureInteger(this._encounterMode);
+    ensureType(action, 'string');
+    ensureInteger(this._encounterMode);
 
     this._actionTaken = true;
 
@@ -558,10 +559,10 @@ export class EncounterController {
     } else if (action === 'Attack') {
       const performAttack = () => {
         const executeActionBlock = () => {
-          Utils.ensureInteger(this._type);
+          ensureInteger(this._type);
 
           this._executeAction(false, fightContinues => {
-            Utils.ensureBool(fightContinues);
+            ensureBool(fightContinues);
             fightContinues = fightContinues && this._game.commander.ship.hull > 0;
             this.delegate!.encounterControllerEncounterContinues(this, fightContinues);
           });
@@ -784,11 +785,11 @@ export class EncounterController {
           this._game.commander.currentSystem,
           onlyIllegal
         );
-        Utils.ensureInteger(itemType);
+        ensureInteger(itemType);
 
         if (itemType !== NO_TRADE_ITEM) {
           tradePrice = this._game.commander.sellPriceForItem(itemType);
-          Utils.ensureInteger(tradePrice);
+          ensureInteger(tradePrice);
 
           if (onlyIllegal) {
             tradePrice *= runtime.gameRand.randomIntBelow(100) <= 45 ? 0.8 : 1.1;
@@ -982,14 +983,14 @@ export class EncounterController {
           const totalCargo =
             this._game.commander.ship.totalCargoBays() - this._game.commander.ship.freeCargoBays();
 
-          Utils.ensureInteger(totalCargo);
+          ensureInteger(totalCargo);
 
           if (totalCargo <= 0) {
             const blackmail = Math.min(
               25000,
               Math.max(500, Math.floor(this._game.commander.netWorth() / 20))
             );
-            Utils.ensureInteger(blackmail);
+            ensureInteger(blackmail);
 
             let credits = this._game.commander.credits;
             let debt = this._game.commander.debt;
@@ -1014,7 +1015,7 @@ export class EncounterController {
             this._presentAlertController(aC);
           } else {
             let freePirateBays = this._opponent.ship.freeCargoBays();
-            Utils.ensureInteger(freePirateBays);
+            ensureInteger(freePirateBays);
 
             while (freePirateBays > 0) {
               const itemType = this._game.commander.ship.randomTradeableItem();
@@ -1041,7 +1042,7 @@ export class EncounterController {
         };
       }
 
-      Utils.ensureBool(surrenderAllowed);
+      ensureBool(surrenderAllowed);
 
       if (surrenderAllowed) {
         if (surrenderPrompt) {
@@ -1092,7 +1093,7 @@ export class EncounterController {
             this._game.commander.currentSystem.politics.bribeWillingness);
 
         bribe = Math.ceil(bribe / 100) * 100; // round up to the next 100
-        Utils.ensureInteger(bribe);
+        ensureInteger(bribe);
 
         if (
           this._game.wildStatus === WildQuestStatus.OnBoard ||
@@ -1104,7 +1105,7 @@ export class EncounterController {
         }
 
         bribe = Math.max(100, Math.min(bribe, 10000));
-        Utils.ensureInteger(bribe);
+        ensureInteger(bribe);
 
         if (this._game.commander.credits < bribe) {
           const alertString = "You don't have enough cash for a bribe.";
@@ -1311,7 +1312,7 @@ export class EncounterController {
     }
 
     if (isAutoMode(this._encounterMode)) {
-      Utils.ensureInteger(this._autoEncounterSession);
+      ensureInteger(this._autoEncounterSession);
 
       const sessionID = this._game.uniqueID + '-' + this._autoEncounterSession;
       const actionType = this._encounterMode === EncounterMode.AutoAttack ? 'Attack' : 'Flee';
@@ -1346,12 +1347,12 @@ export class EncounterController {
     comparisonPrice: number,
     traderSell: boolean
   ) {
-    Utils.ensureType(itemName, 'string');
-    Utils.ensureInteger(itemType);
-    Utils.ensureInteger(tradePrice);
-    Utils.ensureInteger(maxUnits);
-    Utils.ensureInteger(comparisonPrice);
-    Utils.ensureBool(traderSell);
+    ensureType(itemName, 'string');
+    ensureInteger(itemType);
+    ensureInteger(tradePrice);
+    ensureInteger(maxUnits);
+    ensureInteger(comparisonPrice);
+    ensureBool(traderSell);
 
     let needsDismiss: boolean;
     let needsAll = false;
@@ -1437,12 +1438,12 @@ export class EncounterController {
   }
 
   _executeAction(commanderFlees: boolean, completionBlock: (fightContinues: boolean) => void) {
-    Utils.ensureBool(commanderFlees);
+    ensureBool(commanderFlees);
 
     const opponentHull = this._opponent.ship.hull;
-    Utils.ensureInteger(opponentHull);
+    ensureInteger(opponentHull);
     const commanderHull = this._game.commander.ship.hull;
-    Utils.ensureInteger(commanderHull);
+    ensureInteger(commanderHull);
     let commanderGotHit = false;
 
     if (
@@ -1603,7 +1604,7 @@ export class EncounterController {
       if (escapeString) {
         if (isEncounterWith(this._type, 'Monster')) {
           this._game.monsterHull = this._opponent.ship.hull;
-          Utils.ensureInteger(this._game.monsterHull);
+          ensureInteger(this._game.monsterHull);
           pLog.log(143);
         }
 
@@ -1690,7 +1691,7 @@ export class EncounterController {
       }
     }
 
-    Utils.ensureInteger(this._type);
+    ensureInteger(this._type);
 
     if (prevType !== this._type) {
       if (!isFleeEncounter(this._type) && this._encounterMode === EncounterMode.AutoAttack) {
@@ -1801,9 +1802,9 @@ export class EncounterController {
     defender: Commander | Opponent,
     defenderIsFleeing: boolean
   ) {
-    Utils.ensureType(attacker, 'object');
-    Utils.ensureType(defender, 'object');
-    Utils.ensureBool(defenderIsFleeing);
+    ensureType(attacker, 'object');
+    ensureType(defender, 'object');
+    ensureBool(defenderIsFleeing);
 
     const commanderUnderAttack = defender === this._game.commander;
 
@@ -1818,14 +1819,14 @@ export class EncounterController {
     const attackDiceRoll = runtime.gameRand.randomIntBelow(
       attacker.ship.crewFighterSkillIncludingCommander(attacker) + defender.ship.model.size
     );
-    Utils.ensureInteger(attackDiceRoll);
+    ensureInteger(attackDiceRoll);
 
     const dodgeDiceRoll =
       (defenderIsFleeing ? 2 : 1) *
       runtime.gameRand.randomIntBelow(
         5 + Math.floor(defender.ship.crewPilotSkillIncludingCommander(defender) / 2)
       );
-    Utils.ensureInteger(dodgeDiceRoll);
+    ensureInteger(dodgeDiceRoll);
 
     if (attackDiceRoll < dodgeDiceRoll) {
       return false; // Defender dodged
@@ -1834,7 +1835,7 @@ export class EncounterController {
     // Ensure we truncate to integer wherever this factor is used
     const ATTACK_SCALE =
       (100 + 2 * attacker.ship.crewEngineerSkillIncludingCommander(attacker)) / 100;
-    Utils.ensureNumber(ATTACK_SCALE);
+    ensureNumber(ATTACK_SCALE);
 
     let damage: number;
     if (attacker.ship.weapons.length <= 0) {
@@ -1844,13 +1845,13 @@ export class EncounterController {
         AccessoryType.WeaponPulseLaser,
         AccessoryType.WeaponPulseLaser
       );
-      Utils.ensureInteger(pulsePower);
+      ensureInteger(pulsePower);
 
       const morganPower = attacker.ship.weaponPowerBetweenMinMaxInclusive(
         AccessoryType.WeaponMorgansLaser,
         AccessoryType.WeaponMorgansLaser
       );
-      Utils.ensureInteger(morganPower);
+      ensureInteger(morganPower);
 
       if (pulsePower + morganPower <= 0) {
         damage = 0;
@@ -1864,12 +1865,12 @@ export class EncounterController {
         AccessoryType.WeaponFirst,
         AccessoryType.WeaponLast
       );
-      Utils.ensureInteger(weaponPower);
+      ensureInteger(weaponPower);
 
       damage = runtime.gameRand.randomIntBelow(weaponPower * ATTACK_SCALE);
     }
 
-    Utils.ensureInteger(damage);
+    ensureInteger(damage);
     if (damage <= 0) {
       return false;
     }
@@ -1885,9 +1886,9 @@ export class EncounterController {
       );
     }
 
-    Utils.ensureInteger(damage);
+    ensureInteger(damage);
     damage = defender.ship.damageShieldsByAmount(damage);
-    Utils.ensureInteger(damage);
+    ensureInteger(damage);
 
     if (damage > 0) {
       damage -= runtime.gameRand.randomIntBelow(
@@ -1899,11 +1900,11 @@ export class EncounterController {
       const scaleFactor = commanderUnderAttack
         ? Math.max(1, Difficulty.Absurd - this._game.difficulty)
         : 2;
-      Utils.ensureInteger(scaleFactor);
+      ensureInteger(scaleFactor);
 
       damage = Math.min(damage, Math.floor(defender.ship.maximumHullStrength() / scaleFactor));
 
-      Utils.ensureInteger(damage);
+      ensureInteger(damage);
 
       defender.ship.damageHullByAmount(damage);
     }
@@ -1922,14 +1923,14 @@ export class EncounterController {
             500
         )) *
       500;
-    Utils.ensureInteger(fine);
+    ensureInteger(fine);
 
     if (this._game.wildStatus === WildQuestStatus.OnBoard) {
       fine = Math.floor(fine * 1.05);
     }
 
     const imprisonment = Math.max(30, -this._game.commander.policeRecordScore);
-    Utils.ensureInteger(imprisonment);
+    ensureInteger(imprisonment);
 
     let alertString = `You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to ${imprisonment} days in prison and a fine of $${fine}.`;
 
@@ -2051,10 +2052,10 @@ export class EncounterController {
     tradePrice: number,
     traderSell: boolean
   ) {
-    Utils.ensureInteger(amount);
-    Utils.ensureInteger(itemType);
-    Utils.ensureInteger(tradePrice);
-    Utils.ensureBool(traderSell);
+    ensureInteger(amount);
+    ensureInteger(itemType);
+    ensureInteger(tradePrice);
+    ensureBool(traderSell);
 
     if (amount > 0) {
       const credits = this._game.commander.credits;
@@ -2074,7 +2075,7 @@ export class EncounterController {
   // #pragma mark - PlunderViewControllerDelegate
 
   plunderViewControllerDidFinishPlundering(controller: Plunder) {
-    Utils.ensureBool(controller.plundered);
+    ensureBool(controller.plundered);
 
     if (controller.plundered) {
       this.delegate!.encounterControllerDidPlunder(this, controller.plundered);

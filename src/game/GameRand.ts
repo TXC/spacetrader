@@ -1,4 +1,4 @@
-import { Utils } from './Utilities.ts';
+import { logStackTrace } from './ensure.ts';
 
 export class GameRand {
   declare randHigh: number;
@@ -20,7 +20,7 @@ export class GameRand {
   // Return value >= min && value <= max
   randomInt(min: number, max: number) {
     if (this._logStackTrace) {
-      Utils.logStackTrace();
+      logStackTrace();
     }
 
     this._numInvocations++;

@@ -15,7 +15,13 @@ import {
   TECH_LEVEL_COUNT,
   TRADE_ITEM_COUNT,
 } from './TradeItem.types.ts';
-import { Utils } from './Utilities.ts';
+import {
+  ensureArrayOrNull,
+  ensureBool,
+  ensureInteger,
+  ensureObjectOrNull,
+  ensureType,
+} from './ensure.ts';
 import { runtime } from './runtime.ts';
 
 import type { SolarSystemState } from './savedGame.ts';
@@ -44,10 +50,10 @@ export class SolarSystem {
       return;
     }
 
-    Utils.ensureType(name, 'string');
+    ensureType(name, 'string');
     this._name = name;
 
-    Utils.ensureArrayOrNull([x, y, difficulty], 'number');
+    ensureArrayOrNull([x, y, difficulty], 'number');
     this._x = x!;
     this._y = y!;
     this._difficulty = difficulty!;
@@ -211,7 +217,7 @@ export class SolarSystem {
   }
 
   static solarSystemForName(name: string | null | undefined, solarSystems: SolarSystem[]) {
-    Utils.ensureArrayOrNull(solarSystems, 'object');
+    ensureArrayOrNull(solarSystems, 'object');
 
     if (!name) return null;
 
@@ -239,7 +245,7 @@ export class SolarSystem {
     const mercenaryState = serializedState.mercenary;
     if (mercenaryState) {
       solarSystem._mercenary = CrewMember.fromSerializedState(mercenaryState);
-      Utils.ensureObjectOrNull(solarSystem._mercenary);
+      ensureObjectOrNull(solarSystem._mercenary);
     } else {
       solarSystem._mercenary = null;
     }
@@ -283,13 +289,13 @@ export class SolarSystem {
   }
 
   set techLevel(t: number) {
-    if (Utils.ensureInteger(t)) {
+    if (ensureInteger(t)) {
       this._techLevel = t;
     }
   }
 
   setVisited(v: boolean) {
-    if (Utils.ensureBool(v)) {
+    if (ensureBool(v)) {
       this._visited = v;
     }
   }
@@ -307,13 +313,13 @@ export class SolarSystem {
   }
 
   set inventoryReplenishCountdown(i: number) {
-    if (Utils.ensureInteger(i)) {
+    if (ensureInteger(i)) {
       this._inventoryReplenishCountdown = i;
     }
   }
 
   setWormhole(sys: SolarSystem) {
-    if (Utils.ensureType(sys, 'object')) {
+    if (ensureType(sys, 'object')) {
       this._wormhole = sys;
     }
   }
@@ -331,7 +337,7 @@ export class SolarSystem {
   }
 
   setSpecialEvent(sE: number) {
-    if (Utils.ensureInteger(sE)) {
+    if (ensureInteger(sE)) {
       this._specialEvent = sE;
     }
   }
@@ -349,7 +355,7 @@ export class SolarSystem {
   }
 
   setMercenary(m: CrewMember) {
-    if (Utils.ensureType(m, 'object')) {
+    if (ensureType(m, 'object')) {
       this._mercenary = m;
     }
   }
@@ -371,7 +377,7 @@ export class SolarSystem {
   }
 
   set politics(p: Politics) {
-    if (Utils.ensureInteger(p.type)) {
+    if (ensureInteger(p.type)) {
       this._politics = p;
     }
   }
@@ -443,7 +449,7 @@ export class SolarSystem {
         runtime.gameRand.randomIntBelow(10);
       this._tradeItemInventory[itemType] = Math.max(this._tradeItemInventory[itemType], 0);
 
-      Utils.ensureInteger(this._tradeItemInventory[itemType]);
+      ensureInteger(this._tradeItemInventory[itemType]);
     }
   }
 
@@ -456,8 +462,8 @@ export class SolarSystem {
   }
 
   squaredDistanceToXY(x: number, y: number) {
-    Utils.ensureInteger(x);
-    Utils.ensureInteger(y);
+    ensureInteger(x);
+    ensureInteger(y);
     return Math.floor((this._x - x) ** 2 + (this._y - y) ** 2);
   }
 
@@ -494,18 +500,18 @@ export class SolarSystem {
       }
     }
 
-    Utils.ensureInteger(price);
+    ensureInteger(price);
 
     return Math.max(price, 0);
   }
 
   tradeItemQuantityForType(type: number) {
-    Utils.ensureInteger(type);
+    ensureInteger(type);
     return this._tradeItemInventory[type];
   }
 
   boughtQuantity(quantity: number, type: number) {
-    if (Utils.ensureInteger(quantity) && Utils.ensureInteger(type)) {
+    if (ensureInteger(quantity) && ensureInteger(type)) {
       this._tradeItemInventory[type] -= Math.min(quantity, this._tradeItemInventory[type]);
     }
   }
@@ -571,53 +577,53 @@ export class SolarSystem {
     // Filled in field by field below.
     const state = {} as SolarSystemState;
 
-    Utils.ensureType(this._name, 'string');
+    ensureType(this._name, 'string');
     state.name = this._name;
 
-    Utils.ensureInteger(this._techLevel);
+    ensureInteger(this._techLevel);
     state.techLevel = this._techLevel;
 
-    Utils.ensureInteger(this._status);
+    ensureInteger(this._status);
     state.status = this._status;
 
-    Utils.ensureInteger(this._specialResource);
+    ensureInteger(this._specialResource);
     state.specialResource = this._specialResource;
 
-    Utils.ensureInteger(this._size);
+    ensureInteger(this._size);
     state.size = this._size;
 
-    Utils.ensureInteger(this._specialEvent);
+    ensureInteger(this._specialEvent);
     state.specialEvent = this._specialEvent;
 
-    Utils.ensureInteger(this._difficulty);
+    ensureInteger(this._difficulty);
     state.difficulty = this._difficulty;
 
-    Utils.ensureInteger(this._politics.type);
+    ensureInteger(this._politics.type);
     state.politicsType = this._politics.type;
 
-    Utils.ensureInteger(this._x);
+    ensureInteger(this._x);
     state.x = this._x;
-    Utils.ensureInteger(this._y);
+    ensureInteger(this._y);
     state.y = this._y;
 
-    Utils.ensureInteger(this._inventoryReplenishCountdown);
+    ensureInteger(this._inventoryReplenishCountdown);
     state.inventoryReplenishCountdown = this._inventoryReplenishCountdown;
 
-    Utils.ensureBool(this._visited);
+    ensureBool(this._visited);
     state.visited = this._visited;
 
-    Utils.ensureObjectOrNull(this._wormhole);
+    ensureObjectOrNull(this._wormhole);
     if (this._wormhole) {
-      Utils.ensureType(this._wormhole.name, 'string');
+      ensureType(this._wormhole.name, 'string');
       state.wormholeName = this._wormhole.name;
     }
 
-    Utils.ensureObjectOrNull(this._mercenary);
+    ensureObjectOrNull(this._mercenary);
     if (this._mercenary) {
       state.mercenary = this._mercenary.serializedState();
     }
 
-    Utils.ensureArrayOrNull(this._tradeItemInventory, 'number');
+    ensureArrayOrNull(this._tradeItemInventory, 'number');
     state.tradeItemInventory = this._tradeItemInventory.map(item => item);
 
     return state;

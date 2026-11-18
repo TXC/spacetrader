@@ -27,7 +27,8 @@ import { TradeItemType } from './TradeItem.types.ts';
 import { Store } from './Store.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import type { Game, GameEndedStatus } from './Game.ts';
-import { Utils, pLog } from './Utilities.ts';
+import { ensureArrayOrNull, ensureInteger } from './ensure.ts';
+import { pLog } from './probes.ts';
 import { runtime } from './runtime.ts';
 
 export const CHANCE_OF_TRADE_IN_ORBIT = 100;
@@ -180,7 +181,7 @@ export class Travel extends Store {
           encounterTest *= 2;
         }
 
-        Utils.ensureInteger(encounterTest);
+        ensureInteger(encounterTest);
 
         if (
           encounterTest < this._destination.politics.occurrencePirates &&
@@ -220,7 +221,7 @@ export class Travel extends Store {
           }
         }
 
-        Utils.ensureInteger(opponentType);
+        ensureInteger(opponentType);
 
         if (opponentType >= OPPONENT_TYPE_COUNT) {
           if (this._game.commander.artifactOnBoard && runtime.gameRand.randomIntBelow(20) <= 3) {
@@ -469,13 +470,13 @@ export class Travel extends Store {
           (this._game.commander.days > 10 && runtime.gameRand.randomIntBelow(1000) < 5)
         ) {
           const rareEvents = this._game.remainingRareEvents;
-          Utils.ensureArrayOrNull(rareEvents, 'number');
+          ensureArrayOrNull(rareEvents, 'number');
 
           const index =
             rareEvents.length > 0 ? runtime.gameRand.randomIntBelow(rareEvents.length) : -1;
           const rareEvent = index !== -1 ? rareEvents[index] : RARE_EVENT_COUNT;
 
-          Utils.ensureInteger(rareEvent);
+          ensureInteger(rareEvent);
 
           switch (rareEvent) {
             case RareEvent.CaptainAhab:
@@ -632,7 +633,7 @@ export class Travel extends Store {
 
     let foodOnBoard = false;
     let currentTribbles = this._game.commander.ship.tribbles;
-    Utils.ensureInteger(currentTribbles);
+    ensureInteger(currentTribbles);
 
     const previousTribbles = currentTribbles;
     const reactorStatus =
@@ -688,7 +689,7 @@ export class Travel extends Store {
     }
 
     currentTribbles = Math.min(currentTribbles, MAX_TRIBBLES);
-    Utils.ensureInteger(currentTribbles);
+    ensureInteger(currentTribbles);
     this._game.commander.ship.tribbles = currentTribbles;
 
     if (

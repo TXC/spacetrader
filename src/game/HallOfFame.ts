@@ -5,7 +5,7 @@ import type { GameState } from './Game.ts';
 import { MAX_HIGH_SCORES, session } from './session.ts';
 import { difficultyName } from './SolarSystem.types.ts';
 import { named } from './texts.ts';
-import { pLog } from './Utilities.ts';
+import { pLog } from './probes.ts';
 
 // Where the high scores are kept: the session.
 export type Scores = {

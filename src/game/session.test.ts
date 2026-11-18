@@ -7,7 +7,7 @@ import { startingSkills } from './NewCommander.ts';
 import { runtime } from './runtime.ts';
 import { CANNOT_SAVE, SAVE_REMOVED, Session } from './session.ts';
 import { MockLocalStorage } from '../tests/support/MockLocalStorage.ts';
-import { DebugMode } from './Utilities.ts';
+import { DebugMode } from './ensure.ts';
 
 let session: Session;
 let storage: MockLocalStorage;
