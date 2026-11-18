@@ -68,7 +68,7 @@ export class SolarSystem {
   private readonly _specialResource: Resource;
   readonly size: SystemSize;
   status: Status;
-  private _inventoryReplenishCountdown: number;
+  inventoryReplenishCountdown: number;
   private _tradeItemInventory: number[];
 
   private constructor(fields: SolarSystemFields) {
@@ -84,7 +84,7 @@ export class SolarSystem {
     this._specialResource = fields.specialResource;
     this.size = fields.size;
     this.status = fields.status;
-    this._inventoryReplenishCountdown = fields.inventoryReplenishCountdown;
+    this.inventoryReplenishCountdown = fields.inventoryReplenishCountdown;
     this._tradeItemInventory = fields.tradeItemInventory;
   }
 
@@ -279,14 +279,6 @@ export class SolarSystem {
     });
   }
 
-  get inventoryReplenishCountdown() {
-    return this._inventoryReplenishCountdown;
-  }
-
-  set inventoryReplenishCountdown(i: number) {
-    this._inventoryReplenishCountdown = i;
-  }
-
   hashCode() {
     const str = this.name;
 
@@ -423,10 +415,10 @@ export class SolarSystem {
   }
 
   updateInventories(difficulty: Difficulty) {
-    if (this._inventoryReplenishCountdown > 0) {
-      this._inventoryReplenishCountdown--;
+    if (this.inventoryReplenishCountdown > 0) {
+      this.inventoryReplenishCountdown--;
 
-      if (this._inventoryReplenishCountdown <= 0) {
+      if (this.inventoryReplenishCountdown <= 0) {
         this._initializeInventories(difficulty);
       } else {
         for (const itemType of TRADE_ITEM_TYPES) {
@@ -481,7 +473,7 @@ export class SolarSystem {
     state.politicsType = this.politics.type;
     state.x = this.x;
     state.y = this.y;
-    state.inventoryReplenishCountdown = this._inventoryReplenishCountdown;
+    state.inventoryReplenishCountdown = this.inventoryReplenishCountdown;
     state.visited = this.visited;
 
     if (this.wormhole) {
