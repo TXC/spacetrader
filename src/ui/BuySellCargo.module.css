@@ -1,0 +1,15 @@
+/* Read out by a screen reader, not drawn: the columns are plain enough to the eye. */
+.unseen {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The unseen row still counts as a row, so the table would start one gap lower. */
+.cargo {
+  composes: tightTable from './shared.module.css';
+  margin-top: calc(-1 * var(--table-gap));
+}
