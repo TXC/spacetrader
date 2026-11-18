@@ -63,7 +63,7 @@ export const EncounterType = {
   DragonflyStart: 30,
   DragonflyEnd: 31,
 } as const;
-export type EncounterType = number;
+export type EncounterType = (typeof EncounterType)[keyof typeof EncounterType];
 
 // The kinds of opponent that own a range of encounter types.
 type EncounterFamily = {
@@ -73,14 +73,14 @@ type EncounterFamily = {
 // Array.includes would refuse a plain number once the lists hold exact values.
 export const isOneOf = (value: number, ...options: number[]) => options.includes(value);
 
-export const isEncounterWith = (type: number, family: EncounterFamily) =>
+export const isEncounterWith = (type: EncounterType, family: EncounterFamily) =>
   type >= EncounterType[`${family}Start`] && type <= EncounterType[`${family}End`];
 
 // Update these with the other attack/ignore/flee types when they're added:
-export const isFleeEncounter = (type: number) =>
+export const isFleeEncounter = (type: EncounterType) =>
   isOneOf(type, EncounterType.PoliceFlee, EncounterType.PirateFlee, EncounterType.TraderFlee);
 
-export const isAttackEncounter = (type: number) =>
+export const isAttackEncounter = (type: EncounterType) =>
   isOneOf(
     type,
     EncounterType.PoliceAttack,
@@ -94,7 +94,7 @@ export const isAttackEncounter = (type: number) =>
     EncounterType.DragonflyAttack
   );
 
-export const isIgnoreEncounter = (type: number) =>
+export const isIgnoreEncounter = (type: EncounterType) =>
   isOneOf(
     type,
     EncounterType.PoliceIgnore,
@@ -105,11 +105,12 @@ export const isIgnoreEncounter = (type: number) =>
     EncounterType.DragonflyIgnore
   );
 
-export const isSurrenderEncounter = (type: number) =>
+export const isSurrenderEncounter = (type: EncounterType) =>
   isOneOf(type, EncounterType.PirateSurrender, EncounterType.TraderSurrender);
 
-export const famousCaptainAttackType = (type: number) =>
-  isAttackEncounter(type) ? type : type + 1;
+// Each captain's attack kind is the number after the kind for meeting them.
+export const famousCaptainAttackType = (type: EncounterType) =>
+  isAttackEncounter(type) ? type : ((type + 1) as EncounterType);
 
 export const EncounterMode = {
   Manual: 0,

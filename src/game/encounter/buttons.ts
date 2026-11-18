@@ -37,7 +37,7 @@ export function encounterButtons(encounter: Encounter): ActionName[] {
   return buttons;
 }
 
-function buttonsForKind(type: number): ActionName[] {
+function buttonsForKind(type: EncounterType): ActionName[] {
   const buttons: ActionName[] = [];
 
   if (type === EncounterType.PoliceInspection) {

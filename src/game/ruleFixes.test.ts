@@ -37,7 +37,7 @@ function traderWith(game: ReturnType<typeof newGame>, cargo: [number, number][])
 }
 
 // An encounter whose owner ignores what it is told.
-function encounter(game: ReturnType<typeof newGame>, type: number, opponent: Opponent) {
+function encounter(game: ReturnType<typeof newGame>, type: EncounterType, opponent: Opponent) {
   const owner = new Proxy({}, { get: () => () => {} }) as EncounterListener;
   return new Encounter(type, game, opponent, owner);
 }
