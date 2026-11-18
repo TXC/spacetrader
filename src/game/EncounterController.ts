@@ -9,7 +9,6 @@ import {
   PLUNDER_TRADER_SCORE,
   PoliceRecordScore,
   ReputationScore,
-  TRAFFICKING_SCORE,
 } from './Commander.ts';
 import { Plunder } from './Plunder.ts';
 import { Ship, ShipModelType } from './Ship.ts';
@@ -44,6 +43,7 @@ import { ignore } from './encounter/actions/ignore.ts';
 import { trade } from './encounter/actions/trade.ts';
 import { surrender } from './encounter/actions/surrender.ts';
 import { bribe } from './encounter/actions/bribe.ts';
+import { submit } from './encounter/actions/submit.ts';
 import { captainFor } from './encounter/captains.ts';
 import {
   EncounterMode,
@@ -97,70 +97,6 @@ export class EncounterController {
     const alert = new AlertViewController(text);
     alert.addAction('Dismiss', AlertActionType.Default, then);
     this._presentAlertController(alert);
-  }
-
-  // The police search the ship. In the order of the original game: contraband is
-  // confiscated and fined, then Wild means arrest, then the reactor is taken.
-  _submitToSearch(): void {
-    const { commander } = this._game;
-    const wild = this._game.wildStatus === WildQuestStatus.OnBoard;
-    const done = () => this.listener.continues(false);
-    const afterCargo = () => {
-      if (wild) this._processArrest();
-      else if (this._reactorAboard()) this._confiscateReactor(done);
-      else done();
-    };
-
-    if (this._contraband() > 0) {
-      this._notice(this._fineForContraband(), afterCargo);
-    } else if (!wild && !this._reactorAboard()) {
-      commander.policeRecordScore = commander.policeRecordScore - TRAFFICKING_SCORE;
-      this._notice(
-        'The police find nothing illegal in your cargo holds and apologize for the inconvenience.',
-        done
-      );
-    } else {
-      afterCargo();
-    }
-  }
-
-  _contraband(): number {
-    const { ship } = this._game.commander;
-    return (
-      ship.tradeItemQuantityForType(TradeItemType.Narcotics) +
-      ship.tradeItemQuantityForType(TradeItemType.Firearms)
-    );
-  }
-
-  // Takes the narcotics and firearms and fines the commander. Returns what the police say.
-  _fineForContraband(): string {
-    const { commander } = this._game;
-    const { Narcotics, Firearms } = TradeItemType;
-    commander.ship.soldQuantity(commander.ship.tradeItemQuantityForType(Narcotics), Narcotics);
-    commander.ship.soldQuantity(commander.ship.tradeItemQuantityForType(Firearms), Firearms);
-
-    let fine = commander.netWorth() / ((Difficulty.Absurd + 2 - this._game.difficulty) * 10);
-    fine = Math.ceil(fine / 50) * 50; // Round up to the nearest 50
-    fine = Math.max(100, Math.min(fine, 10000));
-    ensureInteger(fine);
-
-    const paid = Math.min(commander.credits, fine);
-    commander.setCredits(commander.credits - paid);
-    commander.debt = commander.debt + (fine - paid);
-    commander.policeRecordScore = commander.policeRecordScore + TRAFFICKING_SCORE;
-    return `The police discover illegal goods in your cargo holds. These goods are confiscated and you are fined $${fine}`;
-  }
-
-  _confiscateReactor(then: () => void): void {
-    this._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
-    this._game.commander.ship.soldQuantity(
-      REACTOR_BAY_COUNT + REACTOR_MAX_FUEL,
-      FAKE_QUEST_CARGO_REACTOR
-    );
-    this._notice(
-      "The police confiscate the Ion Reactor as evidence of your dealings with unsavory characters. The bad news is that you've lost the Ion Reactor. The good news is that you no longer have to worry about managing its depleting fuel store.",
-      then
-    );
   }
 
   // At a police inspection with nothing to hide, submitting costs nothing. Attack, Flee and
@@ -413,31 +349,7 @@ export class EncounterController {
     } else if (action === 'Bribe') {
       if (!bribe(this)) return;
     } else if (action === 'Submit') {
-      const submitBlock = () => this._submitToSearch();
-
-      if (
-        this._type === EncounterType.PoliceInspection &&
-        (this._game.commander.ship.hasIllegalGoods() ||
-          this._game.wildStatus === WildQuestStatus.OnBoard)
-      ) {
-        let alertString =
-          'Are you sure you want to let the police search you? You are carrying illegal goods or crew!';
-        if (this._game.wildStatus === WildQuestStatus.OnBoard) {
-          alertString = `${alertString} You and Wild will be arrested!`;
-        }
-
-        const aC = new AlertViewController(alertString);
-
-        aC.addAction('Yes, I still want to', AlertActionType.Destructive, () => {
-          submitBlock();
-        });
-
-        aC.addAction('Nevermind!', AlertActionType.Cancel, null);
-
-        this._presentAlertController(aC);
-      } else {
-        submitBlock();
-      }
+      if (!submit(this)) return;
     } else if (action === 'Plunder' || action === 'Board') {
       const plunderBlock = () => {
         const plunderLabel =
