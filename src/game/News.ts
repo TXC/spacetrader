@@ -103,8 +103,8 @@ export class News {
 
   masthead(): string {
     const system = this.game.commander.getCurrentSystem();
-    const mastheads = system.getPolitics().mastheads;
-    return mastheads[system.hashCode() % mastheads.length].replace(/%@/g, system.getName());
+    const mastheads = system.politics.mastheads;
+    return mastheads[system.hashCode() % mastheads.length].replace(/%@/g, system.name);
   }
 
   // The headlines to show, one per line, or null when the paper has not been paid for.
@@ -131,7 +131,7 @@ export class News {
     this.game.clearBreakingNews();
 
     let specialHeadline = null;
-    const specialEvent = this.game.commander.getCurrentSystem().getSpecialEvent();
+    const specialEvent = this.game.commander.getCurrentSystem().specialEvent;
     const japoriQuestStatus = this.game.japoriQuestStatus;
     const scarabStatus = this.game.scarabStatus;
     const monsterStatus = this.game.monsterStatus;
@@ -242,7 +242,7 @@ export class News {
       comma = '\n';
     }
 
-    const status = this.game.commander.getCurrentSystem().getStatus();
+    const status = this.game.commander.getCurrentSystem().status;
     const statusStr = statusHeadline(status);
     if (statusStr) {
       headlines += comma + statusStr;
@@ -254,8 +254,8 @@ export class News {
       headlines += comma;
 
       const villainHeadlines = [
-        `Police Warning: ${this.game.commander.name} Will Dock at ${this.game.commander.getCurrentSystem().getName()}!`,
-        `Notorious Criminal ${this.game.commander.name} Sighted in ${this.game.commander.getCurrentSystem().getName()}!`,
+        `Police Warning: ${this.game.commander.name} Will Dock at ${this.game.commander.getCurrentSystem().name}!`,
+        `Notorious Criminal ${this.game.commander.name} Sighted in ${this.game.commander.getCurrentSystem().name}!`,
         `Locals Rally to Deny Spaceport Access to ${this.game.commander.name}!`,
         `Terror Strikes Locals on Arrival of ${this.game.commander.name}!`,
       ];
@@ -283,11 +283,11 @@ export class News {
     for (let i = 0; i < solarSystemsWithinRange.length; i++) {
       const solarSystem = solarSystemsWithinRange[i];
 
-      if (solarSystem.getSpecialEvent() === SpecialEvent.MoonForSale) {
-        headlines += `${comma}Seller in ${solarSystem.getName()} System has Utopian Moon Available.`;
+      if (solarSystem.specialEvent === SpecialEvent.MoonForSale) {
+        headlines += `${comma}Seller in ${solarSystem.name} System has Utopian Moon Available.`;
         comma = '\n';
       } else if (solarSystem.specialEvent === SpecialEvent.BuyTribble) {
-        headlines += `${comma}Collector in ${solarSystem.getName()} System Seeks to Purchase Tribbles.`;
+        headlines += `${comma}Collector in ${solarSystem.name} System Seeks to Purchase Tribbles.`;
         comma = '\n';
       }
 
@@ -305,7 +305,7 @@ export class News {
             'Evidence Suggests',
           ];
 
-          headlines += `${comma}${storyPrefixes[runtime.gameRand.randomIntBelow(storyPrefixes.length)]} ${statusTrouble(solarSystem.getStatus())} in the ${solarSystem.getName()} System.`;
+          headlines += `${comma}${storyPrefixes[runtime.gameRand.randomIntBelow(storyPrefixes.length)]} ${statusTrouble(solarSystem.status)} in the ${solarSystem.name} System.`;
           comma = '\n';
           realNews = true;
         }
@@ -314,7 +314,7 @@ export class News {
 
     if (!realNews) {
       headlines += comma;
-      const systemHeadlines = this.game.commander.getCurrentSystem().getPolitics().headlines;
+      const systemHeadlines = this.game.commander.getCurrentSystem().politics.headlines;
       headlines += systemHeadlines[runtime.gameRand.randomIntBelow(systemHeadlines.length)];
     }
 

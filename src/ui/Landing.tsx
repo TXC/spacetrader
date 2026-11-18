@@ -66,7 +66,7 @@ function Welcome({ game }: { game: Game }) {
   return (
     <>
       <h1 id="system-info-welcome" className={styles.welcome}>
-        {'Welcome to ' + system.getName()}
+        {'Welcome to ' + system.name}
       </h1>
       <h4 id="system-info-text" className={styles.systemInfo}>
         <Lines text={system.systemInfoString()} />

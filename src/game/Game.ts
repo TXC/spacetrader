@@ -84,7 +84,7 @@ function nearestFreeSystem(
   candidates: SolarSystem[]
 ): SolarSystem | undefined {
   return candidates
-    .filter(other => other.getSpecialEvent() === SpecialEvent.None)
+    .filter(other => other.specialEvent === SpecialEvent.None)
     .map(other => ({ other, distance: origin.squaredDistanceTo(other) }))
     .filter(({ distance }) => distance >= SPECIAL_SQR_DISTANCE)
     .sort((a, b) => a.distance - b.distance)[0]?.other;
@@ -529,36 +529,36 @@ export class Game {
     const eventsToPlace = randomOccurrenceEventTypes();
 
     const kravat = this._findSolarSystem('Kravat')!;
-    kravat.setSpecialEvent(SpecialEvent.WildGetsOut);
+    kravat.specialEvent = SpecialEvent.WildGetsOut;
 
-    this._findSolarSystem('Acamar')!.setSpecialEvent(SpecialEvent.MonsterKilled);
-    this._findSolarSystem('Baratas')!.setSpecialEvent(SpecialEvent.FlyBaratas);
-    this._findSolarSystem('Melina')!.setSpecialEvent(SpecialEvent.FlyMelina);
-    this._findSolarSystem('Regulas')!.setSpecialEvent(SpecialEvent.FlyRegulas);
-    this._findSolarSystem('Zalkon')!.setSpecialEvent(SpecialEvent.DragonflyDestroyed);
-    this._findSolarSystem('Japori')!.setSpecialEvent(SpecialEvent.MedicineDelivery);
-    this._findSolarSystem('Utopia')!.setSpecialEvent(SpecialEvent.MoonBought);
-    this._findSolarSystem('Devidia')!.setSpecialEvent(SpecialEvent.JarekGetsOut);
+    this._findSolarSystem('Acamar')!.specialEvent = SpecialEvent.MonsterKilled;
+    this._findSolarSystem('Baratas')!.specialEvent = SpecialEvent.FlyBaratas;
+    this._findSolarSystem('Melina')!.specialEvent = SpecialEvent.FlyMelina;
+    this._findSolarSystem('Regulas')!.specialEvent = SpecialEvent.FlyRegulas;
+    this._findSolarSystem('Zalkon')!.specialEvent = SpecialEvent.DragonflyDestroyed;
+    this._findSolarSystem('Japori')!.specialEvent = SpecialEvent.MedicineDelivery;
+    this._findSolarSystem('Utopia')!.specialEvent = SpecialEvent.MoonBought;
+    this._findSolarSystem('Devidia')!.specialEvent = SpecialEvent.JarekGetsOut;
 
     const gemulon = this._findSolarSystem('Gemulon')!;
-    gemulon.setSpecialEvent(SpecialEvent.GemulonRescued);
+    gemulon.specialEvent = SpecialEvent.GemulonRescued;
     // Perform search in reverse to prefer systems without wormholes
     const solarSystemsReversed = this.solarSystems.slice().reverse();
-    nearestFreeSystem(gemulon, solarSystemsReversed)!.setSpecialEvent(SpecialEvent.AlienInvasion);
+    nearestFreeSystem(gemulon, solarSystemsReversed)!.specialEvent = SpecialEvent.AlienInvasion;
 
     const daled = this._findSolarSystem('Daled')!;
-    daled.setSpecialEvent(SpecialEvent.ExperimentStopped);
-    nearestFreeSystem(daled, solarSystemsReversed)!.setSpecialEvent(SpecialEvent.Experiment);
+    daled.specialEvent = SpecialEvent.ExperimentStopped;
+    nearestFreeSystem(daled, solarSystemsReversed)!.specialEvent = SpecialEvent.Experiment;
 
     const nix = this._findSolarSystem('Nix')!;
-    nix.setSpecialEvent(SpecialEvent.ReactorDelivered);
-    nearestFreeSystem(nix, solarSystemsReversed)!.setSpecialEvent(SpecialEvent.GetReactor);
+    nix.specialEvent = SpecialEvent.ReactorDelivered;
+    nearestFreeSystem(nix, solarSystemsReversed)!.specialEvent = SpecialEvent.GetReactor;
 
     const wormholeSystemsSpecial = this.solarSystems.slice(0, WORMHOLE_COUNT);
     while (wormholeSystemsSpecial.length > 0) {
       const randomIndex = runtime.gameRand.randomIntBelow(wormholeSystemsSpecial.length);
-      if (wormholeSystemsSpecial[randomIndex].getSpecialEvent() === SpecialEvent.None) {
-        wormholeSystemsSpecial[randomIndex].setSpecialEvent(SpecialEvent.ScarabDestroyed);
+      if (wormholeSystemsSpecial[randomIndex].specialEvent === SpecialEvent.None) {
+        wormholeSystemsSpecial[randomIndex].specialEvent = SpecialEvent.ScarabDestroyed;
         eventsToPlace.push(SpecialEvent.Scarab);
         break;
       }
@@ -566,11 +566,10 @@ export class Game {
     }
 
     const highTech = solarSystemsReversed.find(
-      system =>
-        system.getSpecialEvent() === SpecialEvent.None && system.techLevel >= TechLevel.HighTech
+      system => system.specialEvent === SpecialEvent.None && system.techLevel >= TechLevel.HighTech
     );
     if (highTech) {
-      highTech.setSpecialEvent(SpecialEvent.ArtifactDelivered);
+      highTech.specialEvent = SpecialEvent.ArtifactDelivered;
       eventsToPlace.push(SpecialEvent.AlienArtifact);
     }
 
@@ -579,8 +578,8 @@ export class Game {
         break;
       }
 
-      if (eventSystem.getSpecialEvent() === SpecialEvent.None) {
-        eventSystem.setSpecialEvent(eventsToPlace[0]);
+      if (eventSystem.specialEvent === SpecialEvent.None) {
+        eventSystem.specialEvent = eventsToPlace[0];
         eventsToPlace.shift();
       }
     }
@@ -601,7 +600,7 @@ export class Game {
     let mercenarySystem = null;
     while (!mercenarySystem) {
       mercenarySystem = this.solarSystems[rand.randomIntBelow(this.solarSystems.length)];
-      if (mercenarySystem.getMercenary()) mercenarySystem = null;
+      if (mercenarySystem.mercenary) mercenarySystem = null;
     }
 
     const mercenary = CrewMember.create(name);
@@ -624,13 +623,13 @@ export class Game {
       this.solarSystems.filter(other => system.squaredDistanceTo(other) <= squaredFuel);
     const startSystem = this.solarSystems.findLast(
       system =>
-        system.getSpecialEvent() === SpecialEvent.None &&
+        system.specialEvent === SpecialEvent.None &&
         system.techLevel >= TechLevel.Agricultural &&
         system.techLevel < TechLevel.PostIndustrial &&
         inRangeOf(system).length >= 3
     );
     if (startSystem) {
-      this.commander.getCurrentSystem().setVisited(false);
+      this.commander.getCurrentSystem().visited = false;
       this.commander.setCurrentSystem(startSystem);
     }
   }
@@ -651,9 +650,9 @@ export class Game {
     this._monsterHull = shipModelForType(ShipModelType.SpaceMonster).hullStrength;
 
     if (this.difficulty < Difficulty.Normal) {
-      if (this.commander.getCurrentSystem().getSpecialEvent() === SpecialEvent.None) {
+      if (this.commander.getCurrentSystem().specialEvent === SpecialEvent.None) {
         pLog.log(109);
-        this.commander.getCurrentSystem().setSpecialEvent(SpecialEvent.LotteryWinner);
+        this.commander.getCurrentSystem().specialEvent = SpecialEvent.LotteryWinner;
       }
     }
   }
@@ -773,7 +772,7 @@ export class Game {
       this.invasionStatus = Math.min(InvasionQuestStatus.ClosedTooLate, this.invasionStatus + days);
       if (this.invasionStatus === InvasionQuestStatus.ClosedTooLate) {
         const gemulon = this._findSolarSystem('Gemulon')!;
-        gemulon.setSpecialEvent(SpecialEvent.GemulonInvaded);
+        gemulon.specialEvent = SpecialEvent.GemulonInvaded;
         gemulon.techLevel = TechLevel.PreAgricultural;
         gemulon.politics = politicsForType(PoliticsType.Anarchy);
         gemulon.updateInventories();
@@ -811,7 +810,7 @@ export class Game {
         this.fabricRipProbability = FABRIC_RIP_PROBABILITY_INITIAL;
 
         const daled = this._findSolarSystem('Daled')!;
-        daled.setSpecialEvent(SpecialEvent.ExperimentNotStopped);
+        daled.specialEvent = SpecialEvent.ExperimentNotStopped;
         this.addBreakingNewsItem('Travelers Report Timespace Damage, Warp Problems!');
         pLog.log(145);
       }
@@ -926,7 +925,7 @@ export class Game {
     }
 
     if (
-      SolarSystem.solarSystemForName('Nix', this.solarSystems)!.getSpecialEvent() ===
+      SolarSystem.solarSystemForName('Nix', this.solarSystems)!.specialEvent ===
       SpecialEvent.GetSpecialLaser
     ) {
       pLog.log(78);
@@ -979,7 +978,7 @@ export class Game {
       questList += `${comma}Follow the Dragonfly to ${nextSystem}.`;
       comma = '\n';
     } else if (
-      SolarSystem.solarSystemForName('Zalkon', this.solarSystems)!.getSpecialEvent() ===
+      SolarSystem.solarSystemForName('Zalkon', this.solarSystems)!.specialEvent ===
       SpecialEvent.InstallLightningShield
     ) {
       pLog.log(83);
