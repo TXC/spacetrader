@@ -9,7 +9,6 @@ import { MOON_PRICE, Difficulty } from './SolarSystem.types.ts';
 import { tradeItemForType } from './TradeItem.ts';
 import { Status, TRADE_ITEM_COUNT, TRADE_ITEM_TYPES } from './TradeItem.types.ts';
 import type { TradeItemType } from './TradeItem.types.ts';
-import { ensureArrayOrNull, ensureBool, ensureInteger, ensureType } from './ensure.ts';
 import { runtime } from './runtime.ts';
 
 export const MAX_SAFE_PILOT_INSURANCE_DISCOUNT = 90;
@@ -237,8 +236,8 @@ export class Commander extends CrewMember {
 
   // A commander from a saved game, as parseSavedGame checked it, at one of its systems.
   static restore(state: CommanderState, solarSystems: SolarSystem[]): Commander {
-    const currentSystem = SolarSystem.solarSystemForName(state.currentSystemName, solarSystems)!;
-    ensureType(currentSystem, 'object');
+    const currentSystem = SolarSystem.solarSystemForName(state.currentSystemName, solarSystems);
+    if (!currentSystem) throw new Error(`No system is named ${state.currentSystemName}.`);
     return new Commander({
       ...CrewMember.savedFields(state),
       days: state.days,
@@ -270,38 +269,28 @@ export class Commander extends CrewMember {
     return this.policeRecordScore <= PoliceRecordScore.Dubious;
   }
 
-  _checkCreditsAmount(c: number) {
-    return ensureInteger(c);
-  }
-
   get credits() {
     return this._credits;
   }
 
   set credits(c: number) {
-    if (this._checkCreditsAmount(c)) {
-      this._credits = c;
-    }
+    this._credits = c;
   }
 
   get noClaim() {
     return this._noClaim;
   }
 
-  set noClaim(n) {
-    if (ensureInteger(n)) {
-      this._noClaim = n;
-    }
+  set noClaim(n: number) {
+    this._noClaim = n;
   }
 
   get reputationScore() {
     return this._reputationScore;
   }
 
-  set reputationScore(r) {
-    if (ensureInteger(r)) {
-      this._reputationScore = r;
-    }
+  set reputationScore(r: number) {
+    this._reputationScore = r;
   }
 
   get debt() {
@@ -309,24 +298,18 @@ export class Commander extends CrewMember {
   }
 
   set debt(d: number) {
-    if (this._checkCreditsAmount(d)) {
-      this._debt = d;
-    }
+    this._debt = d;
   }
 
   get travelClicksRemaining() {
     return this._travelClicksRemaining;
   }
 
-  set travelClicksRemaining(t) {
-    if (ensureInteger(t)) {
-      this._travelClicksRemaining = t;
-    }
+  set travelClicksRemaining(t: number) {
+    this._travelClicksRemaining = t;
   }
 
   moveTo(currentSystem: SolarSystem) {
-    ensureType(currentSystem, 'object');
-
     if (this._currentSystem !== currentSystem) {
       this._currentSystem = currentSystem;
       this.arrive();
@@ -367,27 +350,21 @@ export class Commander extends CrewMember {
     const down = runtime.gameRand.randomIntBelow(item.priceVariance);
     price += up - down;
 
-    ensureInteger(price);
-
     return Math.max(price, 0);
   }
 
   sellPriceForItem(itemType: number) {
-    const validState =
-      ensureArrayOrNull(this._basePrices, 'number') && ensureType(this._basePrices, 'object');
-
-    if (!validState) {
+    // A saved game may have no prices.
+    if (!this._basePrices) {
       return 0;
     }
 
-    let price = this._basePrices![itemType];
+    let price = this._basePrices[itemType];
     if (price <= 0) return 0;
     if (this._hasDubiousPoliceRecord()) {
       // We need to pay off a middleman
       price = Math.floor((price * 90) / 100);
     }
-
-    ensureInteger(price);
 
     return price;
   }
@@ -401,8 +378,6 @@ export class Commander extends CrewMember {
         100
     );
     price = Math.max(price, this.sellPriceForItem(itemType) + 1);
-
-    ensureInteger(price);
 
     return price;
   }
@@ -418,14 +393,11 @@ export class Commander extends CrewMember {
               100
           );
 
-    ensureInteger(price);
-
     return price;
   }
 
   sellPriceForAccessory(accessoryType: AccessoryType) {
     const result = Math.floor((accessoryForType(accessoryType)!.price * 3) / 4);
-    ensureInteger(result);
     return result;
   }
 
@@ -434,7 +406,6 @@ export class Commander extends CrewMember {
       (shipModel.price * (100 - this.ship.crewTraderSkillIncludingCommander(this, difficulty))) /
         100
     );
-    ensureInteger(result);
     return result;
   }
 
@@ -446,7 +417,6 @@ export class Commander extends CrewMember {
     const result = this.reserveMoney
       ? Math.max(0, this._credits - this.ship.mercenaryPricePerDay() - this.currentInsuranceCost())
       : this._credits;
-    ensureInteger(result);
     return result;
   }
 
@@ -463,7 +433,6 @@ export class Commander extends CrewMember {
           100
       )
     );
-    ensureInteger(result);
     return result;
   }
 
@@ -473,7 +442,6 @@ export class Commander extends CrewMember {
       this._credits -
       this.debt +
       (this.boughtMoon ? MOON_PRICE : 0);
-    ensureInteger(result);
     return result;
   }
 
@@ -482,7 +450,6 @@ export class Commander extends CrewMember {
       this.policeRecordScore >= PoliceRecordScore.Clean
         ? Math.min(25000, Math.max(1000, Math.floor(this.netWorth() / 10 / 500) * 500))
         : 500;
-    ensureInteger(result);
     return result;
   }
 
@@ -493,57 +460,44 @@ export class Commander extends CrewMember {
       value += quantity * this.sellPriceForItem(item);
     }
 
-    ensureInteger(value);
-
     return value;
   }
 
   cargoAndShipValuationForInsurance(forInsurance: boolean) {
     const result = this.ship.shipValuationForInsurance(forInsurance) + this._cargoValue();
-    ensureInteger(result);
     return result;
   }
 
   attemptPurchaseOfFuel(amount: number) {
-    if (ensureInteger(amount)) {
-      let realAmount = Math.min(this.ship.fuelTankCapacity() - this.ship.fuel, amount);
-      realAmount = Math.min(realAmount, Math.floor(this._credits / this.ship.model.costOfFuel));
-      this.ship.fillFuelByAmount(realAmount);
-      this.credits -= realAmount * this.ship.model.costOfFuel;
-    }
+    let realAmount = Math.min(this.ship.fuelTankCapacity() - this.ship.fuel, amount);
+    realAmount = Math.min(realAmount, Math.floor(this._credits / this.ship.model.costOfFuel));
+    this.ship.fillFuelByAmount(realAmount);
+    this.credits -= realAmount * this.ship.model.costOfFuel;
   }
 
   attemptPurchaseOfRepairs(amount: number) {
-    if (ensureInteger(amount)) {
-      let realAmount = Math.min(this.ship.maximumHullStrength() - this.ship.hull, amount);
-      realAmount = Math.floor(Math.min(realAmount, this._credits / this.ship.model.repairCosts));
-      this.ship.repairHullByAmount(realAmount);
-      this.credits -= realAmount * this.ship.model.repairCosts;
-    }
+    let realAmount = Math.min(this.ship.maximumHullStrength() - this.ship.hull, amount);
+    realAmount = Math.floor(Math.min(realAmount, this._credits / this.ship.model.repairCosts));
+    this.ship.repairHullByAmount(realAmount);
+    this.credits -= realAmount * this.ship.model.repairCosts;
   }
 
   attemptPurchaseOfItem(itemType: TradeItemType, quantity: number, difficulty: Difficulty) {
-    if (ensureInteger(itemType) && ensureInteger(quantity)) {
-      let actualBuyAmount = Math.min(
-        quantity,
-        this._currentSystem.tradeItemQuantityForType(itemType)
-      );
-      actualBuyAmount = Math.min(actualBuyAmount, this.ship.freeCargoBays());
-      const buyPrice = this.buyPriceForItem(itemType, difficulty);
-      if (buyPrice > 0) {
-        actualBuyAmount = Math.min(actualBuyAmount, Math.floor(this.spendingMoney() / buyPrice));
-      } else {
-        actualBuyAmount = 0;
-      }
-
-      this.ship.boughtQuantity(
-        actualBuyAmount,
-        itemType,
-        this.buyPriceForItem(itemType, difficulty)
-      );
-      this.credits -= actualBuyAmount * this.buyPriceForItem(itemType, difficulty);
-      this._currentSystem.boughtQuantity(actualBuyAmount, itemType);
+    let actualBuyAmount = Math.min(
+      quantity,
+      this._currentSystem.tradeItemQuantityForType(itemType)
+    );
+    actualBuyAmount = Math.min(actualBuyAmount, this.ship.freeCargoBays());
+    const buyPrice = this.buyPriceForItem(itemType, difficulty);
+    if (buyPrice > 0) {
+      actualBuyAmount = Math.min(actualBuyAmount, Math.floor(this.spendingMoney() / buyPrice));
+    } else {
+      actualBuyAmount = 0;
     }
+
+    this.ship.boughtQuantity(actualBuyAmount, itemType, this.buyPriceForItem(itemType, difficulty));
+    this.credits -= actualBuyAmount * this.buyPriceForItem(itemType, difficulty);
+    this._currentSystem.boughtQuantity(actualBuyAmount, itemType);
   }
 
   attemptSaleOfItem(
@@ -552,30 +506,24 @@ export class Commander extends CrewMember {
     forceDump: boolean,
     difficulty: Difficulty
   ) {
-    if (ensureInteger(itemType) && ensureInteger(quantity) && ensureBool(forceDump)) {
-      let actualSellAmount = Math.min(quantity, this.ship.tradeItemQuantityForType(itemType));
+    let actualSellAmount = Math.min(quantity, this.ship.tradeItemQuantityForType(itemType));
 
-      const isDumping = forceDump || this.sellPriceForItem(itemType) === 0;
-      const dumpPenalty = 5 * (difficulty + 1);
-      if (isDumping) {
-        actualSellAmount = Math.min(
-          actualSellAmount,
-          Math.floor(this.spendingMoney() / dumpPenalty)
-        );
-      }
+    const isDumping = forceDump || this.sellPriceForItem(itemType) === 0;
+    const dumpPenalty = 5 * (difficulty + 1);
+    if (isDumping) {
+      actualSellAmount = Math.min(actualSellAmount, Math.floor(this.spendingMoney() / dumpPenalty));
+    }
 
-      this.ship.soldQuantity(actualSellAmount, itemType);
+    this.ship.soldQuantity(actualSellAmount, itemType);
 
-      if (isDumping) {
-        this.credits -= actualSellAmount * dumpPenalty;
-      } else {
-        this.credits += actualSellAmount * this.sellPriceForItem(itemType);
-      }
+    if (isDumping) {
+      this.credits -= actualSellAmount * dumpPenalty;
+    } else {
+      this.credits += actualSellAmount * this.sellPriceForItem(itemType);
     }
   }
 
   wormholeTaxToWarpToSystem(destination: SolarSystem) {
-    ensureType(destination, 'object');
     return this._currentSystem.wormhole === destination ? this.ship.model.costOfFuel * 25 : 0;
   }
 
@@ -589,8 +537,6 @@ export class Commander extends CrewMember {
 
   // The name of the skill that changed, or null when none of them could.
   _tweakSkillRandomly(increase: boolean) {
-    ensureBool(increase);
-
     const canChange = (x: number) => (increase ? x < MAX_SKILL_LEVEL : x > 0);
     const skills = (['pilot', 'fighter', 'trader', 'engineer'] as const).filter(skill =>
       canChange(this[skill])
@@ -605,7 +551,6 @@ export class Commander extends CrewMember {
   payInterest() {
     if (this.debt > 0) {
       const debtIncrease = Math.max(1, Math.floor(this.debt / 10));
-      ensureInteger(debtIncrease);
       if (this.credits > debtIncrease) {
         this.credits -= debtIncrease;
       } else {
@@ -616,10 +561,6 @@ export class Commander extends CrewMember {
   }
 
   timePassed(days: number, difficulty: Difficulty) {
-    if (!ensureInteger(days)) {
-      return;
-    }
-
     this.days += days;
     if (this.hasInsurance) {
       this._noClaim += days;
@@ -641,72 +582,33 @@ export class Commander extends CrewMember {
     const state = super.toState() as CommanderState;
 
     // Integer properties
-    ensureInteger(this._credits);
     state.credits = this._credits;
-
-    ensureInteger(this._debt);
     state.debt = this._debt;
-
-    ensureInteger(this.days);
     state.days = this.days;
-
-    ensureInteger(this.policeKills);
     state.policeKills = this.policeKills;
-
-    ensureInteger(this.traderKills);
     state.traderKills = this.traderKills;
-
-    ensureInteger(this.pirateKills);
     state.pirateKills = this.pirateKills;
-
-    ensureInteger(this.policeRecordScore);
     state.policeRecordScore = this.policeRecordScore;
-
-    ensureInteger(this._reputationScore);
     state.reputationScore = this._reputationScore;
-
-    ensureInteger(this._noClaim);
     state.noClaim = this._noClaim;
-
-    ensureInteger(this._travelClicksRemaining);
     state.travelClicksRemaining = this._travelClicksRemaining;
 
     // Boolean properties
-    ensureBool(this.boughtMoon);
     state.boughtMoon = this.boughtMoon;
-
-    ensureBool(this.hasEscapePod);
     state.hasEscapePod = this.hasEscapePod;
-
-    ensureBool(this.hasInsurance);
     state.hasInsurance = this.hasInsurance;
-
-    ensureBool(this.raided);
     state.raided = this.raided;
-
-    ensureBool(this.inspected);
     state.inspected = this.inspected;
-
-    ensureBool(this.litterWarning);
     state.litterWarning = this.litterWarning;
-
-    ensureBool(this.artifactOnBoard);
     state.artifactOnBoard = this.artifactOnBoard;
-
-    ensureBool(this.arrivedViaWormhole);
     state.arrivedViaWormhole = this.arrivedViaWormhole;
-
-    ensureBool(this.reserveMoney);
     state.reserveMoney = this.reserveMoney;
 
     // Current system and ship
-    ensureType(this._currentSystem.name, 'string');
     state.currentSystemName = this._currentSystem.name;
-
     state.ship = this.ship.toState();
 
     // Base prices
-    ensureArrayOrNull(this._basePrices, 'number');
     if (this._basePrices) {
       state.basePrices = [...this._basePrices];
     }
