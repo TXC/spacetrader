@@ -1,17 +1,11 @@
 import { AlertActionType, AlertViewController } from '../alerts.ts';
-import { CAUGHT_WITH_WILD_SCORE } from '../Commander.ts';
 import { Encounter } from '../encounter/Encounter.ts';
 import { EncounterType } from '../encounter/types.ts';
 import type { ActionName, EncounterListener } from '../encounter/types.ts';
 import { GameEndStatus } from '../Game.ts';
 import { Opponent, OpponentType } from '../Opponent.ts';
-import { MAX_TRIBBLES, Ship, ShipModelType } from '../Ship.ts';
-import {
-  JaporiQuestStatus,
-  JarekQuestStatus,
-  ReactorQuestStatus,
-  WildQuestStatus,
-} from '../SolarSystem.types.ts';
+import { MAX_TRIBBLES } from '../Ship.ts';
+import { ReactorQuestStatus } from '../SolarSystem.types.ts';
 import { TradeItemType } from '../TradeItem.types.ts';
 import { Store } from '../Store.ts';
 import type { SolarSystem } from '../SolarSystem.ts';
@@ -20,6 +14,7 @@ import { ensureInteger } from '../ensure.ts';
 import { pLog } from '../probes.ts';
 import { runtime } from '../runtime.ts';
 import { pirateMeeting } from './pirates.ts';
+import { podEscape } from './podEscape.ts';
 import { policeMeeting } from './police.ts';
 import { rareEventMeeting } from './rareEvents.ts';
 import { dragonflyMeeting, monsterMeeting, scarabMeeting } from './specialShips.ts';
@@ -213,7 +208,7 @@ export class Travel extends Store implements EncounterListener {
 
         this._promptForStrings(alerts, () => {
           if (this._game.commander.hasEscapePod) {
-            this._performPodEscape();
+            podEscape(this);
             pLog.log(155);
           } else {
             this._done(GameEndStatus.Killed);
@@ -409,97 +404,11 @@ export class Travel extends Store implements EncounterListener {
       pLog.log(29);
       // The pod lands at the destination, which the trip has not reached yet.
       this._game.handleArrival();
-      this._performPodEscape();
+      podEscape(this);
     } else {
       pLog.log(30);
       this._done(GameEndStatus.Killed);
     }
-  }
-
-  _performPodEscape() {
-    const alerts = [];
-
-    let reactorStr = '';
-    if (
-      this._game.reactorStatus > ReactorQuestStatus.Open &&
-      this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate
-    ) {
-      reactorStr =
-        ' The destruction of your ship is made much more spectacular by the added explosion of the Ion Reactor.';
-      this._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
-      pLog.log(160);
-    }
-
-    alerts.push(
-      `Just before the final demise of your ship, your escape pod gets activated and ejects you.${reactorStr} After a few days, the Space Corps picks you up and drops you off at a nearby space port.`
-    );
-
-    if (this._game.japoriQuestStatus === JaporiQuestStatus.HasMedicine) {
-      this._game.japoriQuestStatus = JaporiQuestStatus.Open;
-      alerts.push(
-        'The antidote for the Japori system was destroyed with your ship. Fortunately, they probably have some new antidote in the system where you originally got it.'
-      );
-    }
-
-    if (this._game.commander.artifactOnBoard) {
-      this._game.commander.artifactOnBoard = false;
-      alerts.push(
-        "You couldn't take the artifact with you in the escape pod, so now it's lost in the wreckage. The aliens will probably pick it up there."
-      );
-    }
-
-    if (this._game.jarekStatus === JarekQuestStatus.OnBoard) {
-      alerts.push('The Space Corps decides to give ambassador Jarek a lift home to Devidia.');
-      this._game.jarekStatus = JarekQuestStatus.Closed;
-    }
-
-    if (this._game.wildStatus === WildQuestStatus.OnBoard) {
-      alerts.push('Jonathan Wild is arrested, and taken away to stand trial.');
-      this._game.wildStatus = WildQuestStatus.Closed;
-      this._game.commander.ship.removeCrewMemberWithName('Jonathan Wild');
-      this._game.addBreakingNewsItem('Notorious Criminal Jonathan Wild Arrested!');
-      this._game.commander.policeRecordScore =
-        this._game.commander.policeRecordScore + CAUGHT_WITH_WILD_SCORE;
-      pLog.log(31);
-    }
-
-    if (this._game.commander.ship.tribbles > 0) {
-      alerts.push('Your tribbles all died in the explosion.');
-      this._game.commander.ship.tribbles = 0;
-    }
-
-    if (this._game.commander.hasInsurance) {
-      const shipValue = this._game.commander.ship.shipValuationForInsurance(true);
-      this._game.commander.credits = this._game.commander.credits + shipValue;
-      alerts.push(
-        `Since your ship was insured, the bank pays you $${shipValue}, the total value of the destroyed ship.`
-      );
-      pLog.log(32);
-    }
-
-    this._game.commander.hasInsurance = false;
-    this._game.commander.noClaim = 0;
-    this._game.commander.hasEscapePod = false;
-
-    alerts.push('In 3 days and with $500, you manage to convert your pod into a Flea.');
-
-    let credits = this._game.commander.credits;
-    credits -= 500;
-    if (credits < 0) {
-      this._game.commander.debt = this._game.commander.debt - credits;
-      credits = 0;
-      pLog.log(33);
-    }
-    this._game.commander.credits = credits;
-
-    this._game.timePassed(3);
-
-    const ship = new Ship(ShipModelType.Flea, this._game.difficulty);
-    this._game.commander.ship = ship;
-
-    this._promptForStrings(alerts, () => {
-      this._done('arrived');
-    });
   }
 }
 
