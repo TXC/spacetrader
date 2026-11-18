@@ -719,6 +719,14 @@ export class Ship {
     return this._upgradedHull;
   }
 
+  // Adds 50 to the hull, once; repairs then go up to the stronger hull.
+  upgradeHull() {
+    if (!this._upgradedHull) {
+      this._upgradedHull = true;
+      this._hull += 50;
+    }
+  }
+
   // Method to set upgraded hull
   setUpgradedHull(upgradedHull: boolean) {
     if (!ensureBool(upgradedHull)) {
