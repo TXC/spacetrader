@@ -543,7 +543,7 @@ export class Ship {
         if (mercenary) {
           ship.addCrewMember(mercenary);
         } else {
-          const crewMember = CrewMember.fromSerializedState(serializedState.crewMap[crewName]);
+          const crewMember = CrewMember.load(serializedState.crewMap[crewName]);
           ship.addCrewMember(crewMember);
         }
       }
