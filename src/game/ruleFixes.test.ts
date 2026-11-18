@@ -14,6 +14,7 @@ import { buyEquipment } from './Equipment.ts';
 import { News } from './News.ts';
 import { Opponent, OpponentType } from './opponent/Opponent.ts';
 import { Plunder } from './Plunder.ts';
+import { runtime } from './runtime.ts';
 import { Ship, shipModelForType, ShipModelType } from './Ship.ts';
 import { hire } from './Roster.ts';
 import { buyEscapePod, buyShip, kEscapePodPrice } from './ShipYard.ts';
@@ -373,4 +374,14 @@ test('Q9: the news is written anew on a later day in the same system', () => {
   news.present();
 
   expect(news.text()).toContain('Late Edition!');
+});
+
+// ---- fixes that bring the rolls back to the original's ----
+
+test('Q7: every mercenary has a home system, and placing the last one draws nothing', () => {
+  const game = newGame();
+
+  const atHome = game.solarSystems.flatMap(system => system.getMercenary()?.name ?? []);
+  expect(atHome.toSorted()).toEqual(CrewMember.mercenaryNames().toSorted());
+  expect(runtime.gameRand._numInvocations).toBe(4345); // as before the last one was placed
 });

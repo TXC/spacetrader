@@ -32,6 +32,7 @@ import {
   ensureObjectOrNull,
   ensureType,
 } from './ensure.ts';
+import { GameRand } from './GameRand.ts';
 import { pLog } from './probes.ts';
 import { runtime } from './runtime.ts';
 
@@ -585,18 +586,27 @@ export class Game {
     }
 
     // Create and place randomized mercenaries
+    const names = CrewMember.mercenaryNames();
     for (let i = 0; i < MERCENARY_COUNT - 1; ++i) {
-      let mercenarySystem = null;
-      while (!mercenarySystem) {
-        mercenarySystem =
-          this.solarSystems[runtime.gameRand.randomIntBelow(this.solarSystems.length)];
-        if (mercenarySystem.getMercenary()) mercenarySystem = null;
-      }
-
-      const mercenary = new CrewMember(CrewMember.mercenaryNames()[i]);
-      mercenary.randomizeAttributes();
-      mercenarySystem.setMercenary(mercenary);
+      this._placeMercenary(names[i], runtime.gameRand);
     }
+
+    // The last one draws from a generator of his own, seeded by where the systems lie, so
+    // that every other number of a recorded game stays where it was.
+    const seed = this.solarSystems.reduce((sum, system) => sum + system.x + system.y, 0);
+    this._placeMercenary(names[MERCENARY_COUNT - 1], new GameRand(seed));
+  }
+
+  _placeMercenary(name: string, rand: GameRand) {
+    let mercenarySystem = null;
+    while (!mercenarySystem) {
+      mercenarySystem = this.solarSystems[rand.randomIntBelow(this.solarSystems.length)];
+      if (mercenarySystem.getMercenary()) mercenarySystem = null;
+    }
+
+    const mercenary = new CrewMember(name);
+    mercenary.randomizeAttributes(rand);
+    mercenarySystem.setMercenary(mercenary);
   }
 
   _setupCommander() {
