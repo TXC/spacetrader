@@ -86,6 +86,16 @@ export class CrewMember {
     this.freeMercenaryCost = serializedState.freeMercenaryCost;
   }
 
+  // A new crew member, with no quest and no bonuses.
+  static create(name: string, engineer = 0, pilot = 0, fighter = 0, trader = 0): CrewMember {
+    return new CrewMember(name, engineer, pilot, fighter, trader);
+  }
+
+  // A crew member from a saved game, as parseSavedGame checked it.
+  static load(state: CrewMemberState): CrewMember {
+    return CrewMember.fromSerializedState(state);
+  }
+
   static fromSerializedState(serializedState: CrewMemberState) {
     const crewMember = new CrewMember(serializedState.name);
     crewMember.updateWithSerializedState(serializedState);

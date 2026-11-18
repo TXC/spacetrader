@@ -40,6 +40,19 @@ export class Opponent extends CrewMember {
     this.ship = ship;
   }
 
+  // Not called `create`: a subclass's static methods must accept what its base class's
+  // accept, and CrewMember.create takes a name.
+  static captain(
+    type: OpponentType,
+    engineer: number,
+    pilot: number,
+    fighter: number,
+    trader: number,
+    ship: Ship
+  ): Opponent {
+    return new Opponent(type, engineer, pilot, fighter, trader, ship);
+  }
+
   static generateOpponentWithType(type: number, game: Game) {
     return buildOpponent(type, game);
   }
