@@ -32,6 +32,15 @@ import { runtime } from './runtime.ts';
 
 export const CHANCE_OF_TRADE_IN_ORBIT = 100;
 
+// Whether the commander's options hide this meeting with a trader: "ignore traders" hides
+// those that flee or ignore, "ignore trade in orbit" hides offers to buy or sell.
+export function hiddenByOptions(encounterType: number, game: Game): boolean {
+  const { TraderFlee, TraderIgnore, TraderSell, TraderBuy } = EncounterType;
+  const passesBy = encounterType === TraderFlee || encounterType === TraderIgnore;
+  const offersTrade = encounterType === TraderSell || encounterType === TraderBuy;
+  return (passesBy && game.alwaysIgnoreTraders) || (offersTrade && game.alwaysIgnoreTradeInOrbit);
+}
+
 // How a trip ended: the commander arrived, or the game is over.
 export type TravelResult = 'arrived' | GameEndStatus;
 
@@ -405,15 +414,9 @@ export class Travel extends Store {
           }
         }
 
-        const noTrade =
-          encounterType === EncounterType.TraderFlee ||
-          encounterType === EncounterType.TraderIgnore;
-
         if (opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, this._game.commander)) {
           encounterType = EncounterType.None;
-        } else if (noTrade && this._game.alwaysIgnoreTraders) {
-          encounterType = EncounterType.None;
-        } else if (this._game.alwaysIgnoreTradeInOrbit) {
+        } else if (hiddenByOptions(encounterType, this._game)) {
           encounterType = EncounterType.None;
         }
       } else if (opponentType === OpponentType.Scarab) {
@@ -653,7 +656,7 @@ export class Travel extends Store {
       currentTribbles > 0 &&
       this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics) > 0
     ) {
-      currentTribbles += 1 + runtime.gameRand.randomIntBelow(3);
+      currentTribbles = 1 + runtime.gameRand.randomIntBelow(3);
       const amountNarcotics = this._game.commander.ship.tradeItemQuantityForType(
         TradeItemType.Narcotics
       );
@@ -817,6 +820,8 @@ export class Travel extends Store {
 
     if (this._game.commander.hasEscapePod) {
       pLog.log(29);
+      // The pod lands at the destination, which the trip has not reached yet.
+      this._game.handleArrival();
       this._performPodEscape();
     } else {
       pLog.log(30);
@@ -870,8 +875,6 @@ export class Travel extends Store {
         this._game.commander.policeRecordScore + CAUGHT_WITH_WILD_SCORE;
       pLog.log(31);
     }
-
-    this._game.handleArrival();
 
     if (this._game.commander.ship.tribbles > 0) {
       alerts.push('Your tribbles all died in the explosion.');

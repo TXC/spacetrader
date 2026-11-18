@@ -556,7 +556,7 @@ export class Commander extends CrewMember {
   maxLoan() {
     const result =
       this.policeRecordScore >= PoliceRecordScore.Clean
-        ? Math.floor(this.netWorth() / 10 / 500) * 500
+        ? Math.min(25000, Math.max(1000, Math.floor(this.netWorth() / 10 / 500) * 500))
         : 500;
     Utils.ensureInteger(result);
     return result;

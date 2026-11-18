@@ -4650,9 +4650,9 @@ test('tribble', () => {
 
   assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics), 0);
   assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 3);
-  assertEqual(commander.ship.tribbles, 1946);
+  assertEqual(commander.ship.tribbles, 2);
 
-  assertEqual(game.specialCargoDescription(), '1946 cute, furry tribbles.');
+  assertEqual(game.specialCargoDescription(), '2 cute, furry tribbles.');
   assertEqual(game.questListDescription(), 'Get rid of those pesky tribbles.');
 
   let game2 = serializeAndDeserialize(game);
@@ -4660,8 +4660,8 @@ test('tribble', () => {
   // Spot check some properties
   assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics), 0);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 3);
-  assertEqual(game2.commander.ship.tribbles, 1946);
-  assertEqual(game2.specialCargoDescription(), '1946 cute, furry tribbles.');
+  assertEqual(game2.commander.ship.tribbles, 2);
+  assertEqual(game2.specialCargoDescription(), '2 cute, furry tribbles.');
   assertEqual(game2.questListDescription(), 'Get rid of those pesky tribbles.');
 
   replay.replayEvent('Special', 'click');

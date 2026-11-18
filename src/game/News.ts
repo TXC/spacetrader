@@ -54,6 +54,7 @@ export class News {
   private game: Game;
   private cachedNews: string | null = null;
   private cachedSystem: SolarSystem | null = null;
+  private cachedDay = -1;
 
   constructor(game: Game) {
     this.game = game;
@@ -115,9 +116,10 @@ export class News {
   // Builds the headlines for the current system, once; the result is kept until the
   // commander is somewhere else. Draws random numbers and clears the breaking news.
   private headlines(): string {
-    if (this.cachedNews && this.cachedSystem === this.game.commander.getCurrentSystem()) {
-      return this.cachedNews;
-    }
+    const { commander } = this.game;
+    const sameEdition =
+      this.cachedSystem === commander.getCurrentSystem() && this.cachedDay === commander.days;
+    if (this.cachedNews && sameEdition) return this.cachedNews;
 
     let headlines = '';
     let comma = '';
@@ -318,6 +320,7 @@ export class News {
     }
 
     this.cachedSystem = this.game.commander.getCurrentSystem();
+    this.cachedDay = this.game.commander.days;
     this.cachedNews = headlines;
     return headlines;
   }
