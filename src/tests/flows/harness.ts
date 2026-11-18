@@ -138,7 +138,7 @@ export function serializeAndDeserialize(game: Game) {
   const gs = parseSavedGame(JSON.parse(gsJSONStr));
   if (!gs) throw new Error('The saved game did not pass the check.');
 
-  const game2 = Game.fromSerializedState(gs);
+  const game2 = Game.load(gs);
 
   return game2;
 }

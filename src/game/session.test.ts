@@ -178,7 +178,7 @@ test('a damaged save is removed, the next one loads, and the player is told', ()
 
 test('a save that passes the check but fails to load is removed too', () => {
   session.createCommander('Tester', 2, startingSkills());
-  vi.spyOn(Game, 'fromSerializedState').mockImplementation(() => {
+  vi.spyOn(Game, 'load').mockImplementation(() => {
     throw new Error('This save makes no sense to the rules.');
   });
   vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -261,7 +261,7 @@ test('clearing the high scores tells whoever is watching', () => {
 
 test('a game nobody watches can be changed all the same', () => {
   session.createCommander('Tester', 2, startingSkills());
-  const game = Game.fromSerializedState(session.game!.serializedState());
+  const game = Game.load(session.game!.serializedState());
 
   expect(() => game.changed()).not.toThrow();
 });
