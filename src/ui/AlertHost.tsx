@@ -1,4 +1,5 @@
 // Draws every open alert on top of the page.
+import { useLayoutEffect, useRef } from 'react';
 import type { ChangeEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { AlertActionType, AlertPresentationStyle, alertStore } from '../game/alerts.ts';
@@ -22,6 +23,7 @@ function Slider({ alert, content }: AlertProps & { content: SliderContent }) {
     <div id={alert.elementId('alertvc-customView')}>
       <input
         id={content.id}
+        aria-labelledby={alert.elementId('alertvc-title')}
         type="range"
         min={content.min}
         max={content.max}
@@ -58,13 +60,34 @@ function ActionButton({ alert, action }: AlertProps & { action: AlertAction }) {
   );
 }
 
+// Opens the dialog as a modal for as long as it is drawn. The browser then moves the
+// focus into it, keeps it there, and gives it back when the dialog goes.
+function useModal() {
+  const ref = useRef<HTMLDialogElement>(null);
+  useLayoutEffect(() => {
+    const dialog = ref.current!;
+    dialog.showModal();
+    return () => dialog.close();
+  }, []);
+  return ref;
+}
+
 function Alert({ alert }: AlertProps) {
+  const dialog = useModal();
+  const titleId = alert.elementId('alertvc-title');
   const high = alert.presentationStyle === AlertPresentationStyle.High;
   const count = alert.actions.length <= 2 ? 'two-buttons' : 'more-buttons';
   return createPortal(
-    <div id={alert.elementId('alertvc-backdrop')} className="alert-backdrop">
+    <dialog
+      ref={dialog}
+      id={alert.elementId('alertvc-backdrop')}
+      className="alert-backdrop"
+      aria-labelledby={titleId}
+      // An alert needs an answer, so Escape does not close it.
+      onCancel={event => event.preventDefault()}
+    >
       <div className={'alert-box ' + (high ? 'alert-box-high' : 'alert-box-default')}>
-        <div id={alert.elementId('alertvc-title')} className="alert-title">
+        <div id={titleId} className="alert-title">
           <Lines text={alert.title} />
         </div>
         <Content alert={alert} />
@@ -74,7 +97,7 @@ function Alert({ alert }: AlertProps) {
           ))}
         </div>
       </div>
-    </div>,
+    </dialog>,
     document.body
   );
 }

@@ -30,7 +30,7 @@ html {
     --button-accent-text: #06142b;
     --button-accent-soft: #c3d2e8;
     --button-accent-soft-text: #0b1220;
-    --button-danger: #6e0f0b;
+    --button-danger: #4a0906;
   }
 }
 
@@ -47,14 +47,15 @@ body {
   margin-bottom: constant(safe-area-inset-bottom);
   margin-bottom: env(safe-area-inset-bottom);
   touch-action: manipulation;
-  user-scalable: no;
+}
+
+/* Text can be selected and copied. Buttons and the maps cannot: a long press there is a
+   press, not a selection. */
+button,
+canvas {
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-  -webkit-user-callout: none;
-  -webkit-user-drag: none;
-  -webkit-user-modify: none;
-  -webkit-highlight: none;
 }
 
 /* One column, as wide as the window up to a comfortable maximum. */
@@ -179,6 +180,7 @@ img {
 }
 
 .battle-button-item {
+  display: flex;
   margin: 0;
 }
 
@@ -297,6 +299,13 @@ img {
 
 .bar-width-transition {
   transition: width 0.2s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in,
+  .bar-width-transition {
+    transition: none;
+  }
 }
 
 .hidden {
@@ -487,18 +496,26 @@ h4 {
 /* Styling for the backdrop (overlay) */
 .alert-backdrop {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: inherit;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 9999;
 }
 
 /* Styling for the alert box */
+/* A long alert scrolls inside its box, so its buttons can always be reached. */
 .alert-box {
   position: fixed;
   top: 30%;
+  max-height: 65dvh;
+  overflow-y: auto;
+  box-sizing: border-box;
   left: 50%;
   transform: translateX(-50%);
   background: white;
@@ -516,6 +533,7 @@ h4 {
 
 .alert-box-high {
   top: 5%;
+  max-height: 90dvh;
 }
 
 /* Title styling */

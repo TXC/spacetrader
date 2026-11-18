@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { sanitizedElementID } from '../game/elementId.ts';
 import type { Ship } from '../game/Ship.ts';
 import type { Travel } from '../game/Travel.ts';
@@ -104,8 +104,7 @@ function ActionButtons({ travel, titles }: Props & { titles: string[] }) {
   return (
     <ul className="battleButtons">
       {titles.map(title => (
-        <Fragment key={title}>
-          <li className="battle-button-item" />
+        <li key={title} className="battle-button-item">
           <LoggedLink
             id={sanitizedElementID('ecButton_' + title)}
             onPress={() => travel.perform(title)}
@@ -113,7 +112,7 @@ function ActionButtons({ travel, titles }: Props & { titles: string[] }) {
             <Icon name={title} className="battle-button-icon" />
             <span>{title}</span>
           </LoggedLink>
-        </Fragment>
+        </li>
       ))}
     </ul>
   );

@@ -11,6 +11,7 @@ export function ShipPicture({ model, flipped }: { model: ShipModel; flipped?: bo
   return (
     <img
       className={'full-width-img' + (flipped ? ' flipped' : '')}
+      alt={model.name}
       src={image.generatePNG(SCALE)}
       style={{ width }}
     />
