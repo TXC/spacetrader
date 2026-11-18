@@ -3,7 +3,6 @@ import { AlertActionType, AlertViewController } from './alerts.ts';
 import type { SliderContent } from './alerts.ts';
 import {
   ATTACK_POLICE_SCORE,
-  ATTACK_TRADER_SCORE,
   FLEE_FROM_INSPECTION_SCORE,
   KILL_PIRATE_SCORE,
   KILL_POLICE_SCORE,
@@ -44,11 +43,11 @@ import type { Game } from './Game.ts';
 import type { Commander } from './Commander.ts';
 import type { Opponent } from './Opponent.ts';
 import { runtime } from './runtime.ts';
+import { attack, autoAttack } from './encounter/actions/attack.ts';
 import { captainFor } from './encounter/captains.ts';
 import {
   EncounterMode,
   EncounterType,
-  famousCaptainAttackType,
   isAttackEncounter,
   isAutoMode,
   isEncounterWith,
@@ -398,181 +397,14 @@ export class EncounterController {
     }
 
     if (action === 'Auto-Attack') {
-      this._encounterMode = EncounterMode.AutoAttack;
-      this.performAction('Attack');
-      pLog.log(50);
-      return;
+      if (!autoAttack(this)) return;
     } else if (action === 'Auto-Flee') {
       this._encounterMode = EncounterMode.AutoFlee;
       this.performAction('Flee');
       pLog.log(51);
       return;
     } else if (action === 'Attack') {
-      const performAttack = () => {
-        const executeActionBlock = () => {
-          ensureInteger(this._type);
-
-          this._executeAction(false, fightContinues => {
-            ensureBool(fightContinues);
-            fightContinues = fightContinues && this._game.commander.ship.hull > 0;
-            this.listener.continues(fightContinues);
-          });
-        };
-
-        if (
-          isEncounterWith(this._type, 'Police') ||
-          this._type === EncounterType.PostMarieCelestePoliceEncounter
-        ) {
-          const executePoliceActionBlock = () => {
-            if (this._game.commander.policeRecordScore > PoliceRecordScore.Criminal) {
-              this._game.commander.policeRecordScore = PoliceRecordScore.Criminal;
-            }
-
-            this._game.commander.policeRecordScore =
-              this._game.commander.policeRecordScore + ATTACK_POLICE_SCORE;
-
-            if (this._type !== EncounterType.PoliceFlee) {
-              this._type = EncounterType.PoliceAttack;
-            }
-
-            executeActionBlock();
-          };
-
-          if (this._game.commander.policeRecordScore > PoliceRecordScore.Criminal) {
-            const alertString =
-              'Are you sure you wish to attack the police? This will turn you into a criminal!';
-
-            const aC = new AlertViewController(alertString);
-            aC.addAction("Ok, I won't.", AlertActionType.Default, null);
-
-            aC.addAction('Attack', AlertActionType.Destructive, () => {
-              executePoliceActionBlock();
-            });
-
-            this._presentAlertController(aC);
-
-            return;
-          }
-
-          executePoliceActionBlock();
-          return;
-        } else if (isEncounterWith(this._type, 'Pirate')) {
-          if (this._type === EncounterType.PirateIgnore) {
-            this._type = EncounterType.PirateAttack;
-          }
-        } else if (isEncounterWith(this._type, 'Trader')) {
-          const executeTraderActionBlock = () => {
-            if (this._type !== EncounterType.TraderFlee) {
-              if (this._opponent.ship.weapons.length <= 0) {
-                this._type = EncounterType.TraderFlee;
-              } else if (
-                runtime.gameRand.randomIntBelow(ReputationScore.Elite) <=
-                (this._game.commander.reputationScore * 10) / (1 + this._opponent.ship.type)
-              ) {
-                this._type = EncounterType.TraderFlee;
-              } else {
-                this._type = EncounterType.TraderAttack;
-              }
-            }
-
-            executeActionBlock();
-          };
-
-          if (
-            isOneOf(
-              this._type,
-              EncounterType.TraderIgnore,
-              EncounterType.TraderBuy,
-              EncounterType.TraderSell
-            )
-          ) {
-            if (this._game.commander.policeRecordScore >= PoliceRecordScore.Clean) {
-              const alertString =
-                'Are you sure you wish to attack the trader? This will make the police suspicious of you!';
-
-              const aC = new AlertViewController(alertString);
-              aC.addAction("Ok, I won't.", AlertActionType.Default, null);
-
-              aC.addAction('Attack', AlertActionType.Destructive, () => {
-                this._game.commander.policeRecordScore = PoliceRecordScore.Dubious;
-
-                executeTraderActionBlock();
-              });
-
-              this._presentAlertController(aC);
-
-              return;
-            } else {
-              this._game.commander.policeRecordScore =
-                this._game.commander.policeRecordScore + ATTACK_TRADER_SCORE;
-            }
-          }
-
-          executeTraderActionBlock();
-          return;
-        } else if (isEncounterWith(this._type, 'FamousCaptain')) {
-          const executeFamousCaptainActionBlock = () => {
-            this._type = famousCaptainAttackType(this._type);
-            executeActionBlock();
-          };
-
-          if (!isAttackEncounter(this._type)) {
-            const alertString =
-              'Famous captains get famous by, among other things, destroying everyone who attacks them. Do you really want to attack?';
-
-            const aC = new AlertViewController(alertString);
-            aC.addAction("Ok, I won't.", AlertActionType.Default, null);
-
-            aC.addAction('Attack', AlertActionType.Destructive, () => {
-              pLog.log(104);
-              let policeScore = this._game.commander.policeRecordScore;
-              policeScore = Math.min(policeScore, PoliceRecordScore.Villain) + ATTACK_TRADER_SCORE;
-              this._game.commander.policeRecordScore = policeScore;
-
-              this._game.addBreakingNewsItem(captainFor(this._type).attackNews);
-
-              executeFamousCaptainActionBlock();
-            });
-
-            this._presentAlertController(aC);
-            return;
-          }
-
-          executeFamousCaptainActionBlock();
-          return;
-        } else if (isEncounterWith(this._type, 'Scarab')) {
-          if (this._type === EncounterType.ScarabIgnore) {
-            this._type = EncounterType.ScarabAttack;
-          }
-        } else if (isEncounterWith(this._type, 'Monster')) {
-          if (this._type === EncounterType.MonsterIgnore) {
-            this._type = EncounterType.MonsterAttack;
-          }
-        } else if (isEncounterWith(this._type, 'Dragonfly')) {
-          if (this._type === EncounterType.DragonflyIgnore) {
-            this._type = EncounterType.DragonflyAttack;
-          }
-        }
-
-        executeActionBlock();
-      };
-
-      if (this._safeToSubmit()) {
-        const alertString =
-          "Are you sure you want to attack? You're not carrying illegal goods so it should be safe to submit.";
-
-        const aC = new AlertViewController(alertString);
-        aC.addAction("Ok, I won't.", AlertActionType.Default, null);
-
-        aC.addAction('Attack', AlertActionType.Destructive, () => {
-          performAttack();
-        });
-
-        this._presentAlertController(aC);
-        return;
-      }
-
-      performAttack();
+      if (!attack(this)) return;
     } else if (action === 'Flee') {
       const performFlee = () => {
         if (this._type === EncounterType.PoliceInspection) {
