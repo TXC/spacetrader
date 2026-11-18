@@ -15,7 +15,6 @@ import {
   ScarabQuestStatus,
   reactorAboard,
 } from '../SolarSystem.types.ts';
-import { ensureBool, ensureInteger, ensureNumber, ensureType } from '../ensure.ts';
 import { pLog } from '../probes.ts';
 import type { Commander } from '../Commander.ts';
 import type { Opponent } from '../opponent/Opponent.ts';
@@ -39,12 +38,8 @@ export function fightRound(
   commanderFlees: boolean,
   completionBlock: (fightContinues: boolean) => void
 ): void {
-  ensureBool(commanderFlees);
-
   const opponentHull = encounter._opponent.ship.hull;
-  ensureInteger(opponentHull);
   const commanderHull = encounter._game.commander.ship.hull;
-  ensureInteger(commanderHull);
   const { commanderGotHit, opponentGotHit } = exchangeFire(encounter, commanderFlees);
 
   if (someoneIsDestroyed(encounter, completionBlock)) return;
@@ -53,8 +48,6 @@ export function fightRound(
   const prevType = encounter._type;
 
   opponentReconsiders(encounter, opponentHull, commanderHull);
-
-  ensureInteger(encounter._type);
 
   leaveAutoModeIfChanged(encounter, prevType);
   describeRound(encounter, prevType, commanderFlees, commanderGotHit, opponentGotHit);
@@ -289,7 +282,6 @@ function commanderEscapes(
   if (escapeString) {
     if (isEncounterWith(encounter._type, 'Monster')) {
       encounter._game.monsterHull = encounter._opponent.ship.hull;
-      ensureInteger(encounter._game.monsterHull);
       pLog.log(143);
     }
 
@@ -508,10 +500,6 @@ function executeAttack(
   defender: Commander | Opponent,
   defenderIsFleeing: boolean
 ): boolean {
-  ensureType(attacker, 'object');
-  ensureType(defender, 'object');
-  ensureBool(defenderIsFleeing);
-
   const commanderUnderAttack = defender === encounter._game.commander;
 
   if (
@@ -531,11 +519,9 @@ function executeAttack(
     (100 +
       2 * attacker.ship.crewEngineerSkillIncludingCommander(attacker, encounter._game.difficulty)) /
     100;
-  ensureNumber(ATTACK_SCALE);
 
   const damage = weaponDamage(attacker, defender, ATTACK_SCALE);
 
-  ensureInteger(damage);
   if (damage <= 0) {
     return false;
   }
@@ -555,14 +541,12 @@ function defenderDodges(
     attacker.ship.crewFighterSkillIncludingCommander(attacker, difficulty) +
       defender.ship.model.size
   );
-  ensureInteger(attackDiceRoll);
 
   const dodgeDiceRoll =
     (defenderIsFleeing ? 2 : 1) *
     runtime.gameRand.randomIntBelow(
       5 + Math.floor(defender.ship.crewPilotSkillIncludingCommander(defender, difficulty) / 2)
     );
-  ensureInteger(dodgeDiceRoll);
 
   return attackDiceRoll < dodgeDiceRoll;
 }
@@ -580,13 +564,11 @@ function weaponDamage(
       AccessoryType.WeaponPulseLaser,
       AccessoryType.WeaponPulseLaser
     );
-    ensureInteger(pulsePower);
 
     const morganPower = attacker.ship.weaponPowerBetweenMinMaxInclusive(
       AccessoryType.WeaponMorgansLaser,
       AccessoryType.WeaponMorgansLaser
     );
-    ensureInteger(morganPower);
 
     if (pulsePower + morganPower <= 0) {
       damage = 0;
@@ -602,7 +584,6 @@ function weaponDamage(
       AccessoryType.WeaponFirst,
       AccessoryType.WeaponLast
     );
-    ensureInteger(weaponPower);
 
     damage = runtime.gameRand.randomIntBelow(Math.floor(weaponPower * ATTACK_SCALE));
   }
@@ -626,9 +607,7 @@ export function damageDefender(
     damage = Math.floor(damage * factor);
   }
 
-  ensureInteger(damage);
   damage = defender.ship.damageShieldsByAmount(damage);
-  ensureInteger(damage);
 
   if (damage > 0) {
     damage -= runtime.gameRand.randomIntBelow(
@@ -640,11 +619,8 @@ export function damageDefender(
     const scaleFactor = commanderUnderAttack
       ? Math.max(1, Difficulty.Absurd - encounter._game.difficulty)
       : 2;
-    ensureInteger(scaleFactor);
 
     damage = Math.min(damage, Math.floor(defender.ship.maximumHullStrength() / scaleFactor));
-
-    ensureInteger(damage);
 
     defender.ship.damageHullByAmount(damage);
   }
