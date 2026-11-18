@@ -1,7 +1,7 @@
 import { AccessoryType, gadgetForType, shieldForType, weaponForType } from '../Accessory.ts';
 import { MAX_SKILL_LEVEL, PoliceRecordScore } from '../Commander.ts';
 import { CrewMember } from '../CrewMember.ts';
-import { Ship, shipModelForType, ShipModelType, SHIP_MODEL_COUNT } from '../Ship.ts';
+import { Ship, shipModelForType, ShipModelType } from '../Ship.ts';
 import type { ShipModel } from '../Ship.ts';
 import { Difficulty, WildQuestStatus } from '../SolarSystem.types.ts';
 import { TradeItemType, TRADE_ITEM_COUNT } from '../TradeItem.types.ts';
@@ -138,7 +138,6 @@ function ordinaryOpponent(type: OpponentType, game: Game): Opponent {
 
 function chooseShipType(type: number, game: Game): ShipModelType {
   let tries = 1; // We'll roll a die `tries` times and pick the best roll
-  let chosenShipType: number = SHIP_MODEL_COUNT;
 
   // Police are more likely to be stronger against worse police records
   if (type === OpponentType.Police) {
@@ -159,19 +158,12 @@ function chooseShipType(type: number, game: Game): ShipModelType {
     tries = 1 + Math.floor(game.commander.netWorth() / 100000);
     tries = Math.max(1, tries + game.difficulty - Difficulty.Normal);
   } else if (type === OpponentType.Mantis) {
-    tries = 1 + game.difficulty;
-    chosenShipType = ShipModelType.Mantis;
+    return ShipModelType.Mantis;
   }
 
   ensureInteger(tries);
-  ensureInteger(chosenShipType);
 
-  if (chosenShipType >= SHIP_MODEL_COUNT) {
-    chosenShipType = randomShipType(type, game, tries);
-  }
-
-  // The Mantis, or a model drawn above; never the count.
-  return chosenShipType as ShipModelType;
+  return randomShipType(type, game, tries);
 }
 
 function randomShipType(type: number, game: Game, tries: number): ShipModelType {
