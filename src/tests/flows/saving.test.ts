@@ -73,7 +73,7 @@ test('saveLoad', () => {
   saveGames = JSON.parse(mockLS.getItem('games') ?? 'null') || {};
   assertEqual(Object.keys(saveGames).length, 0);
 
-  let highScoreGames = JSON.parse(mockLS.getItem('highScoringGames') ?? 'null') || {};
+  const highScoreGames = JSON.parse(mockLS.getItem('highScoringGames') ?? 'null') || {};
   assertEqual(Object.keys(highScoreGames).length, 1);
 
   // Check that the saved high score game looks valid
@@ -259,7 +259,7 @@ test('auto_attack_interrupt', () => {
   replay.replayEvent('ecButton_Interrupt');
   assertEqual(runtime.actionLog.asyncClosureQueue!.length, 1);
 
-  let closure = runtime.actionLog.asyncClosureQueue!.shift();
+  const closure = runtime.actionLog.asyncClosureQueue!.shift();
   assertEqual(runtime.actionLog.asyncClosureQueue!.length, 0);
   closure!();
 
@@ -284,7 +284,7 @@ test('auto_attack_flee', () => {
   replay.replayEvent('ecButton_Flee');
   assertEqual(runtime.actionLog.asyncClosureQueue!.length, 1);
 
-  let closure = runtime.actionLog.asyncClosureQueue!.shift();
+  const closure = runtime.actionLog.asyncClosureQueue!.shift();
   assertEqual(runtime.actionLog.asyncClosureQueue!.length, 0);
   closure!();
 
@@ -309,7 +309,7 @@ test('auto_attack_surrender', () => {
   replay.replayEvent('ecButton_Surrender');
   assertEqual(runtime.actionLog.asyncClosureQueue!.length, 1);
 
-  let closure = runtime.actionLog.asyncClosureQueue!.shift();
+  const closure = runtime.actionLog.asyncClosureQueue!.shift();
   assertEqual(runtime.actionLog.asyncClosureQueue!.length, 0);
   closure!();
 

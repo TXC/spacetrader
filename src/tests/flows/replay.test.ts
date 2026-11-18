@@ -341,7 +341,7 @@ test('autoFlee_withImmediate', () => {
 
   const replay = runReplayLog(replayLog);
 
-  let encounterText = textOf(encounterBox());
+  const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
     'At 13 clicks from Guinifer you encounter a police Hornet.\n\nIt ignores you.'
@@ -360,7 +360,7 @@ test('autoFlee_noImmediates', () => {
 
   const replay = runReplayLog(replayLog);
 
-  let encounterText = textOf(encounterBox());
+  const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
     'At 8 clicks from Kaylon you encounter a trader Bumblebee.\n\nIt ignores you.'
@@ -579,7 +579,7 @@ test('mercenary_arrest', () => {
 
   assertEqual(commander.ship.crew.length, 0);
 
-  let game2 = serializeAndDeserialize(game);
+  const game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
   assertEqual(game2.commander.ship.crew.length, 0);
 });
@@ -810,7 +810,7 @@ test('destroy_pirate_pick_up_canister', () => {
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   const before = commander.ship.tradeItemQuantityForType(TradeItemType.Furs);
-  let alertTitleEl = alertTitle();
+  const alertTitleEl = alertTitle();
   assertEqual(
     textOf(alertTitleEl),
     'A canister from the destroyed ship, labelled Furs, drifts within range of your scoops.'
@@ -890,7 +890,7 @@ test('destroy_pirate_let_go_canister', () => {
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   const before = commander.ship.tradeItemQuantityForType(TradeItemType.Furs);
-  let alertTitleEl = alertTitle();
+  const alertTitleEl = alertTitle();
   assertEqual(
     textOf(alertTitleEl),
     'A canister from the destroyed ship, labelled Furs, drifts within range of your scoops.'
@@ -936,7 +936,7 @@ test('plunder_dump_litter_nevermind', () => {
   replay.replayEvent('alertButton__Plunder_plunderDump_some_cargo', 'click');
   replay.replayEvent('cargo_FursDump_1', 'click');
 
-  let alertTitleEl = alertTitle();
+  const alertTitleEl = alertTitle();
   assertEqual(
     textOf(alertTitleEl),
     'Dumping cargo in space is considered littering. If the police track your dumped goods to you it will be reflected on your criminal record. Do you really wish to dump?'
@@ -983,7 +983,7 @@ test('plunder_dump_litter_yes', () => {
 
   replay.replayEvent('cargo_FursDump_1', 'click');
 
-  let alertTitleEl = alertTitle();
+  const alertTitleEl = alertTitle();
   assertEqual(
     textOf(alertTitleEl),
     'Dumping cargo in space is considered littering. If the police track your dumped goods to you it will be reflected on your criminal record. Do you really wish to dump?'
@@ -1223,7 +1223,7 @@ test('galaxyView_selectWarpTarget', () => {
 
   runReplayLog(replayLog);
 
-  let warpButton = button(/^Blast Off to /);
+  const warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Deneb');
 });
 
@@ -1232,7 +1232,7 @@ test('galaxyView_selectWarpTarget_multipleTimes', () => {
 
   runReplayLog(replayLog);
 
-  let warpButton = button(/^Blast Off to /);
+  const warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Penthara');
 });
 
@@ -1241,7 +1241,7 @@ test('galaxyView_systemLanding_selectWarpTarget', () => {
 
   const replay = runReplayLog(replayLog);
 
-  let warpButton = button(/^Blast Off to /);
+  const warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Acamar');
 
   const session = replay.session;
@@ -1365,7 +1365,7 @@ test('galaxyView_systemLanding_showsSystemInfo_warpTab_lowFuel_buyFromShipYard',
 
   replay.replayEvent('Warp', 'click');
 
-  let galaxyInfoEl = mapInfo();
+  const galaxyInfoEl = mapInfo();
   assertTrue(!galaxyInfoEl, 'no galaxy info');
 
   const systemInfoEl = systemInfo();
@@ -1387,7 +1387,7 @@ test('galaxyView_systemLanding_selectSecondWarpTarget', () => {
 
   const replay = runReplayLog(replayLog);
 
-  let warpButton = button(/^Blast Off to /);
+  const warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Acamar');
 
   const session = replay.session;
@@ -1609,7 +1609,7 @@ test('galaxyView_systemLanding_selectWarpTarget_outOfRange', () => {
 
   const replay = runReplayLog(replayLog);
 
-  let warpButton = button(/^Blast Off to /);
+  const warpButton = button(/^Blast Off to /);
   assertEqual(warpButton, null);
 
   const session = replay.session;
@@ -1624,7 +1624,7 @@ test('galaxyView_systemLanding_selectWarpTarget_wormhole_outOfRange', () => {
 
   const replay = runReplayLog(replayLog);
 
-  let warpButton = button(/^Blast Off to /);
+  const warpButton = button(/^Blast Off to /);
   assertEqual(warpButton, null);
 
   const session = replay.session;
@@ -1645,7 +1645,7 @@ test('galaxyView_systemLanding_selectWarpTarget_wormholeParent_inRange', () => {
   const replayLog = `{"idLog":["createCommander","Ship Yard","autoFuelCheckbox","autoRepairCheckbox","Chart","cheat_freeSingularity","Ship Yard","Chart","namedEvent","galacticChart_useSingularity_1_Campor","alertButton_Warp_","ecButton_Ignore","alertButton_Dismiss","namedEvent"],"eventNameLog":["click","click","change","change","click","click","click","click","selectPlanet|Campor","click","click","click","click","selectPlanetZoomed|Styris"],"gameRandSeed":1734686840048}`;
   const replay = runReplayLog(replayLog);
 
-  let warpButton = button(/^Blast Off to /);
+  const warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Styris');
 
   const session = replay.session;
@@ -1705,7 +1705,7 @@ test('galaxyView_systemLanding_chart_selectingInEitherWorks', () => {
   assertTrue(!button('Chart')!.classList.contains('active'), 'chart is not active');
   assertTrue(button('Warp')!.classList.contains('active'), 'warp is active');
 
-  let warpButton = button(/^Blast Off to /);
+  const warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Kira');
 
   assertEqual(session.selection.system!.name, 'Kira');

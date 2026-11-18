@@ -95,7 +95,7 @@ export class ActionLogReplay {
         // and send an event that bubbles up to where React listens.
         const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
         setValue.call(element, sliderValue);
-        let inputEvent = new Event(actualEventName, { bubbles: true });
+        const inputEvent = new Event(actualEventName, { bubbles: true });
         element!.dispatchEvent(inputEvent);
       } else if (eventName.startsWith('select')) {
         const eventComponents = eventName.split(/\|/);
@@ -103,7 +103,7 @@ export class ActionLogReplay {
         const selectedIndex = eventComponents[2];
         element!.selectedIndex = selectedIndex;
         // The event must bubble to reach React, which listens at the top of the page.
-        let inputEvent = new Event(actualEventName, { bubbles: true });
+        const inputEvent = new Event(actualEventName, { bubbles: true });
         element!.dispatchEvent(inputEvent);
       } else if (eventName === 'click') {
         element!.click();

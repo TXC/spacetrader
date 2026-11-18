@@ -432,7 +432,7 @@ export class PCEWobbleImage extends PCEImage {
     this.tickCount = (this.tickCount + 1) % this.maxTicks;
   }
 
-  drawInCanvas(
+  override drawInCanvas(
     canvas: HTMLCanvasElement,
     scale: number,
     xOffset?: number /* default: 0 */,

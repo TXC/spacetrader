@@ -23,9 +23,11 @@
     "format:fix": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "lint": "eslint --cache .",
     "lint:fix": "eslint --cache --fix .",
+    "typecheck": "tsc -b",
     "test": "vitest run --exclude src/tests/flows/stress.test.ts",
     "test:stress": "vitest run src/tests/flows/stress.test.ts",
     "test:offline": "pnpm build && node scripts/check-offline.mjs",
+    "check": "pnpm format && pnpm lint && pnpm typecheck && pnpm test && pnpm test:stress && pnpm test:offline",
     "preview": "vite preview"
   },
   "devDependencies": {
@@ -40,7 +42,6 @@
     "@vitest/browser-playwright": "^5.1.0",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.7",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.8",
     "globals": "^17.14.0",

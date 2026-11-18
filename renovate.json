@@ -91,7 +91,6 @@
     {
       "description": "Browser Test toolchain.",
       "matchPackageNames": [
-        "@vitest/browser**",
         "playwright"
       ],
       "groupName": "Browser Testing",

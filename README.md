@@ -15,9 +15,14 @@ unchanged in `old/` for reference) into TypeScript and React.
 | `pnpm test`        | Run the tests: rules in Node, screens in Chromium |
 | `pnpm test:stress` | Run the slower stress tests                      |
 | `pnpm test:offline`| Build, then check the game works with no network  |
-| `pnpm lint`        | Check the code style                             |
+| `pnpm check`       | Run everything the pipeline runs, in one go      |
+| `pnpm format`      | Check the formatting (`format:fix` corrects it)  |
+| `pnpm lint`        | Check the code style (`lint:fix` corrects it)    |
+| `pnpm typecheck`   | Check the types without building                 |
 | `pnpm build`       | Type-check and build the production version      |
 | `pnpm preview`     | Serve the production build locally               |
+
+You need Node 26 and pnpm; `.nvmrc` names the Node version.
 
 The screen tests need a browser. Install it once with:
 

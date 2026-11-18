@@ -2,11 +2,6 @@ name: Pull Request
 
 on:
   pull_request:
-    paths:
-      - "**/*.[jt]sx?"  # .js, .ts, .jsx, .tsx
-      - "**/*.[ecm]js"  # .ejs, .cjs, .mjs
-      - "**/*.json"
-      - "**/*.ya?ml"    # .yml, .yaml
   # Also run by release.yml, so a release passes the same checks.
   workflow_call:
 
@@ -39,17 +34,9 @@ jobs:
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
         run: pnpm audit signatures
 
-      - name: Format
-        run: pnpm run format
-
-      - name: Lint
-        run: pnpm run lint
-        
       - name: Playwright Install
-        run: pnpm exec playwright install
-        
-      - name: Test
-        run: pnpm run test
+        run: pnpm exec playwright install chromium
 
-      - name: Build
-        run: pnpm run build
+      # The same command a developer runs locally before pushing.
+      - name: Check
+        run: pnpm run check

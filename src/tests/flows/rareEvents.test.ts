@@ -314,7 +314,7 @@ test('Ahab_notEligible', () => {
   const session = replay.session;
   const game = session.game!;
 
-  let encounterText = textOf(encounterBox());
+  const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
     'At 15 clicks from Japori you encounter a police Firefly.\n\nIt ignores you.'
@@ -334,7 +334,7 @@ test('Ahab_accept', () => {
   const session = replay.session;
   const game = session.game!;
 
-  let encounterText = textOf(encounterBox());
+  const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
     'At 20 clicks from Yew you encounter the famous Captain Ahab.\n\nThe captain requests a brief meeting with you.'
@@ -466,7 +466,7 @@ test('Ahab_attack', () => {
   const session = replay.session;
   const game = session.game!;
 
-  let encounterText = textOf(encounterBox());
+  const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
     'At 20 clicks from Yew you encounter the famous Captain Ahab.\n\nThe captain requests a brief meeting with you.'
@@ -565,7 +565,7 @@ test('Conrad_notEligible', () => {
   const session = replay.session;
   const game = session.game!;
 
-  let encounterText = textOf(encounterBox());
+  const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
     'At 15 clicks from Japori you encounter a police Firefly.\n\nIt ignores you.'
@@ -585,7 +585,7 @@ test('Conrad_accept', () => {
   const session = replay.session;
   const game = session.game!;
 
-  let encounterText = textOf(encounterBox());
+  const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
     'At 20 clicks from Yew you encounter the famous Captain Conrad.\n\nThe captain requests a brief meeting with you.'
@@ -718,7 +718,7 @@ test('Conrad_attack', () => {
   const session = replay.session;
   const game = session.game!;
 
-  let encounterText = textOf(encounterBox());
+  const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
     'At 20 clicks from Yew you encounter the famous Captain Conrad.\n\nThe captain requests a brief meeting with you.'
@@ -817,7 +817,7 @@ test('Huie_notEligible', () => {
   const session = replay.session;
   const game = session.game!;
 
-  let encounterText = textOf(encounterBox());
+  const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
     'At 15 clicks from Japori you encounter a police Firefly.\n\nIt ignores you.'
@@ -837,7 +837,7 @@ test('Huie_accept', () => {
   const session = replay.session;
   const game = session.game!;
 
-  let encounterText = textOf(encounterBox());
+  const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
     'At 20 clicks from Yew you encounter the famous Captain Huie.\n\nThe captain requests a brief meeting with you.'
@@ -970,7 +970,7 @@ test('Huie_attack', () => {
   const session = replay.session;
   const game = session.game!;
 
-  let encounterText = textOf(encounterBox());
+  const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
     'At 20 clicks from Yew you encounter the famous Captain Huie.\n\nThe captain requests a brief meeting with you.'
