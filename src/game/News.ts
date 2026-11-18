@@ -90,7 +90,7 @@ export class News {
 
   private pay(): void {
     const { game } = this;
-    game.commander.setCredits(game.commander.getCredits() - this.price());
+    game.commander.credits = game.commander.credits - this.price();
     game.alreadyPaidForNewspaper = true;
     game.save();
   }
@@ -102,7 +102,7 @@ export class News {
   }
 
   masthead(): string {
-    const system = this.game.commander.getCurrentSystem();
+    const system = this.game.commander.currentSystem;
     const mastheads = system.politics.mastheads;
     return mastheads[system.hashCode() % mastheads.length].replace(/%@/g, system.name);
   }
@@ -117,7 +117,7 @@ export class News {
   private headlines(): string {
     const { commander } = this.game;
     const sameEdition =
-      this.cachedSystem === commander.getCurrentSystem() && this.cachedDay === commander.days;
+      this.cachedSystem === commander.currentSystem && this.cachedDay === commander.days;
     if (this.cachedNews && sameEdition) return this.cachedNews;
 
     let headlines = '';
@@ -131,7 +131,7 @@ export class News {
     this.game.clearBreakingNews();
 
     let specialHeadline = null;
-    const specialEvent = this.game.commander.getCurrentSystem().specialEvent;
+    const specialEvent = this.game.commander.currentSystem.specialEvent;
     const japoriQuestStatus = this.game.japoriQuestStatus;
     const scarabStatus = this.game.scarabStatus;
     const monsterStatus = this.game.monsterStatus;
@@ -242,7 +242,7 @@ export class News {
       comma = '\n';
     }
 
-    const status = this.game.commander.getCurrentSystem().status;
+    const status = this.game.commander.currentSystem.status;
     const statusStr = statusHeadline(status);
     if (statusStr) {
       headlines += comma + statusStr;
@@ -254,8 +254,8 @@ export class News {
       headlines += comma;
 
       const villainHeadlines = [
-        `Police Warning: ${this.game.commander.name} Will Dock at ${this.game.commander.getCurrentSystem().name}!`,
-        `Notorious Criminal ${this.game.commander.name} Sighted in ${this.game.commander.getCurrentSystem().name}!`,
+        `Police Warning: ${this.game.commander.name} Will Dock at ${this.game.commander.currentSystem.name}!`,
+        `Notorious Criminal ${this.game.commander.name} Sighted in ${this.game.commander.currentSystem.name}!`,
         `Locals Rally to Deny Spaceport Access to ${this.game.commander.name}!`,
         `Terror Strikes Locals on Arrival of ${this.game.commander.name}!`,
       ];
@@ -314,11 +314,11 @@ export class News {
 
     if (!realNews) {
       headlines += comma;
-      const systemHeadlines = this.game.commander.getCurrentSystem().politics.headlines;
+      const systemHeadlines = this.game.commander.currentSystem.politics.headlines;
       headlines += systemHeadlines[runtime.gameRand.randomIntBelow(systemHeadlines.length)];
     }
 
-    this.cachedSystem = this.game.commander.getCurrentSystem();
+    this.cachedSystem = this.game.commander.currentSystem;
     this.cachedDay = this.game.commander.days;
     this.cachedNews = headlines;
     return headlines;

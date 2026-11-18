@@ -39,7 +39,7 @@ function prices(game: Game, view: CargoView, type: number) {
 
 function cargoRow(game: Game, view: CargoView, type: number): CargoRow {
   const price = prices(game, view, type);
-  const toBuy = game.commander.getCurrentSystem().tradeItemQuantityForType(type);
+  const toBuy = game.commander.currentSystem.tradeItemQuantityForType(type);
   const toSell = game.commander.ship.tradeItemQuantityForType(type);
   const quantity = view.buy ? toBuy : toSell;
   const profitable = price.sell > price.average && quantity > 0;

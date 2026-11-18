@@ -272,10 +272,10 @@ export function performTradeWithAmount(
         itemType,
         tradePrice
       );
-      encounter._game.commander.setCredits(credits - actualAmount * tradePrice);
+      encounter._game.commander.credits = credits - actualAmount * tradePrice;
       encounter._opponent.ship.soldQuantity(actualAmount, itemType);
     } else {
-      encounter._game.commander.setCredits(credits + amount * tradePrice);
+      encounter._game.commander.credits = credits + amount * tradePrice;
       encounter._game.commander.ship.soldQuantity(amount, itemType);
     }
   }
