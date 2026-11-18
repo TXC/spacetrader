@@ -20,6 +20,9 @@ import {
   ScarabQuestStatus,
   SpecialEvent,
   WildQuestStatus,
+  experimentUnderway,
+  invasionUnderway,
+  reactorAboard,
 } from './SolarSystem.types.ts';
 import {
   FABRIC_RIP_PROBABILITY_INITIAL,
@@ -769,10 +772,7 @@ export class Game {
 
     this.commander.timePassed(days, this.difficulty);
 
-    if (
-      this.invasionStatus >= InvasionQuestStatus.DaysUntilInvasion7 &&
-      this.invasionStatus <= InvasionQuestStatus.DaysUntilInvasion1
-    ) {
+    if (invasionUnderway(this.invasionStatus)) {
       this.invasionStatus = Math.min(InvasionQuestStatus.ClosedTooLate, this.invasionStatus + days);
       if (this.invasionStatus === InvasionQuestStatus.ClosedTooLate) {
         const gemulon = this._findSolarSystem('Gemulon')!;
@@ -784,10 +784,7 @@ export class Game {
       }
     }
 
-    if (
-      this.reactorStatus > ReactorQuestStatus.Open &&
-      this.reactorStatus < ReactorQuestStatus.ClosedTooLate
-    ) {
+    if (reactorAboard(this.reactorStatus)) {
       this.reactorStatus = Math.min(ReactorQuestStatus.DaysRemaining1, this.reactorStatus + days);
 
       const currentQuantity =
@@ -802,10 +799,7 @@ export class Game {
       }
     }
 
-    if (
-      this.experimentStatus >= ExperimentQuestStatus.DaysRemaining10 &&
-      this.experimentStatus <= ExperimentQuestStatus.DaysRemaining1
-    ) {
+    if (experimentUnderway(this.experimentStatus)) {
       this.experimentStatus = Math.min(
         ExperimentQuestStatus.ClosedTooLate,
         this.experimentStatus + days
@@ -872,10 +866,7 @@ export class Game {
       comma = '\n';
     }
 
-    if (
-      this.reactorStatus > ReactorQuestStatus.Open &&
-      this.reactorStatus < ReactorQuestStatus.ClosedTooLate
-    ) {
+    if (reactorAboard(this.reactorStatus)) {
       cargoList += comma;
       const numFuelBays = Math.max(
         0,
@@ -980,10 +971,7 @@ export class Game {
       comma = '\n';
     }
 
-    if (
-      this.invasionStatus >= InvasionQuestStatus.DaysUntilInvasion7 &&
-      this.invasionStatus <= InvasionQuestStatus.DaysUntilInvasion1
-    ) {
+    if (invasionUnderway(this.invasionStatus)) {
       const whenString =
         this.invasionStatus === InvasionQuestStatus.DaysUntilInvasion2
           ? 'by end of tomorrow'
@@ -999,10 +987,7 @@ export class Game {
       comma = '\n';
     }
 
-    if (
-      this.experimentStatus >= ExperimentQuestStatus.DaysRemaining10 &&
-      this.experimentStatus <= ExperimentQuestStatus.DaysRemaining1
-    ) {
+    if (experimentUnderway(this.experimentStatus)) {
       pLog.log(86);
       const whenString =
         this.experimentStatus === ExperimentQuestStatus.DaysRemaining2
@@ -1014,10 +999,7 @@ export class Game {
       comma = '\n';
     }
 
-    if (
-      this.reactorStatus > ReactorQuestStatus.Open &&
-      this.reactorStatus < ReactorQuestStatus.ClosedTooLate
-    ) {
+    if (reactorAboard(this.reactorStatus)) {
       questList += `${comma}Deliver the unstable reactor to Nix `;
       if (this.reactorStatus <= ReactorQuestStatus.DaysRemaining20) {
         pLog.log(87);

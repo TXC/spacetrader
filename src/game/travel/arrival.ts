@@ -2,7 +2,7 @@ import { AlertActionType, AlertViewController } from '../alerts.ts';
 import { GameEndStatus } from '../Game.ts';
 import { MAX_TRIBBLES } from '../Ship.ts';
 import type { Game } from '../Game.ts';
-import { ReactorQuestStatus } from '../SolarSystem.types.ts';
+import { ReactorQuestStatus, reactorAboard } from '../SolarSystem.types.ts';
 import { TradeItemType } from '../TradeItem.types.ts';
 import { ensureInteger } from '../ensure.ts';
 import { pLog } from '../probes.ts';
@@ -120,9 +120,7 @@ function tribblesOnArrival(game: Game): string[] {
   ensureInteger(currentTribbles);
 
   const previousTribbles = currentTribbles;
-  const reactorStatus =
-    game.reactorStatus > ReactorQuestStatus.Open &&
-    game.reactorStatus < ReactorQuestStatus.ClosedTooLate;
+  const reactorStatus = reactorAboard(game.reactorStatus);
 
   if (currentTribbles > 0 && reactorStatus) {
     currentTribbles = Math.floor(currentTribbles / 2);

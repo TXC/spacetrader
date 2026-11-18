@@ -1,7 +1,7 @@
 import { AlertActionType, AlertViewController } from '../../alerts.ts';
 import { PoliceRecordScore } from '../../Commander.ts';
 import { OpponentType } from '../../opponent/Opponent.ts';
-import { ReactorQuestStatus, WildQuestStatus } from '../../SolarSystem.types.ts';
+import { WildQuestStatus, reactorAboard } from '../../SolarSystem.types.ts';
 import { TradeItemType, NO_TRADE_ITEM } from '../../TradeItem.types.ts';
 import { ensureBool, ensureInteger } from '../../ensure.ts';
 import { pLog } from '../../probes.ts';
@@ -116,9 +116,7 @@ function policeTerms(encounter: Encounter): Terms {
   } else {
     surrenderAllowed = true;
 
-    const hasReactor =
-      encounter._game.reactorStatus > ReactorQuestStatus.Open &&
-      encounter._game.reactorStatus < ReactorQuestStatus.ClosedTooLate;
+    const hasReactor = reactorAboard(encounter._game.reactorStatus);
     const hasWild = encounter._game.wildStatus === WildQuestStatus.OnBoard;
     if (
       encounter._type !== EncounterType.PostMarieCelestePoliceEncounter ||
@@ -182,10 +180,7 @@ function surrenderToPirates(encounter: Encounter): void {
   const wildString = wildMeetsThePirates(encounter);
 
   let questString = '';
-  if (
-    encounter._game.reactorStatus > ReactorQuestStatus.Open &&
-    encounter._game.reactorStatus < ReactorQuestStatus.ClosedTooLate
-  ) {
+  if (reactorAboard(encounter._game.reactorStatus)) {
     questString =
       " They also poke around the Ion Reactor while trying to figure out if it's valuable. They finally conclude that the reactor is worthless, not to mention dangerous, and leave it on your ship.";
   }

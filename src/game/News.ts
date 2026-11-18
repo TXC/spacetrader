@@ -7,7 +7,6 @@ import { named } from './texts.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import {
   DragonflyQuestStatus,
-  ExperimentQuestStatus,
   InvasionQuestStatus,
   JaporiQuestStatus,
   JarekQuestStatus,
@@ -15,6 +14,8 @@ import {
   ScarabQuestStatus,
   SpecialEvent,
   WildQuestStatus,
+  experimentUnderway,
+  invasionUnderway,
 } from './SolarSystem.types.ts';
 import { Status, TECH_LEVEL_COUNT } from './TradeItem.types.ts';
 import { pLog } from './probes.ts';
@@ -197,10 +198,7 @@ export class News {
         }
         break;
       case SpecialEvent.GemulonRescued:
-        if (
-          invasionStatus >= InvasionQuestStatus.DaysUntilInvasion7 &&
-          invasionStatus <= InvasionQuestStatus.DaysUntilInvasion1
-        ) {
+        if (invasionUnderway(invasionStatus)) {
           specialHeadline = 'Invasion Imminent! Plans in Place to Repel Hostile Invaders.';
         } else if (invasionStatus === InvasionQuestStatus.ClosedTooLate) {
           specialHeadline = 'Alien Invasion Devastates Planet!';
@@ -210,10 +208,7 @@ export class News {
         specialHeadline = 'Editorial: Who Will Warn Gemulon?';
         break;
       case SpecialEvent.ExperimentStopped:
-        if (
-          experimentStatus >= ExperimentQuestStatus.DaysRemaining10 &&
-          experimentStatus <= ExperimentQuestStatus.DaysRemaining1
-        ) {
+        if (experimentUnderway(experimentStatus)) {
           specialHeadline = 'Scientists Cancel High-profile Test! Committee to Investigate Design.';
         }
         break;
