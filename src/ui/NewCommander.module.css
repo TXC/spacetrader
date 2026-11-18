@@ -1,0 +1,45 @@
+/* One centred column. */
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.picture {
+  display: block;
+  width: 10rem;
+  height: 10rem;
+  margin: auto;
+}
+
+.title {
+  composes: centredBlock from './shared.module.css';
+  font-size: 2em;
+}
+
+.heading,
+.difficulty {
+  padding-top: var(--space-10);
+  padding-bottom: var(--space-5);
+}
+
+.skills {
+  margin: auto;
+  border-collapse: collapse;
+}
+
+.skillName {
+  padding-right: var(--space-10);
+  text-align: right;
+}
+
+.skillValue {
+  width: var(--space-20);
+  text-align: right;
+}
+
+.points {
+  padding-top: var(--space-5);
+  padding-bottom: 1rem;
+}

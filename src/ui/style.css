@@ -4,10 +4,6 @@
   margin: auto;
 }
 
-.main-title {
-  font-size: 2em;
-}
-
 .battle-opponent {
   font-size: 0; /* Remove extra space for inline-block children  */
   text-align: center;
@@ -35,13 +31,6 @@
 
 .button-item {
   margin: 0;
-}
-
-.landing-page-icon {
-  display: block;
-  width: 10rem;
-  height: 10rem;
-  margin: auto;
 }
 
 .button-icon-chart {
@@ -238,37 +227,6 @@ nav {
   white-space: pre-line;
 }
 
-.skill-table {
-  border-collapse: collapse;
-  border-spacing: 2px;
-  margin: auto;
-}
-
-.skill-value-cell {
-  text-align: right;
-  width: 1.333rem;
-}
-
-.skill-label-cell {
-  text-align: right;
-  padding-right: 0.667rem;
-}
-
-.points {
-  padding-top: 0.333rem;
-  padding-bottom: 1rem;
-}
-
-.difficulty {
-  padding-top: 0.667rem;
-  padding-bottom: 0.333rem;
-}
-
-.new-commander-title {
-  padding-top: 0.667rem;
-  padding-bottom: 0.333rem;
-}
-
 /* Styling for the backdrop (overlay) */
 .alert-backdrop {
   position: fixed;
@@ -389,14 +347,6 @@ nav {
 #systemLandingDiv {
   display: flex;
   flex-direction: column;
-}
-
-/* The new-commander form: one centred column. */
-#newCommanderDiv > div {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 /* The encounter's buttons, one under the other. */

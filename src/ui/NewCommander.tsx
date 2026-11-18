@@ -14,7 +14,7 @@ import type { Session } from '../game/session.ts';
 import { Difficulty, difficultyName, DIFFICULTY_COUNT } from '../game/SolarSystem.types.ts';
 import { LoggedButton } from './Logged.tsx';
 import { useLogged } from './useLogged.ts';
-import shared from './shared.module.css';
+import styles from './NewCommander.module.css';
 
 const LABELS: Record<SkillName, string> = {
   engineer: 'Engineer',
@@ -43,7 +43,7 @@ function SkillRow({
   );
   return (
     <tr>
-      <td className="skill-label-cell">
+      <td className={styles.skillName}>
         <label htmlFor={name}>{LABELS[name]}</label>
       </td>
       <td>
@@ -56,7 +56,7 @@ function SkillRow({
           onChange={onChange}
         />
       </td>
-      <td className="skill-value-cell">
+      <td className={styles.skillValue}>
         <span id={`${name}Val`}>{value}</span>
       </td>
     </tr>
@@ -69,7 +69,7 @@ function DifficultyPicker({ level, onLevel }: { level: number; onLevel: (level: 
     String(event.target.selectedIndex)
   );
   return (
-    <div className="difficulty">
+    <div className={styles.difficulty}>
       <label htmlFor="difficultySelect">Difficulty: </label>
       <select id="difficultySelect" value={DIFFICULTIES[level]} onChange={onChange}>
         {DIFFICULTIES.map(name => (
@@ -90,10 +90,10 @@ export function NewCommander({ session }: { session: Session }) {
     setPoints(spendPoints({ ...points.skills, [skill]: value }, skill));
   return (
     <div id="newCommanderDiv">
-      <div className={shared.centredText}>
-        <img className="landing-page-icon" alt="" src={titleImage} />
-        <h1 className={`${shared.centredBlock} main-title`}>Space Trader</h1>
-        <h1 className="new-commander-title">New Commander</h1>
+      <div className={styles.form}>
+        <img className={styles.picture} alt="" src={titleImage} />
+        <h1 className={styles.title}>Space Trader</h1>
+        <h1 className={styles.heading}>New Commander</h1>
         <div>
           <label htmlFor="nameInput">Name: </label>
           <input
@@ -104,8 +104,8 @@ export function NewCommander({ session }: { session: Session }) {
           />
         </div>
         <DifficultyPicker level={level} onLevel={setLevel} />
-        <div className="skill-container">
-          <table className="skill-table">
+        <div>
+          <table className={styles.skills}>
             <tbody>
               {SKILL_NAMES.map(skill => (
                 <SkillRow
@@ -117,7 +117,7 @@ export function NewCommander({ session }: { session: Session }) {
               ))}
             </tbody>
           </table>
-          <div className="points">
+          <div className={styles.points}>
             Skill Points Remaining: <span id="pointsRemaining">{points.remaining}</span> of{' '}
             {MAX_POINTS}
           </div>
