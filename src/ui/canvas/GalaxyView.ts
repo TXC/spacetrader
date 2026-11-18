@@ -100,6 +100,7 @@ export class GalaxyView {
     this.canvas.id = zoomed ? 'zoomedGalaxyViewCanvas' : 'galaxyViewCanvas';
     this.canvas.className = classes.canvas;
     this.canvasContainer.appendChild(this.canvas);
+    this.nameCanvas();
     this.initCanvas();
     this.initEvents();
 
@@ -268,23 +269,35 @@ export class GalaxyView {
       this.delegate.galaxyViewSelectedSolarSystem(this, s, wormhole);
     }
     this.requestDraw();
+    this.nameCanvas();
 
     if (this.zoomed) {
-      let systemInfoEl = document.getElementById('gv-system-info');
-      if (!systemInfoEl) {
-        systemInfoEl = document.createElement('div');
-        systemInfoEl.id = 'gv-system-info';
-        this.canvasContainer.appendChild(systemInfoEl);
-        systemInfoEl.className = this.infoClass;
-        systemInfoEl.dataset.mapInfo = '';
-      }
-
-      const realSystem = wormhole ? s.wormhole! : s;
-      const resourceText = realSystem.visited
-        ? realSystem.systemInfoString()
-        : 'system details unknown';
-      systemInfoEl.innerText = resourceText;
+      this.showSystemInfo(wormhole ? s.wormhole! : s);
     }
+  }
+
+  // What a screen reader says for the map, which is otherwise only a picture.
+  private nameCanvas() {
+    const near = this.selectedSystem;
+    const selected = this.selectedWormhole ? near?.wormhole : near;
+    this.canvas.setAttribute('role', 'img');
+    this.canvas.ariaLabel = selected ? `Star map. Selected: ${selected.name}` : 'Star map';
+  }
+
+  private showSystemInfo(realSystem: SolarSystem) {
+    let systemInfoEl = document.getElementById('gv-system-info');
+    if (!systemInfoEl) {
+      systemInfoEl = document.createElement('div');
+      systemInfoEl.id = 'gv-system-info';
+      this.canvasContainer.appendChild(systemInfoEl);
+      systemInfoEl.className = this.infoClass;
+      systemInfoEl.dataset.mapInfo = '';
+    }
+
+    const resourceText = realSystem.visited
+      ? realSystem.systemInfoString()
+      : 'system details unknown';
+    systemInfoEl.innerText = resourceText;
   }
 
   planetRadius() {
