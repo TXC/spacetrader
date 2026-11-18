@@ -63,8 +63,12 @@ function SkillRow({
   );
 }
 
-function DifficultyPicker({ level, onLevel }: { level: number; onLevel: (level: number) => void }) {
-  const pick = (event: ChangeEvent<HTMLSelectElement>) => onLevel(event.target.selectedIndex);
+type PickerProps = { level: Difficulty; onLevel: (level: Difficulty) => void };
+
+// The options are the difficulties in order, so the one picked is the difficulty of its place.
+function DifficultyPicker({ level, onLevel }: PickerProps) {
+  const pick = (event: ChangeEvent<HTMLSelectElement>) =>
+    onLevel(event.target.selectedIndex as Difficulty);
   const onChange = useLogged('difficultySelect', 'select|change', pick, event =>
     String(event.target.selectedIndex)
   );
@@ -85,7 +89,7 @@ function DifficultyPicker({ level, onLevel }: { level: number; onLevel: (level: 
 export function NewCommander() {
   const session = useSession();
   const [name, setName] = useState('Jean-Luc');
-  const [level, setLevel] = useState<number>(Difficulty.Normal);
+  const [level, setLevel] = useState<Difficulty>(Difficulty.Normal);
   const [points, setPoints] = useState({ skills: startingSkills(), remaining: 0 });
   const move = (skill: SkillName) => (value: number) =>
     setPoints(spendPoints({ ...points.skills, [skill]: value }, skill));

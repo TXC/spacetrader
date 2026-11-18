@@ -549,7 +549,7 @@ function defenderDodges(
   attacker: Commander | Opponent,
   defender: Commander | Opponent,
   defenderIsFleeing: boolean,
-  difficulty: number
+  difficulty: Difficulty
 ): boolean {
   const attackDiceRoll = runtime.gameRand.randomIntBelow(
     attacker.ship.crewFighterSkillIncludingCommander(attacker, difficulty) +

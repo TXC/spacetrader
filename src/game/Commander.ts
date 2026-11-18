@@ -391,7 +391,7 @@ export class Commander extends CrewMember {
     return price;
   }
 
-  buyPriceForItem(itemType: number, difficulty: number) {
+  buyPriceForItem(itemType: number, difficulty: Difficulty) {
     let price = this._basePrices![itemType];
     if (price <= 0) return 0;
     price = Math.floor(
@@ -406,7 +406,7 @@ export class Commander extends CrewMember {
     return price;
   }
 
-  buyPriceForAccessory(accessoryType: AccessoryType, difficulty: number) {
+  buyPriceForAccessory(accessoryType: AccessoryType, difficulty: Difficulty) {
     const accessory = accessoryForType(accessoryType)!;
     const price =
       accessory.techLevel > this._currentSystem.techLevel
@@ -428,7 +428,7 @@ export class Commander extends CrewMember {
     return result;
   }
 
-  buyPriceForShipModel(shipModel: ShipModel, difficulty: number) {
+  buyPriceForShipModel(shipModel: ShipModel, difficulty: Difficulty) {
     const result = Math.floor(
       (shipModel.price * (100 - this.ship.crewTraderSkillIncludingCommander(this, difficulty))) /
         100
@@ -521,7 +521,7 @@ export class Commander extends CrewMember {
     }
   }
 
-  attemptPurchaseOfItem(itemType: number, quantity: number, difficulty: number) {
+  attemptPurchaseOfItem(itemType: number, quantity: number, difficulty: Difficulty) {
     if (ensureInteger(itemType) && ensureInteger(quantity)) {
       let actualBuyAmount = Math.min(
         quantity,
@@ -545,7 +545,12 @@ export class Commander extends CrewMember {
     }
   }
 
-  attemptSaleOfItem(itemType: number, quantity: number, forceDump: boolean, difficulty: number) {
+  attemptSaleOfItem(
+    itemType: number,
+    quantity: number,
+    forceDump: boolean,
+    difficulty: Difficulty
+  ) {
     if (ensureInteger(itemType) && ensureInteger(quantity) && ensureBool(forceDump)) {
       let actualSellAmount = Math.min(quantity, this.ship.tradeItemQuantityForType(itemType));
 
@@ -609,7 +614,7 @@ export class Commander extends CrewMember {
     }
   }
 
-  timePassed(days: number, difficulty: number) {
+  timePassed(days: number, difficulty: Difficulty) {
     if (!ensureInteger(days)) {
       return;
     }
