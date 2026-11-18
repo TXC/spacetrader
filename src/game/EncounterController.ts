@@ -1,7 +1,5 @@
 import { AlertActionType, AlertViewController } from './alerts.ts';
-import { PoliceRecordScore } from './Commander.ts';
 import { Plunder } from './Plunder.ts';
-import { ShipModelType } from './Ship.ts';
 import { ReactorQuestStatus, WildQuestStatus } from './SolarSystem.types.ts';
 import { ensureBool, ensureInteger, ensureType } from './ensure.ts';
 import { pLog } from './probes.ts';
@@ -10,16 +8,8 @@ import type { Opponent } from './Opponent.ts';
 import { runtime } from './runtime.ts';
 import { ACTIONS } from './encounter/actions/index.ts';
 import { encounterButtons } from './encounter/buttons.ts';
-import { captainFor } from './encounter/captains.ts';
-import {
-  EncounterMode,
-  EncounterType,
-  isAttackEncounter,
-  isAutoMode,
-  isEncounterWith,
-  isFleeEncounter,
-  isIgnoreEncounter,
-} from './encounter/types.ts';
+import { encounterText } from './encounter/text.ts';
+import { EncounterMode, EncounterType, isAutoMode } from './encounter/types.ts';
 import type { ActionName, EncounterListener } from './encounter/types.ts';
 
 export class EncounterController {
@@ -77,91 +67,8 @@ export class EncounterController {
     return this._opponent;
   }
 
-  encounterText() {
-    let text = '';
-
-    const clicks = this._game.commander.travelClicksRemaining;
-    text += `At ${clicks} click${clicks === 1 ? '' : 's'} from ${this._game.commander.currentSystem.name} you encounter`;
-
-    if (isEncounterWith(this._type, 'Police')) {
-      text += ' a police ';
-    } else if (isEncounterWith(this._type, 'Pirate')) {
-      if (this._opponent.ship.type === ShipModelType.Mantis) {
-        text += ' an alien ';
-      } else {
-        text += ' a pirate ';
-      }
-    } else if (isEncounterWith(this._type, 'Trader')) {
-      text += ' a trader ';
-    } else if (isEncounterWith(this._type, 'Scarab') || isEncounterWith(this._type, 'Dragonfly')) {
-      text += ' a stolen ';
-    } else if (isEncounterWith(this._type, 'Monster')) {
-      text += ' the terrifying ';
-    }
-
-    if (isEncounterWith(this._type, 'FamousCaptain')) {
-      text += ` the famous Captain ${captainFor(this._type).name}.`;
-    } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
-      text += ' the Customs Police.';
-    } else if (this._type === EncounterType.MarieCelesteEncounter) {
-      text += ' a drifting ship.';
-    } else if (this._type === EncounterType.BottleGood || this._type === EncounterType.BottleOld) {
-      text += ' a floating bottle.';
-    } else {
-      text += `${this._opponent.ship.model.name}.`;
-    }
-
-    text += '\n\n';
-
-    if (this._type === EncounterType.PoliceInspection) {
-      text += 'The police summon you to submit to an inspection.';
-    } else if (
-      !this._actionTaken &&
-      this._type === EncounterType.PoliceAttack &&
-      this._game.commander.policeRecordScore > PoliceRecordScore.Criminal
-    ) {
-      text += 'The police hail that they want you to surrender.';
-    } else if (isFleeEncounter(this._type)) {
-      text += 'Your opponent is fleeing.';
-    } else if (isAttackEncounter(this._type)) {
-      text += 'Your opponent attacks.';
-    } else if (isIgnoreEncounter(this._type)) {
-      if (
-        this._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(
-          this._game.commander,
-          this._opponent
-        )
-      ) {
-        text += "It doesn't notice you.";
-      } else {
-        text += 'It ignores you.';
-      }
-    } else if (this._type === EncounterType.TraderSell || this._type === EncounterType.TraderBuy) {
-      text += 'You are hailed with an offer to trade goods.';
-    } else if (
-      this._type === EncounterType.TraderSurrender ||
-      this._type === EncounterType.PirateSurrender
-    ) {
-      text += 'Your opponent hails to surrender to you.';
-    } else if (isEncounterWith(this._type, 'FamousCaptain') && !isAttackEncounter(this._type)) {
-      text += 'The captain requests a brief meeting with you.';
-    } else if (this._type === EncounterType.MarieCelesteEncounter) {
-      text += 'The Marie Celeste appears to be completely abandoned.';
-    } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
-      text +=
-        'The police hail with a warning, "We know you removed illegal goods from the Marie Celeste. You must give them up at once!"';
-    } else if (this._type === EncounterType.BottleGood || this._type === EncounterType.BottleOld) {
-      text += "It appears to be a rare bottle of Captain Marmoset's Amazing Skill Tonic!";
-    }
-
-    if (this._encounterActionUpdate) {
-      if (!text.endsWith('\n')) {
-        text += '\n';
-      }
-      text += this._encounterActionUpdate;
-    }
-
-    return text;
+  encounterText(): string {
+    return encounterText(this);
   }
 
   encounterButtons(): ActionName[] {
