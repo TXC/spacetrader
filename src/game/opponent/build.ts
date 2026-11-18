@@ -343,6 +343,14 @@ function ordinaryOpponent(type: number, game: Game): Opponent {
   const damage = ship.currentShieldPower - totalShieldPower;
   ship.damageShieldsByAmount(damage);
 
+  weakenHull(ship, type);
+
+  addMercenaries(ship, model, game);
+
+  return opponentWithSkills(type, game, ship);
+}
+
+function weakenHull(ship: Ship, type: number): void {
   // Shields means there's likely a stronger hull
   if (ship.currentShieldPower > 0 && runtime.gameRand.randomIntBelow(10) <= 7) {
     // Hull is already at full strength
@@ -351,10 +359,6 @@ function ordinaryOpponent(type: number, game: Game): Opponent {
 
     ship.damageHullByAmount(ship.hull - hullStrength);
   }
-
-  addMercenaries(ship, model, game);
-
-  return opponentWithSkills(type, game, ship);
 }
 
 function addMercenaries(ship: Ship, model: ShipModel, game: Game): void {
