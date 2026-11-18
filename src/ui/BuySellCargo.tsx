@@ -6,6 +6,7 @@ import type { Game } from '../game/Game.ts';
 import { session } from '../game/session.ts';
 import type { SolarSystem } from '../game/SolarSystem.ts';
 import { BaysCredits } from './BaysCredits.tsx';
+import styles from './BuySellCargo.module.css';
 import { Icon } from './Icon.tsx';
 import { LoggedButton } from './Logged.tsx';
 import { useSession } from './useStore.ts';
@@ -60,6 +61,20 @@ function ItemRow({ row, onAmount }: { row: CargoRow; onAmount: (quantity: number
   );
 }
 
+// The column names, for a screen reader.
+function Headings({ buy }: { buy: boolean }) {
+  return (
+    <thead className={styles.unseen}>
+      <tr>
+        <th scope="col">Item</th>
+        <th scope="col">{buy ? 'On sale' : 'In the hold'}</th>
+        <th scope="col">Price</th>
+        <th scope="col">Amount</th>
+      </tr>
+    </thead>
+  );
+}
+
 function PricesHeader({
   system,
   relative,
@@ -95,7 +110,8 @@ export function BuySellCargo({ game, buy, baseSystem }: Props) {
       ) : (
         <h1>{buy ? 'Buy Cargo' : 'Sell Cargo'}</h1>
       )}
-      <table className={shared.tightTable}>
+      <table className={styles.cargo}>
+        <Headings buy={buy} />
         <tbody>
           {cargoRows(game, view).map(row => (
             <ItemRow
