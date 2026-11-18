@@ -2,7 +2,6 @@
 // Only the tests need this, and it works on the page, so it lives with the tests.
 import { GameRand } from '../../game/GameRand.ts';
 import { runtime } from '../../game/runtime.ts';
-import { ensureType } from '../../game/ensure.ts';
 import type { Session } from '../../game/session.ts';
 
 export class ActionLogReplay {
@@ -64,10 +63,9 @@ export class ActionLogReplay {
         dispatchEvent(e: Event): boolean;
       } | null;
       if (!element) {
-        console.log(`Did not find element for ${elementID}. EventName: ${eventName}`);
         console.log(`Current replayLog: ${runtime.actionLog.serializedString()}`);
+        throw new Error(`Did not find element for ${elementID}. EventName: ${eventName}`);
       }
-      ensureType(element, 'object');
 
       if (eventName.startsWith('slider')) {
         const eventComponents = eventName.split(/\|/);
@@ -78,20 +76,20 @@ export class ActionLogReplay {
         const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
         setValue.call(element, sliderValue);
         const inputEvent = new Event(actualEventName, { bubbles: true });
-        element!.dispatchEvent(inputEvent);
+        element.dispatchEvent(inputEvent);
       } else if (eventName.startsWith('select')) {
         const eventComponents = eventName.split(/\|/);
         const actualEventName = eventComponents[1];
         const selectedIndex = eventComponents[2];
-        element!.selectedIndex = selectedIndex;
+        element.selectedIndex = selectedIndex;
         // The event must bubble to reach React, which listens at the top of the page.
         const inputEvent = new Event(actualEventName, { bubbles: true });
-        element!.dispatchEvent(inputEvent);
+        element.dispatchEvent(inputEvent);
       } else if (eventName === 'click') {
-        element!.click();
+        element.click();
       } else if (eventName === 'change') {
         // A real click toggles the box and fires its change event, for old screens and React alike.
-        element!.click();
+        element.click();
       } else {
         throw new Error(`Unknown event name in a recording: ${eventName}`);
       }
