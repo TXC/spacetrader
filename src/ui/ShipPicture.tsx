@@ -1,4 +1,5 @@
 import type { ShipModel } from '../game/Ship.ts';
+import { generatePNG } from './canvas/pceDrawing.ts';
 import styles from './ShipPicture.module.css';
 
 // How many times larger than its pixel art a ship is drawn, at the smallest text size.
@@ -13,7 +14,7 @@ export function ShipPicture({ model, flipped }: { model: ShipModel; flipped?: bo
     <img
       className={flipped ? `${styles.picture} ${styles.flipped}` : styles.picture}
       alt={model.name}
-      src={image.generatePNG(SCALE)}
+      src={generatePNG(image, SCALE)}
       style={{ width }}
     />
   );
