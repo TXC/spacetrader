@@ -35,19 +35,19 @@ export type { SolarSystemState };
 
 export class SolarSystem {
   declare static sSystemNames: string[] | undefined;
-  declare _name: string;
-  declare _x: number;
-  declare _y: number;
+  declare name: string;
+  declare x: number;
+  declare y: number;
   declare _difficulty: number;
-  declare _mercenary: CrewMember | null;
-  declare _wormhole: SolarSystem | null;
-  declare _specialEvent: SpecialEvent;
-  declare _visited: boolean;
-  declare _techLevel: TechLevel;
-  declare _politics: Politics;
+  declare mercenary: CrewMember | null;
+  declare wormhole: SolarSystem | null;
+  declare specialEvent: SpecialEvent;
+  declare visited: boolean;
+  declare techLevel: TechLevel;
+  declare politics: Politics;
   declare _specialResource: Resource;
-  declare _size: SystemSize;
-  declare _status: Status;
+  declare size: SystemSize;
+  declare status: Status;
   declare _inventoryReplenishCountdown: number;
   declare _tradeItemInventory: number[];
 
@@ -57,22 +57,22 @@ export class SolarSystem {
     }
 
     ensureType(name, 'string');
-    this._name = name;
+    this.name = name;
 
     ensureArrayOrNull([x, y, difficulty], 'number');
-    this._x = x!;
-    this._y = y!;
+    this.x = x!;
+    this.y = y!;
     this._difficulty = difficulty!;
 
-    this._mercenary = null;
-    this._wormhole = null;
+    this.mercenary = null;
+    this.wormhole = null;
 
-    this._specialEvent = SpecialEvent.None;
-    this._visited = false;
+    this.specialEvent = SpecialEvent.None;
+    this.visited = false;
 
     // Randomize the other properties
-    this._techLevel = runtime.gameRand.randomIntBelow(TECH_LEVEL_COUNT) as TechLevel;
-    this._politics = randomPoliticsForTechLevel(this._techLevel);
+    this.techLevel = runtime.gameRand.randomIntBelow(TECH_LEVEL_COUNT) as TechLevel;
+    this.politics = randomPoliticsForTechLevel(this.techLevel);
 
     if (runtime.gameRand.randomIntBelow(5) >= 3) {
       this._specialResource = (1 + runtime.gameRand.randomIntBelow(RESOURCE_COUNT - 1)) as Resource;
@@ -80,9 +80,9 @@ export class SolarSystem {
       this._specialResource = Resource.None;
     }
 
-    this._size = runtime.gameRand.randomIntBelow(SYSTEM_SIZE_COUNT) as SystemSize;
+    this.size = runtime.gameRand.randomIntBelow(SYSTEM_SIZE_COUNT) as SystemSize;
 
-    this._status = Status.Uneventful;
+    this.status = Status.Uneventful;
     this.randomizeStatus();
 
     this._inventoryReplenishCountdown = 0;
@@ -227,7 +227,7 @@ export class SolarSystem {
 
     if (!name) return null;
 
-    return solarSystems.find(solarSystem => solarSystem._name === name) ?? null;
+    return solarSystems.find(solarSystem => solarSystem.name === name) ?? null;
   }
 
   // A new system, with its tech level, government, resources, size, status and
@@ -244,28 +244,28 @@ export class SolarSystem {
 
   static fromSerializedState(serializedState: SolarSystemState) {
     const solarSystem = new SolarSystem();
-    solarSystem._name = serializedState.name;
-    solarSystem._techLevel = serializedState.techLevel as TechLevel;
-    solarSystem._status = serializedState.status as Status;
+    solarSystem.name = serializedState.name;
+    solarSystem.techLevel = serializedState.techLevel as TechLevel;
+    solarSystem.status = serializedState.status as Status;
     solarSystem._specialResource = serializedState.specialResource as Resource;
-    solarSystem._size = serializedState.size as SystemSize;
-    solarSystem._specialEvent = serializedState.specialEvent as SpecialEvent;
+    solarSystem.size = serializedState.size as SystemSize;
+    solarSystem.specialEvent = serializedState.specialEvent as SpecialEvent;
     solarSystem._difficulty = serializedState.difficulty;
-    solarSystem._politics = politicsForType(serializedState.politicsType);
+    solarSystem.politics = politicsForType(serializedState.politicsType);
 
-    solarSystem._x = serializedState.x;
-    solarSystem._y = serializedState.y;
+    solarSystem.x = serializedState.x;
+    solarSystem.y = serializedState.y;
 
     solarSystem._inventoryReplenishCountdown = serializedState.inventoryReplenishCountdown;
 
-    solarSystem._visited = serializedState.visited;
+    solarSystem.visited = serializedState.visited;
 
     const mercenaryState = serializedState.mercenary;
     if (mercenaryState) {
-      solarSystem._mercenary = CrewMember.load(mercenaryState);
-      ensureObjectOrNull(solarSystem._mercenary);
+      solarSystem.mercenary = CrewMember.load(mercenaryState);
+      ensureObjectOrNull(solarSystem.mercenary);
     } else {
-      solarSystem._mercenary = null;
+      solarSystem.mercenary = null;
     }
 
     const tradeItemInventoryArray = serializedState.tradeItemInventory;
@@ -279,51 +279,7 @@ export class SolarSystem {
 
   updateWormholeForSerializedState(serializedState: SolarSystemState, solarSystems: SolarSystem[]) {
     const wormholeName = serializedState.wormholeName;
-    this._wormhole = SolarSystem.solarSystemForName(wormholeName, solarSystems);
-  }
-
-  get x() {
-    return this._x;
-  }
-
-  get y() {
-    return this._y;
-  }
-
-  get size() {
-    return this._size;
-  }
-
-  getName() {
-    return this._name;
-  }
-
-  get name() {
-    return this._name;
-  }
-
-  get techLevel() {
-    return this._techLevel;
-  }
-
-  set techLevel(t: TechLevel) {
-    if (ensureInteger(t)) {
-      this._techLevel = t;
-    }
-  }
-
-  setVisited(v: boolean) {
-    if (ensureBool(v)) {
-      this._visited = v;
-    }
-  }
-
-  get visited() {
-    return this._visited;
-  }
-
-  set visited(v: boolean) {
-    this.setVisited(v);
+    this.wormhole = SolarSystem.solarSystemForName(wormholeName, solarSystems);
   }
 
   get inventoryReplenishCountdown() {
@@ -336,72 +292,8 @@ export class SolarSystem {
     }
   }
 
-  setWormhole(sys: SolarSystem) {
-    if (ensureType(sys, 'object')) {
-      this._wormhole = sys;
-    }
-  }
-
-  get wormhole() {
-    return this._wormhole;
-  }
-
-  getStatus() {
-    return this._status;
-  }
-
-  get status() {
-    return this._status;
-  }
-
-  setSpecialEvent(sE: SpecialEvent) {
-    if (ensureInteger(sE)) {
-      this._specialEvent = sE;
-    }
-  }
-
-  getSpecialEvent() {
-    return this._specialEvent;
-  }
-
-  get specialEvent() {
-    return this._specialEvent;
-  }
-
-  set specialEvent(sE: SpecialEvent) {
-    this.setSpecialEvent(sE);
-  }
-
-  setMercenary(m: CrewMember) {
-    if (ensureType(m, 'object')) {
-      this._mercenary = m;
-    }
-  }
-
-  getMercenary() {
-    return this._mercenary;
-  }
-
-  get mercenary() {
-    return this._mercenary;
-  }
-
-  getPolitics() {
-    return this._politics;
-  }
-
-  get politics() {
-    return this._politics;
-  }
-
-  set politics(p: Politics) {
-    if (ensureInteger(p.type)) {
-      this._politics = p;
-    }
-  }
-
   hashCode() {
-    const str = this._name;
+    const str = this.name;
 
     let hash = 0,
       i,
@@ -429,8 +321,8 @@ export class SolarSystem {
       this._tradeItemInventory[itemType] =
         (9 +
           runtime.gameRand.randomIntBelow(5) -
-          Math.abs(item.techLevelMaxProd - this._techLevel)) *
-        (1 + this._size);
+          Math.abs(item.techLevelMaxProd - this.techLevel)) *
+        (1 + this.size);
 
       if (itemType === TradeItemType.Robots || itemType === TradeItemType.Narcotics) {
         this._tradeItemInventory[itemType] =
@@ -456,7 +348,7 @@ export class SolarSystem {
       }
 
       if (item.doublePriceStatus !== Status.Uneventful) {
-        if (this._status === item.doublePriceStatus) {
+        if (this.status === item.doublePriceStatus) {
           this._tradeItemInventory[itemType] = Math.floor(this._tradeItemInventory[itemType] / 5);
         }
       }
@@ -476,39 +368,39 @@ export class SolarSystem {
   }
 
   squaredDistanceTo(other: SolarSystem) {
-    return Math.floor(this.squaredDistanceToXY(other._x, other._y));
+    return Math.floor(this.squaredDistanceToXY(other.x, other.y));
   }
 
   squaredDistanceToXY(x: number, y: number) {
     ensureInteger(x);
     ensureInteger(y);
-    return Math.floor((this._x - x) ** 2 + (this._y - y) ** 2);
+    return Math.floor((this.x - x) ** 2 + (this.y - y) ** 2);
   }
 
   standardPriceForItem(itemType: number) {
     if (
-      (itemType === TradeItemType.Narcotics && !this._politics.drugsTradeable) ||
-      (itemType === TradeItemType.Firearms && !this._politics.firearmsTradeable)
+      (itemType === TradeItemType.Narcotics && !this.politics.drugsTradeable) ||
+      (itemType === TradeItemType.Firearms && !this.politics.firearmsTradeable)
     ) {
       return 0;
     }
 
     const item = tradeItemForType(itemType);
 
-    if (this._techLevel < item.techLevelToUse) {
+    if (this.techLevel < item.techLevelToUse) {
       return 0;
     }
 
-    let price = item.priceLowTech + Math.floor(this._techLevel * item.priceIncreasePerTechLevel);
+    let price = item.priceLowTech + Math.floor(this.techLevel * item.priceIncreasePerTechLevel);
 
-    if (this._politics.mostDesiredTradeItem === itemType) {
+    if (this.politics.mostDesiredTradeItem === itemType) {
       price = Math.floor((price * 4) / 3);
     }
 
-    price = Math.floor((price * (100 - 2 * this._politics.occurrenceTraders)) / 100);
-    price = Math.floor((price * (100 - this._size)) / 100);
+    price = Math.floor((price * (100 - 2 * this.politics.occurrenceTraders)) / 100);
+    price = Math.floor((price * (100 - this.size)) / 100);
 
-    if (this._visited && this._specialResource !== Resource.None) {
+    if (this.visited && this._specialResource !== Resource.None) {
       if (item.cheapResource === this._specialResource) {
         price = Math.floor((price * 3) / 4);
       }
@@ -538,9 +430,9 @@ export class SolarSystem {
     const item = tradeItemForType(itemType);
 
     const cantProduceItem =
-      (itemType === TradeItemType.Narcotics && !this._politics.drugsTradeable) ||
-      (itemType === TradeItemType.Firearms && !this._politics.firearmsTradeable) ||
-      this._techLevel < item.techLevelToProduce;
+      (itemType === TradeItemType.Narcotics && !this.politics.drugsTradeable) ||
+      (itemType === TradeItemType.Firearms && !this.politics.firearmsTradeable) ||
+      this.techLevel < item.techLevelToProduce;
 
     return !cantProduceItem;
   }
@@ -577,10 +469,10 @@ export class SolarSystem {
   }
 
   randomizeStatus() {
-    const hasStatus = this._status !== Status.Uneventful;
+    const hasStatus = this.status !== Status.Uneventful;
 
     if (runtime.gameRand.randomIntBelow(100) < 15) {
-      this._status = hasStatus
+      this.status = hasStatus
         ? Status.Uneventful
         : ((1 + runtime.gameRand.randomIntBelow(STATUS_COUNT - 1)) as Status);
     }
@@ -595,50 +487,50 @@ export class SolarSystem {
     // Filled in field by field below.
     const state = {} as SolarSystemState;
 
-    ensureType(this._name, 'string');
-    state.name = this._name;
+    ensureType(this.name, 'string');
+    state.name = this.name;
 
-    ensureInteger(this._techLevel);
-    state.techLevel = this._techLevel;
+    ensureInteger(this.techLevel);
+    state.techLevel = this.techLevel;
 
-    ensureInteger(this._status);
-    state.status = this._status;
+    ensureInteger(this.status);
+    state.status = this.status;
 
     ensureInteger(this._specialResource);
     state.specialResource = this._specialResource;
 
-    ensureInteger(this._size);
-    state.size = this._size;
+    ensureInteger(this.size);
+    state.size = this.size;
 
-    ensureInteger(this._specialEvent);
-    state.specialEvent = this._specialEvent;
+    ensureInteger(this.specialEvent);
+    state.specialEvent = this.specialEvent;
 
     ensureInteger(this._difficulty);
     state.difficulty = this._difficulty;
 
-    ensureInteger(this._politics.type);
-    state.politicsType = this._politics.type;
+    ensureInteger(this.politics.type);
+    state.politicsType = this.politics.type;
 
-    ensureInteger(this._x);
-    state.x = this._x;
-    ensureInteger(this._y);
-    state.y = this._y;
+    ensureInteger(this.x);
+    state.x = this.x;
+    ensureInteger(this.y);
+    state.y = this.y;
 
     ensureInteger(this._inventoryReplenishCountdown);
     state.inventoryReplenishCountdown = this._inventoryReplenishCountdown;
 
-    ensureBool(this._visited);
-    state.visited = this._visited;
+    ensureBool(this.visited);
+    state.visited = this.visited;
 
-    ensureObjectOrNull(this._wormhole);
-    if (this._wormhole) {
-      ensureType(this._wormhole.name, 'string');
-      state.wormholeName = this._wormhole.name;
+    ensureObjectOrNull(this.wormhole);
+    if (this.wormhole) {
+      ensureType(this.wormhole.name, 'string');
+      state.wormholeName = this.wormhole.name;
     }
 
-    ensureObjectOrNull(this._mercenary);
-    if (this._mercenary) {
-      state.mercenary = this._mercenary.toState();
+    ensureObjectOrNull(this.mercenary);
+    if (this.mercenary) {
+      state.mercenary = this.mercenary.toState();
     }
 
     ensureArrayOrNull(this._tradeItemInventory, 'number');
