@@ -1,5 +1,4 @@
 import { CrewMember } from './CrewMember.ts';
-import type { CrewMemberState } from './CrewMember.ts';
 import { occurrenceStr, politicsForType, randomPoliticsForTechLevel } from './Politics.ts';
 import type { Politics } from './Politics.ts';
 import { SpecialEvent, systemSizeName, SYSTEM_SIZE_COUNT } from './SolarSystem.types.ts';
@@ -19,24 +18,8 @@ import {
 import { Utils } from './Utilities.ts';
 import { runtime } from './runtime.ts';
 
-// What serializedState() writes into a saved game.
-export type SolarSystemState = {
-  name: string;
-  techLevel: number;
-  status: number;
-  specialResource: number;
-  size: number;
-  specialEvent: number;
-  difficulty: number;
-  politicsType: number;
-  x: number;
-  y: number;
-  inventoryReplenishCountdown: number;
-  visited: boolean;
-  wormholeName?: string;
-  mercenary?: CrewMemberState;
-  tradeItemInventory: number[];
-};
+import type { SolarSystemState } from './savedGame.ts';
+export type { SolarSystemState };
 
 export class SolarSystem {
   declare static sSystemNames: string[] | undefined;

@@ -6,7 +6,7 @@ import { Opponent, OpponentType } from '../game/Opponent.ts';
 import { ReputationScore } from '../game/Commander.ts';
 import { AlertActionType, alertStore, AlertViewController } from '../game/alerts.ts';
 import { runtime } from '../game/runtime.ts';
-import { MockLocalStorage } from '../game/Utilities.ts';
+import { MockLocalStorage } from './support/MockLocalStorage.ts';
 import { Session } from '../game/session.ts';
 import ahabEncounter from './fixtures/ahab-encounter.json';
 import oldSave from './fixtures/old-save.json';
@@ -22,7 +22,15 @@ test('a save written by the old code loads', () => {
   runtime.actionLog = new ActionLogger(1);
   const session = new Session();
   show(session);
-  expect(session.game!.commander.name).toBe('Jean-Luc');
+  const { game } = session;
+  const saved = Object.values(oldSave.games)[0];
+  expect(game!.uniqueID).toBe(saved.uniqueID);
+  expect(game!.commander.name).toBe(saved.commander.name);
+  expect(game!.commander.days).toBe(saved.commander.days);
+  expect(game!.commander.credits).toBe(saved.commander.credits);
+  expect(game!.commander.currentSystem.name).toBe(saved.commander.currentSystemName);
+  expect(game!.japoriQuestStatus).toBe(saved.japoriQuestStatus);
+  expect(game!.commander.ship.type).toBe(saved.commander.ship.type);
   expect(document.getElementById('systemLandingDiv')).not.toBeNull();
 });
 

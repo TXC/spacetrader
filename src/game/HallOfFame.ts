@@ -41,17 +41,27 @@ export function scoreMessage(game: Game, inProgress: boolean, scores: Scores): s
   return `You achieved a score of ${score}.\n\n${verdict}\n\n`;
 }
 
-function entry(saved: GameState): string {
-  const game = Game.fromSerializedState(saved);
+// The line for one record. The net worth and the score need the rules, so the game is
+// rebuilt; a record that cannot be rebuilt has no line.
+function entry(saved: GameState): string | null {
+  try {
+    return entryFor(Game.fromSerializedState(saved));
+  } catch {
+    return null;
+  }
+}
+
+function entryFor(game: Game): string {
   const { commander } = game;
   const days = `${commander.days} day${commander.days === 1 ? '' : 's'}`;
   return `${commander.name} ${endStatusText(game.endStatus)} after ${days}, worth $${commander.netWorth()} on ${difficultyName(game.difficulty)} level. Score: ${game.scorePercentageString()}.`;
 }
 
 export function hallOfFame(scores: Scores): { text: string; any: boolean } {
-  const saved = scores.highScores(MAX_HIGH_SCORES);
-  if (saved.length === 0) return { text: 'None on record', any: false };
-  return { text: saved.map(entry).join('\n\n'), any: true };
+  const lines = scores.highScores(MAX_HIGH_SCORES).map(entry);
+  const shown = lines.filter(line => line !== null);
+  if (shown.length === 0) return { text: 'None on record', any: false };
+  return { text: shown.join('\n\n'), any: true };
 }
 
 export function askToClear(scores: Scores): void {

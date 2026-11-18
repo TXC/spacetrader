@@ -44,26 +44,6 @@ export class ProbeLog {
 
 export const pLog = new ProbeLog();
 
-export class MockLocalStorage {
-  declare dict: Record<string, string>;
-
-  constructor() {
-    this.dict = {};
-  }
-
-  getItem(k: string) {
-    if (this.dict[k]) {
-      return this.dict[k];
-    }
-
-    return null;
-  }
-
-  setItem(k: string, v: string) {
-    this.dict[k] = v;
-  }
-}
-
 export const Utils = {
   uuidv4: function () {
     // From https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript

@@ -5,8 +5,10 @@ import { expect } from 'vitest';
 import { GameRand } from '../../game/GameRand.ts';
 import { ActionLogger } from '../../game/ActionLogger.ts';
 import { Game } from '../../game/Game.ts';
-import { MockLocalStorage, Utils, pLog } from '../../game/Utilities.ts';
+import { Utils, pLog } from '../../game/Utilities.ts';
+import { MockLocalStorage } from '../support/MockLocalStorage.ts';
 import { runtime } from '../../game/runtime.ts';
+import { parseSavedGame } from '../../game/savedGame.ts';
 import { AlertViewController } from '../../game/alerts.ts';
 import { Session, activate } from '../../game/session.ts';
 import { Cheats } from '../../ui/Cheats.tsx';
@@ -125,7 +127,10 @@ export function replaySkipEncounters(replay: ActionLogReplay, breakConditionFn?:
 
 export function serializeAndDeserialize(game: Game) {
   const gsJSONStr = JSON.stringify(game.serializedState());
-  const gs = JSON.parse(gsJSONStr);
+  // Through the same check a real load goes through, so the check is tried on every
+  // game the flow tests save.
+  const gs = parseSavedGame(JSON.parse(gsJSONStr));
+  if (!gs) throw new Error('The saved game did not pass the check.');
 
   const game2 = Game.fromSerializedState(gs);
 

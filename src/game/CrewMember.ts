@@ -1,7 +1,8 @@
 import { Utils } from './Utilities.ts';
 import { runtime } from './runtime.ts';
 
-export type CrewMemberState = ReturnType<CrewMember['serializedState']>;
+import type { CrewMemberState } from './savedGame.ts';
+export type { CrewMemberState };
 
 export class CrewMember {
   declare static _sNames: string[] | undefined;
@@ -80,9 +81,9 @@ export class CrewMember {
     this.fighter = serializedState.fighter;
     this.trader = serializedState.trader;
 
-    this._forQuest = serializedState.forQuest || false;
-    this.carriesMaxTraderBoost = serializedState.carriesMaxTraderBoost || false;
-    this.freeMercenaryCost = serializedState.freeMercenaryCost || false;
+    this._forQuest = serializedState.forQuest;
+    this.carriesMaxTraderBoost = serializedState.carriesMaxTraderBoost;
+    this.freeMercenaryCost = serializedState.freeMercenaryCost;
   }
 
   static fromSerializedState(serializedState: CrewMemberState) {
@@ -150,7 +151,7 @@ export class CrewMember {
     return index;
   }
 
-  serializedState() {
+  serializedState(): CrewMemberState {
     Utils.ensureType(this.name, 'string');
     Utils.ensureInteger(this.pilot);
     Utils.ensureInteger(this.fighter);
@@ -160,7 +161,7 @@ export class CrewMember {
     Utils.ensureBool(this.carriesMaxTraderBoost);
     Utils.ensureBool(this.freeMercenaryCost);
     return {
-      name: this.name,
+      name: this.name ?? '',
       pilot: this.pilot,
       fighter: this.fighter,
       trader: this.trader,

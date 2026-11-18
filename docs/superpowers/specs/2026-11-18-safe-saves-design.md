@@ -176,10 +176,23 @@ Written first, each failing before its fix:
 - Whether "newest first" uses the saved date or the order in storage.
 - The names of the new functions and files beyond those given here.
 
-## Decisions made by Claude, not yet confirmed by the owner
+## Approved
 
-- Approach A, with valibot as a new dependency.
-- A save that cannot be used is deleted, not kept aside.
-- A save without a version counts as version 1.
-- The wording of the three messages.
-- The page keeps working in memory when the browser refuses storage.
+The owner approved this design on 2026-11-18, with approach A
+(valibot).
+
+## What the build did differently
+
+- **High scores still rebuild a game for each record.** The line shown
+  needs the net worth and the score, which only the rules can work out.
+  Each record is guarded instead: one that cannot be rebuilt is left
+  out.
+- **The check also tests a few listed values:** the ship model, the
+  difficulty, and each system's tech level, size and government must be
+  ones the game has. Other numbers are only tested for being numbers.
+- **The `!` on looked-up systems stays in the loading code.** The check
+  now guarantees those names exist, but the code that looks them up
+  still returns "maybe nothing" by its type. That goes with the rebuild
+  of the model classes.
+- **A ship's weapon, shield, gadget and crew lists are optional** in a
+  save, because the game writes them only when the ship has any.

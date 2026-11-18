@@ -1,8 +1,7 @@
 import { ACCESSORY_FOR_TYPE } from './Accessory.ts';
 import { CrewMember } from './CrewMember.ts';
-import type { CrewMemberState } from './CrewMember.ts';
 import { Ship } from './Ship.ts';
-import type { ShipModel, ShipState } from './Ship.ts';
+import type { ShipModel } from './Ship.ts';
 import { SolarSystem } from './SolarSystem.ts';
 import { MOON_PRICE, Difficulty } from './SolarSystem.types.ts';
 import { tradeItemForType } from './TradeItem.ts';
@@ -109,32 +108,8 @@ export function REPUTATION_STR(x: number) {
   }
 }
 
-// What serializedState() writes into a saved game.
-export type CommanderState = CrewMemberState & {
-  credits: number;
-  debt: number;
-  days: number;
-  policeKills: number;
-  traderKills: number;
-  pirateKills: number;
-  policeRecordScore: number;
-  reputationScore: number;
-  noClaim: number;
-  travelClicksRemaining: number;
-  difficulty: number;
-  boughtMoon: boolean;
-  hasEscapePod: boolean;
-  hasInsurance: boolean;
-  raided: boolean;
-  inspected: boolean;
-  litterWarning: boolean;
-  artifactOnBoard: boolean;
-  arrivedViaWormhole: boolean;
-  reserveMoney: boolean;
-  currentSystemName: string;
-  ship: ShipState;
-  basePrices?: number[];
-};
+import type { CommanderState } from './savedGame.ts';
+export type { CommanderState };
 
 export class Commander extends CrewMember {
   declare _basePrices: number[] | null;
@@ -201,21 +176,17 @@ export class Commander extends CrewMember {
   ) {
     super.updateWithSerializedState(serializedState);
 
-    // The saved values are numbers; parseInt turns them into text first. Kept as in the old code.
-    const numbers = serializedState as unknown as Record<string, string>;
-
-    // Integer properties
-    this._credits = parseInt(numbers.credits, 10);
-    this._debt = parseInt(numbers.debt, 10);
-    this.days = parseInt(numbers.days, 10);
-    this.policeKills = parseInt(numbers.policeKills, 10);
-    this.traderKills = parseInt(numbers.traderKills, 10);
-    this.pirateKills = parseInt(numbers.pirateKills, 10);
-    this.policeRecordScore = parseInt(numbers.policeRecordScore, 10);
-    this._reputationScore = parseInt(numbers.reputationScore, 10);
-    this._noClaim = parseInt(numbers.noClaim, 10);
-    this._travelClicksRemaining = parseInt(numbers.travelClicksRemaining, 10);
-    this._difficulty = parseInt(numbers.difficulty, 10);
+    this._credits = serializedState.credits;
+    this._debt = serializedState.debt;
+    this.days = serializedState.days;
+    this.policeKills = serializedState.policeKills;
+    this.traderKills = serializedState.traderKills;
+    this.pirateKills = serializedState.pirateKills;
+    this.policeRecordScore = serializedState.policeRecordScore;
+    this._reputationScore = serializedState.reputationScore;
+    this._noClaim = serializedState.noClaim;
+    this._travelClicksRemaining = serializedState.travelClicksRemaining;
+    this._difficulty = serializedState.difficulty;
 
     // Boolean properties
     this._boughtMoon = Boolean(serializedState.boughtMoon);

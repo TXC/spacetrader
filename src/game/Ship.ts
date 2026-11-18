@@ -10,7 +10,6 @@ import {
   weaponForType,
 } from './Accessory.ts';
 import type { Accessory, Gadget, Shield, Weapon } from './Accessory.ts';
-import type { CrewMemberState } from './CrewMember.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import { CrewMember } from './CrewMember.ts';
 import { ADJUST_SKILL_FOR_DIFFICULTY, CLOAK_BONUS, SKILL_BONUS } from './SolarSystem.types.ts';
@@ -53,24 +52,8 @@ export const SHIP_MODEL_COUNT = countOf(ShipModelType);
 
 export const MAX_TRIBBLES = 100000;
 
-// What serializedState() writes into a saved game. Every part is optional when read back.
-export type ShipState = {
-  upgradedHull?: boolean;
-  type?: number;
-  difficulty?: number;
-  fuel?: number;
-  hull?: number;
-  tribbles?: number;
-  currentShieldPower?: number;
-  cargoKeys?: number[];
-  cargoValues?: number[];
-  cargoBuyingPriceKeys?: number[];
-  cargoBuyingPriceValues?: number[];
-  weaponTypes?: number[];
-  shieldTypes?: number[];
-  gadgetTypes?: number[];
-  crewMap?: Record<string, CrewMemberState>;
-};
+import type { ShipState } from './savedGame.ts';
+export type { ShipState };
 
 // An opponent or commander together with the ship they fly.
 type ShipOwner = CrewMember & { ship: Ship };
@@ -539,12 +522,12 @@ export class Ship {
   static fromSerializedState(serializedState: ShipState, solarSystems: SolarSystem[]) {
     const ship = new Ship(SHIP_MODEL_COUNT);
 
-    ship._upgradedHull = serializedState.upgradedHull || false;
-    ship._type = serializedState.type || 0;
-    ship._difficulty = serializedState.difficulty || 0;
-    ship._fuel = serializedState.fuel || 0;
-    ship._hull = serializedState.hull || 0;
-    ship.tribbles = serializedState.tribbles || 0;
+    ship._upgradedHull = serializedState.upgradedHull;
+    ship._type = serializedState.type;
+    ship._difficulty = serializedState.difficulty;
+    ship._fuel = serializedState.fuel;
+    ship._hull = serializedState.hull;
+    ship.tribbles = serializedState.tribbles;
 
     ship._crew = [];
     if (serializedState.crewMap) {
@@ -594,7 +577,7 @@ export class Ship {
     }
 
     // Set this after adding shields to correct the current shield power
-    ship._currentShieldPower = serializedState.currentShieldPower || 0;
+    ship._currentShieldPower = serializedState.currentShieldPower;
 
     ship._gadgets = [];
     if (serializedState.gadgetTypes) {
@@ -1276,7 +1259,8 @@ export class Ship {
   }
 
   serializedState() {
-    const state: ShipState = {};
+    // Filled in field by field below.
+    const state = {} as ShipState;
 
     // BOOL
     Utils.ensureBool(this._upgradedHull);
