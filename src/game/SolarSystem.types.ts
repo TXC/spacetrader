@@ -111,6 +111,14 @@ export const InvasionQuestStatus = {
 } as const;
 export type InvasionQuestStatus = number;
 
+// The aliens are on their way to Gemulon: one of the seven days before the invasion.
+export function invasionUnderway(status: InvasionQuestStatus): boolean {
+  return (
+    status >= InvasionQuestStatus.DaysUntilInvasion7 &&
+    status <= InvasionQuestStatus.DaysUntilInvasion1
+  );
+}
+
 export const ExperimentQuestStatus = {
   Open: 0,
   DaysRemaining10: 1,
@@ -128,6 +136,14 @@ export const ExperimentQuestStatus = {
 } as const;
 export type ExperimentQuestStatus = number;
 
+// Dr. Fehler's experiment is running: one of its ten days before it goes wrong.
+export function experimentUnderway(status: ExperimentQuestStatus): boolean {
+  return (
+    status >= ExperimentQuestStatus.DaysRemaining10 &&
+    status <= ExperimentQuestStatus.DaysRemaining1
+  );
+}
+
 export const REACTOR_BAY_COUNT = 5;
 export const REACTOR_MAX_FUEL = 10;
 
@@ -139,6 +155,11 @@ export const ReactorQuestStatus = {
   ClosedSaved: 22,
 } as const;
 export type ReactorQuestStatus = number;
+
+// The unstable reactor is aboard, burning its fuel day by day.
+export function reactorAboard(status: ReactorQuestStatus): boolean {
+  return status > ReactorQuestStatus.Open && status < ReactorQuestStatus.ClosedTooLate;
+}
 
 export const JarekQuestStatus = {
   Open: 0,
