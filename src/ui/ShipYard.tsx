@@ -18,6 +18,7 @@ import { Lines } from './Lines.tsx';
 import { LoggedButton, LoggedCheckbox } from './Logged.tsx';
 import { ShipPicture } from './ShipPicture.tsx';
 import { ShipView } from './ShipView.tsx';
+import styles from './ShipYard.module.css';
 import { useSession } from './useStore.ts';
 import shared from './shared.module.css';
 
@@ -26,36 +27,35 @@ type GameProps = { game: Game };
 function Fuel({ game }: GameProps) {
   const { text, needed } = fuelLines(game);
   return (
-    <div className={`${shared.centredBlock} ${shared.centredText}`} id="fuelDiv">
+    <div className={styles.fuel} id="fuelDiv">
       <Lines text={text} />
-      <br />
       {needed > 0 && (
-        <>
+        <div>
           <LoggedButton id="buy1unit" label="Buy 1 unit" onPress={() => buyFuel(game, 1)} />
           <LoggedButton id="buy5units" label="5 units" onPress={() => buyFuel(game, 5)} />
           <LoggedButton id="fulltank" label="Full tank" onPress={() => buyFuel(game, 'full')} />
-          <br />
-        </>
+        </div>
       )}
-      <LoggedCheckbox
-        id="autoFuelCheckbox"
-        checked={game.autoFuel}
-        onToggle={on => setAutoFuel(game, on)}
-      >
-        Automatically fill tanks upon arrival
-      </LoggedCheckbox>
+      <div>
+        <LoggedCheckbox
+          id="autoFuelCheckbox"
+          checked={game.autoFuel}
+          onToggle={on => setAutoFuel(game, on)}
+        >
+          Automatically fill tanks upon arrival
+        </LoggedCheckbox>
+      </div>
     </div>
   );
 }
 
 function RepairButtons({ game }: GameProps) {
   return (
-    <>
-      <br />
+    <div>
       <LoggedButton label="Buy 1 repair" onPress={() => buyRepairs(game, 1)} />
       <LoggedButton label="5 repairs" onPress={() => buyRepairs(game, 5)} />
       <LoggedButton label="Full repair" onPress={() => buyRepairs(game, 'full')} />
-    </>
+    </div>
   );
 }
 
@@ -63,15 +63,14 @@ function EscapePodButton({ game }: GameProps) {
   const label = `Buy an escape pod for $${kEscapePodPrice}`;
   const tooPoor = game.commander.credits < kEscapePodPrice;
   return (
-    <>
-      <br />
+    <p>
       <LoggedButton
         id="buy_escape_pod"
         label={label}
         disabled={tooPoor}
         onPress={() => buyEscapePod(game)}
       />
-    </>
+    </p>
   );
 }
 
@@ -79,24 +78,18 @@ function Repairs({ game }: GameProps) {
   const { text, needed } = repairLines(game);
   const hasPod = game.commander.hasEscapePod;
   return (
-    <div id="repairDiv">
-      <Lines text={text} />
-      {hasPod && (
-        <>
-          <br />
-          You have an escape pod installed.
-        </>
-      )}
+    <div id="repairDiv" className={styles.repairs}>
+      <Lines text={hasPod ? `${text}\nYou have an escape pod installed.` : text} />
       {needed > 0 && <RepairButtons game={game} />}
-      <br />
-      <LoggedCheckbox
-        id="autoRepairCheckbox"
-        checked={game.autoRepairs}
-        onToggle={on => setAutoRepairs(game, on)}
-      >
-        Automatically buy repairs upon arrival
-      </LoggedCheckbox>
-      <br />
+      <p>
+        <LoggedCheckbox
+          id="autoRepairCheckbox"
+          checked={game.autoRepairs}
+          onToggle={on => setAutoRepairs(game, on)}
+        >
+          Automatically buy repairs upon arrival
+        </LoggedCheckbox>
+      </p>
       {!hasPod && <EscapePodButton game={game} />}
     </div>
   );
@@ -124,7 +117,7 @@ function ShipRow({ game, offer }: GameProps & { offer: ShipOffer }) {
     <tr>
       <td>
         <ShipPicture model={model} />
-        <span className="centered-text">{model.name}</span>
+        <span className={styles.shipName}>{model.name}</span>
       </td>
       <td>
         <Lines text={details(model)} />
@@ -171,8 +164,7 @@ export function ShipYard({ game }: GameProps) {
       <h1 className={shared.centredBlock}>Ship Yard</h1>
       <div id="maintenaceDiv">
         <Fuel game={game} />
-        <br />
-        <div className="shipYardCommanderShip">
+        <div className={styles.ship}>
           <ShipView ship={game.commander.ship} enemy={false} fade={false} />
         </div>
         <Repairs game={game} />
