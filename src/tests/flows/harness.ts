@@ -19,7 +19,6 @@ import { mountAlertHost } from '../support/mountAlertHost.tsx';
 import { mountReact } from '../support/mountReact.ts';
 import { SessionContext } from '../../ui/useStore.ts';
 import { welcome } from '../support/page.ts';
-import type { GalaxyView } from '../../ui/canvas/GalaxyView.ts';
 
 export { ActionLogReplay };
 
@@ -87,11 +86,6 @@ export function runReplayLog(replayLog: string, registerEventHandler?: RegisterH
   replay.replay();
 
   return replay;
-}
-
-// The map the landing screen is showing, with what is selected on it.
-export function mapOf(session: Session): GalaxyView {
-  return session.map as GalaxyView;
 }
 
 export function replaySkipEncounters(replay: ActionLogReplay, breakConditionFn?: () => unknown) {
