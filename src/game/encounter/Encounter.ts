@@ -1,18 +1,18 @@
-import { AlertActionType, AlertViewController } from './alerts.ts';
-import { Plunder } from './Plunder.ts';
-import { ReactorQuestStatus, WildQuestStatus } from './SolarSystem.types.ts';
-import { ensureBool, ensureInteger, ensureType } from './ensure.ts';
-import { pLog } from './probes.ts';
-import type { Game } from './Game.ts';
-import type { Opponent } from './Opponent.ts';
-import { runtime } from './runtime.ts';
-import { ACTIONS } from './encounter/actions/index.ts';
-import { encounterButtons } from './encounter/buttons.ts';
-import { encounterText } from './encounter/text.ts';
-import { EncounterMode, EncounterType, isAutoMode } from './encounter/types.ts';
-import type { ActionName, EncounterListener } from './encounter/types.ts';
+import { AlertActionType, AlertViewController } from '../alerts.ts';
+import { Plunder } from '../Plunder.ts';
+import { ReactorQuestStatus, WildQuestStatus } from '../SolarSystem.types.ts';
+import { ensureBool, ensureInteger, ensureType } from '../ensure.ts';
+import { pLog } from '../probes.ts';
+import type { Game } from '../Game.ts';
+import type { Opponent } from '../Opponent.ts';
+import { runtime } from '../runtime.ts';
+import { ACTIONS } from './actions/index.ts';
+import { encounterButtons } from './buttons.ts';
+import { encounterText } from './text.ts';
+import { EncounterMode, EncounterType, isAutoMode } from './types.ts';
+import type { ActionName, EncounterListener } from './types.ts';
 
-export class EncounterController {
+export class Encounter {
   declare _type: number;
   declare _game: Game;
   declare _opponent: Opponent;

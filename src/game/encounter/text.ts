@@ -8,11 +8,11 @@ import {
   isFleeEncounter,
   isIgnoreEncounter,
 } from './types.ts';
-import type { EncounterController } from '../EncounterController.ts';
+import type { Encounter } from './Encounter.ts';
 
 // The sentences describing the encounter: who is met, what they do, and what happened in
 // the last round of a fight.
-export function encounterText(encounter: EncounterController): string {
+export function encounterText(encounter: Encounter): string {
   let text = '';
 
   text += whoIsMet(encounter);
@@ -31,7 +31,7 @@ export function encounterText(encounter: EncounterController): string {
   return text;
 }
 
-function whoIsMet(encounter: EncounterController): string {
+function whoIsMet(encounter: Encounter): string {
   let text = '';
 
   const clicks = encounter._game.commander.travelClicksRemaining;
@@ -74,7 +74,7 @@ function whoIsMet(encounter: EncounterController): string {
   return text;
 }
 
-function whatItDoes(encounter: EncounterController): string {
+function whatItDoes(encounter: Encounter): string {
   let text = '';
 
   if (encounter._type === EncounterType.PoliceInspection) {

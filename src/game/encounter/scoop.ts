@@ -3,10 +3,10 @@ import { Difficulty } from '../SolarSystem.types.ts';
 import { tradeItemForType } from '../TradeItem.ts';
 import { TradeItemType, TRADE_ITEM_COUNT } from '../TradeItem.types.ts';
 import { runtime } from '../runtime.ts';
-import type { EncounterController } from '../EncounterController.ts';
+import type { Encounter } from './Encounter.ts';
 
 // A canister from the destroyed ship may drift by; the commander can pick it up.
-export function scoop(encounter: EncounterController, completion: () => void): void {
+export function scoop(encounter: Encounter, completion: () => void): void {
   let canScoop = encounter._game.commander.ship.freeCargoBays() > 0;
   canScoop =
     canScoop &&

@@ -2,11 +2,11 @@ import { AlertActionType, AlertViewController } from '../../alerts.ts';
 import { Difficulty } from '../../SolarSystem.types.ts';
 import { pLog } from '../../probes.ts';
 import { EncounterType } from '../types.ts';
-import type { EncounterController } from '../../EncounterController.ts';
+import type { Encounter } from '../Encounter.ts';
 
 // The commander is offered a bottle of tonic. Returns whether the automatic action may
 // repeat afterwards.
-export function drink(encounter: EncounterController): boolean {
+export function drink(encounter: Encounter): boolean {
   let alertString: string;
   let consumedString = null;
   let drinkAction = null;
@@ -49,7 +49,7 @@ export function drink(encounter: EncounterController): boolean {
   return true;
 }
 
-function drinkGoodTonic(encounter: EncounterController): void {
+function drinkGoodTonic(encounter: Encounter): void {
   pLog.log(105);
   encounter._game.commander.increaseSkillRandomly();
   if (encounter._game.difficulty < Difficulty.Hard) {
@@ -57,7 +57,7 @@ function drinkGoodTonic(encounter: EncounterController): void {
   }
 }
 
-function drinkOldTonic(encounter: EncounterController): void {
+function drinkOldTonic(encounter: Encounter): void {
   pLog.log(106);
   encounter._game.commander.increaseSkillRandomly();
   encounter._game.commander.decreaseSkillRandomly();
