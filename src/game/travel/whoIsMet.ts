@@ -1,5 +1,5 @@
 import { policeRecordMultiplier } from '../Commander.ts';
-import { OpponentType, OPPONENT_TYPE_COUNT } from '../Opponent.ts';
+import { OpponentType, OPPONENT_TYPE_COUNT } from '../opponent/Opponent.ts';
 import { ShipModelType } from '../Ship.ts';
 import {
   Difficulty,

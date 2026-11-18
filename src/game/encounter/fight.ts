@@ -18,7 +18,7 @@ import {
 import { ensureBool, ensureInteger, ensureNumber, ensureType } from '../ensure.ts';
 import { pLog } from '../probes.ts';
 import type { Commander } from '../Commander.ts';
-import type { Opponent } from '../Opponent.ts';
+import type { Opponent } from '../opponent/Opponent.ts';
 import { runtime } from '../runtime.ts';
 import { captainFor } from './captains.ts';
 import {

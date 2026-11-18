@@ -4,7 +4,7 @@ import { ReactorQuestStatus, WildQuestStatus } from '../SolarSystem.types.ts';
 import { ensureBool, ensureInteger, ensureType } from '../ensure.ts';
 import { pLog } from '../probes.ts';
 import type { Game } from '../Game.ts';
-import type { Opponent } from '../Opponent.ts';
+import type { Opponent } from '../opponent/Opponent.ts';
 import { runtime } from '../runtime.ts';
 import { ACTIONS } from './actions/index.ts';
 import { encounterButtons } from './buttons.ts';

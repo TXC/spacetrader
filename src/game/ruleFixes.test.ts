@@ -10,7 +10,7 @@ import { EncounterType } from './encounter/types.ts';
 import type { EncounterListener } from './encounter/types.ts';
 import { GameRand } from './GameRand.ts';
 import { News } from './News.ts';
-import { Opponent, OpponentType } from './Opponent.ts';
+import { Opponent, OpponentType } from './opponent/Opponent.ts';
 import { Plunder } from './Plunder.ts';
 import { Ship, shipModelForType, ShipModelType } from './Ship.ts';
 import { buyShip } from './ShipYard.ts';
