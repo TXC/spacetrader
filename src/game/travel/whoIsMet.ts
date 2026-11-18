@@ -10,7 +10,6 @@ import {
   SpecialEvent,
   WildQuestStatus,
 } from '../SolarSystem.types.ts';
-import { ensureInteger } from '../ensure.ts';
 import { pLog } from '../probes.ts';
 import { runtime } from '../runtime.ts';
 import type { Travel } from './Travel.ts';
@@ -67,8 +66,6 @@ function ordinaryDice(travel: Travel): OpponentType | null {
   if (travel._game.commander.ship.type === ShipModelType.Flea) {
     encounterTest *= 2;
   }
-
-  ensureInteger(encounterTest);
 
   if (
     encounterTest < travel._destination.politics.occurrencePirates &&
