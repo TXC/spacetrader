@@ -10,13 +10,13 @@ import { TRADE_ITEM_COUNT } from '../../game/TradeItem.types.ts';
 import { Travel } from '../../game/travel/Travel.ts';
 import { topAlert } from './newGame.ts';
 
-type Fitting = { weapons?: number[]; gadgets?: number[]; engineer?: number };
+type Fitting = { weapons?: AccessoryType[]; gadgets?: AccessoryType[]; engineer?: number };
 
 // An opponent in a bare ship of the given model, fitted with only what the test names.
 export function opponentIn(
   game: Game,
   type: OpponentType,
-  model: number,
+  model: ShipModelType,
   { weapons = [], gadgets = [], engineer = 5 }: Fitting = {}
 ): Opponent {
   const ship = new Ship(model, game.difficulty);

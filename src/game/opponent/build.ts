@@ -136,7 +136,7 @@ function ordinaryOpponent(type: OpponentType, game: Game): Opponent {
   return opponentWithSkills(type, game, ship);
 }
 
-function chooseShipType(type: number, game: Game): number {
+function chooseShipType(type: number, game: Game): ShipModelType {
   let tries = 1; // We'll roll a die `tries` times and pick the best roll
   let chosenShipType: number = SHIP_MODEL_COUNT;
 
@@ -170,11 +170,12 @@ function chooseShipType(type: number, game: Game): number {
     chosenShipType = randomShipType(type, game, tries);
   }
 
-  return chosenShipType;
+  // The Mantis, or a model drawn above; never the count.
+  return chosenShipType as ShipModelType;
 }
 
-function randomShipType(type: number, game: Game, tries: number): number {
-  let chosenShipType: number;
+function randomShipType(type: number, game: Game, tries: number): ShipModelType {
+  let chosenShipType: ShipModelType;
 
   const { possibleShipTypes, totalShipOccurrence } = shipsFor(type, game);
 
@@ -202,7 +203,7 @@ function randomShipType(type: number, game: Game, tries: number): number {
 function shipsFor(type: number, game: Game) {
   const handicap = Math.max(game.difficulty - Difficulty.Normal, 0);
   let totalShipOccurrence = 0;
-  const possibleShipTypes = [
+  const possibleShipTypes: ShipModelType[] = [
     type === OpponentType.Trader ? ShipModelType.Flea : ShipModelType.Gnat,
   ];
 
@@ -228,7 +229,7 @@ function shipsFor(type: number, game: Game) {
       continue;
     }
     totalShipOccurrence += model.frequency;
-    addToOrderedSet(possibleShipTypes, i);
+    addToOrderedSet(possibleShipTypes, i as ShipModelType);
   }
 
   return { possibleShipTypes, totalShipOccurrence };

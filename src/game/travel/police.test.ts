@@ -13,7 +13,7 @@ import { policeMeeting } from './police.ts';
 const { Gnat, Wasp } = ShipModelType;
 const armed = [AccessoryType.WeaponPulseLaser];
 
-type Police = { model: number; weapons: number[]; cloak?: boolean };
+type Police = { model: ShipModelType; weapons: AccessoryType[]; cloak?: boolean };
 
 // How police in this ship take the commander, who flies a Gnat.
 function policeReaction(game: Game, { model, weapons, cloak = false }: Police) {

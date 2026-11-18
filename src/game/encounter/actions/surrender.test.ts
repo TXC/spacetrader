@@ -8,7 +8,7 @@ import { ReactorQuestStatus, WildQuestStatus } from '../../SolarSystem.types.ts'
 import { EncounterType } from '../types.ts';
 
 // The commander surrenders to pirates in this ship. Returns what the pirates say.
-function surrenderToPirates(game: Game, model: number = ShipModelType.Gnat): string {
+function surrenderToPirates(game: Game, model: ShipModelType = ShipModelType.Gnat): string {
   const pirates = opponentIn(game, OpponentType.Pirate, model);
   const { encounter, listener } = encounterWith(game, EncounterType.PirateAttack, pirates);
   encounter.performAction('Surrender');

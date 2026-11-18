@@ -4,9 +4,9 @@ import type { Accessory } from './Accessory.ts';
 import { AlertActionType, AlertViewController } from './alerts.ts';
 import type { Game } from './Game.ts';
 
-export type Installed = { type: number; name: string; value: number };
+export type Installed = { type: AccessoryType; name: string; value: number };
 export type SlotSection = { title: string; slots: number; installed: Installed[]; empty: number };
-export type Offer = { type: number; name: string; price: number; enabled: boolean };
+export type Offer = { type: AccessoryType; name: string; price: number; enabled: boolean };
 
 function section(game: Game, title: string, accessories: Accessory[], slots: number): SlotSection {
   const installed = accessories.map(accessory => ({
@@ -27,7 +27,7 @@ export function slotSections(game: Game): SlotSection[] {
 }
 
 // A gadget can be owned only once, except the extra cargo bays.
-function alreadyOwned(game: Game, type: number, accessory: Accessory): boolean {
+function alreadyOwned(game: Game, type: AccessoryType, accessory: Accessory): boolean {
   return (
     accessory instanceof Gadget &&
     type !== AccessoryType.GadgetFiveExtraCargoBays &&
@@ -35,7 +35,7 @@ function alreadyOwned(game: Game, type: number, accessory: Accessory): boolean {
   );
 }
 
-function offer(game: Game, type: number, accessory: Accessory): Offer {
+function offer(game: Game, type: AccessoryType, accessory: Accessory): Offer {
   const { commander } = game;
   const owned = alreadyOwned(game, type, accessory);
   const price = commander.buyPriceForAccessory(type);
@@ -51,7 +51,7 @@ export function offers(game: Game): Offer[] {
   const result: Offer[] = [];
   for (let type = 0; type < AccessoryType.None; type++) {
     const accessory = accessoryForType(type);
-    if (accessory?.isBuyable) result.push(offer(game, type, accessory));
+    if (accessory?.isBuyable) result.push(offer(game, accessory.type, accessory));
   }
   return result;
 }
@@ -63,7 +63,7 @@ function confirm(text: string, yes: () => void) {
   alert.presentView();
 }
 
-function whyNotBuy(game: Game, type: number, accessory: Accessory): string | null {
+function whyNotBuy(game: Game, type: AccessoryType, accessory: Accessory): string | null {
   if (game.commander.debt > 0) {
     return 'Before you can buy a new ship or new equipment, you must settle your debts at the bank.';
   }
@@ -73,13 +73,18 @@ function whyNotBuy(game: Game, type: number, accessory: Accessory): string | nul
 }
 
 // Asked when the confirmation is accepted: another one may have been accepted before it.
-function canStillBuy(game: Game, type: number, accessory: Accessory, price: number): boolean {
+function canStillBuy(
+  game: Game,
+  type: AccessoryType,
+  accessory: Accessory,
+  price: number
+): boolean {
   if (whyNotBuy(game, type, accessory) !== null) return false;
   return !alreadyOwned(game, type, accessory) && price <= game.commander.spendingMoney();
 }
 
 // `price` is the price that was on the screen when the button was pressed.
-export function buyEquipment(game: Game, type: number, price: number): void {
+export function buyEquipment(game: Game, type: AccessoryType, price: number): void {
   const accessory = accessoryForType(type)!;
   const refusal = whyNotBuy(game, type, accessory);
   if (refusal) return AlertViewController.presentAlertWithDismiss(refusal);
@@ -92,7 +97,7 @@ export function buyEquipment(game: Game, type: number, price: number): void {
   });
 }
 
-export function sellEquipment(game: Game, type: number, price: number): void {
+export function sellEquipment(game: Game, type: AccessoryType, price: number): void {
   const accessory = accessoryForType(type)!;
   if (type === AccessoryType.GadgetFiveExtraCargoBays && game.commander.ship.freeCargoBays() < 5) {
     const text =
