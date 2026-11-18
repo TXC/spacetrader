@@ -211,6 +211,8 @@ export type Meeting = { encounterType: EncounterType; opponent: Opponent | null 
 function repairOnTheWay(game: Game): void {
   // Automatic repairs based on engineering skill
   const engineerSkill = game.commander.ship.crewEngineerSkillIncludingCommander(game.commander);
+  // Not rounded on purpose: a roll up to half the skill is the original's roll up to the
+  // skill, halved.
   let repairAmount = runtime.gameRand.randomIntBelow(engineerSkill / 2);
 
   repairAmount = game.commander.ship.repairHullByAmount(repairAmount);
