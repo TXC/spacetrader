@@ -1,6 +1,5 @@
 import { AccessoryType } from './Accessory.ts';
 import { AlertActionType, AlertViewController } from './alerts.ts';
-import type { SliderContent } from './alerts.ts';
 import {
   KILL_PIRATE_SCORE,
   KILL_POLICE_SCORE,
@@ -44,6 +43,7 @@ import { runtime } from './runtime.ts';
 import { attack, autoAttack } from './encounter/actions/attack.ts';
 import { autoFlee, flee } from './encounter/actions/flee.ts';
 import { ignore } from './encounter/actions/ignore.ts';
+import { trade } from './encounter/actions/trade.ts';
 import { captainFor } from './encounter/captains.ts';
 import {
   EncounterMode,
@@ -407,85 +407,7 @@ export class EncounterController {
     } else if (action === 'Ignore') {
       if (!ignore(this)) return;
     } else if (action === 'Trade') {
-      let itemType: number = NO_TRADE_ITEM;
-      const onlyIllegal = this._game.commander.policeRecordScore < PoliceRecordScore.Dubious;
-      let tradePrice = 0;
-      let maxUnits = 0;
-      let comparisonPrice = 0;
-      let itemName = null;
-
-      if (this._type === EncounterType.TraderBuy) {
-        itemType = this._game.commander.ship.randomTradeableItemForSystem(
-          this._game.commander.currentSystem,
-          onlyIllegal
-        );
-        ensureInteger(itemType);
-
-        if (itemType !== NO_TRADE_ITEM) {
-          tradePrice = this._game.commander.sellPriceForItem(itemType);
-          ensureInteger(tradePrice);
-
-          if (onlyIllegal) {
-            tradePrice *= runtime.gameRand.randomIntBelow(100) <= 45 ? 0.8 : 1.1;
-          } else {
-            tradePrice *= runtime.gameRand.randomIntBelow(100) <= 10 ? 0.9 : 1.1;
-          }
-
-          const tradeItem = tradeItemForType(itemType);
-          itemName = tradeItem.name;
-          tradePrice = Math.floor(tradePrice / tradeItem.roundOffPrice);
-          tradePrice = (tradePrice + 1) * tradeItem.roundOffPrice;
-          tradePrice = Math.max(tradePrice, tradeItem.minTradePrice);
-          tradePrice = Math.min(tradePrice, tradeItem.maxTradePrice);
-
-          // The trader cannot take more than its hold has room for.
-          maxUnits = Math.min(
-            this._game.commander.ship.tradeItemQuantityForType(itemType),
-            this._opponent.ship.totalCargoBays()
-          );
-          comparisonPrice = this._game.commander.ship.tradeItemAverageBuyingPriceForType(itemType);
-        }
-      } else if (this._type === EncounterType.TraderSell) {
-        itemType = this._opponent.ship.randomTradeableItemForSystem(
-          this._game.commander.currentSystem,
-          onlyIllegal
-        );
-
-        if (itemType !== NO_TRADE_ITEM) {
-          tradePrice = this._game.commander.buyPriceForItem(itemType);
-
-          if (onlyIllegal) {
-            tradePrice *= runtime.gameRand.randomIntBelow(100) <= 45 ? 1.1 : 0.8;
-          } else {
-            tradePrice *= runtime.gameRand.randomIntBelow(100) <= 10 ? 1.1 : 0.9;
-          }
-
-          const tradeItem = tradeItemForType(itemType);
-          itemName = tradeItem.name;
-          tradePrice = Math.floor(tradePrice / tradeItem.roundOffPrice);
-          tradePrice = (tradePrice + 1) * tradeItem.roundOffPrice;
-          tradePrice = Math.max(tradePrice, tradeItem.minTradePrice);
-          tradePrice = Math.min(tradePrice, tradeItem.maxTradePrice);
-          const freeCargoBays = this._game.commander.ship.freeCargoBays();
-          // No more than the trader carries, than fits, and than the commander can pay for.
-          maxUnits = Math.min(
-            this._opponent.ship.tradeItemQuantityForType(itemType),
-            freeCargoBays,
-            Math.floor(this._game.commander.credits / tradePrice)
-          );
-        }
-      }
-
-      if (itemType !== NO_TRADE_ITEM) {
-        this._presentTradeAlert(
-          itemName,
-          itemType,
-          tradePrice,
-          maxUnits,
-          comparisonPrice,
-          this._type === EncounterType.TraderSell
-        );
-      }
+      if (!trade(this)) return;
     } else if (action === 'Surrender' || action === 'Yield') {
       let surrenderAllowed: boolean;
       let surrenderPrompt = null;
@@ -971,104 +893,6 @@ export class EncounterController {
   _presentAlertController(alertController: AlertViewController) {
     this._endAutoEncounters();
     alertController.presentView();
-  }
-
-  _presentTradeAlert(
-    itemName: string | null,
-    itemType: number,
-    tradePrice: number,
-    maxUnits: number,
-    comparisonPrice: number,
-    traderSell: boolean
-  ) {
-    ensureType(itemName, 'string');
-    ensureInteger(itemType);
-    ensureInteger(tradePrice);
-    ensureInteger(maxUnits);
-    ensureInteger(comparisonPrice);
-    ensureBool(traderSell);
-
-    let needsDismiss: boolean;
-    let needsAll = false;
-    let needsNone = false;
-    let needsSelected = false;
-
-    let text: string;
-    if (traderSell) {
-      const canAfford = maxUnits > 0;
-      text = `The trader wants to sell ${itemName} for $${tradePrice} each. ${!canAfford ? "Unfortunately, you can't afford any." : 'How many do you wish to buy?'}`;
-
-      needsDismiss = !canAfford;
-      needsAll = canAfford;
-      needsNone = canAfford;
-      needsSelected = canAfford;
-    } else {
-      if (maxUnits > 0) {
-        text = `The trader wants to buy ${itemName} and offers $${tradePrice} each. You paid about $${comparisonPrice}/unit. How many do you wish to sell?`;
-
-        needsDismiss = false;
-        needsAll = true;
-        needsNone = true;
-        needsSelected = true;
-      } else {
-        text = `The trader wants to buy ${itemName} and offers $${tradePrice} each. Unfortunately, you don't have any.`;
-
-        needsDismiss = true;
-      }
-    }
-
-    const aC = new AlertViewController(text);
-
-    if (needsDismiss) {
-      aC.addAction('Dismiss', AlertActionType.Default, () => {
-        this._performTradeWithAmount(0, itemType, tradePrice, traderSell);
-      });
-    }
-
-    if (needsNone) {
-      aC.addAction('None', AlertActionType.Default, () => {
-        this._performTradeWithAmount(0, itemType, tradePrice, traderSell);
-      });
-    }
-
-    if (needsSelected) {
-      aC.addAction('Selected', AlertActionType.Default, () => {
-        const amount = (aC.content as SliderContent).value;
-        if (amount > 0) {
-          aC.completionHandler = () => {
-            this._presentThanksForTheTrade(() => {
-              this._performTradeWithAmount(amount, itemType, tradePrice, traderSell);
-            });
-          };
-        }
-      });
-    }
-
-    if (needsAll) {
-      aC.addAction('All', AlertActionType.Default, () => {
-        const amount = maxUnits;
-        if (amount > 0) {
-          aC.completionHandler = () => {
-            this._presentThanksForTheTrade(() => {
-              this._performTradeWithAmount(amount, itemType, tradePrice, traderSell);
-            });
-          };
-        }
-      });
-    }
-
-    if (needsSelected) {
-      const slider: SliderContent = {
-        kind: 'slider',
-        id: 'tradeslider',
-        min: 0,
-        max: maxUnits,
-        value: Math.floor(maxUnits / 2),
-      };
-      aC.content = slider;
-    }
-
-    aC.presentView();
   }
 
   _executeAction(commanderFlees: boolean, completionBlock: (fightContinues: boolean) => void) {
@@ -1672,38 +1496,6 @@ export class EncounterController {
     });
 
     this._presentAlertController(aC);
-  }
-
-  _presentThanksForTheTrade(completion: () => void) {
-    const aC = new AlertViewController('Thanks for the trade!');
-    aC.addAction('Dismiss', AlertActionType.Default, completion);
-    aC.presentView();
-  }
-
-  _performTradeWithAmount(
-    amount: number,
-    itemType: number,
-    tradePrice: number,
-    traderSell: boolean
-  ) {
-    ensureInteger(amount);
-    ensureInteger(itemType);
-    ensureInteger(tradePrice);
-    ensureBool(traderSell);
-
-    if (amount > 0) {
-      const credits = this._game.commander.credits;
-      if (traderSell) {
-        const actualAmount = this._game.commander.ship.boughtQuantity(amount, itemType, tradePrice);
-        this._game.commander.setCredits(credits - actualAmount * tradePrice);
-        this._opponent.ship.soldQuantity(actualAmount, itemType);
-      } else {
-        this._game.commander.setCredits(credits + amount * tradePrice);
-        this._game.commander.ship.soldQuantity(amount, itemType);
-      }
-    }
-
-    this.listener.continues(false);
   }
 
   // #pragma mark - PlunderViewControllerDelegate
