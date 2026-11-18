@@ -228,10 +228,7 @@ export class Game {
     instance._warpSystem = instance._findSolarSystem(serializedState.warpSystemName);
     instance._trackedSystem = instance._findSolarSystem(serializedState.trackedSystemName);
 
-    instance.commander = Commander.fromSerializedState(
-      serializedState.commander,
-      instance.solarSystems
-    );
+    instance.commander = Commander.restore(serializedState.commander, instance.solarSystems);
 
     instance._lastSave = new Date(serializedState.lastSave);
 
