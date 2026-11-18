@@ -385,3 +385,16 @@ test('Q7: every mercenary has a home system, and placing the last one draws noth
   expect(atHome.toSorted()).toEqual(CrewMember.mercenaryNames().toSorted());
   expect(runtime.gameRand._numInvocations).toBe(4345); // as before the last one was placed
 });
+
+test('Q5: five tribbles without food breed two more at most, as half of five is two', () => {
+  const game = newGame();
+  game.commander.ship.tribbles = 5;
+  // Every roll comes out as high as it can.
+  vi.spyOn(runtime.gameRand, 'randomInt').mockImplementation(
+    (min, max) => (min + 0.999 * (max - min + 1)) | 0
+  );
+
+  arrive(game);
+
+  expect(game.commander.ship.tribbles).toBe(7); // one, and a roll below two
+});

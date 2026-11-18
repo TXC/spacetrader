@@ -167,7 +167,10 @@ function tribblesOnArrival(game: Game): string[] {
 
   if (currentTribbles > 0 && currentTribbles < MAX_TRIBBLES) {
     currentTribbles +=
-      1 + runtime.gameRand.randomIntBelow(Math.max(1, currentTribbles / (foodOnBoard ? 1 : 2)));
+      1 +
+      runtime.gameRand.randomIntBelow(
+        Math.max(1, Math.floor(currentTribbles / (foodOnBoard ? 1 : 2)))
+      );
   }
 
   currentTribbles = Math.min(currentTribbles, MAX_TRIBBLES);
