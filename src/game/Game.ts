@@ -615,7 +615,7 @@ export class Game {
     const ship = Ship.create(ShipModelType.Gnat, this.difficulty);
     this.commander.ship = ship;
 
-    this.commander.setCurrentSystem(this.solarSystems[this.solarSystems.length - 1]);
+    this.commander.moveTo(this.solarSystems[this.solarSystems.length - 1]);
 
     let squaredFuel = this.commander.ship.fuel;
     squaredFuel *= squaredFuel;
@@ -631,7 +631,7 @@ export class Game {
     );
     if (startSystem) {
       this.commander.getCurrentSystem().visited = false;
-      this.commander.setCurrentSystem(startSystem);
+      this.commander.moveTo(startSystem);
     }
   }
 

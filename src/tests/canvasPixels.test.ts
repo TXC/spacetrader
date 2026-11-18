@@ -119,7 +119,7 @@ test('the map near the player, with the far end of a wormhole selected', async (
   page(300, 150, 1);
   const g = game();
   const system = g.solarSystems.find(s => s.wormhole)!;
-  g.commander.setCurrentSystem(system);
+  g.commander.moveTo(system);
   const view = new GalaxyView(host, g, system, true, true, true, classes);
 
   expect(await mapPicture(view)).toEqual({

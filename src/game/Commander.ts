@@ -379,7 +379,7 @@ export class Commander extends CrewMember {
     return this._difficulty;
   }
 
-  setCurrentSystem(currentSystem: SolarSystem) {
+  moveTo(currentSystem: SolarSystem) {
     ensureType(currentSystem, 'object');
 
     if (this._currentSystem !== currentSystem) {
