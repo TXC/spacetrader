@@ -4,6 +4,7 @@ import { newGame, press, topAlert } from '../tests/support/newGame.ts';
 import { AccessoryType } from './Accessory.ts';
 import { alertStore } from './alerts.ts';
 import { EncounterController } from './EncounterController.ts';
+import { performTradeWithAmount } from './encounter/actions/trade.ts';
 import { EncounterType } from './encounter/types.ts';
 import type { EncounterListener } from './encounter/types.ts';
 import { GameRand } from './GameRand.ts';
@@ -157,7 +158,7 @@ test('Q4: a trader sells no more than is in its hold, and the hold empties', () 
   const { content } = topAlert();
   expect(content?.kind === 'slider' && content.max).toBe(2);
 
-  meeting._performTradeWithAmount(2, Water, 30, true);
+  performTradeWithAmount(meeting, 2, Water, 30, true);
   expect(trader.ship.tradeItemQuantityForType(Water)).toBe(0);
 });
 
