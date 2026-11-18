@@ -34,68 +34,79 @@ export function rareEventMeeting(game: Game): Meeting {
 
     ensureInteger(rareEvent);
 
-    switch (rareEvent) {
-      case RareEvent.CaptainAhab:
-        if (
-          game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective) &&
-          game.commander.pilot < MAX_SKILL_LEVEL &&
-          game.commander.policeRecordScore > PoliceRecordScore.Criminal
-        ) {
-          pLog.log(95);
-          encounterType = EncounterType.FamousCaptainAhabEncounter;
-          opponent = Opponent.generateOpponentWithType(OpponentType.FamousCaptain, game);
-        }
-        break;
-
-      case RareEvent.CaptainConrad:
-        if (
-          game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser) &&
-          game.commander.engineer < MAX_SKILL_LEVEL &&
-          game.commander.policeRecordScore > PoliceRecordScore.Criminal
-        ) {
-          pLog.log(96);
-          encounterType = EncounterType.FamousCaptainConradEncounter;
-          opponent = Opponent.generateOpponentWithType(OpponentType.FamousCaptain, game);
-        }
-        break;
-
-      case RareEvent.CaptainHuie:
-        if (
-          game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser) &&
-          game.commander.trader < MAX_SKILL_LEVEL &&
-          game.commander.policeRecordScore > PoliceRecordScore.Criminal
-        ) {
-          pLog.log(97);
-          encounterType = EncounterType.FamousCaptainHuieEncounter;
-          opponent = Opponent.generateOpponentWithType(OpponentType.FamousCaptain, game);
-        }
-        break;
-
-      case RareEvent.MarieCeleste:
-        pLog.log(98);
-        encounterType = EncounterType.MarieCelesteEncounter;
-        opponent = Opponent.generateOpponentWithType(OpponentType.MarieCeleste, game);
-        break;
-
-      case RareEvent.BottleOld:
-        pLog.log(99);
-        encounterType = EncounterType.BottleOld;
-        opponent = Opponent.generateOpponentWithType(OpponentType.Bottle, game);
-        break;
-
-      case RareEvent.BottleGood:
-        pLog.log(100);
-        encounterType = EncounterType.BottleGood;
-        opponent = Opponent.generateOpponentWithType(OpponentType.Bottle, game);
-        break;
-
-      default:
-        break;
-    }
+    ({ encounterType, opponent } = meetingFor(rareEvent, game));
 
     if (encounterType !== EncounterType.None) {
       game.removeRemainingRareEvent(rareEvent);
     }
+  }
+
+  return { encounterType, opponent };
+}
+
+// A captain is met only when the commander has what the captain wants and something left
+// to learn; otherwise nothing happens and the event stays for another day.
+function meetingFor(rareEvent: number, game: Game): Meeting {
+  let encounterType: EncounterType = EncounterType.None;
+  let opponent: Opponent | null = null;
+
+  switch (rareEvent) {
+    case RareEvent.CaptainAhab:
+      if (
+        game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective) &&
+        game.commander.pilot < MAX_SKILL_LEVEL &&
+        game.commander.policeRecordScore > PoliceRecordScore.Criminal
+      ) {
+        pLog.log(95);
+        encounterType = EncounterType.FamousCaptainAhabEncounter;
+        opponent = Opponent.generateOpponentWithType(OpponentType.FamousCaptain, game);
+      }
+      break;
+
+    case RareEvent.CaptainConrad:
+      if (
+        game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser) &&
+        game.commander.engineer < MAX_SKILL_LEVEL &&
+        game.commander.policeRecordScore > PoliceRecordScore.Criminal
+      ) {
+        pLog.log(96);
+        encounterType = EncounterType.FamousCaptainConradEncounter;
+        opponent = Opponent.generateOpponentWithType(OpponentType.FamousCaptain, game);
+      }
+      break;
+
+    case RareEvent.CaptainHuie:
+      if (
+        game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser) &&
+        game.commander.trader < MAX_SKILL_LEVEL &&
+        game.commander.policeRecordScore > PoliceRecordScore.Criminal
+      ) {
+        pLog.log(97);
+        encounterType = EncounterType.FamousCaptainHuieEncounter;
+        opponent = Opponent.generateOpponentWithType(OpponentType.FamousCaptain, game);
+      }
+      break;
+
+    case RareEvent.MarieCeleste:
+      pLog.log(98);
+      encounterType = EncounterType.MarieCelesteEncounter;
+      opponent = Opponent.generateOpponentWithType(OpponentType.MarieCeleste, game);
+      break;
+
+    case RareEvent.BottleOld:
+      pLog.log(99);
+      encounterType = EncounterType.BottleOld;
+      opponent = Opponent.generateOpponentWithType(OpponentType.Bottle, game);
+      break;
+
+    case RareEvent.BottleGood:
+      pLog.log(100);
+      encounterType = EncounterType.BottleGood;
+      opponent = Opponent.generateOpponentWithType(OpponentType.Bottle, game);
+      break;
+
+    default:
+      break;
   }
 
   return { encounterType, opponent };
