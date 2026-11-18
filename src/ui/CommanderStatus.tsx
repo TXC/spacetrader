@@ -78,7 +78,7 @@ function Options({ game }: GameProps) {
       ))}
       <LoggedCheckbox
         id="reserveMoney"
-        checked={game.commander.getReserveMoney()}
+        checked={game.commander.reserveMoney}
         onToggle={on => setReserveMoney(game, on)}
       >
         Reserve money for recurring costs

@@ -61,7 +61,7 @@ export function setIgnore(game: Game, option: IgnoreOption, on: boolean): void {
 }
 
 export function setReserveMoney(game: Game, on: boolean): void {
-  game.commander.setReserveMoney(on);
+  game.commander.reserveMoney = on;
   game.save();
   game.changed();
 }

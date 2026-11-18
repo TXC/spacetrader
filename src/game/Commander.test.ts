@@ -53,7 +53,7 @@ test.each([
 ])('of the credits, %s', (_, reserve, spendable) => {
   const { commander } = newGame();
   commander.hasInsurance = true;
-  commander.setReserveMoney(reserve);
+  commander.reserveMoney = reserve;
 
   expect(commander.spendingMoney()).toBe(spendable);
 });
