@@ -120,7 +120,7 @@ test('rare equipment that cannot be paid for stops the trade', () => {
 test('a ship without quarters for the crew is not sold', () => {
   const game = newGame();
   game.commander.ship = new Ship(Beetle, game.difficulty);
-  game.commander.ship.addCrewMember(new CrewMember('Hired Hand', 4, 4, 4, 4));
+  game.commander.ship.addCrewMember(CrewMember.create('Hired Hand', 4, 4, 4, 4));
 
   buyShip(game, shipModelForType(Gnat));
 
@@ -131,7 +131,7 @@ test('a ship without quarters for the crew is not sold', () => {
 test('the crew moves to the new ship', () => {
   const game = newGame();
   game.commander.ship = new Ship(Beetle, game.difficulty);
-  const hand = new CrewMember('Hired Hand', 4, 4, 4, 4);
+  const hand = CrewMember.create('Hired Hand', 4, 4, 4, 4);
   game.commander.ship.addCrewMember(hand);
 
   buyShip(game, shipModelForType(ShipModelType.Bumblebee));

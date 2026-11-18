@@ -604,7 +604,7 @@ export class Game {
       if (mercenarySystem.getMercenary()) mercenarySystem = null;
     }
 
-    const mercenary = new CrewMember(name);
+    const mercenary = CrewMember.create(name);
     mercenary.randomizeAttributes(rand);
     mercenarySystem.setMercenary(mercenary);
   }

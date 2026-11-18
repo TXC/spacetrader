@@ -61,7 +61,7 @@ test('"For Hire" is offered only while a mercenary here is not in the crew', () 
   session.createCommander('Tester', 2, startingSkills());
   const game = session.game!;
   const system = game.commander.currentSystem;
-  const mercenary = new CrewMember('Hired Hand', 4, 4, 4, 4);
+  const mercenary = CrewMember.create('Hired Hand', 4, 4, 4, 4);
 
   system.setMercenary(mercenary);
   expect(session.rows()).toContain('For Hire');
@@ -100,7 +100,7 @@ test('ending the game moves it to the high scores, and continuing starts over', 
 test('the navigation links are those of the last time the landing screen was shown', () => {
   session.createCommander('Tester', 2, startingSkills());
   const game = session.game!;
-  const mercenary = new CrewMember('Hired Hand', 4, 4, 4, 4);
+  const mercenary = CrewMember.create('Hired Hand', 4, 4, 4, 4);
   game.commander.currentSystem.setMercenary(mercenary);
   session.start();
   expect(session.navRows.map(link => link.row)).toContain('For Hire');
@@ -116,7 +116,7 @@ test('the navigation links are those of the last time the landing screen was sho
 test('firing the local mercenary puts "For Hire" back at once', () => {
   session.createCommander('Tester', 2, startingSkills());
   const game = session.game!;
-  const mercenary = new CrewMember('Hired Hand', 4, 4, 4, 4);
+  const mercenary = CrewMember.create('Hired Hand', 4, 4, 4, 4);
   game.commander.currentSystem.setMercenary(mercenary);
   game.commander.ship._crew.push(mercenary);
   session.start();
@@ -212,7 +212,7 @@ const RULES: [string, (game: Game) => unknown][] = [
   ['an option to ignore', game => setIgnore(game, 'alwaysIgnorePolice', true)],
   ['reserving money', game => setReserveMoney(game, false)],
   ['automatic fuel', game => setAutoFuel(game, true)],
-  ['firing', game => fire(game, new CrewMember('Hired Hand', 4, 4, 4, 4))],
+  ['firing', game => fire(game, CrewMember.create('Hired Hand', 4, 4, 4, 4))],
   ['automatic news', game => new News(game).setAuto(true)],
 ];
 
