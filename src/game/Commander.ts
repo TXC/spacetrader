@@ -673,9 +673,9 @@ export class Commander extends CrewMember {
     }
   }
 
-  override serializedState() {
+  override toState() {
     // The commander's own fields are added below.
-    const state = super.serializedState() as CommanderState;
+    const state = super.toState() as CommanderState;
 
     // Integer properties
     ensureInteger(this._credits);

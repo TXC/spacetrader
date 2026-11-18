@@ -363,7 +363,7 @@ export class Game {
       pLog.log(73);
     }
 
-    state.commander = this.commander.serializedState();
+    state.commander = this.commander.toState();
 
     ensureObjectOrNull(this._warpSystem);
     if (this._warpSystem) {
