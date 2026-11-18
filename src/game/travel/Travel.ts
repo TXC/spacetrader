@@ -1,18 +1,18 @@
-import { AccessoryType } from './Accessory.ts';
-import { AlertActionType, AlertViewController } from './alerts.ts';
+import { AccessoryType } from '../Accessory.ts';
+import { AlertActionType, AlertViewController } from '../alerts.ts';
 import {
   CAUGHT_WITH_WILD_SCORE,
   MAX_SKILL_LEVEL,
   policeRecordMultiplier,
   PoliceRecordScore,
   ReputationScore,
-} from './Commander.ts';
-import { Encounter } from './encounter/Encounter.ts';
-import { EncounterType } from './encounter/types.ts';
-import type { ActionName, EncounterListener } from './encounter/types.ts';
-import { GameEndStatus, RareEvent, RARE_EVENT_COUNT } from './Game.ts';
-import { Opponent, OpponentType, OPPONENT_TYPE_COUNT } from './Opponent.ts';
-import { MAX_TRIBBLES, Ship, ShipModelType } from './Ship.ts';
+} from '../Commander.ts';
+import { Encounter } from '../encounter/Encounter.ts';
+import { EncounterType } from '../encounter/types.ts';
+import type { ActionName, EncounterListener } from '../encounter/types.ts';
+import { GameEndStatus, RareEvent, RARE_EVENT_COUNT } from '../Game.ts';
+import { Opponent, OpponentType, OPPONENT_TYPE_COUNT } from '../Opponent.ts';
+import { MAX_TRIBBLES, Ship, ShipModelType } from '../Ship.ts';
 import {
   Difficulty,
   DragonflyQuestStatus,
@@ -24,14 +24,14 @@ import {
   ScarabQuestStatus,
   SpecialEvent,
   WildQuestStatus,
-} from './SolarSystem.types.ts';
-import { TradeItemType } from './TradeItem.types.ts';
-import { Store } from './Store.ts';
-import type { SolarSystem } from './SolarSystem.ts';
-import type { Game, GameEndedStatus } from './Game.ts';
-import { ensureArrayOrNull, ensureInteger } from './ensure.ts';
-import { pLog } from './probes.ts';
-import { runtime } from './runtime.ts';
+} from '../SolarSystem.types.ts';
+import { TradeItemType } from '../TradeItem.types.ts';
+import { Store } from '../Store.ts';
+import type { SolarSystem } from '../SolarSystem.ts';
+import type { Game, GameEndedStatus } from '../Game.ts';
+import { ensureArrayOrNull, ensureInteger } from '../ensure.ts';
+import { pLog } from '../probes.ts';
+import { runtime } from '../runtime.ts';
 
 export const CHANCE_OF_TRADE_IN_ORBIT = 100;
 

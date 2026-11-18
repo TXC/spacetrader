@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { sanitizedElementID } from '../game/elementId.ts';
 import type { ActionName } from '../game/encounter/types.ts';
 import type { Ship } from '../game/Ship.ts';
-import type { Travel } from '../game/Travel.ts';
+import type { Travel } from '../game/travel/Travel.ts';
 import { TravelProgressView } from './canvas/TravelProgressView.ts';
 import { Icon } from './Icon.tsx';
 import { Lines } from './Lines.tsx';
