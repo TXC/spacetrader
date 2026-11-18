@@ -68,6 +68,13 @@ export class ActionLogger {
     this._namedEvents[eventName] = handlerObject;
   }
 
+  // Forgets a listener, unless another has taken its name since.
+  unregisterNamedEventListener(handlerObject: NamedEventHandler, eventName: string) {
+    if (this._namedEvents[eventName] === handlerObject) {
+      delete this._namedEvents[eventName];
+    }
+  }
+
   logNamedEvent(eventName: string, eventContext: string | number) {
     // this._registerEvent(...) - not implemented
 
