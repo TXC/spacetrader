@@ -5,8 +5,8 @@ import { Difficulty } from './SolarSystem.types.ts';
 import pinned from './newGameState.json';
 
 // What a new game holds, and how many random numbers making it took. newGameState.json
-// holds the values from before the model classes were rebuilt; a difference means a new
-// game is no longer the same galaxy for the same seed.
+// holds the values from before the model classes were rebuilt, in the saved format of
+// version 2; a difference means a new game is no longer the same galaxy for the same seed.
 async function newGameFingerprint(difficulty: Difficulty) {
   const game = newGame(difficulty);
   // Left out: lastSave is the time of day, and uniqueID is random without a seed.

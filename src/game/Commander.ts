@@ -239,7 +239,11 @@ export class Commander extends CrewMember {
   }
 
   // A commander from a saved game, as parseSavedGame checked it, at one of its systems.
-  static restore(state: CommanderState, solarSystems: SolarSystem[]): Commander {
+  static restore(
+    state: CommanderState,
+    solarSystems: SolarSystem[],
+    difficulty: number
+  ): Commander {
     const currentSystem = SolarSystem.solarSystemForName(state.currentSystemName, solarSystems)!;
     ensureType(currentSystem, 'object');
     return new Commander({
@@ -262,10 +266,10 @@ export class Commander extends CrewMember {
       hasEscapePod: state.hasEscapePod,
       hasInsurance: state.hasInsurance,
       credits: state.credits,
-      difficulty: state.difficulty,
+      difficulty,
       reserveMoney: state.reserveMoney,
       currentSystem,
-      ship: Ship.load(state.ship, solarSystems),
+      ship: Ship.load(state.ship, solarSystems, difficulty),
       basePrices: state.basePrices ? [...state.basePrices] : null,
     });
   }
@@ -660,9 +664,6 @@ export class Commander extends CrewMember {
 
     ensureInteger(this._travelClicksRemaining);
     state.travelClicksRemaining = this._travelClicksRemaining;
-
-    ensureInteger(this.difficulty);
-    state.difficulty = this.difficulty;
 
     // Boolean properties
     ensureBool(this.boughtMoon);

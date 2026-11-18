@@ -270,7 +270,7 @@ export class Game {
   // A game from a saved game, as parseSavedGame checked it, with its wormholes linked.
   static load(state: GameState): Game {
     const breakingNews = Game.savedNews(state.breakingNews);
-    const solarSystems = state.solarSystems.map(ss => SolarSystem.load(ss));
+    const solarSystems = state.solarSystems.map(ss => SolarSystem.load(ss, state.difficulty));
     solarSystems.forEach((solarSystem, idx) => {
       const wormholeName = state.solarSystems[idx].wormholeName;
       solarSystem.wormhole = SolarSystem.solarSystemForName(wormholeName, solarSystems);
@@ -283,7 +283,7 @@ export class Game {
       solarSystems,
       warpSystem: find(state.warpSystemName),
       trackedSystem: find(state.trackedSystemName),
-      commander: Commander.restore(state.commander, solarSystems),
+      commander: Commander.restore(state.commander, solarSystems, state.difficulty),
       uniqueID: state.uniqueID || generateUniqueID(),
     });
   }

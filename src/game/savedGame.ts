@@ -8,7 +8,7 @@ import { Difficulty, SystemSize } from './SolarSystem.types.ts';
 import { TechLevel } from './TradeItem.types.ts';
 
 // Raise this when the saved format changes, and teach parseSavedGame the older ones.
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 const num = v.pipe(v.number(), v.finite());
 const numbers = v.array(num);
@@ -40,7 +40,6 @@ const CrewMemberSchema = v.strictObject({
 const ShipSchema = v.strictObject({
   upgradedHull: bool,
   type: oneOf(ShipModelType),
-  difficulty,
   fuel: num,
   hull: num,
   tribbles: num,
@@ -68,7 +67,6 @@ const CommanderSchema = v.strictObject({
   reputationScore: num,
   noClaim: num,
   travelClicksRemaining: num,
-  difficulty,
   boughtMoon: bool,
   hasEscapePod: bool,
   hasInsurance: bool,
@@ -90,7 +88,6 @@ const SolarSystemSchema = v.strictObject({
   specialResource: num,
   size: oneOf(SystemSize),
   specialEvent: num,
-  difficulty,
   politicsType: oneOf(PoliticsType),
   x: num,
   y: num,
@@ -101,9 +98,7 @@ const SolarSystemSchema = v.strictObject({
   tradeItemInventory: numbers,
 });
 
-const GameSchema = v.strictObject({
-  // A save from before versions existed is version 1.
-  version: v.optional(v.pipe(num, v.maxValue(SAVE_VERSION)), 1),
+const gameEntries = {
   monsterStatus: num,
   dragonflyStatus: num,
   scarabStatus: num,
@@ -138,13 +133,49 @@ const GameSchema = v.strictObject({
   solarSystems: v.array(SolarSystemSchema),
   // A date while the game is in memory, text once it has been through storage.
   lastSave: v.union([text, v.date()]),
+};
+
+const GameSchema = v.strictObject({ version: v.literal(SAVE_VERSION), ...gameEntries });
+
+// Version 1 also kept the difficulty on the commander, the ship and every system, always
+// the game's own. Reading one drops those copies and gives a game of this version.
+const ShipSchemaV1 = v.strictObject({ ...ShipSchema.entries, difficulty });
+const CommanderSchemaV1 = v.strictObject({
+  ...CommanderSchema.entries,
+  difficulty,
+  ship: ShipSchemaV1,
 });
+const SolarSystemSchemaV1 = v.strictObject({ ...SolarSystemSchema.entries, difficulty });
+const GameObjectV1 = v.strictObject({
+  // A save from before versions existed is version 1.
+  version: v.optional(v.literal(1), 1),
+  ...gameEntries,
+  commander: CommanderSchemaV1,
+  solarSystems: v.array(SolarSystemSchemaV1),
+});
+const GameSchemaV1 = v.pipe(GameObjectV1, v.transform(fromVersion1));
+const SavedGameSchema = v.union([GameSchema, GameSchemaV1]);
 
 export type CrewMemberState = v.InferOutput<typeof CrewMemberSchema>;
 export type ShipState = v.InferOutput<typeof ShipSchema>;
 export type CommanderState = v.InferOutput<typeof CommanderSchema>;
 export type SolarSystemState = v.InferOutput<typeof SolarSystemSchema>;
 export type GameState = v.InferOutput<typeof GameSchema>;
+
+function withoutDifficulty<T extends { difficulty: number }>(copy: T): Omit<T, 'difficulty'> {
+  const { difficulty, ...rest } = copy; // eslint-disable-line @typescript-eslint/no-unused-vars
+  return rest;
+}
+
+function fromVersion1(state: v.InferOutput<typeof GameObjectV1>): GameState {
+  const commander = withoutDifficulty(state.commander);
+  return {
+    ...state,
+    version: SAVE_VERSION,
+    commander: { ...commander, ship: withoutDifficulty(commander.ship) },
+    solarSystems: state.solarSystems.map(withoutDifficulty),
+  };
+}
 
 // Every system a save names must be one of its own systems.
 function namesExist(state: GameState): boolean {
@@ -161,6 +192,6 @@ function namesExist(state: GameState): boolean {
 // Checks something read from storage. Gives back the saved game, or null if it is damaged,
 // incomplete, or from a newer version of the game than this one.
 export function parseSavedGame(value: unknown): GameState | null {
-  const result = v.safeParse(GameSchema, value);
+  const result = v.safeParse(SavedGameSchema, value);
   return result.success && namesExist(result.output) ? result.output : null;
 }
