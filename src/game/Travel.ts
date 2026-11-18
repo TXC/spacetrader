@@ -7,8 +7,9 @@ import {
   PoliceRecordScore,
   ReputationScore,
 } from './Commander.ts';
-import { EncounterController, EncounterType } from './EncounterController.ts';
-import type { EncounterListener } from './EncounterController.ts';
+import { EncounterController } from './EncounterController.ts';
+import { EncounterType } from './encounter/types.ts';
+import type { EncounterListener } from './encounter/types.ts';
 import { GameEndStatus, RareEvent, RARE_EVENT_COUNT } from './Game.ts';
 import { Opponent, OpponentType, OPPONENT_TYPE_COUNT } from './Opponent.ts';
 import { MAX_TRIBBLES, Ship, ShipModelType } from './Ship.ts';
