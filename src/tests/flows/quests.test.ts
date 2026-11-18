@@ -4270,7 +4270,7 @@ test('retire', () => {
   const target = game.solarSystems.find(x => x.specialEvent === SpecialEvent.MoonForSale)!;
 
   replay.replayEvent('Chart');
-  replay.replayEvent(`galacticChart_useSingularity_121_${target!.name}`);
+  replay.replayEvent(`galacticChart_useSingularity_121_${target.name}`);
   replay.replayEvent('alertButton_Warp_');
 
   replaySkipEncounters(replay);
@@ -4288,7 +4288,7 @@ test('retire', () => {
   const target2 = game.solarSystems.find(x => x.specialEvent === SpecialEvent.MoonBought)!;
 
   replay.replayEvent('Chart');
-  replay.replayEvent(`galacticChart_useSingularity_121_${target2!.name}`);
+  replay.replayEvent(`galacticChart_useSingularity_121_${target2.name}`);
   replay.replayEvent('alertButton_Warp_');
 
   replaySkipEncounters(replay);

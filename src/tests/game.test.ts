@@ -87,7 +87,7 @@ test('cellAfter and rowAfterHeading find neighbouring table content', () => {
   );
   expect(cellAfter(div, 'Furs')).toBe('4');
   expect(cellAfter(div, 'Ore')).toBeNull();
-  expect(textOf(rowAfterHeading('Picked')!)).toBe('Furs4');
+  expect(textOf(rowAfterHeading('Picked'))).toBe('Furs4');
 });
 
 test('a replayed checkbox change reaches a React screen', () => {
