@@ -2,8 +2,6 @@ import { AccessoryType } from './Accessory.ts';
 import { AlertActionType, AlertViewController } from './alerts.ts';
 import type { SliderContent } from './alerts.ts';
 import {
-  ATTACK_POLICE_SCORE,
-  FLEE_FROM_INSPECTION_SCORE,
   KILL_PIRATE_SCORE,
   KILL_POLICE_SCORE,
   KILL_TRADER_SCORE,
@@ -44,6 +42,7 @@ import type { Commander } from './Commander.ts';
 import type { Opponent } from './Opponent.ts';
 import { runtime } from './runtime.ts';
 import { attack, autoAttack } from './encounter/actions/attack.ts';
+import { autoFlee, flee } from './encounter/actions/flee.ts';
 import { captainFor } from './encounter/captains.ts';
 import {
   EncounterMode,
@@ -399,60 +398,11 @@ export class EncounterController {
     if (action === 'Auto-Attack') {
       if (!autoAttack(this)) return;
     } else if (action === 'Auto-Flee') {
-      this._encounterMode = EncounterMode.AutoFlee;
-      this.performAction('Flee');
-      pLog.log(51);
-      return;
+      if (!autoFlee(this)) return;
     } else if (action === 'Attack') {
       if (!attack(this)) return;
     } else if (action === 'Flee') {
-      const performFlee = () => {
-        if (this._type === EncounterType.PoliceInspection) {
-          this._type = EncounterType.PoliceAttack;
-
-          if (this._game.commander.policeRecordScore > PoliceRecordScore.Dubious) {
-            this._game.commander.policeRecordScore =
-              PoliceRecordScore.Dubious - (this._game.difficulty < Difficulty.Normal ? 0 : 1);
-          } else {
-            this._game.commander.policeRecordScore =
-              this._game.commander.policeRecordScore + FLEE_FROM_INSPECTION_SCORE;
-          }
-        } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
-          this._type = EncounterType.PoliceAttack;
-          this._game.commander.policeRecordScore = Math.min(
-            PoliceRecordScore.Criminal,
-            this._game.commander.policeRecordScore + ATTACK_POLICE_SCORE
-          );
-        }
-
-        this._executeAction(true, fightContinues => {
-          fightContinues = fightContinues && this._game.commander.ship.hull > 0;
-          this.listener.continues(fightContinues);
-        });
-      };
-
-      let alertString = null;
-      if (this._safeToSubmit()) {
-        alertString =
-          "Are you sure you want to flee? You're not carrying illegal goods so it should be safe to submit.";
-      } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
-        alertString =
-          'Are you sure you want to flee? The Customs Police know you have engaged in criminal activity and your police record will reflect this fact.';
-      }
-
-      if (alertString) {
-        const aC = new AlertViewController(alertString);
-        aC.addAction("Ok, I won't.", AlertActionType.Default, null);
-
-        aC.addAction('Flee', AlertActionType.Destructive, () => {
-          performFlee();
-        });
-
-        this._presentAlertController(aC);
-        return;
-      }
-
-      performFlee();
+      if (!flee(this)) return;
     } else if (action === 'Ignore') {
       this.listener.continues(false);
     } else if (action === 'Trade') {
