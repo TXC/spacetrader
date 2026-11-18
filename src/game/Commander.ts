@@ -745,7 +745,7 @@ export class Commander extends CrewMember {
     ensureType(this._currentSystem.name, 'string');
     state.currentSystemName = this._currentSystem.name;
 
-    state.ship = this.ship.serializedState();
+    state.ship = this.ship.toState();
 
     // Base prices
     ensureArrayOrNull(this._basePrices, 'number');
