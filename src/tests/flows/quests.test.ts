@@ -1,7 +1,7 @@
 // Flow tests: each replays a recorded play session by clicking the recorded elements, then
 // checks what the player sees and what the game holds. Converted from the original
 // project's UnitTests.js; the recordings and expected values are unchanged.
-import { test } from 'vitest';
+import { expect, test } from 'vitest';
 import { AccessoryType } from '../../game/Accessory.ts';
 import { PoliceRecordScore } from '../../game/Commander.ts';
 import { GameEndStatus } from '../../game/Game.ts';
@@ -88,7 +88,7 @@ test('scarab', () => {
   // Shows up now
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.Scarab);
   specialEl = button('Special');
-  assertEqual(specialEl !== null, true);
+  expect(specialEl).not.toBeNull();
 
   replay.replayEvent('Special', 'click');
 
@@ -269,7 +269,7 @@ test('scarab_militaryBeamDontWork', () => {
   // Shows up now
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.Scarab);
   specialEl = button('Special');
-  assertEqual(specialEl !== null, true);
+  expect(specialEl).not.toBeNull();
 
   replay.replayEvent('Special', 'click');
 
@@ -327,34 +327,34 @@ test('scarab_militaryBeamDontWork', () => {
 
   replay.replayEvent('ecButton_Attack', 'click');
   encounterText = textOf(encounterBox());
-  assertEqual(encounterText.includes('You missed the Scarab.'), true);
+  expect(encounterText).toContain('You missed the Scarab.');
   replay.replayEvent('ecButton_Attack', 'click');
   encounterText = textOf(encounterBox());
-  assertEqual(encounterText.includes('You missed the Scarab.'), true);
+  expect(encounterText).toContain('You missed the Scarab.');
   replay.replayEvent('ecButton_Attack', 'click');
   encounterText = textOf(encounterBox());
-  assertEqual(encounterText.includes('You missed the Scarab.'), true);
+  expect(encounterText).toContain('You missed the Scarab.');
   replay.replayEvent('ecButton_Attack', 'click');
   encounterText = textOf(encounterBox());
-  assertEqual(encounterText.includes('You missed the Scarab.'), true);
+  expect(encounterText).toContain('You missed the Scarab.');
   replay.replayEvent('ecButton_Attack', 'click');
   encounterText = textOf(encounterBox());
-  assertEqual(encounterText.includes('You missed the Scarab.'), true);
+  expect(encounterText).toContain('You missed the Scarab.');
   replay.replayEvent('ecButton_Attack', 'click');
   encounterText = textOf(encounterBox());
-  assertEqual(encounterText.includes('You missed the Scarab.'), true);
+  expect(encounterText).toContain('You missed the Scarab.');
   replay.replayEvent('ecButton_Attack', 'click');
   encounterText = textOf(encounterBox());
-  assertEqual(encounterText.includes('You missed the Scarab.'), true);
+  expect(encounterText).toContain('You missed the Scarab.');
   replay.replayEvent('ecButton_Attack', 'click');
   encounterText = textOf(encounterBox());
-  assertEqual(encounterText.includes('You missed the Scarab.'), true);
+  expect(encounterText).toContain('You missed the Scarab.');
   replay.replayEvent('ecButton_Attack', 'click');
   encounterText = textOf(encounterBox());
-  assertEqual(encounterText.includes('You missed the Scarab.'), true);
+  expect(encounterText).toContain('You missed the Scarab.');
   replay.replayEvent('ecButton_Attack', 'click');
   encounterText = textOf(encounterBox());
-  assertEqual(encounterText.includes('You missed the Scarab.'), true);
+  expect(encounterText).toContain('You missed the Scarab.');
 });
 
 test('ionReactor', () => {
@@ -690,7 +690,7 @@ test('ionReactor_tooLate', () => {
   );
   replay.replayEvent('alertButton_Dismiss', 'click');
 
-  assertEqual(button('End Game and Start Over') !== null, true);
+  expect(button('End Game and Start Over')).not.toBeNull();
   assertEqual(game.endStatus, GameEndStatus.Killed);
 
   game2 = serializeAndDeserialize(game);
@@ -922,7 +922,7 @@ test('ionReactor_surrenderToPolice', () => {
   replaySkipEncounters(replay, breakConditionFn);
 
   let encounterTextEl = encounterBox();
-  assertEqual(textOf(encounterTextEl).includes('you encounter a police'), true);
+  expect(textOf(encounterTextEl)).toContain('you encounter a police');
 
   replay.replayEvent('ecButton_Surrender', 'click');
 
@@ -936,7 +936,7 @@ test('ionReactor_surrenderToPolice', () => {
   replaySkipEncounters(replay, breakConditionFn);
 
   encounterTextEl = encounterBox();
-  assertEqual(textOf(encounterTextEl).includes('you encounter a police'), true);
+  expect(textOf(encounterTextEl)).toContain('you encounter a police');
 
   // Attack the police to gain the option to surrender (otherwise they ignore me)
   replay.replayEvent('ecButton_Attack', 'click');
@@ -2433,7 +2433,7 @@ test('jarek_noSlots', () => {
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.AmbassadorJarek);
 
   let specialEl = button('Special');
-  assertEqual(specialEl !== null, true);
+  expect(specialEl).not.toBeNull();
 
   replay.replayEvent('Special', 'click');
   assertEqual(
@@ -2451,7 +2451,7 @@ test('jarek_noSlots', () => {
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.AmbassadorJarek);
 
   specialEl = button('Special');
-  assertEqual(specialEl !== null, true);
+  expect(specialEl).not.toBeNull();
 });
 
 test('alienArtifact', () => {
@@ -3514,7 +3514,7 @@ test('wild_noSlots', () => {
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.TransportWild);
 
   let specialEl = button('Special');
-  assertEqual(specialEl !== null, true);
+  expect(specialEl).not.toBeNull();
 
   replay.replayEvent('Special', 'click');
   assertEqual(
@@ -3532,7 +3532,7 @@ test('wild_noSlots', () => {
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.TransportWild);
 
   specialEl = button('Special');
-  assertEqual(specialEl !== null, true);
+  expect(specialEl).not.toBeNull();
 });
 
 test('wild_noLaser', () => {
@@ -3551,7 +3551,7 @@ test('wild_noLaser', () => {
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.TransportWild);
 
   const specialEl = button('Special');
-  assertEqual(specialEl !== null, true);
+  expect(specialEl).not.toBeNull();
 });
 
 test('wild_onBoard', () => {
@@ -3984,7 +3984,7 @@ test('wild_ionReactor', () => {
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.TransportWild);
 
   const specialEl = button('Special');
-  assertEqual(specialEl !== null, true);
+  expect(specialEl).not.toBeNull();
 });
 
 test('dragonfly_flee', () => {
@@ -4151,7 +4151,7 @@ test('japori_noCargoSpace', () => {
   assertEqual(game.questListDescription(), 'No open quests.');
 
   const specialEl = button('Special');
-  assertEqual(specialEl !== null, true);
+  expect(specialEl).not.toBeNull();
 });
 
 test('japori_hasMedicine', () => {
@@ -4326,7 +4326,7 @@ test('eraseRecord_accept', () => {
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   specialEl = button('Special');
-  assertEqual(specialEl !== null, true);
+  expect(specialEl).not.toBeNull();
 
   replay.replayEvent('Special', 'click');
   assertEqual(
@@ -4410,7 +4410,7 @@ test('eraseRecord_decline', () => {
   replay.replayEvent('alertButton_Dismiss', 'click');
 
   specialEl = button('Special');
-  assertEqual(specialEl !== null, true);
+  expect(specialEl).not.toBeNull();
 
   replay.replayEvent('Special', 'click');
   assertEqual(
@@ -4424,7 +4424,7 @@ test('eraseRecord_decline', () => {
   replay.replayEvent('alertButton_No', 'click');
 
   specialEl = button('Special');
-  assertEqual(specialEl !== null, true);
+  expect(specialEl).not.toBeNull();
 
   assertEqual(game.commander.credits, creditsBefore);
   assertEqual(game.commander.policeRecordScore, -33);
@@ -4634,7 +4634,7 @@ test('retire', () => {
   replay.replayEvent('alertButton_Yes', 'click');
 
   const endMessage = textOf(scoreMessage());
-  assertEqual(endMessage.startsWith('You achieved a score'), true);
+  expect(endMessage).toMatch(/^You achieved a score/);
   assertTrue(button('End Game and Start Over') !== null, 'end game button shows');
 });
 
