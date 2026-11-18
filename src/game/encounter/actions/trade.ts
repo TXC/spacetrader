@@ -68,6 +68,8 @@ function offerToBuy(encounter: Encounter, onlyIllegal: boolean): Offer {
     } else {
       tradePrice *= runtime.gameRand.randomIntBelow(100) <= 10 ? 0.9 : 1.1;
     }
+    // The original keeps every step of the price a whole number.
+    tradePrice = Math.floor(tradePrice);
 
     const tradeItem = tradeItemForType(itemType);
     itemName = tradeItem.name;
@@ -106,11 +108,12 @@ function offerToSell(encounter: Encounter, onlyIllegal: boolean): Offer {
     } else {
       tradePrice *= runtime.gameRand.randomIntBelow(100) <= 10 ? 1.1 : 0.9;
     }
+    // The original keeps every step of the price a whole number.
+    tradePrice = Math.floor(tradePrice);
 
     const tradeItem = tradeItemForType(itemType);
     itemName = tradeItem.name;
-    tradePrice = Math.floor(tradePrice / tradeItem.roundOffPrice);
-    tradePrice = (tradePrice + 1) * tradeItem.roundOffPrice;
+    tradePrice = Math.floor(tradePrice / tradeItem.roundOffPrice) * tradeItem.roundOffPrice;
     tradePrice = Math.max(tradePrice, tradeItem.minTradePrice);
     tradePrice = Math.min(tradePrice, tradeItem.maxTradePrice);
     const freeCargoBays = encounter._game.commander.ship.freeCargoBays();
