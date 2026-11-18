@@ -1,6 +1,7 @@
 import { accessoryForType } from './Accessory.ts';
 import type { AccessoryType } from './Accessory.ts';
 import { CrewMember } from './CrewMember.ts';
+import type { CrewMemberFields } from './CrewMember.ts';
 import { Ship } from './Ship.ts';
 import type { ShipModel } from './Ship.ts';
 import { SolarSystem } from './SolarSystem.ts';
@@ -124,129 +125,149 @@ export type Recruit = {
 // How a new commander starts: the money, the ship, and the first system.
 type Start = { difficulty: number; credits: number; ship: Ship; system: SolarSystem };
 
+// Everything a commander is made of.
+type CommanderFields = CrewMemberFields & {
+  basePrices: number[] | null;
+  days: number;
+  noClaim: number;
+  policeKills: number;
+  traderKills: number;
+  pirateKills: number;
+  policeRecordScore: number;
+  debt: number;
+  reputationScore: number;
+  travelClicksRemaining: number;
+  arrivedViaWormhole: boolean;
+  artifactOnBoard: boolean;
+  litterWarning: boolean;
+  inspected: boolean;
+  raided: boolean;
+  boughtMoon: boolean;
+  hasEscapePod: boolean;
+  hasInsurance: boolean;
+  credits: number;
+  difficulty: number;
+  reserveMoney: boolean;
+  currentSystem: SolarSystem;
+  ship: Ship;
+};
+
 export class Commander extends CrewMember {
-  declare _basePrices: number[] | null;
-  declare days: number;
-  declare _noClaim: number;
-  declare policeKills: number;
-  declare traderKills: number;
-  declare pirateKills: number;
-  declare policeRecordScore: number;
-  declare _debt: number;
-  declare _reputationScore: number;
-  declare _travelClicksRemaining: number;
-  declare arrivedViaWormhole: boolean;
-  declare artifactOnBoard: boolean;
-  declare litterWarning: boolean;
-  declare inspected: boolean;
-  declare raided: boolean;
-  declare boughtMoon: boolean;
-  declare hasEscapePod: boolean;
-  declare hasInsurance: boolean;
-  // The next five are not set by the constructor. They are unset until Game sets the
-  // commander up or a saved game is loaded; the types say 'always set' to match how the rules use them.
-  declare _credits: number;
-  declare _difficulty: number;
-  declare reserveMoney: boolean;
-  declare _currentSystem: SolarSystem;
-  declare ship: Ship;
+  private _basePrices: number[] | null;
+  days: number;
+  private _noClaim: number;
+  policeKills: number;
+  traderKills: number;
+  pirateKills: number;
+  policeRecordScore: number;
+  private _debt: number;
+  private _reputationScore: number;
+  private _travelClicksRemaining: number;
+  arrivedViaWormhole: boolean;
+  artifactOnBoard: boolean;
+  litterWarning: boolean;
+  inspected: boolean;
+  raided: boolean;
+  boughtMoon: boolean;
+  hasEscapePod: boolean;
+  hasInsurance: boolean;
+  private _credits: number;
+  readonly difficulty: number;
+  reserveMoney: boolean;
+  private _currentSystem: SolarSystem;
+  ship: Ship;
 
-  constructor(name: string, engineer = 0, pilot = 0, fighter = 0, trader = 0) {
-    super(CrewMember.newFields(name, engineer, pilot, fighter, trader));
-
-    this._basePrices = null;
-    this.days = 0;
-    this._noClaim = 0;
-    this.policeKills = 0;
-    this.traderKills = 0;
-    this.pirateKills = 0;
-    this.policeRecordScore = 0;
-    this._debt = 0;
-    this._reputationScore = DEFAULT_REPUTATION_SCORE;
-    this._travelClicksRemaining = 0;
-    this.arrivedViaWormhole = false;
-    this.artifactOnBoard = false;
-    this.litterWarning = false;
-    this.inspected = false;
-    this.raided = false;
-    this.boughtMoon = false;
-    this.hasEscapePod = false;
-    this.hasInsurance = false;
+  private constructor(fields: CommanderFields) {
+    super(fields);
+    this._basePrices = fields.basePrices;
+    this.days = fields.days;
+    this._noClaim = fields.noClaim;
+    this.policeKills = fields.policeKills;
+    this.traderKills = fields.traderKills;
+    this.pirateKills = fields.pirateKills;
+    this.policeRecordScore = fields.policeRecordScore;
+    this._debt = fields.debt;
+    this._reputationScore = fields.reputationScore;
+    this._travelClicksRemaining = fields.travelClicksRemaining;
+    this.arrivedViaWormhole = fields.arrivedViaWormhole;
+    this.artifactOnBoard = fields.artifactOnBoard;
+    this.litterWarning = fields.litterWarning;
+    this.inspected = fields.inspected;
+    this.raided = fields.raided;
+    this.boughtMoon = fields.boughtMoon;
+    this.hasEscapePod = fields.hasEscapePod;
+    this.hasInsurance = fields.hasInsurance;
+    this._credits = fields.credits;
+    this.difficulty = fields.difficulty;
+    this.reserveMoney = fields.reserveMoney;
+    this._currentSystem = fields.currentSystem;
+    this.ship = fields.ship;
   }
 
   // A new commander, arriving at their first system, whose prices are drawn. Not called
   // `create`: a subclass's static methods must accept what its base class's accept.
   static enlist(recruit: Recruit, start: Start): Commander {
     const { name, engineer, pilot, fighter, trader } = recruit;
-    const commander = new Commander(name, engineer, pilot, fighter, trader);
-    commander.setDifficulty(start.difficulty);
-    commander.credits = start.credits;
-    commander.ship = start.ship;
-    commander.moveTo(start.system);
+    const commander = new Commander({
+      ...CrewMember.newFields(name, engineer, pilot, fighter, trader),
+      basePrices: null,
+      days: 0,
+      noClaim: 0,
+      policeKills: 0,
+      traderKills: 0,
+      pirateKills: 0,
+      policeRecordScore: 0,
+      debt: 0,
+      reputationScore: DEFAULT_REPUTATION_SCORE,
+      travelClicksRemaining: 0,
+      arrivedViaWormhole: false,
+      artifactOnBoard: false,
+      litterWarning: false,
+      inspected: false,
+      raided: false,
+      boughtMoon: false,
+      hasEscapePod: false,
+      hasInsurance: false,
+      credits: start.credits,
+      difficulty: start.difficulty,
+      reserveMoney: false,
+      currentSystem: start.system,
+      ship: start.ship,
+    });
+    commander.arrive();
     return commander;
   }
 
   // A commander from a saved game, as parseSavedGame checked it, at one of its systems.
   static restore(state: CommanderState, solarSystems: SolarSystem[]): Commander {
-    return Commander.fromSerializedState(state, solarSystems);
-  }
-
-  static fromSerializedState(serializedState: CommanderState, solarSystems?: SolarSystem[]) {
-    const commander = new Commander(serializedState.name);
-    commander.updateWithSerializedState(serializedState, solarSystems);
-    return commander;
-  }
-
-  updateWithSerializedState(serializedState: CommanderState, solarSystems?: SolarSystem[]) {
-    this.name = serializedState.name || null;
-    this.engineer = serializedState.engineer;
-    this.pilot = serializedState.pilot;
-    this.fighter = serializedState.fighter;
-    this.trader = serializedState.trader;
-
-    this.forQuest = serializedState.forQuest;
-    this.carriesMaxTraderBoost = serializedState.carriesMaxTraderBoost;
-    this.freeMercenaryCost = serializedState.freeMercenaryCost;
-
-    this._credits = serializedState.credits;
-    this._debt = serializedState.debt;
-    this.days = serializedState.days;
-    this.policeKills = serializedState.policeKills;
-    this.traderKills = serializedState.traderKills;
-    this.pirateKills = serializedState.pirateKills;
-    this.policeRecordScore = serializedState.policeRecordScore;
-    this._reputationScore = serializedState.reputationScore;
-    this._noClaim = serializedState.noClaim;
-    this._travelClicksRemaining = serializedState.travelClicksRemaining;
-    this._difficulty = serializedState.difficulty;
-
-    // Boolean properties
-    this.boughtMoon = Boolean(serializedState.boughtMoon);
-    this.hasEscapePod = Boolean(serializedState.hasEscapePod);
-    this.hasInsurance = Boolean(serializedState.hasInsurance);
-    this.raided = Boolean(serializedState.raided);
-    this.inspected = Boolean(serializedState.inspected);
-    this.litterWarning = Boolean(serializedState.litterWarning);
-    this.artifactOnBoard = Boolean(serializedState.artifactOnBoard);
-    this.arrivedViaWormhole = Boolean(serializedState.arrivedViaWormhole);
-    this.reserveMoney = Boolean(serializedState.reserveMoney);
-
-    // Set current system and ship
-    this._currentSystem = SolarSystem.solarSystemForName(
-      serializedState.currentSystemName,
-      solarSystems!
-    )!;
-    ensureType(this._currentSystem, 'object');
-
-    this.ship = Ship.load(serializedState.ship, solarSystems!);
-
-    // Base prices
-    if (serializedState.basePrices) {
-      this._basePrices = [...serializedState.basePrices];
-      ensureArrayOrNull(this._basePrices, 'number');
-    } else {
-      this._basePrices = null;
-    }
+    const currentSystem = SolarSystem.solarSystemForName(state.currentSystemName, solarSystems)!;
+    ensureType(currentSystem, 'object');
+    return new Commander({
+      ...CrewMember.savedFields(state),
+      days: state.days,
+      noClaim: state.noClaim,
+      policeKills: state.policeKills,
+      traderKills: state.traderKills,
+      pirateKills: state.pirateKills,
+      policeRecordScore: state.policeRecordScore,
+      debt: state.debt,
+      reputationScore: state.reputationScore,
+      travelClicksRemaining: state.travelClicksRemaining,
+      arrivedViaWormhole: state.arrivedViaWormhole,
+      artifactOnBoard: state.artifactOnBoard,
+      litterWarning: state.litterWarning,
+      inspected: state.inspected,
+      raided: state.raided,
+      boughtMoon: state.boughtMoon,
+      hasEscapePod: state.hasEscapePod,
+      hasInsurance: state.hasInsurance,
+      credits: state.credits,
+      difficulty: state.difficulty,
+      reserveMoney: state.reserveMoney,
+      currentSystem,
+      ship: Ship.load(state.ship, solarSystems),
+      basePrices: state.basePrices ? [...state.basePrices] : null,
+    });
   }
 
   _hasDubiousPoliceRecord() {
@@ -305,16 +326,6 @@ export class Commander extends CrewMember {
     if (ensureInteger(t)) {
       this._travelClicksRemaining = t;
     }
-  }
-
-  setDifficulty(d: number) {
-    if (ensureInteger(d)) {
-      this._difficulty = d;
-    }
-  }
-
-  get difficulty() {
-    return this._difficulty;
   }
 
   moveTo(currentSystem: SolarSystem) {
@@ -535,7 +546,7 @@ export class Commander extends CrewMember {
       let actualSellAmount = Math.min(quantity, this.ship.tradeItemQuantityForType(itemType));
 
       const isDumping = forceDump || this.sellPriceForItem(itemType) === 0;
-      const dumpPenalty = 5 * (this._difficulty + 1);
+      const dumpPenalty = 5 * (this.difficulty + 1);
       if (isDumping) {
         actualSellAmount = Math.min(
           actualSellAmount,
@@ -609,7 +620,7 @@ export class Commander extends CrewMember {
         this.policeRecordScore--;
       }
     } else if (this.policeRecordScore < PoliceRecordScore.Dubious) {
-      if (this._difficulty <= Difficulty.Normal || this.days % this._difficulty === 0) {
+      if (this.difficulty <= Difficulty.Normal || this.days % this.difficulty === 0) {
         this.policeRecordScore++;
       }
     }
@@ -650,8 +661,8 @@ export class Commander extends CrewMember {
     ensureInteger(this._travelClicksRemaining);
     state.travelClicksRemaining = this._travelClicksRemaining;
 
-    ensureInteger(this._difficulty);
-    state.difficulty = this._difficulty;
+    ensureInteger(this.difficulty);
+    state.difficulty = this.difficulty;
 
     // Boolean properties
     ensureBool(this.boughtMoon);
