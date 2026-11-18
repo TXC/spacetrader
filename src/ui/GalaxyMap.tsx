@@ -2,6 +2,8 @@ import { useLayoutEffect, useRef } from 'react';
 import type { Game } from '../game/Game.ts';
 import type { SolarSystem } from '../game/SolarSystem.ts';
 import { GalaxyView } from './canvas/GalaxyView.ts';
+import styles from './GalaxyMap.module.css';
+import shared from './shared.module.css';
 
 type Props = {
   game: Game;
@@ -24,7 +26,20 @@ export function GalaxyMap({ game, zoomed, selected, wormhole, onSelect, viewRef 
   });
   useLayoutEffect(() => {
     const start = latest.current;
-    const view = new GalaxyView(host.current!, game, start.selected, start.wormhole, zoomed, true);
+    const classes = {
+      host: zoomed ? styles.near : styles.whole,
+      canvas: shared.canvas,
+      info: styles.info,
+    };
+    const view = new GalaxyView(
+      host.current!,
+      game,
+      start.selected,
+      start.wormhole,
+      zoomed,
+      true,
+      classes
+    );
     view.delegate = {
       galaxyViewSelectedSolarSystem: (_view, system, viaWormhole) =>
         latest.current.onSelect(system, viaWormhole),

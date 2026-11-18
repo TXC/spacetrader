@@ -33,6 +33,7 @@ export class GalaxyView {
   declare game: Game;
   declare zoomed: boolean;
   declare showNames: boolean;
+  declare infoClass: string;
   declare planets: Planet[];
   declare selectedSystem: SolarSystem | null;
   declare selectedWormhole: boolean;
@@ -64,12 +65,15 @@ export class GalaxyView {
     selectedSystem: SolarSystem | null,
     selectedWormhole: boolean,
     zoomed: boolean,
-    showNames: boolean
+    showNames: boolean,
+    // The class names of the elements made here; their styles are the caller's.
+    classes: { host: string; canvas: string; info: string }
   ) {
     this.div = div;
     this.game = game;
     this.zoomed = zoomed;
     this.showNames = showNames;
+    this.infoClass = classes.info;
     this.planets = [];
     this.selectedSystem = selectedSystem;
     this.selectedWormhole = selectedWormhole;
@@ -79,10 +83,12 @@ export class GalaxyView {
     this.canvasContainer.id = zoomed
       ? 'zoomedGalaxyViewCanvasContainer'
       : 'galaxyViewCanvasContainer';
+    this.canvasContainer.className = classes.host;
     this.div.appendChild(this.canvasContainer);
 
     this.canvas = document.createElement('canvas');
     this.canvas.id = zoomed ? 'zoomedGalaxyViewCanvas' : 'galaxyViewCanvas';
+    this.canvas.className = classes.canvas;
     this.context = this.canvas.getContext('2d')!;
     this.canvasContainer.appendChild(this.canvas);
     this.initCanvas();
@@ -270,7 +276,8 @@ export class GalaxyView {
         systemInfoEl = document.createElement('div');
         systemInfoEl.id = 'gv-system-info';
         this.canvasContainer.appendChild(systemInfoEl);
-        systemInfoEl.classList.add('gv-system-info');
+        systemInfoEl.className = this.infoClass;
+        systemInfoEl.dataset.mapInfo = '';
       }
 
       const realSystem = wormhole ? s.wormhole! : s;
