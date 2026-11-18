@@ -13,7 +13,7 @@ let handlerError: unknown = null;
 beforeAll(() => {
   document.body.insertAdjacentHTML(
     'beforeend',
-    '<div id="game"></div><div id="cheats" class="hidden"></div>'
+    '<div id="game"></div><div id="cheats" hidden></div>'
   );
   runtime.debugMode = DebugMode.Assert;
   window.addEventListener('error', event => {
