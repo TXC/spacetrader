@@ -1,0 +1,22 @@
+{
+  "Beginner": {
+    "sha256": "a5f7063556ce6f6679dc1d914914420bda99d96cdb1da57f3ce2c5ff538780b2",
+    "draws": 4345
+  },
+  "Easy": {
+    "sha256": "9b9c57659a5b72b71612cc9e819165d489d25ee449a58162c4d02d130651f430",
+    "draws": 4345
+  },
+  "Normal": {
+    "sha256": "9eeb7b1d88103434d318bb35a6b6f2cc299326e2846e3f70000f5986350d4aba",
+    "draws": 4345
+  },
+  "Hard": {
+    "sha256": "d18711c7b354dd6ccac404ad64e1cf54da9c8187d27756fdc34d25a15f9b13d4",
+    "draws": 4345
+  },
+  "Absurd": {
+    "sha256": "52477ec71ff3277dcbe54eac6274aec4e78cb12e2ad88dfeebb734ba58fa74ea",
+    "draws": 4345
+  }
+}
