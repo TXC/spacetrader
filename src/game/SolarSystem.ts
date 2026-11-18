@@ -505,13 +505,11 @@ export class SolarSystem {
   }
 
   tradeItemQuantityForType(type: number) {
-    //console.assert(type >= 0 && type < TRADE_ITEM_COUNT);
     Utils.ensureInteger(type);
     return this._tradeItemInventory[type];
   }
 
   boughtQuantity(quantity: number, type: number) {
-    //console.assert(type >= 0 && type < TRADE_ITEM_COUNT);
     if (Utils.ensureInteger(quantity) && Utils.ensureInteger(type)) {
       this._tradeItemInventory[type] -= Math.min(quantity, this._tradeItemInventory[type]);
     }

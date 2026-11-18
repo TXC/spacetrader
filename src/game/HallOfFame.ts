@@ -2,14 +2,12 @@
 import { AlertActionType, AlertViewController } from './alerts.ts';
 import { Game, GameEndStatus } from './Game.ts';
 import type { GameState } from './Game.ts';
-import { session } from './session.ts';
+import { MAX_HIGH_SCORES, session } from './session.ts';
 import { difficultyName } from './SolarSystem.types.ts';
 import { named } from './texts.ts';
 import { pLog } from './Utilities.ts';
 
-export const MAX_HIGH_SCORES = 6;
-
-// Where the high scores are kept. The old root screen provides this for now.
+// Where the high scores are kept: the session.
 export type Scores = {
   highScores(count: number): GameState[];
   clearHighScores(): void;

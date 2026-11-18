@@ -5,8 +5,6 @@ import { Utils } from './Utilities.ts';
 // Constants
 export const MOON_PRICE = 500000;
 
-export const SQR = (x: number) => x * x;
-
 // Enumerations
 export const Difficulty = {
   Beginner: 0,

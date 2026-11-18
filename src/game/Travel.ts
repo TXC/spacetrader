@@ -729,7 +729,6 @@ export class Travel extends Store {
       }
     }
 
-    console.log('Calling promptForStrings: ' + alertStrings);
     this._promptForStrings(alertStrings, () => {
       this._done('arrived');
 
@@ -748,8 +747,6 @@ export class Travel extends Store {
 
     if (firstString) {
       alertStrings.shift(); // Removes the first element from the array
-
-      console.log('Prompt with alert string: ' + firstString);
 
       const aC = new AlertViewController(firstString);
       aC.addAction('Dismiss', AlertActionType.Default, () => {

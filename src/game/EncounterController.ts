@@ -1304,11 +1304,8 @@ export class EncounterController {
 
       runtime.actionLog.performAsync(() => {
         if (sessionID === this._game.uniqueID + '-' + this._autoEncounterSession) {
-          console.log(`Auto-${actionType} action fired -- performed`);
           pLog.log(53);
           this.performAction(actionType);
-        } else {
-          console.log(`Auto-${actionType} action fired -- ignored`);
         }
       }, 1500);
     }
