@@ -257,6 +257,7 @@ export function performStressTest(
 
       replay.replayEvent(chosenElementID, chosenEventName);
       if (handlerError) throw handlerError;
+      assertUniqueIds();
 
       if (chosenElementID.startsWith('galacticChart')) {
         galacticChartConsecutiveActions++;
@@ -310,6 +311,13 @@ function assertWholeWithin(name: string, value: number, max: number) {
 }
 
 // What holds for every game, however it was played.
+// Recordings press elements by id, so no two elements on the page may share one.
+function assertUniqueIds() {
+  const ids = [...document.querySelectorAll('[id]')].map(element => element.id);
+  const repeated = ids.filter((id, index) => ids.indexOf(id) !== index);
+  expect(repeated, 'element ids used more than once').toEqual([]);
+}
+
 function assertSaneGame(game: Game) {
   const { commander } = game;
   const { ship } = commander;
