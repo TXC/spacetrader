@@ -19,7 +19,14 @@ import {
   SystemSize,
   WildQuestStatus,
 } from './SolarSystem.types.ts';
-import { Resource, Status, TechLevel } from './TradeItem.types.ts';
+import {
+  FAKE_QUEST_CARGO,
+  FAKE_QUEST_CARGO_REACTOR,
+  Resource,
+  Status,
+  TechLevel,
+  TradeItemType,
+} from './TradeItem.types.ts';
 
 // Raise this when the saved format changes, and teach parseSavedGame the older ones.
 export const SAVE_VERSION = 2;
@@ -53,6 +60,9 @@ const CrewMemberSchema = v.strictObject({
   freeMercenaryCost: bool,
 });
 
+// What a hold can carry: goods, and the quest cargo that takes up bays like them.
+const cargoKinds = v.array(oneOf({ ...TradeItemType, FAKE_QUEST_CARGO, FAKE_QUEST_CARGO_REACTOR }));
+
 // Cargo and its buying prices are saved as two lists each: the kinds, and the amounts.
 const ShipSchema = v.strictObject({
   upgradedHull: bool,
@@ -61,9 +71,9 @@ const ShipSchema = v.strictObject({
   hull: num,
   tribbles: num,
   currentShieldPower: num,
-  cargoKeys: numbers,
+  cargoKeys: cargoKinds,
   cargoValues: numbers,
-  cargoBuyingPriceKeys: numbers,
+  cargoBuyingPriceKeys: cargoKinds,
   cargoBuyingPriceValues: numbers,
   // Written only when the ship has any.
   weaponTypes: v.optional(v.array(between(WeaponFirst, WeaponLast))),
