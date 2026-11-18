@@ -59,11 +59,5 @@ function drinkGoodTonic(encounter: Encounter): void {
 
 function drinkOldTonic(encounter: Encounter): void {
   pLog.log(106);
-  encounter._game.commander.increaseSkillRandomly();
-  encounter._game.commander.decreaseSkillRandomly();
-  if (encounter._game.difficulty >= Difficulty.Hard) {
-    encounter._game.commander.increaseSkillRandomly();
-    encounter._game.commander.decreaseSkillRandomly();
-    encounter._game.commander.decreaseSkillRandomly();
-  }
+  encounter._game.commander.drinkOldTonic(encounter._game.difficulty);
 }
