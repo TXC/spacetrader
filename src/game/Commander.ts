@@ -174,7 +174,15 @@ export class Commander extends CrewMember {
     serializedState: CommanderState,
     solarSystems?: SolarSystem[]
   ) {
-    super.updateWithSerializedState(serializedState);
+    this.name = serializedState.name || null;
+    this.engineer = serializedState.engineer;
+    this.pilot = serializedState.pilot;
+    this.fighter = serializedState.fighter;
+    this.trader = serializedState.trader;
+
+    this._forQuest = serializedState.forQuest;
+    this.carriesMaxTraderBoost = serializedState.carriesMaxTraderBoost;
+    this.freeMercenaryCost = serializedState.freeMercenaryCost;
 
     this._credits = serializedState.credits;
     this._debt = serializedState.debt;
