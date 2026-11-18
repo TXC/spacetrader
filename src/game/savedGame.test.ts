@@ -114,6 +114,11 @@ test.each([
     (state: Record<string, unknown>) => (state.reactorStatus = 23),
   ],
   [
+    'credits that are not a whole number',
+    (state: Record<string, unknown>) =>
+      ((state.commander as Record<string, unknown>).credits = 1000.5),
+  ],
+  [
     'a damaged ship',
     (state: Record<string, unknown>) =>
       ((state.commander as Record<string, unknown>).ship = { type: 1 }),

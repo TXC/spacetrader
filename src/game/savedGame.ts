@@ -32,6 +32,8 @@ import {
 export const SAVE_VERSION = 2;
 
 const num = v.pipe(v.number(), v.finite());
+// The amounts the rules add to and take from, which the game keeps whole.
+const whole = v.pipe(num, v.integer());
 const numbers = v.array(num);
 const bool = v.boolean();
 const text = v.string();
@@ -67,8 +69,8 @@ const cargoKinds = v.array(oneOf({ ...TradeItemType, FAKE_QUEST_CARGO, FAKE_QUES
 const ShipSchema = v.strictObject({
   upgradedHull: bool,
   type: oneOf(ShipModelType),
-  fuel: num,
-  hull: num,
+  fuel: whole,
+  hull: whole,
   tribbles: num,
   currentShieldPower: num,
   cargoKeys: cargoKinds,
@@ -84,16 +86,16 @@ const ShipSchema = v.strictObject({
 
 const CommanderSchema = v.strictObject({
   ...CrewMemberSchema.entries,
-  credits: num,
-  debt: num,
+  credits: whole,
+  debt: whole,
   days: num,
   policeKills: num,
   traderKills: num,
   pirateKills: num,
   policeRecordScore: num,
-  reputationScore: num,
-  noClaim: num,
-  travelClicksRemaining: num,
+  reputationScore: whole,
+  noClaim: whole,
+  travelClicksRemaining: whole,
   boughtMoon: bool,
   hasEscapePod: bool,
   hasInsurance: bool,
@@ -139,7 +141,7 @@ const gameEntries = {
   reactorStatus: between(ReactorQuestStatus.Open, ReactorQuestStatus.ClosedSaved),
   difficulty,
   endStatus: num,
-  monsterHull: num,
+  monsterHull: whole,
   score: num,
   remindLoans: bool,
   tribbleMessage: bool,
