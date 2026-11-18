@@ -10,7 +10,7 @@ import { runtime } from './runtime.ts';
 import { TechLevel, TradeItemType } from './TradeItem.types.ts';
 
 test('every kind of government is in the table under its own number', () => {
-  for (let type = 0; type < POLITICS_COUNT; type++) {
+  for (let type = PoliticsType.Anarchy; type < POLITICS_COUNT; type++) {
     expect(politicsForType(type).type).toBe(type);
   }
 });

@@ -24,6 +24,7 @@ export const PoliticsType = {
 } as const;
 export type PoliticsType = ValueOf<typeof PoliticsType>;
 export const POLITICS_COUNT = countOf(PoliticsType);
+const POLITICS_TYPES = Object.values(PoliticsType);
 
 const OCCURRENCE = ['No', 'Minimal', 'Few', 'Some', 'Moderate', 'Many', 'Abundant'];
 
@@ -405,15 +406,16 @@ const POLITICS: Record<PoliticsType, Politics> = {
   },
 };
 
-// The government with this number, as a saved game stores it.
-export function politicsForType(type: number): Politics {
-  return POLITICS[type as PoliticsType];
+export function politicsForType(type: PoliticsType): Politics {
+  return POLITICS[type];
 }
 
 // A government picked at random among those that can exist at this tech level.
 export function randomPoliticsForTechLevel(techLevel: TechLevel): Politics {
   while (true) {
-    const politics = politicsForType(runtime.gameRand.randomIntBelow(POLITICS_COUNT));
+    const politics = politicsForType(
+      POLITICS_TYPES[runtime.gameRand.randomIntBelow(POLITICS_COUNT)]
+    );
     if (politics.minTechLevel <= techLevel && politics.maxTechLevel >= techLevel) {
       return politics;
     }
