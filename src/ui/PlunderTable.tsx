@@ -46,7 +46,6 @@ export function PlunderTable({ plunder }: { plunder: Plunder }) {
         </tbody>
       </table>
       {plunder.bays()}
-      <br />
     </>
   );
 }
