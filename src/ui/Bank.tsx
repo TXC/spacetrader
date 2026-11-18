@@ -10,6 +10,7 @@ import { MAX_SAFE_PILOT_INSURANCE_DISCOUNT } from '../game/Commander.ts';
 import type { Game } from '../game/Game.ts';
 import { session } from '../game/session.ts';
 import { AlertViewController } from '../game/alerts.ts';
+import styles from './Bank.module.css';
 import { BaysCredits } from './BaysCredits.tsx';
 import { LoggedButton, LoggedCheckbox } from './Logged.tsx';
 import { useSession } from './useStore.ts';
@@ -61,7 +62,7 @@ function Loans({ game }: GameProps) {
   const debt = game.commander.debt;
   const credit = borrowable(game.commander);
   return (
-    <table className="bankTable" style={{ borderCollapse: 'collapse' }}>
+    <table className={styles.figures}>
       <tbody>
         <Row title="Current debt:" amount={`$${debt}`} />
         {debt > 0 && (
@@ -104,7 +105,7 @@ function Insurance({ game }: GameProps) {
   const discount = Math.min(MAX_SAFE_PILOT_INSURANCE_DISCOUNT, commander.noClaim);
   return (
     <>
-      <table className="bankTable" style={{ borderCollapse: 'collapse' }}>
+      <table className={styles.figures}>
         <tbody>
           <Row
             title="Ship value:"
@@ -114,7 +115,9 @@ function Insurance({ game }: GameProps) {
           <Row title="Cost:" amount={`$${commander.insurancePrice()}/day`} />
         </tbody>
       </table>
-      <InsuranceButton game={game} />
+      <div className={styles.closing}>
+        <InsuranceButton game={game} />
+      </div>
     </>
   );
 }
@@ -126,13 +129,11 @@ export function Bank({ game }: GameProps) {
       <h1 className={shared.centredBlock}>Bank</h1>
       <h4>Loans</h4>
       <Loans game={game} />
-      <RemindLoans game={game} />
-      <br />
-      <br />
+      <div className={styles.closing}>
+        <RemindLoans game={game} />
+      </div>
       <h4>Insurance</h4>
       <Insurance game={game} />
-      <br />
-      <br />
       <BaysCredits game={game} />
     </div>
   );

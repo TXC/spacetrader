@@ -293,12 +293,6 @@ nav {
   margin: auto;
 }
 
-.bankTable {
-  width: 100%;
-  max-width: 20rem;
-  margin: auto;
-}
-
 /* Styling for the backdrop (overlay) */
 .alert-backdrop {
   position: fixed;
