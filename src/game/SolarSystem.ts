@@ -215,12 +215,7 @@ export class SolarSystem {
 
     if (!name) return null;
 
-    for (const solarSystem of solarSystems) {
-      if (solarSystem._name === name) {
-        return solarSystem;
-      }
-    }
-    return null;
+    return solarSystems.find(solarSystem => solarSystem._name === name) ?? null;
   }
 
   static fromSerializedState(serializedState: SolarSystemState) {

@@ -623,13 +623,7 @@ export class Ship {
   static crewMemberForName(name: string, solarSystems: SolarSystem[]) {
     if (!name) return null;
 
-    for (const solarSystem of solarSystems) {
-      if (solarSystem.mercenary && solarSystem.mercenary.name === name) {
-        return solarSystem.mercenary;
-      }
-    }
-
-    return null;
+    return solarSystems.find(system => system.mercenary?.name === name)?.mercenary ?? null;
   }
 
   get crew() {
@@ -664,12 +658,7 @@ export class Ship {
 
   // Method to remove a crew member by name
   removeCrewMemberWithName(name: string) {
-    let toRemove: CrewMember | null = null;
-    this._crew.forEach(crewMember => {
-      if (crewMember.name === name) {
-        toRemove = crewMember;
-      }
-    });
+    const toRemove = this._crew.findLast(crewMember => crewMember.name === name);
 
     if (toRemove) {
       pLog.log(46);
@@ -726,14 +715,9 @@ export class Ship {
 
   // Method to calculate weapon power within a range
   weaponPowerBetweenMinMaxInclusive(min: number, max: number) {
-    let power = 0;
-
-    this._weapons.forEach(weapon => {
-      const type = weapon.type;
-      if (type >= min && type <= max) {
-        power += weapon.power;
-      }
-    });
+    const power = this._weapons
+      .filter(weapon => weapon.type >= min && weapon.type <= max)
+      .reduce((sum, weapon) => sum + weapon.power, 0);
 
     Utils.ensureInteger(power);
     return power;
@@ -751,18 +735,8 @@ export class Ship {
 
   // Method to count gadgets of a specific type
   countGadgetOfType(gadgetType: number, limitOne: boolean) {
-    let count = 0;
-
-    for (const gadget of this._gadgets) {
-      if (gadget.type === gadgetType) {
-        count++;
-        if (limitOne) {
-          return count;
-        }
-      }
-    }
-
-    return count;
+    const count = this._gadgets.filter(gadget => gadget.type === gadgetType).length;
+    return limitOne ? Math.min(count, 1) : count;
   }
 
   // Method to check if the ship has a shield of a specific type
@@ -908,10 +882,7 @@ export class Ship {
   }
 
   rechargeShieldPower() {
-    this._currentShieldPower = 0;
-    this._shields.forEach(shield => {
-      this._currentShieldPower += shield.power;
-    });
+    this._currentShieldPower = this._shields.reduce((sum, shield) => sum + shield.power, 0);
   }
 
   rechargeShieldPowerByAmount(amount: number) {
@@ -995,17 +966,10 @@ export class Ship {
     value -= (this._hullStrength() - this._hull) * model.repairCosts;
     value -= (model.fuelTanks - this._fuel) * model.costOfFuel;
 
-    this._weapons.forEach(weapon => {
-      value += resalePrice(weapon.price);
-    });
-
-    this._shields.forEach(shield => {
-      value += resalePrice(shield.price);
-    });
-
-    this._gadgets.forEach(gadget => {
-      value += resalePrice(gadget.price);
-    });
+    value += [...this._weapons, ...this._shields, ...this._gadgets].reduce(
+      (sum, accessory) => sum + resalePrice(accessory.price),
+      0
+    );
 
     Utils.ensureInteger(value);
 
@@ -1013,19 +977,11 @@ export class Ship {
   }
 
   _enemyShipValuationWithOpponent(opponent: CrewMember) {
-    let value = 0;
-    const model = shipModelForType(this._type);
-    value += model.price;
-
-    this._weapons.forEach(weapon => {
-      value += weapon.price;
-    });
-
-    this._shields.forEach(shield => {
-      value += shield.price;
-    });
-
     // Don't include gadgets since they influnce the skill-based valuation
+    let value = [...this._weapons, ...this._shields].reduce(
+      (sum, accessory) => sum + accessory.price,
+      shipModelForType(this._type).price
+    );
     value =
       (value *
         (2 * this.crewPilotSkillIncludingCommander(opponent) +
@@ -1050,10 +1006,10 @@ export class Ship {
   }
 
   crewEngineerSkillIncludingCommander(commander: CrewMember) {
-    let maxSkill = commander.engineer;
-    this._crew.forEach(crewMember => {
-      maxSkill = Math.max(maxSkill, crewMember.engineer);
-    });
+    let maxSkill = Math.max(
+      commander.engineer,
+      ...this._crew.map(crewMember => crewMember.engineer)
+    );
 
     if (this.hasGadgetOfType(AccessoryType.GadgetAutoRepairSystem)) {
       maxSkill += SKILL_BONUS;
@@ -1065,10 +1021,7 @@ export class Ship {
   }
 
   crewTraderSkillIncludingCommander(commander: CrewMember) {
-    let maxSkill = commander.trader;
-    this._crew.forEach(crewMember => {
-      maxSkill = Math.max(maxSkill, crewMember.trader);
-    });
+    let maxSkill = Math.max(commander.trader, ...this._crew.map(crewMember => crewMember.trader));
 
     if (commander.carriesMaxTraderBoost) {
       maxSkill++;
@@ -1080,10 +1033,7 @@ export class Ship {
   }
 
   crewFighterSkillIncludingCommander(commander: CrewMember) {
-    let maxSkill = commander.fighter;
-    this._crew.forEach(crewMember => {
-      maxSkill = Math.max(maxSkill, crewMember.fighter);
-    });
+    let maxSkill = Math.max(commander.fighter, ...this._crew.map(crewMember => crewMember.fighter));
 
     if (this.hasGadgetOfType(AccessoryType.GadgetTargetingSystem)) {
       maxSkill += SKILL_BONUS;
@@ -1095,10 +1045,7 @@ export class Ship {
   }
 
   crewPilotSkillIncludingCommander(commander: CrewMember) {
-    let maxSkill = commander.pilot;
-    this._crew.forEach(crewMember => {
-      maxSkill = Math.max(maxSkill, crewMember.pilot);
-    });
+    let maxSkill = Math.max(commander.pilot, ...this._crew.map(crewMember => crewMember.pilot));
 
     if (this.hasGadgetOfType(AccessoryType.GadgetNavigationSystem)) {
       maxSkill += SKILL_BONUS;
@@ -1227,12 +1174,8 @@ export class Ship {
 
   freeCargoBays() {
     const totalBays = this.totalCargoBays();
-    let consumedBays = 0;
-    this._cargo.forEach(quantity => {
-      consumedBays += quantity;
-    });
-
-    consumedBays = Math.min(consumedBays, totalBays);
+    const loaded = [...this._cargo.values()].reduce((sum, quantity) => sum + quantity, 0);
+    const consumedBays = Math.min(loaded, totalBays);
     const result = totalBays - consumedBays;
     Utils.ensureInteger(result);
     return result;
