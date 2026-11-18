@@ -115,7 +115,7 @@ export class Session extends Store {
     commander.setReserveMoney(true);
     commander.setDifficulty(difficulty);
     this.game = new Game(difficulty, commander);
-    this.game.setSaveBlock(this.save);
+    this.game.setOnSave(this.save);
     this.game.save();
     this.start();
   };
@@ -193,7 +193,7 @@ export class Session extends Store {
     try {
       const game = Game.fromSerializedState(state);
       pLog.log(67);
-      game.setSaveBlock(this.save);
+      game.setOnSave(this.save);
       this.game = game;
       return true;
     } catch (error) {
@@ -270,7 +270,7 @@ export class Session extends Store {
       hidden.add('For Hire');
     }
     const special = specialEventForType(system.getSpecialEvent());
-    if (system.getSpecialEvent() === SpecialEvent.None || special?.shouldHideBlock(game)) {
+    if (system.getSpecialEvent() === SpecialEvent.None || special?.isHidden(game)) {
       pLog.log(28);
       hidden.add('Special');
     }
