@@ -593,7 +593,7 @@ function weaponDamage(
   return damage;
 }
 
-function damageDefender(
+export function damageDefender(
   encounter: Encounter,
   defender: Commander | Opponent,
   damage: number,
@@ -605,11 +605,12 @@ function damageDefender(
     encounter._game.reactorStatus > ReactorQuestStatus.Open &&
     encounter._game.reactorStatus < ReactorQuestStatus.ClosedTooLate
   ) {
-    damage *= Math.floor(
+    // The factor keeps its fraction; only the result is a whole number, as in the original.
+    const factor =
       1 +
-        (encounter._game.difficulty + 1) *
-          (encounter._game.difficulty < Difficulty.Normal ? 0.25 : 0.33)
-    );
+      (encounter._game.difficulty + 1) *
+        (encounter._game.difficulty < Difficulty.Normal ? 0.25 : 0.33);
+    damage = Math.floor(damage * factor);
   }
 
   ensureInteger(damage);
