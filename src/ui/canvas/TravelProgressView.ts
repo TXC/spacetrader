@@ -6,6 +6,7 @@ import {
   VisitedSystemColor,
 } from './GalaxyView.ts';
 import type { Game } from '../../game/Game.ts';
+import type { PCEImage } from '../../game/PCEImage.ts';
 import type { SolarSystem } from '../../game/SolarSystem.ts';
 import { Utils } from '../../game/Utilities.ts';
 import { drawInCanvas } from './pceDrawing.ts';
@@ -31,11 +32,17 @@ export class TravelProgressView {
   shipTargetProgress = 0;
   // When the slide to the target began. Zero: not sliding, or to begin with the next frame.
   progressAnimationStartTime = 0;
-  private lastInvalidationCheckTimestamp = 0;
   // Zero until the first frame.
   private lastDrawTimestamp = 0;
   // Where the ship was last drawn, from 0 to 1.
   private shipDistance = 0;
+  // The ship as it is drawn at this size. Made when first needed.
+  private shipBitmap: HTMLCanvasElement | null = null;
+  // Read from the page when the canvas is fitted, not while drawing.
+  private textHeight = 0;
+  private font = '';
+  // The frame that has been asked for; zero when there is none.
+  private frame = 0;
   private disposed = false;
   private stopWatchingSize = watchSize(this.canvasContainer, () => this.resizeCanvasIfNeeded());
 
@@ -68,32 +75,24 @@ export class TravelProgressView {
     this.canvasContainer.appendChild(this.canvas);
     this.initCanvas();
 
-    // Excessive to run this the whole time. Consider animating only during progress animation.
-    this.startAnimating();
+    this.requestFrame();
   }
 
-  startAnimating() {
-    requestAnimationFrame(timestamp => this.animateView(timestamp));
+  private requestFrame() {
+    if (!this.disposed && !this.frame) {
+      this.frame = requestAnimationFrame(timestamp => this.animateView(timestamp));
+    }
   }
 
+  // Draws, and goes on drawing only while the ship is on its way.
   animateView(timestamp: number) {
+    this.frame = 0;
     if (this.disposed) {
       return;
     }
     this.drawView(timestamp);
-
-    // Allow us to get garbage collected if the view is removed from the document
-    let shouldContinueAnimating = true;
-    if (!this.lastInvalidationCheckTimestamp) {
-      this.lastInvalidationCheckTimestamp = timestamp;
-    }
-
-    if (timestamp - this.lastInvalidationCheckTimestamp > 5000) {
-      shouldContinueAnimating = document.body.contains(this.canvasContainer);
-    }
-
-    if (shouldContinueAnimating) {
-      requestAnimationFrame(newTimestamp => this.animateView(newTimestamp));
+    if (this.progressAnimationStartTime > 0) {
+      this.requestFrame();
     }
   }
 
@@ -101,6 +100,9 @@ export class TravelProgressView {
     this.width = rect.width;
     this.height = rect.height;
     this.scale = window.devicePixelRatio;
+    this.textHeight = labelSize();
+    this.font = labelFont();
+    this.shipBitmap = null;
 
     this.canvas.style.width = `${rect.width}px`;
     this.canvas.style.height = `${rect.height}px`;
@@ -143,14 +145,14 @@ export class TravelProgressView {
   }
 
   _textHeight() {
-    return labelSize();
+    return this.textHeight;
   }
 
   _drawSolarSystem(s: SolarSystem, left: boolean, visited: boolean) {
     this.context.textAlign = 'center';
     this.context.textBaseline = 'middle';
     const textHeight = this._textHeight();
-    this.context.font = labelFont();
+    this.context.font = this.font;
 
     const sname = s.name;
     const textMetrics = this.context.measureText(sname);
@@ -191,7 +193,7 @@ export class TravelProgressView {
 
   // Where the ship is at this time, from 0 to 1. Ends the slide when its time is up.
   private slide(timestamp: number) {
-    if (this.shipTargetProgress > this.shipProgress && !this.progressAnimationStartTime) {
+    if (this.shipTargetProgress !== this.shipProgress && !this.progressAnimationStartTime) {
       this.progressAnimationStartTime = timestamp;
     }
     if (this.progressAnimationStartTime <= 0) {
@@ -241,11 +243,27 @@ export class TravelProgressView {
       (this.canvas.height / this.scale - shipPCEImage.height * shipScale) / 2
     );
 
-    drawInCanvas(shipPCEImage, this.canvas, shipScale, shipX, shipY);
+    this.shipBitmap ??= this.makeShipBitmap(shipPCEImage, shipScale);
+    const { width, height } = this.shipBitmap;
+    this.context.drawImage(this.shipBitmap, shipX, shipY, width / this.scale, height / this.scale);
+  }
+
+  // The ship in the canvas's own pixels, so that drawing it is one copy.
+  private makeShipBitmap(image: PCEImage, shipScale: number) {
+    const bitmap = document.createElement('canvas');
+    const pixel = shipScale * this.scale;
+    bitmap.width = Math.ceil(image.width * pixel);
+    bitmap.height = Math.ceil(image.height * pixel);
+    drawInCanvas(image, bitmap, pixel);
+    return bitmap;
   }
 
   setProgress(p: number) {
     this.shipTargetProgress = p;
-    this.progressAnimationStartTime = this.lastDrawTimestamp;
+    // While frames are running the slide counts from the last one, as it always has. At
+    // rest, and before the first frame, that time is stale or zero: the slide then starts
+    // with the next frame.
+    this.progressAnimationStartTime = this.frame ? this.lastDrawTimestamp : 0;
+    this.requestFrame();
   }
 }
