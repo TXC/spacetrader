@@ -244,7 +244,7 @@ export class SolarSystem {
 
     const mercenaryState = serializedState.mercenary;
     if (mercenaryState) {
-      solarSystem._mercenary = CrewMember.fromSerializedState(mercenaryState);
+      solarSystem._mercenary = CrewMember.load(mercenaryState);
       ensureObjectOrNull(solarSystem._mercenary);
     } else {
       solarSystem._mercenary = null;
