@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
 import { newGame } from '../tests/support/newGame.ts';
 import oldSave from '../tests/fixtures/old-save.json';
+import { AccessoryType } from './Accessory.ts';
 import { Game } from './Game.ts';
 import { parseSavedGame, SAVE_VERSION } from './savedGame.ts';
 
@@ -85,6 +86,25 @@ test.each([
     'a ship model that does not exist',
     (state: Record<string, unknown>) =>
       (((state.commander as Record<string, unknown>).ship as Record<string, unknown>).type = 999),
+  ],
+  [
+    "a shield's number in the weapon list",
+    (state: Record<string, unknown>) =>
+      (((state.commander as Record<string, unknown>).ship as Record<string, unknown>).weaponTypes =
+        [AccessoryType.ShieldEnergy]),
+  ],
+  [
+    'a special event that does not exist',
+    (state: Record<string, unknown>) =>
+      ((state.solarSystems as Record<string, unknown>[])[0].specialEvent = 99),
+  ],
+  [
+    'a quest status that does not exist',
+    (state: Record<string, unknown>) => (state.invasionStatus = 11),
+  ],
+  [
+    'a reactor countdown past its end',
+    (state: Record<string, unknown>) => (state.reactorStatus = 23),
   ],
   [
     'a damaged ship',
