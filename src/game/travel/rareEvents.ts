@@ -4,7 +4,6 @@ import { EncounterType } from '../encounter/types.ts';
 import { RareEvent, RARE_EVENT_COUNT } from '../Game.ts';
 import { Opponent, OpponentType } from '../opponent/Opponent.ts';
 import type { Game } from '../Game.ts';
-import { ensureArrayOrNull, ensureInteger } from '../ensure.ts';
 import { pLog } from '../probes.ts';
 import { runtime } from '../runtime.ts';
 import type { Meeting } from './Travel.ts';
@@ -27,12 +26,9 @@ export function rareEventMeeting(game: Game): Meeting {
     (game.commander.days > 10 && runtime.gameRand.randomIntBelow(1000) < 5)
   ) {
     const rareEvents = game.remainingRareEvents;
-    ensureArrayOrNull(rareEvents, 'number');
 
     const index = rareEvents.length > 0 ? runtime.gameRand.randomIntBelow(rareEvents.length) : -1;
     const rareEvent = index !== -1 ? rareEvents[index] : RARE_EVENT_COUNT;
-
-    ensureInteger(rareEvent);
 
     ({ encounterType, opponent } = meetingFor(rareEvent, game));
 

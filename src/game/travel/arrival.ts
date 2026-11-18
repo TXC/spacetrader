@@ -4,7 +4,6 @@ import { MAX_TRIBBLES } from '../Ship.ts';
 import type { Game } from '../Game.ts';
 import { ReactorQuestStatus, reactorAboard } from '../SolarSystem.types.ts';
 import { TradeItemType } from '../TradeItem.types.ts';
-import { ensureInteger } from '../ensure.ts';
 import { pLog } from '../probes.ts';
 import { runtime } from '../runtime.ts';
 import { podEscape } from './podEscape.ts';
@@ -117,7 +116,6 @@ function tribblesOnArrival(game: Game): string[] {
 
   let foodOnBoard = false;
   let currentTribbles = game.commander.ship.tribbles;
-  ensureInteger(currentTribbles);
 
   const previousTribbles = currentTribbles;
   const reactorStatus = reactorAboard(game.reactorStatus);
@@ -172,7 +170,6 @@ function tribblesOnArrival(game: Game): string[] {
   }
 
   currentTribbles = Math.min(currentTribbles, MAX_TRIBBLES);
-  ensureInteger(currentTribbles);
   game.commander.ship.tribbles = currentTribbles;
 
   if (
