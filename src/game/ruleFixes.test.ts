@@ -9,11 +9,14 @@ import { arrest } from './encounter/arrest.ts';
 import { EncounterType } from './encounter/types.ts';
 import type { EncounterListener } from './encounter/types.ts';
 import { GameRand } from './GameRand.ts';
+import { CrewMember } from './CrewMember.ts';
+import { buyEquipment } from './Equipment.ts';
 import { News } from './News.ts';
 import { Opponent, OpponentType } from './opponent/Opponent.ts';
 import { Plunder } from './Plunder.ts';
 import { Ship, shipModelForType, ShipModelType } from './Ship.ts';
-import { buyShip } from './ShipYard.ts';
+import { hire } from './Roster.ts';
+import { buyEscapePod, buyShip, kEscapePodPrice } from './ShipYard.ts';
 import { JaporiQuestStatus, ReactorQuestStatus, WildQuestStatus } from './SolarSystem.types.ts';
 import {
   FAKE_QUEST_CARGO,
@@ -175,6 +178,86 @@ test('Q10: the antidote for Japori moves to a newly bought ship', () => {
 
   expect(game.commander.ship.type).toBe(ShipModelType.Firefly);
   expect(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO)).toBe(10);
+});
+
+// ---- G9: a rule checks again when its confirmation is accepted ----
+
+const { GadgetFiveExtraCargoBays: ExtraBays } = AccessoryType;
+
+// Presses the same Buy button twice, then accepts both confirmations.
+function buyTwice(game: ReturnType<typeof newGame>, price: number): void {
+  buyEquipment(game, ExtraBays, price);
+  buyEquipment(game, ExtraBays, price);
+  press('Yes');
+  press('Yes');
+}
+
+test.fails('G9: equipment confirmed twice is installed once when one slot is free', () => {
+  const game = newGame();
+  game.commander.credits = 10000;
+
+  buyTwice(game, 1000);
+
+  expect(game.commander.ship.gadgets).toHaveLength(1);
+  expect(game.commander.credits).toBe(9000);
+});
+
+test.fails('G9: equipment confirmed twice is installed once when the cash is for one', () => {
+  const game = newGame();
+  game.commander.ship = new Ship(ShipModelType.Bumblebee, 2); // two gadget slots
+  game.commander.credits = 1500;
+
+  buyTwice(game, 1000);
+
+  expect(game.commander.ship.gadgets).toHaveLength(1);
+  expect(game.commander.credits).toBe(500);
+});
+
+test.fails('G9: an escape pod confirmed twice is paid for once', () => {
+  const game = newGame();
+  game.commander.credits = 3 * kEscapePodPrice;
+
+  buyEscapePod(game);
+  buyEscapePod(game);
+  press('Yes');
+  press('Yes');
+
+  expect(game.commander.hasEscapePod).toBe(true);
+  expect(game.commander.credits).toBe(2 * kEscapePodPrice);
+});
+
+test.fails('G9: an escape pod is not sold when the cash is gone before the confirmation', () => {
+  const game = newGame();
+  game.commander.credits = kEscapePodPrice;
+
+  buyEscapePod(game);
+  game.commander.credits = kEscapePodPrice - 1;
+  press('Yes');
+
+  expect(game.commander.hasEscapePod).toBe(false);
+  expect(game.commander.credits).toBe(kEscapePodPrice - 1);
+});
+
+test.fails('G9: a mercenary hired twice joins the crew once', () => {
+  const game = newGame();
+  game.commander.ship = new Ship(ShipModelType.Beetle, 2); // two mercenary quarters
+  const mercenary = new CrewMember('Hired Hand', 4, 4, 4, 4);
+
+  hire(game, mercenary);
+  hire(game, mercenary);
+
+  expect(game.commander.ship.crew).toEqual([mercenary]);
+});
+
+test.fails('G9: with the quarters full nobody is hired and nothing is saved', () => {
+  const game = newGame();
+  const onSave = vi.fn();
+  game.setOnSave(onSave);
+  const quarters = game.commander.ship.model.mercenaryQuarters();
+  for (let i = 0; i <= quarters; i++) hire(game, new CrewMember(`Hand ${i}`, 4, 4, 4, 4));
+
+  expect(game.commander.ship.crewCount()).toBe(quarters);
+  expect(onSave).toHaveBeenCalledTimes(quarters);
 });
 
 // ---- fixes that change how some recorded games play out ----
