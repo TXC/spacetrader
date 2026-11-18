@@ -11,12 +11,12 @@ import { assertEqualArrays } from './harness.ts';
 // GameRand
 
 test('randomInt', () => {
-  let r = new GameRand(1);
+  const r = new GameRand(1);
   //              0  1  2  3  4  5  6  7  8  9 10 11
-  let observed = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  let expected = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0];
+  const observed = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  const expected = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0];
   for (let i = 0; i < 100; ++i) {
-    let v = r.randomInt(0, 10);
+    const v = r.randomInt(0, 10);
     observed[v] = 1;
   }
 
@@ -26,7 +26,7 @@ test('randomInt', () => {
 // Utils
 
 test('addToOrderedSet', () => {
-  let arr = [ShipModelType.Flea, ShipModelType.Firefly];
+  const arr = [ShipModelType.Flea, ShipModelType.Firefly];
   Utils.addToOrderedSet(arr, ShipModelType.Flea);
   Utils.addToOrderedSet(arr, ShipModelType.Gnat);
   Utils.addToOrderedSet(arr, ShipModelType.Firefly);

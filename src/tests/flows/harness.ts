@@ -75,7 +75,7 @@ export function runReplayLog(
   session.loadGame = false;
   show(session);
 
-  let replay = new ActionLogReplay(replayLog, session, hackHandler ?? undefined);
+  const replay = new ActionLogReplay(replayLog, session, hackHandler ?? undefined);
   replay.replay();
 
   return replay;
@@ -106,7 +106,7 @@ export function replaySkipEncounters(replay: ActionLogReplay, breakConditionFn?:
       buttons = buttons.filter(x => x !== 'ecButton_Submit');
     }
 
-    for (let buttonID of buttons) {
+    for (const buttonID of buttons) {
       const el = document.getElementById(buttonID);
       if (el) {
         replay.replayEvent(buttonID, 'click');
@@ -156,7 +156,7 @@ export function performStressTest(
 
   let galacticChartConsecutiveActions = 0;
 
-  let i = 0;
+  let i: number;
   for (i = 0; i < numActionsToPerform; ++i) {
     // Look up every known registered element id in the document
     const liveElementIDs: string[] = [];
@@ -246,7 +246,7 @@ export function performStressTest(
       const game = session.game;
       if (game) {
         pLog.log(101);
-        let game2 = serializeAndDeserialize(game);
+        const game2 = serializeAndDeserialize(game);
         assertEqualGames(game, game2);
       }
     }

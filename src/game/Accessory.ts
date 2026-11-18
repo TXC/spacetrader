@@ -71,7 +71,7 @@ export class Accessory {
 }
 
 export class Gadget extends Accessory {
-  get category() {
+  override get category() {
     return 'gadget';
   }
 
@@ -87,7 +87,7 @@ export class Weapon extends Accessory {
     super(spec);
   }
 
-  get category() {
+  override get category() {
     return 'weapon';
   }
 
@@ -103,7 +103,7 @@ export class Shield extends Accessory {
     super(spec);
   }
 
-  get category() {
+  override get category() {
     return 'shield';
   }
 

@@ -139,7 +139,7 @@ test('scarab', () => {
   replay.replayEvent('Warp', 'click');
   replay.replayEvent('warpBlastOff', 'click');
 
-  let encounterText = textOf(encounterBox());
+  const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
     'At 20 clicks from Khefka you encounter a stolen Scarab.\n\nYour opponent attacks.'
@@ -287,7 +287,7 @@ test('scarab_militaryBeamDontWork', () => {
     'Find and destroy the Scarab (which is hiding near a wormhole).'
   );
 
-  let game2 = serializeAndDeserialize(game);
+  const game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
   assertEqual(game2.specialCargoDescription(), 'A Portable Singularity.');
   assertEqual(
@@ -417,7 +417,7 @@ test('ionReactor', () => {
 
   const expectedFuel = [10, 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1];
 
-  let loopCycles = 0;
+  let loopCycles: number;
   for (
     loopCycles = 0;
     loopCycles < 100 && game.reactorStatus < ReactorQuestStatus.DaysRemaining._1 - 1;
@@ -612,7 +612,7 @@ test('ionReactor_tooLate', () => {
 
   const expectedFuel = [10, 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1];
 
-  let loopCycles = 0;
+  let loopCycles: number;
   for (
     loopCycles = 0;
     loopCycles < 100 && game.reactorStatus < ReactorQuestStatus.DaysRemaining._1 - 1;
@@ -759,7 +759,7 @@ test('ionReactor_tooLate_escapePod', () => {
 
   const expectedFuel = [10, 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1];
 
-  let loopCycles = 0;
+  let loopCycles: number;
   for (
     loopCycles = 0;
     loopCycles < 100 && game.reactorStatus < ReactorQuestStatus.DaysRemaining._1 - 1;
@@ -1106,7 +1106,7 @@ test('ionReactor_early', () => {
 
   const expectedFuel = [10, 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1];
 
-  let loopCycles = 0;
+  let loopCycles: number;
   for (
     loopCycles = 0;
     loopCycles < 100 && game.reactorStatus < ReactorQuestStatus.DaysRemaining._1 - 9;
@@ -1284,7 +1284,7 @@ test('ionReactor_notEnoughBays', () => {
   );
   assertEqual(game.questListDescription(), 'Deliver the unstable reactor to Nix for Henry Morgan.');
 
-  let game2 = serializeAndDeserialize(game);
+  const game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
   assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
@@ -2042,7 +2042,7 @@ test('experiment_fail', () => {
 
   replaySkipEncounters(replay);
 
-  let loopCycles = 0;
+  let loopCycles: number;
   for (loopCycles = 0; loopCycles < 100 && game.fabricRipProbability > 0; ++loopCycles) {
     replay.replayEvent('Warp', 'click');
     replay.replayEvent('warpBlastOff', 'click');
@@ -2131,7 +2131,7 @@ test('monster', () => {
   assertEqual(game.monsterStatus, MonsterQuestStatus.MonsterExists);
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Kill the space monster at Acamar.');
-  let specialEl = button('Special');
+  const specialEl = button('Special');
   assertEqual(specialEl, null);
 
   game2 = serializeAndDeserialize(game);
@@ -2499,7 +2499,7 @@ test('alienArtifact', () => {
   replay.replayEvent('galacticChart_useSingularity_121_Krios', 'click');
   replay.replayEvent('alertButton_Warp_', 'click');
 
-  let encounterText = textOf(encounterBox());
+  const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
     'At 16 clicks from Krios you encounter an alien Mantis.\n\nYour opponent attacks.'
@@ -2575,7 +2575,7 @@ test('alienArtifact_surrender', () => {
   replay.replayEvent('galacticChart_useSingularity_121_Krios', 'click');
   replay.replayEvent('alertButton_Warp_', 'click');
 
-  let encounterText = textOf(encounterBox());
+  const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
     'At 16 clicks from Krios you encounter an alien Mantis.\n\nYour opponent attacks.'
@@ -2735,7 +2735,7 @@ test('gemulon_alienInvasion_fail', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
   assertEqual(game.invasionStatus, InvasionQuestStatus.ClosedTooLate);
-  let gemulon = game._findSolarSystem('Gemulon')!;
+  const gemulon = game._findSolarSystem('Gemulon')!;
   assertEqual(gemulon.specialEvent, SpecialEvent.GemulonInvaded);
   assertEqual(gemulon.techLevel, TechLevel.PreAgricultural);
   assertEqual(gemulon.politics.type, PoliticsType.Anarchy);
@@ -2749,7 +2749,7 @@ test('gemulon_alienInvasion_fail', () => {
   replay.replayEvent('namedEvent', 'selectPlanetZoomed|Gemulon');
   replay.replayEvent('warpBlastOff', 'click');
 
-  let encounterText = textOf(encounterBox());
+  const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
     'At 20 clicks from Gemulon you encounter an alien Mantis.\n\nYour opponent attacks.'
@@ -2897,7 +2897,7 @@ test('gemulon_alienInvasion_oneDayLate', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
   assertEqual(game.invasionStatus, InvasionQuestStatus.ClosedTooLate);
-  let gemulon = game._findSolarSystem('Gemulon')!;
+  const gemulon = game._findSolarSystem('Gemulon')!;
   assertEqual(gemulon.specialEvent, SpecialEvent.GemulonInvaded);
   assertEqual(gemulon.techLevel, TechLevel.PreAgricultural);
   assertEqual(gemulon.politics.type, PoliticsType.Anarchy);
@@ -3463,7 +3463,7 @@ test('cargoForSale', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
 
-  let game2 = serializeAndDeserialize(game);
+  const game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
   cargoQuantity = [...game2.commander.ship._cargo.values()].reduce((acc, value) => acc + value, 0);
   assertEqual(cargoQuantity, 3);
@@ -3481,7 +3481,7 @@ test('wild_cleanRecord', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.TransportWild);
   // Don't have a police record, special doesn't show
-  let specialEl = button('Special');
+  const specialEl = button('Special');
   assertEqual(specialEl, null);
 });
 
@@ -3498,7 +3498,7 @@ test('wild_bribePolice', () => {
 
   replay.replayEvent('alertButton_Offer_bribe', 'click');
 
-  let encounterText = textOf(encounterBox());
+  const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
     'At 19 clicks from Courteney you encounter a pirate Bumblebee.\n\nYour opponent attacks.'
@@ -3842,7 +3842,7 @@ test('wild_podEscape', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  let game2 = serializeAndDeserialize(game);
+  const game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
   assertEqual(game2.wildStatus, WildQuestStatus.Closed);
   assertEqual(game2.commander.ship.crew.length, 0);
@@ -3909,7 +3909,7 @@ test('wild_sellWeapons', () => {
   replay.replayEvent('warpBlastOff', 'click');
   replay.replayEvent('alertButton_He_can_stay_', 'click');
 
-  let encounterText = textOf(encounterBox());
+  const encounterText = textOf(encounterBox());
   assertEqual(
     encounterText,
     'At 18 clicks from Malcoria you encounter a police Firefly.\n\nYour opponent attacks.'
@@ -4098,7 +4098,7 @@ test('japori_lackMedicine', () => {
   const replay = runReplayLog(replayLog);
 
   // Don't have medicine, Special doesn't show
-  let specialEl = button('Special');
+  const specialEl = button('Special');
   assertEqual(specialEl, null);
 
   replay.replayEvent('News', 'click');
@@ -4123,7 +4123,7 @@ test('japori_noCargoSpace', () => {
   replay.replayEvent('News', 'click');
   replay.replayEvent('purchaseNews', 'click');
 
-  let newsStrDiv = news();
+  const newsStrDiv = news();
   assertTrue(hasText(newsStrDiv, 'h4', 'The Loyal Subject'), 'masthead is a heading');
   assertEqual(
     textOf(newsStrDiv),
@@ -4151,7 +4151,7 @@ test('japori_noCargoSpace', () => {
   assertEqual(game.specialCargoDescription(), 'A Portable Singularity.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  let specialEl = button('Special');
+  const specialEl = button('Special');
   assertEqual(specialEl !== null, true);
 });
 
@@ -4710,7 +4710,7 @@ test('tribble_notEnoughMoney', () => {
   );
   assertEqual(game.commander.ship.tribbles, 0);
 
-  let game2 = serializeAndDeserialize(game);
+  const game2 = serializeAndDeserialize(game);
   assertEqualGames(game, game2);
   assertEqual(game2.commander.ship.tribbles, 0);
 });

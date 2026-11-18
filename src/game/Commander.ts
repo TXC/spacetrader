@@ -186,13 +186,19 @@ export class Commander extends CrewMember {
     this._hasInsurance = false;
   }
 
-  static fromSerializedState(serializedState: CommanderState, solarSystems?: SolarSystem[]) {
+  static override fromSerializedState(
+    serializedState: CommanderState,
+    solarSystems?: SolarSystem[]
+  ) {
     const commander = new Commander(serializedState.name);
     commander.updateWithSerializedState(serializedState, solarSystems);
     return commander;
   }
 
-  updateWithSerializedState(serializedState: CommanderState, solarSystems?: SolarSystem[]) {
+  override updateWithSerializedState(
+    serializedState: CommanderState,
+    solarSystems?: SolarSystem[]
+  ) {
     super.updateWithSerializedState(serializedState);
 
     // The saved values are numbers; parseInt turns them into text first. Kept as in the old code.
@@ -720,7 +726,7 @@ export class Commander extends CrewMember {
     }
   }
 
-  serializedState() {
+  override serializedState() {
     // The commander's own fields are added below.
     const state = super.serializedState() as CommanderState;
 
