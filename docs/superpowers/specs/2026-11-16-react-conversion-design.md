@@ -307,7 +307,7 @@ Plain tests run in Node as a second Vitest project. If a rules module
 cannot be loaded in Node, its tests run in the browser project and the
 reason is written down.
 
-For each screen, a one-off screenshot comparison against `old/` confirms
+For each screen, a one-off screenshot comparison against `old/js/` confirms
 the look. These are checks during the work, not permanent tests.
 
 ### Order of work
@@ -355,7 +355,7 @@ document, because every later screen opens alerts.
   confirm the crash also happens in `old/`, fix it in its own commit
   with a test, and list it in the pull request. The owner confirmed
   this. It is the one case where game behaviour may change. A crash
-  that does not happen in `old/` is a conversion mistake and is fixed as
+  that does not happen in `old/js/` is a conversion mistake and is fixed as
   such.
 - **Size.** About 4,500 lines of screen code are replaced in one pull
   request.

@@ -24,7 +24,7 @@ mode (headless Chromium), pnpm.
 ## Global Constraints
 
 - No change in game behaviour or in the order of random draws. One
-  exception: a crash that also happens in `old/` is fixed in its own
+  exception: a crash that also happens in `old/js/` is fixed in its own
   commit with a test and listed in the pull request.
 - Game rules never run while React draws. Anything an old screen did
   while drawing goes into a `present` function that is called where the
@@ -42,7 +42,7 @@ mode (headless Chromium), pnpm.
 - Functions and components stay under about 20 lines; split when they
   grow.
 - The app keeps `StrictMode`.
-- `old/` is never modified.
+- `old/js/` is never modified.
 - One pull request. Branch `feature/react-bank`. One or more commits per
   task. Do not push until the last task.
 - After every task: `pnpm lint && pnpm build && pnpm test` pass.
@@ -209,7 +209,7 @@ its id from `id ?? label` through `Utils.sanitizedElementID`.
   - `toggleInsurance(game: Game): 'ok' | 'needsEscapePod'`
   Each function that changes the game calls `game.save()`.
 - Produces: `scripts/compare-screens.mjs <row-id>`: loads
-  `src/tests/fixtures/old-save.json` into `old/index.html` and into the
+  `src/tests/fixtures/old-save.json` into `old/js/index.html` and into the
   dev server, opens the given landing row in both, screenshots the
   sub-content area and prints whether the two images are identical.
 

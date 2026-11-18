@@ -5,7 +5,7 @@
 > superpowers:executing-plans to implement this plan task-by-task. Steps use
 > checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** The game in `old/` runs inside the Vite + React + TypeScript
+**Goal:** The game in `old/js/` runs inside the Vite + React + TypeScript
 project, with the game rules strictly typed and the old tests passing.
 
 **Architecture:** Every old file becomes an ES module. Rules go to
@@ -25,7 +25,7 @@ the rules files are typed one at a time with the tests green after each.
 - Never edit a test to make it pass. Allowed test edits are listed in
   Task 3 and nowhere else.
 - No renaming of files, classes, functions or constants. No tidying.
-- `old/` is never modified. It is the reference to compare against.
+- `old/js/` is never modified. It is the reference to compare against.
 - No `enum` (the project sets `erasableSyntaxOnly`). Constant objects stay
   objects, marked `as const`.
 - No `any` in `src/game/` unless a comment on that line says why.
@@ -55,13 +55,13 @@ the rules files are typed one at a time with the tests green after each.
    Test in Task 3.
 5. **Canvas sizing inside the React host.** The galaxy chart sizes
    itself from its container. Expected: it draws at the same size as in
-   `old/`. Manual check in Task 9.
+   `old/js/`. Manual check in Task 9.
 
 ---
 
 ## File map
 
-| Old file (in `old/`) | New file |
+| Old file (in `old/js/`) | New file |
 |---|---|
 | `GameRand.js`, `Utilities.js`, `SSSTActionLogger.js`, `SSSTCrewMember.js`, `SSSTCommander.js`, `SSSTOpponent.js`, `SSSTGame.js`, `SSSTSolarSystem_h.js`, `SSSTSolarSystem.js`, `SSSTTradeItem_h.js`, `SSSTTradeItem.js`, `SSSTPolitics.js`, `SSSTSpecialEventSpecifier.js`, `SSSTAccessory.js`, `SSSTShip.js`, `SSSTEncounterController.js`, `PCEImage.js`, `Images.js` | `src/game/<same name>.ts` |
 | every `SSST*ViewController.js`, `SSSTGalaxyView.js`, `SSSTBattleOpponentView.js`, `SSSTTravelProgressView.js`, `main.js` | `src/legacy-ui/<same name>.ts` |
@@ -203,7 +203,7 @@ the rules files are typed one at a time with the tests green after each.
   Expected: FAIL, `#newCommanderDiv` count is 0.
 
 - [ ] **Step 4: Implement `App`.** It renders only `<div id="game">`.
-  One effect does what the inline script in `old/index.html` did, once:
+  One effect does what the inline script in `old/js/index.html` did, once:
 
   - `const randSeed = Date.now()`
   - `runtime.debugMode = MADebugMode.Disabled`
@@ -214,7 +214,7 @@ the rules files are typed one at a time with the tests green after each.
 
   Guard against the second `StrictMode` run with a ref. Leave out the
   debug panel, the action-log replay hook, the service worker
-  registration and the navigation links from `old/index.html`. Remove
+  registration and the navigation links from `old/js/index.html`. Remove
   the template content and the two template stylesheets; drop the
   `index.css` import from `src/main.tsx`.
 
@@ -224,7 +224,7 @@ the rules files are typed one at a time with the tests green after each.
   Expected: PASS, 1 test.
 
 - [ ] **Step 6: Play it.** Run `pnpm dev`, create a commander, buy
-  cargo, warp once. Compare the look against `old/index.html` opened in
+  cargo, warp once. Compare the look against `old/js/index.html` opened in
   a browser. Expected: identical, apart from the missing navigation
   links.
 
@@ -248,7 +248,7 @@ the rules files are typed one at a time with the tests green after each.
 - Produces: `UnitTests`, `MALog` and `getAssertionCount(): number`
   exported from `src/tests/UnitTests.ts`.
 
-- [ ] **Step 1: Copy `old/UnitTests.js`** to `src/tests/UnitTests.ts`
+- [ ] **Step 1: Copy `old/js/UnitTests.js`** to `src/tests/UnitTests.ts`
   with `// @ts-nocheck` on the first line.
 
 - [ ] **Step 2: Make the allowed edits, and only these:**
@@ -269,7 +269,7 @@ the rules files are typed one at a time with the tests green after each.
     prototype that starts with `test`, register
     `test(name, () => ut[name]())`.
   - `afterEach`: clear `#game` and call
-    `SSSTAlertViewController.clearAlerts()`, as `old/unitTests.html`
+    `SSSTAlertViewController.clearAlerts()`, as `old/js/unitTests.html`
     did.
   - Final test, registered last:
 
@@ -281,7 +281,7 @@ the rules files are typed one at a time with the tests green after each.
     ```
 
 - [ ] **Step 4: Add the saved-game test** to `src/tests/unit.test.ts`.
-  Make the fixture first: open `old/index.html` in a browser, create a
+  Make the fixture first: open `old/js/index.html` in a browser, create a
   commander named `Fixture`, and copy every `localStorage` key and value
   the game wrote into `src/tests/fixtures/old-save.json`.
 
@@ -446,7 +446,7 @@ screens is step 1.5 and not part of this plan.
 - [ ] **Step 4: Play the production build.** Run `pnpm preview`. Create
   a commander, trade, warp until an encounter happens, open the galactic
   chart, reload the page. Expected: the chart draws at the same size as
-  in `old/index.html`, and the game resumes after the reload.
+  in `old/js/index.html`, and the game resumes after the reload.
 
 - [ ] **Step 5: Replace the template `README.md`** with a short one:
   what the project is, `pnpm dev`, `pnpm test`, `pnpm test:stress`,

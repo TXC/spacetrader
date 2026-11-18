@@ -119,7 +119,7 @@ bars then follow a resized window by themselves.
   and 1440px, in light and dark mode. The pictures are kept out of the
   repository.
 - No sideways scroll at 320px.
-- `scripts/compare-screens.mjs` compared screens with `old/` pixel by
+- `scripts/compare-screens.mjs` compared screens with `old/js/` pixel by
   pixel. It cannot pass once the look changes on purpose, so it is
   removed, with its mention in the README.
 

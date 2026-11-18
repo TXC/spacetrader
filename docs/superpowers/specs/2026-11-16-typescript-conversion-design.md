@@ -4,7 +4,7 @@ Date: 2026-11-16
 
 ## Intent
 
-The game in `old/` is plain JavaScript loaded through `<script>` tags. The
+The game in `old/js/` is plain JavaScript loaded through `<script>` tags. The
 long-term goal is a bigger, less compact game: larger graphics and a roomier
 layout, built in React. Step 1 prepares for that by getting the existing
 game running inside the Vite + React + TypeScript project, with the game
@@ -23,7 +23,7 @@ typing them.
 
 ## Goals
 
-- The game plays in the new project exactly as it does in `old/`.
+- The game plays in the new project exactly as it does in `old/js/`.
 - The game rules, images and utilities are strictly typed TypeScript.
 - The existing tests run from the command line and pass.
 - `pnpm build`, `pnpm lint` and `pnpm test` all pass.
@@ -36,7 +36,7 @@ typing them.
 - Changing the look, the layout or the size of the graphics (step 2).
 - Typing the old screen code.
 - Offline support: the service worker, `manifest.json` and
-  `generate-sw.sh` stay in `old/` for now.
+  `generate-sw.sh` stay in `old/js/` for now.
 - The standalone `cheats.html` page.
 - Renaming files or classes, or tidying the code while moving it.
 
@@ -94,7 +94,7 @@ src/
 ```
 
 File and class names stay as they are (`SSSTShip.ts` and so on), so each
-new file can be compared directly with its original in `old/`.
+new file can be compared directly with its original in `old/js/`.
 
 What goes where:
 
@@ -153,7 +153,7 @@ object in before starting the game, as the old pages did.
 
 ### Order of work
 
-1. **Baseline.** `old/unitTests.html` in headless Chrome gives 153 tests
+1. **Baseline.** `old/js/unitTests.html` in headless Chrome gives 153 tests
    and 3,064 assertions, all passing. That is the target. The 5 stress
    tests have not been run yet; run them once and note the result.
 2. **Move everything, types off.** All files become modules in their new

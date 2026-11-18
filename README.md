@@ -51,7 +51,7 @@ test to replay the same game.
 | `src/tests/`         | Tests that need a page.                             |
 | `src/tests/flows/`   | Flow tests: recorded play sessions, replayed.       |
 | `src/tests/support/` | The replay helper and page helpers for the tests.   |
-| `old/`               | The original JavaScript game. Do not edit.          |
+| `old/js/`             | The original JavaScript game. Do not edit.          |
 
 How the pieces fit:
 
