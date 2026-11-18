@@ -411,7 +411,7 @@ export function politicsForType(type: number): Politics {
 }
 
 // A government picked at random among those that can exist at this tech level.
-export function randomPoliticsForTechLevel(techLevel: number): Politics {
+export function randomPoliticsForTechLevel(techLevel: TechLevel): Politics {
   while (true) {
     const politics = politicsForType(runtime.gameRand.randomIntBelow(POLITICS_COUNT));
     if (politics.minTechLevel <= techLevel && politics.maxTechLevel >= techLevel) {
