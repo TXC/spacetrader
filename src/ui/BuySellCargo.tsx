@@ -4,6 +4,7 @@ import { buyCargo, cargoRows, sellCargo } from '../game/Cargo.ts';
 import type { CargoRow, CargoView } from '../game/Cargo.ts';
 import type { Game } from '../game/Game.ts';
 import type { SolarSystem } from '../game/SolarSystem.ts';
+import type { TradeItemType } from '../game/TradeItem.types.ts';
 import { BaysCredits } from './BaysCredits.tsx';
 import styles from './BuySellCargo.module.css';
 import { Icon } from './Icon.tsx';
@@ -13,7 +14,7 @@ import shared from './shared.module.css';
 
 type Props = { game: Game; buy: boolean; baseSystem?: SolarSystem };
 
-function trade(game: Game, buy: boolean, type: number, quantity: number) {
+function trade(game: Game, buy: boolean, type: TradeItemType, quantity: number) {
   if (!buy) sellCargo(game, type, quantity);
   else if (buyCargo(game, type, quantity) === 'debtTooLarge') {
     AlertViewController.presentAlertWithDismiss(

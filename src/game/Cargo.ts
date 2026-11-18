@@ -2,10 +2,11 @@
 import type { Game } from './Game.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import { tradeItemForType } from './TradeItem.ts';
-import { TRADE_ITEM_COUNT } from './TradeItem.types.ts';
+import { TRADE_ITEM_TYPES } from './TradeItem.types.ts';
+import type { TradeItemType } from './TradeItem.types.ts';
 
 export type CargoRow = {
-  type: number;
+  type: TradeItemType;
   name: string;
   bold: boolean; // worth trading: shown in bold
   quantity: number; // on sale here (buying) or in the hold (selling)
@@ -25,7 +26,7 @@ export function costLabel(relative: boolean, price: number, sellPrice: number): 
   return `${sign}$${Math.abs(price)}`;
 }
 
-function prices(game: Game, view: CargoView, type: number) {
+function prices(game: Game, view: CargoView, type: TradeItemType) {
   const { commander } = game;
   const base = view.baseSystem;
   return {
@@ -37,7 +38,7 @@ function prices(game: Game, view: CargoView, type: number) {
   };
 }
 
-function cargoRow(game: Game, view: CargoView, type: number): CargoRow {
+function cargoRow(game: Game, view: CargoView, type: TradeItemType): CargoRow {
   const price = prices(game, view, type);
   const toBuy = game.commander.currentSystem.tradeItemQuantityForType(type);
   const toSell = game.commander.ship.tradeItemQuantityForType(type);
@@ -56,10 +57,10 @@ function cargoRow(game: Game, view: CargoView, type: number): CargoRow {
 }
 
 export function cargoRows(game: Game, view: CargoView): CargoRow[] {
-  return Array.from({ length: TRADE_ITEM_COUNT }, (_, type) => cargoRow(game, view, type));
+  return TRADE_ITEM_TYPES.map(type => cargoRow(game, view, type));
 }
 
-export function buyCargo(game: Game, type: number, quantity: number): 'ok' | 'debtTooLarge' {
+export function buyCargo(game: Game, type: TradeItemType, quantity: number): 'ok' | 'debtTooLarge' {
   if (game.commander.debtIsTooLargeToBuy()) return 'debtTooLarge';
   game.commander.attemptPurchaseOfItem(type, quantity, game.difficulty);
   game.save();

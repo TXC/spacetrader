@@ -103,6 +103,8 @@ export const TradeItemType = {
 } as const;
 export type TradeItemType = ValueOf<typeof TradeItemType>;
 export const TRADE_ITEM_COUNT = countOf(TradeItemType);
+// Every kind of goods, in order.
+export const TRADE_ITEM_TYPES = Object.values(TradeItemType);
 
 // "No trade item", where one is optional.
 export const NO_TRADE_ITEM = -1;
@@ -114,6 +116,11 @@ export const FAKE_QUEST_CARGO = 11; // the antidote for Japori
 export const FAKE_QUEST_CARGO_REACTOR = 12;
 
 const ILLEGAL: readonly number[] = [TradeItemType.Firearms, TradeItemType.Narcotics];
+
+// Goods, as opposed to the quest cargo that shares a ship's hold.
+export function isTradeItem(type: number): type is TradeItemType {
+  return (TRADE_ITEM_TYPES as readonly number[]).includes(type);
+}
 
 export function isIllegalTradeItem(type: number): boolean {
   return ILLEGAL.includes(type);
