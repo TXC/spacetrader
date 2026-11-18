@@ -34,17 +34,7 @@ import type { Game } from './Game.ts';
 import type { Commander } from './Commander.ts';
 import type { Opponent } from './Opponent.ts';
 import { runtime } from './runtime.ts';
-import { attack, autoAttack } from './encounter/actions/attack.ts';
-import { autoFlee, flee } from './encounter/actions/flee.ts';
-import { ignore } from './encounter/actions/ignore.ts';
-import { trade } from './encounter/actions/trade.ts';
-import { surrender } from './encounter/actions/surrender.ts';
-import { bribe } from './encounter/actions/bribe.ts';
-import { submit } from './encounter/actions/submit.ts';
-import { plunder } from './encounter/actions/plunder.ts';
-import { meet } from './encounter/actions/meet.ts';
-import { drink } from './encounter/actions/drink.ts';
-import { interrupt } from './encounter/actions/interrupt.ts';
+import { ACTIONS } from './encounter/actions/index.ts';
 import { captainFor } from './encounter/captains.ts';
 import {
   EncounterMode,
@@ -333,33 +323,7 @@ export class EncounterController {
       this._endAutoEncounters();
     }
 
-    if (action === 'Auto-Attack') {
-      if (!autoAttack(this)) return;
-    } else if (action === 'Auto-Flee') {
-      if (!autoFlee(this)) return;
-    } else if (action === 'Attack') {
-      if (!attack(this)) return;
-    } else if (action === 'Flee') {
-      if (!flee(this)) return;
-    } else if (action === 'Ignore') {
-      if (!ignore(this)) return;
-    } else if (action === 'Trade') {
-      if (!trade(this)) return;
-    } else if (action === 'Surrender' || action === 'Yield') {
-      if (!surrender(this)) return;
-    } else if (action === 'Bribe') {
-      if (!bribe(this)) return;
-    } else if (action === 'Submit') {
-      if (!submit(this)) return;
-    } else if (action === 'Plunder' || action === 'Board') {
-      if (!plunder(this)) return;
-    } else if (action === 'Meet') {
-      if (!meet(this)) return;
-    } else if (action === 'Drink') {
-      if (!drink(this)) return;
-    } else if (action === 'Interrupt') {
-      if (!interrupt(this)) return;
-    }
+    if (!ACTIONS[action](this)) return;
 
     if (isAutoMode(this._encounterMode)) {
       ensureInteger(this._autoEncounterSession);
