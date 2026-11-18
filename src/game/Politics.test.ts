@@ -33,8 +33,11 @@ test('a government keeps the values the old game gave it', () => {
 
 test('a random government fits the tech level', () => {
   runtime.gameRand = new GameRand(42);
-  for (let i = 0; i < 200; i++) {
-    const politics = randomPoliticsForTechLevel(TechLevel.PreAgricultural);
-    expect(politics.minTechLevel).toBeLessThanOrEqual(TechLevel.PreAgricultural);
+  for (const techLevel of Object.values(TechLevel)) {
+    for (let i = 0; i < 200; i++) {
+      const politics = randomPoliticsForTechLevel(techLevel);
+      expect(politics.minTechLevel).toBeLessThanOrEqual(techLevel);
+      expect(politics.maxTechLevel).toBeGreaterThanOrEqual(techLevel);
+    }
   }
 });

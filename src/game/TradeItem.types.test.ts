@@ -18,6 +18,15 @@ test('every tech level, status and resource has its text', () => {
   expect(statusDescription(Status.LackWorkers)).toBe('lacking enough workers');
   expect(resourceName(Resource.None)).toBe('Nothing special');
   expect(resourceName(Resource.Warlike)).toBe('Warlike populace');
+  const texts = [
+    Object.values(TechLevel).map(techLevelName),
+    Object.values(Status).map(statusDescription),
+    Object.values(Resource).map(resourceName),
+  ];
+  for (const list of texts) {
+    expect(list).not.toContain('');
+    expect(new Set(list).size).toBe(list.length);
+  }
 });
 
 test('a number that is not a real value has no text', () => {
