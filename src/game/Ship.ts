@@ -836,11 +836,12 @@ export class Ship {
 
   // Method to remove an accessory of a specific type
   removeAccessoryOfType(type: number) {
-    return (
-      this._removeType(type, this._gadgets) ||
-      this._removeType(type, this._weapons) ||
-      this._removeType(type, this._shields)
-    );
+    if (this._removeType(type, this._gadgets) || this._removeType(type, this._weapons)) return true;
+    if (!this._removeType(type, this._shields)) return false;
+    // A shield takes its charge with it: the rest cannot hold more than their own power.
+    const most = this._shields.reduce((sum, shield) => sum + shield.power, 0);
+    this._currentShieldPower = Math.min(this._currentShieldPower, most);
+    return true;
   }
 
   // Method to add a shield of a specific type

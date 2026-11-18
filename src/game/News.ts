@@ -82,6 +82,7 @@ export class News {
   // The "Pay to read" link.
   buy(): void {
     if (this.game.alreadyPaidForNewspaper) return;
+    if (this.game.commander.spendingMoney() < this.price()) return;
     this.pay();
     this.headlines();
     session.changed();

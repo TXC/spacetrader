@@ -230,6 +230,16 @@ export class EncounterController {
     return this._type;
   }
 
+  // At a police inspection with nothing to hide, submitting costs nothing. Attack, Flee and
+  // Bribe all ask "are you sure?" in that case, and only then.
+  _safeToSubmit(): boolean {
+    return (
+      this._type === EncounterType.PoliceInspection &&
+      !this._game.commander.ship.hasIllegalGoods() &&
+      this._game.wildStatus !== WildQuestStatus.OnBoard
+    );
+  }
+
   get opponent() {
     return this._opponent;
   }
@@ -605,11 +615,7 @@ export class EncounterController {
         executeActionBlock();
       };
 
-      if (
-        this._type === EncounterType.PoliceInspection &&
-        this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Firearms) <= 0 &&
-        this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics) <= 0
-      ) {
+      if (this._safeToSubmit()) {
         const alertString =
           "Are you sure you want to attack? You're not carrying illegal goods so it should be safe to submit.";
 
@@ -652,11 +658,7 @@ export class EncounterController {
       };
 
       let alertString = null;
-      if (
-        this._type === EncounterType.PoliceInspection &&
-        !this._game.commander.ship.hasIllegalGoods() &&
-        this._game.wildStatus !== WildQuestStatus.OnBoard
-      ) {
+      if (this._safeToSubmit()) {
         alertString =
           "Are you sure you want to flee? You're not carrying illegal goods so it should be safe to submit.";
       } else if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
@@ -711,7 +713,11 @@ export class EncounterController {
           tradePrice = Math.max(tradePrice, tradeItem.minTradePrice);
           tradePrice = Math.min(tradePrice, tradeItem.maxTradePrice);
 
-          maxUnits = this._game.commander.ship.tradeItemQuantityForType(itemType);
+          // The trader cannot take more than its hold has room for.
+          maxUnits = Math.min(
+            this._game.commander.ship.tradeItemQuantityForType(itemType),
+            this._opponent.ship.totalCargoBays()
+          );
           comparisonPrice = this._game.commander.ship.tradeItemAverageBuyingPriceForType(itemType);
         }
       } else if (this._type === EncounterType.TraderSell) {
@@ -736,7 +742,12 @@ export class EncounterController {
           tradePrice = Math.max(tradePrice, tradeItem.minTradePrice);
           tradePrice = Math.min(tradePrice, tradeItem.maxTradePrice);
           const freeCargoBays = this._game.commander.ship.freeCargoBays();
-          maxUnits = Math.min(freeCargoBays, Math.floor(this._game.commander.credits / tradePrice));
+          // No more than the trader carries, than fits, and than the commander can pay for.
+          maxUnits = Math.min(
+            this._opponent.ship.tradeItemQuantityForType(itemType),
+            freeCargoBays,
+            Math.floor(this._game.commander.credits / tradePrice)
+          );
         }
       }
 
@@ -1028,11 +1039,7 @@ export class EncounterController {
         }
       };
 
-      if (
-        this._type === EncounterType.PoliceInspection &&
-        !this._game.commander.ship.hasIllegalGoods() &&
-        this._game.wildStatus !== WildQuestStatus.OnBoard
-      ) {
+      if (this._safeToSubmit()) {
         const alertString =
           'Are you sure you want to bribe the police? You are not carrying illegal goods, so you have nothing to fear!';
 
@@ -1904,7 +1911,8 @@ export class EncounterController {
       (1 +
         Math.floor(
           (this._game.commander.netWorth() *
-            Math.min(80, -this._game.commander.policeRecordScore)) /
+            // A good record counts as zero, which leaves the smallest fine.
+            Math.max(0, Math.min(80, -this._game.commander.policeRecordScore))) /
             100 /
             500
         )) *
@@ -2048,6 +2056,7 @@ export class EncounterController {
       if (traderSell) {
         const actualAmount = this._game.commander.ship.boughtQuantity(amount, itemType, tradePrice);
         this._game.commander.setCredits(credits - actualAmount * tradePrice);
+        this._opponent.ship.soldQuantity(actualAmount, itemType);
       } else {
         this._game.commander.setCredits(credits + amount * tradePrice);
         this._game.commander.ship.soldQuantity(amount, itemType);

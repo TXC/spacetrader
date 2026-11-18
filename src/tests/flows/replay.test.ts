@@ -603,7 +603,8 @@ test('tradeInOrbit_buy_selectedValue', () => {
 
   replay.replayEvent('alertButton_Dismiss', 'click');
 
-  const tradeQuantity = 7;
+  // The recording asks for 7, but the trader carries only 2.
+  const tradeQuantity = 2;
   assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Ore), tradeQuantity);
 
   const price = 350;
@@ -629,7 +630,8 @@ test('tradeInOrbit_buy_all', () => {
 
   replay.replayEvent('alertButton_Dismiss', 'click');
 
-  const tradeQuantity = 14;
+  // The recording asks for 14, but the trader carries only 4.
+  const tradeQuantity = 4;
   assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Ore), tradeQuantity);
 
   const price = 350;
@@ -698,7 +700,8 @@ test('tradeInOrbit_actionLogCanUpdateSlider', () => {
 
   replay.replayEvent('alertButton_Dismiss', 'click');
 
-  const tradeQuantity = 8;
+  // The recording asks for 8, but the trader carries only 4.
+  const tradeQuantity = 4;
   assertEqual(commander.ship.tradeItemQuantityForType(TradeItemType.Ore), tradeQuantity);
 
   assertEqual(commander.credits, creditsBeforeTrade - tradeQuantity * 350);

@@ -94,10 +94,12 @@ export class Plunder {
   }
 
   private take(quantity: number, type: number): void {
-    const actual = this.game.commander.ship.boughtQuantity(quantity, type, 0);
+    // No more than the victim holds; the ship then takes what fits, and only that leaves.
+    const wanted = Math.min(quantity, this.available(type));
+    const actual = this.game.commander.ship.boughtQuantity(wanted, type, 0);
     if (actual > 0) {
       this.taken = true;
-      this.opponent.ship.soldQuantity(quantity, type);
+      this.opponent.ship.soldQuantity(actual, type);
     }
   }
 

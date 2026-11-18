@@ -1,0 +1,169 @@
+// One test per rule bug found in the code review of 2026-11-17, named by its id there.
+import { expect, test } from 'vitest';
+import { newGame, press, topAlert } from '../tests/support/newGame.ts';
+import { AccessoryType } from './Accessory.ts';
+import { alertStore } from './alerts.ts';
+import { EncounterController, EncounterType } from './EncounterController.ts';
+import { GameRand } from './GameRand.ts';
+import { News } from './News.ts';
+import { Opponent, OpponentType } from './Opponent.ts';
+import { Plunder } from './Plunder.ts';
+import { Ship, shipModelForType, ShipModelType } from './Ship.ts';
+import { buyShip } from './ShipYard.ts';
+import { JaporiQuestStatus, WildQuestStatus } from './SolarSystem.types.ts';
+import { FAKE_QUEST_CARGO, TRADE_ITEM_COUNT, TradeItemType } from './TradeItem.types.ts';
+import type { Travel } from './Travel.ts';
+import { warp } from './Warp.ts';
+
+const { Water, Furs } = TradeItemType;
+
+// A trader whose hold holds exactly what a test puts in it.
+function traderWith(game: ReturnType<typeof newGame>, cargo: [number, number][]): Opponent {
+  const trader = Opponent.generateOpponentWithType(OpponentType.Trader, game);
+  for (let type = 0; type < TRADE_ITEM_COUNT; type++) {
+    trader.ship.soldQuantity(trader.ship.tradeItemQuantityForType(type), type);
+  }
+  cargo.forEach(([type, quantity]) => trader.ship.boughtQuantity(quantity, type, 0));
+  return trader;
+}
+
+// An encounter whose owner ignores what it is told.
+function encounter(game: ReturnType<typeof newGame>, type: number, opponent: Opponent) {
+  const controller = new EncounterController(type, game, opponent);
+  controller.delegate = new Proxy({}, { get: () => () => {} }) as Travel;
+  return controller;
+}
+
+test('B1: dumping more than the fee allows dumps only what is paid for', () => {
+  const { commander } = newGame();
+  commander.ship.boughtQuantity(5, Water, 10);
+  commander.credits = 20; // the fee is 15 a unit at this difficulty
+
+  commander.attemptSaleOfItem(Water, 5, true);
+
+  expect(commander.ship.tradeItemQuantityForType(Water)).toBe(4);
+  expect(commander.credits).toBe(5);
+});
+
+test('B2: plundering takes no more than the victim holds', () => {
+  const game = newGame();
+  const victim = traderWith(game, [[Water, 2]]);
+
+  new Plunder(game, victim, 'Plunder').press(Water, 5);
+
+  expect(game.commander.ship.tradeItemQuantityForType(Water)).toBe(2);
+  expect(victim.ship.tradeItemQuantityForType(Water)).toBe(0);
+});
+
+test('B2: plundering leaves with the victim what does not fit', () => {
+  const game = newGame();
+  const { ship } = game.commander;
+  const victim = traderWith(game, [[Furs, 8]]);
+  ship.boughtQuantity(ship.freeCargoBays() - 3, Water, 0);
+
+  new Plunder(game, victim, 'Plunder').press(Furs, 'all');
+
+  expect(ship.tradeItemQuantityForType(Furs)).toBe(3);
+  expect(victim.ship.tradeItemQuantityForType(Furs)).toBe(5);
+});
+
+test('B3: removing a shield takes its power with it', () => {
+  const ship = new Ship(ShipModelType.Bumblebee, 2);
+  ship.addAccessoryOfType(AccessoryType.ShieldEnergy); // 100
+  ship.addAccessoryOfType(AccessoryType.ShieldReflective); // 200
+
+  ship.removeAccessoryOfType(AccessoryType.ShieldReflective);
+  expect(ship._currentShieldPower).toBe(100);
+
+  ship.removeAccessoryOfType(AccessoryType.ShieldEnergy);
+  expect(ship._currentShieldPower).toBe(0);
+});
+
+test('B4: Wild is asked about first, and too much debt is a message of its own', () => {
+  const game = newGame();
+  game.wildStatus = WildQuestStatus.OnBoard;
+  game.commander.ship.removeAccessoryOfType(AccessoryType.WeaponPulseLaser);
+  game.commander.debt = 200000;
+  const destination = game.solarSystems[0];
+  let left = false;
+
+  warp(game, false, destination, () => (left = true));
+  expect(topAlert().title).toContain('Jonathan Wild');
+  press('He can stay!');
+
+  expect(game.wildStatus).not.toBe(WildQuestStatus.OnBoard);
+  expect(topAlert().title).toContain('Your debt is too large');
+  expect(topAlert().actions.map(action => action.title)).toEqual(['Darn!']);
+  expect(left).toBe(false);
+});
+
+test('B5: an arrest with a good police record still costs the smallest fine', () => {
+  const game = newGame();
+  const { commander } = game;
+  commander.credits = 100000;
+  commander.policeRecordScore = 10;
+  const police = Opponent.generateOpponentWithType(OpponentType.Police, game);
+
+  encounter(game, EncounterType.PoliceInspection, police)._processArrest();
+
+  expect(topAlert().title).toContain('a fine of $500.');
+});
+
+test('B7: the newspaper is not sold to a commander who cannot pay', () => {
+  const game = newGame();
+  game.commander.credits = 0;
+
+  new News(game).buy();
+
+  expect(game.commander.credits).toBe(0);
+  expect(game.alreadyPaidForNewspaper).toBe(false);
+});
+
+test('B9: the random generator never goes above its maximum', () => {
+  const rand = new GameRand(1);
+  rand.randHigh = 0; // the next step lands on the largest value the generator has
+  rand.randLow = 0xffffffff;
+
+  expect(rand.randomInt(0, 9)).toBe(9);
+});
+
+test('B10: attacking at an inspection gives no "safe to submit" advice with Wild aboard', () => {
+  const game = newGame();
+  const police = Opponent.generateOpponentWithType(OpponentType.Police, game);
+  const titles = () => alertStore.open.map(alert => alert.title).join('\n');
+
+  encounter(game, EncounterType.PoliceInspection, police).performAction('Attack');
+  expect(titles()).toContain('it should be safe to submit');
+
+  const withWild = newGame();
+  withWild.wildStatus = WildQuestStatus.OnBoard;
+  encounter(withWild, EncounterType.PoliceInspection, police).performAction('Attack');
+  expect(titles()).not.toContain('it should be safe to submit');
+});
+
+test('Q4: a trader sells no more than is in its hold, and the hold empties', () => {
+  const game = newGame();
+  game.commander.credits = 100000;
+  const trader = traderWith(game, [[Water, 2]]);
+  const meeting = encounter(game, EncounterType.TraderSell, trader);
+
+  meeting.performAction('Trade');
+  const { content } = topAlert();
+  expect(content?.kind === 'slider' && content.max).toBe(2);
+
+  meeting._performTradeWithAmount(2, Water, 30, true);
+  expect(trader.ship.tradeItemQuantityForType(Water)).toBe(0);
+});
+
+test('Q10: the antidote for Japori moves to a newly bought ship', () => {
+  const game = newGame();
+  game.commander.credits = 100000;
+  game.japoriQuestStatus = JaporiQuestStatus.HasMedicine;
+  game.commander.ship.boughtQuantity(10, FAKE_QUEST_CARGO, 0);
+
+  buyShip(game, shipModelForType(ShipModelType.Firefly));
+  press('Yes');
+
+  expect(game.commander.ship.type).toBe(ShipModelType.Firefly);
+  expect(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO)).toBe(10);
+});

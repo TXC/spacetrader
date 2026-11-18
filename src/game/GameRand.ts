@@ -27,7 +27,9 @@ export class GameRand {
 
     this.randHigh = ((this.randHigh << 16) + (this.randHigh >> 16) + this.randLow) & 0xffffffff;
     this.randLow = (this.randLow + this.randHigh) & 0xffffffff;
-    const n = (this.randHigh >>> 0) / 0xffffffff;
+    // The largest value would make n exactly 1 and the result max + 1, once in four billion
+    // draws. Using the next value down leaves every other draw as it was.
+    const n = Math.min(this.randHigh >>> 0, 0xfffffffe) / 0xffffffff;
     return (min + n * (max - min + 1)) | 0;
   }
 

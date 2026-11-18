@@ -34,11 +34,11 @@ the decisions taken so far.
 |---|------|----------|---------------|---------------------|
 | 1 | The review and this roadmap | | | |
 | 2 | Tooling: one `check` command, run on every change, stricter lint | T1, T3, T4, T5, T7, T8, T9, I9 | | No |
-| 3 | Rule bugs that leave recordings alone | B1 to B5, B7, B9, B10, B11, Q1, Q4, Q10 | | No |
-| 4 | Rule bugs that change the games walking those paths | B6, B8, Q2, Q3, Q8, Q9 | | Yes, a few |
+| 3 | Rule bugs that leave recordings alone | B1 to B5, B7, B9, B10, Q4, Q10 | | Three tests, for Q4 |
+| 4 | Rule bugs that change the games walking those paths | B6, B8, Q1, Q2, Q3, Q8, Q9 | | Yes, a few |
 | 5 | Safe saving and loading | L1 to L5, Q11, X2, X3 | Yes | No |
 | 6 | Delete dead code and leftovers | D1 to D7 | | No |
-| 7 | Accessibility: alerts as dialogs, real buttons, labels | A1 to A8, Q12 | | No |
+| 7 | Accessibility: alerts as dialogs, real buttons, labels, unique ids | A1 to A8, B11, Q12 | | No |
 | 8 | CSS Modules, with the stylesheet fixes | Y1 to Y6 | Yes | No |
 | 9 | Service worker in TypeScript, clearing old files | T6, O1 to O4 | Yes | No |
 | 10 | Canvases draw only when something changes | C1 to C5 | | No |
@@ -74,5 +74,6 @@ mercenary that leaves the other draws untouched.
   The owner was asked and did not object.
 - The order of the steps.
 - Which four steps get a design document.
-- Q1, Q4 and Q10 are fixed in step 3 with the other bugs that do not
-  change recordings.
+- Q4 and Q10 are fixed in step 3 with the other bugs. Q1 moved to step
+  4, because it reorders the alerts of an inspection. B11 moved to step
+  7, where the markup is reworked.
