@@ -31,7 +31,7 @@ export class Travel extends Store implements EncounterListener {
   declare _startClicksRemaining: number;
   declare _startedEncounters: boolean;
   declare _needPostMarieCustomsPolice: boolean;
-  declare _encounterController: Encounter | null;
+  declare _encounter: Encounter | null;
   declare _done: (result: TravelResult) => void;
   // How far along the trip is, from 0 to 1.
   progress = 0;
@@ -52,7 +52,7 @@ export class Travel extends Store implements EncounterListener {
     this._startClicksRemaining = this._game.commander.travelClicksRemaining;
     this._startedEncounters = false;
     this._needPostMarieCustomsPolice = false;
-    this._encounterController = null;
+    this._encounter = null;
     this._done = done;
   }
 
@@ -69,7 +69,7 @@ export class Travel extends Store implements EncounterListener {
     return this._destWasVisited;
   }
   get encounter() {
-    return this._encounterController;
+    return this._encounter;
   }
 
   // Lets the screen hear about each move as it happens. Returns a function that stops it.
@@ -90,7 +90,7 @@ export class Travel extends Store implements EncounterListener {
 
   // The player picked one of the encounter's buttons.
   perform(action: ActionName) {
-    this._encounterController!.performAction(action);
+    this._encounter!.performAction(action);
   }
 
   _processEncounters() {
@@ -114,7 +114,7 @@ export class Travel extends Store implements EncounterListener {
 
       if (encounterType !== EncounterType.None && opponent) {
         const encounterController = new Encounter(encounterType, this._game, opponent, this);
-        this.setEncounterController(encounterController);
+        this.setEncounter(encounterController);
         return;
       }
 
@@ -141,13 +141,13 @@ export class Travel extends Store implements EncounterListener {
     }
   }
 
-  setEncounterController(eC: Encounter | null) {
-    if (eC !== this._encounterController) {
-      if (this._encounterController) {
-        this._encounterController.invalidate();
+  setEncounter(eC: Encounter | null) {
+    if (eC !== this._encounter) {
+      if (this._encounter) {
+        this._encounter.invalidate();
       }
 
-      this._encounterController = eC;
+      this._encounter = eC;
     }
 
     this.changed();
@@ -161,7 +161,7 @@ export class Travel extends Store implements EncounterListener {
   // What the encounter tells the trip.
 
   plundered(anythingTaken: boolean) {
-    const type = this._encounterController?.type;
+    const type = this._encounter?.type;
     if (type === EncounterType.MarieCelesteEncounter && anythingTaken) {
       this._needPostMarieCustomsPolice = true;
     }
@@ -171,7 +171,7 @@ export class Travel extends Store implements EncounterListener {
     if (fightGoesOn) {
       this.changed();
     } else {
-      this.setEncounterController(null);
+      this.setEncounter(null);
       this._processEncounters();
     }
   }
@@ -185,12 +185,12 @@ export class Travel extends Store implements EncounterListener {
   }
 
   arrested() {
-    this.setEncounterController(null);
+    this.setEncounter(null);
     this._done('arrived');
   }
 
   destroyed() {
-    this.setEncounterController(null);
+    this.setEncounter(null);
 
     if (this._game.commander.hasEscapePod) {
       pLog.log(29);

@@ -16,7 +16,7 @@ export function arrive(travel: Travel, eventLoopInitialClicks: number): void {
   travel._game.handleArrival();
 
   travel._setProgress(1);
-  travel.setEncounterController(null);
+  travel.setEncounter(null);
 
   const alertStrings = [];
 
