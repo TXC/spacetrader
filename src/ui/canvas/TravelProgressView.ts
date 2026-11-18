@@ -42,7 +42,9 @@ export class TravelProgressView {
     game: Game,
     origin: SolarSystem,
     destination: SolarSystem,
-    wasVisited: boolean
+    wasVisited: boolean,
+    // The class names of the two elements made here; their styles are the caller's.
+    classes: { host: string; canvas: string }
   ) {
     this.div = div;
     this.game = game;
@@ -52,10 +54,12 @@ export class TravelProgressView {
 
     this.canvasContainer = document.createElement('div');
     this.canvasContainer.id = 'travelProgressViewCanvasContainer';
+    this.canvasContainer.className = classes.host;
     this.div.appendChild(this.canvasContainer);
 
     this.canvas = document.createElement('canvas');
     this.canvas.id = 'travelProgressViewCanvas';
+    this.canvas.className = classes.canvas;
     this.context = this.canvas.getContext('2d')!;
     this.canvasContainer.appendChild(this.canvas);
     this.initCanvas();

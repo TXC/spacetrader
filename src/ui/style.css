@@ -33,62 +33,6 @@
   font-size: 0.667rem;
 }
 
-/* Battle buttons */
-
-.battleButtons {
-  list-style-type: none;
-  padding: 0;
-  margin: 0 auto;
-  width: 100%;
-}
-
-.battle-button-item {
-  display: flex;
-  margin: 0;
-}
-
-.battle-button-icon {
-  width: 2rem;
-  height: 2rem;
-  object-fit: contain;
-  margin-left: 0.533rem;
-  margin-right: 0.667rem;
-  vertical-align: middle;
-  padding-bottom: 0.133rem; /* Achieve visual centering relative to text with this manual adjustment */
-}
-
-.battle-button-title {
-  font-size: 0.667rem;
-}
-
-#eVC_dialog {
-  display: flex;
-  align-items: center;
-  line-height: 1.5em;
-  min-height: calc(1.5em * 6); /* Ensure the div is at least 6 lines tall */
-  width: 95%;
-  margin: 0 auto;
-}
-
-#travelProgressView {
-  margin-top: 0.333rem;
-}
-
-#battleViewsContainer {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  height: 5rem;
-  margin-top: 0.2rem;
-}
-
-.crossfade-container {
-  position: relative;
-  width: 40%;
-  text-align: center;
-}
-
 .hidden {
   display: none;
 }
@@ -225,19 +169,6 @@ nav {
   border-radius: 3px;
 }
 
-#travelProgressViewCanvasContainer {
-  position: relative;
-  text-align: center;
-  height: 3.333rem;
-  width: 100%;
-  display: block;
-  margin: 0 auto;
-}
-
-#travelProgressViewCanvas {
-  border-radius: 3px;
-}
-
 @media (prefers-color-scheme: dark) {
   .alert-box {
     background: #1c1c1c;
@@ -251,12 +182,6 @@ nav {
 /* The game is a column: whatever screen is showing fills the width. */
 #game,
 #systemLandingDiv {
-  display: flex;
-  flex-direction: column;
-}
-
-/* The encounter's buttons, one under the other. */
-.battleButtons {
   display: flex;
   flex-direction: column;
 }
