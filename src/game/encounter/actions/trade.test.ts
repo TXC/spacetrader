@@ -9,7 +9,7 @@ import { runtime } from '../../runtime.ts';
 import { TradeItemType } from '../../TradeItem.types.ts';
 import { EncounterType } from '../types.ts';
 
-const { Water, Narcotics } = TradeItemType;
+const { Water, Furs, Narcotics } = TradeItemType;
 const { TraderBuy, TraderSell } = EncounterType;
 
 // The commander presses Trade; the trader's offer is the alert on top.
@@ -151,6 +151,16 @@ test.each([
 ])('a trader %s on a roll of %i or below', (_, last, type, [record, goods]) => {
   const price = (roll: number) => offeredPrice(record, type, roll, [...goods]);
   expect(price(last)).toBeLessThan(price(last + 1));
+});
+
+// Each step is a whole number, as in the original: the price times the roll's factor, then
+// down to the goods' price unit; a trader who buys adds one unit (Encounter.c:1640-1661,
+// 1725-1745). A clean commander with a trader skill of 5 pays $270 for Furs at $250.
+test.each([
+  ['sells Furs asks $240', TraderSell, 250, 240], // 270 * 0.9 = 243, down to 240
+  ['buys Furs offers $255', TraderBuy, 230, 255], // 230 * 1.1 = 253, down to 250, one unit up
+])('a trader who %s on a roll above 10', (_, type, market, price) => {
+  expect(offeredPrice(PoliceRecordScore.Clean, type, 11, [Furs, market])).toBe(price);
 });
 
 test.each([
