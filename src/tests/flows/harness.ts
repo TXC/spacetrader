@@ -51,11 +51,7 @@ export function show(session: Session) {
 // is the game's session.
 type RegisterHandler = (elementID: string, eventName: string) => void;
 
-export function runReplayLog(
-  replayLog: string,
-  hackHandler?: ((session: Session) => void) | null,
-  registerEventHandler?: RegisterHandler
-) {
+export function runReplayLog(replayLog: string, registerEventHandler?: RegisterHandler) {
   unmountAll();
   AlertViewController.clearAlerts();
 
@@ -72,7 +68,7 @@ export function runReplayLog(
   session.loadGame = false;
   show(session);
 
-  const replay = new ActionLogReplay(replayLog, session, hackHandler ?? undefined);
+  const replay = new ActionLogReplay(replayLog, session);
   replay.replay();
 
   return replay;
@@ -152,7 +148,7 @@ export function performStressTest(
   };
 
   // Create a game
-  const replay = runReplayLog(initialLog, null, registerEventHandler);
+  const replay = runReplayLog(initialLog, registerEventHandler);
 
   let galacticChartConsecutiveActions = 0;
 
