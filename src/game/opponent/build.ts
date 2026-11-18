@@ -20,67 +20,80 @@ export function buildOpponent(type: number, game: Game): Opponent {
   ensureInteger(difficulty);
 
   if (type === OpponentType.FamousCaptain) {
-    const ship = Ship.bestShipWithDifficulty(difficulty);
-    opponent = new Opponent(
-      type,
-      MAX_SKILL_LEVEL,
-      MAX_SKILL_LEVEL,
-      MAX_SKILL_LEVEL,
-      MAX_SKILL_LEVEL,
-      ship
-    );
+    opponent = famousCaptain(type, difficulty);
   } else if (type === OpponentType.Dragonfly) {
-    const ship = new Ship(ShipModelType.Dragonfly, difficulty);
-    ship.addShieldOfType(AccessoryType.ShieldLightning);
-    ship.addShieldOfType(AccessoryType.ShieldLightning);
-    ship.addShieldOfType(AccessoryType.ShieldLightning);
-    ship.addGadgetOfType(AccessoryType.GadgetAutoRepairSystem);
-    ship.addGadgetOfType(AccessoryType.GadgetTargetingSystem);
-    ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
-    ship.addWeaponOfType(AccessoryType.WeaponPulseLaser);
-    opponent = new Opponent(
-      OpponentType.Dragonfly,
-      6 + difficulty,
-      4 + difficulty,
-      6 + difficulty,
-      1,
-      ship
-    );
+    opponent = dragonfly(difficulty);
   } else if (type === OpponentType.Scarab) {
-    const ship = new Ship(ShipModelType.Scarab, difficulty);
-    ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
-    ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
-    opponent = new Opponent(
-      OpponentType.Scarab,
-      6 + difficulty,
-      5 + difficulty,
-      6 + difficulty,
-      1,
-      ship
-    );
+    opponent = scarab(difficulty);
   } else if (type === OpponentType.Monster) {
-    const ship = new Ship(ShipModelType.SpaceMonster, difficulty);
-    const currentHull = ship.hull;
-    ship.damageHullByAmount(currentHull - game.monsterHull);
-    ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
-    ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
-    ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
-    opponent = new Opponent(
-      OpponentType.Monster,
-      1 + difficulty,
-      8 + difficulty,
-      8 + difficulty,
-      1,
-      ship
-    );
+    opponent = monster(game, difficulty);
   } else if (type === OpponentType.Bottle) {
-    const ship = new Ship(ShipModelType.Bottle, game.difficulty);
-    opponent = new Opponent(OpponentType.Bottle, 0, 0, 0, 0, ship);
+    opponent = bottle(game);
   } else {
     opponent = ordinaryOpponent(type, game);
   }
 
   return opponent;
+}
+
+function famousCaptain(type: number, difficulty: number): Opponent {
+  const ship = Ship.bestShipWithDifficulty(difficulty);
+  return new Opponent(
+    type,
+    MAX_SKILL_LEVEL,
+    MAX_SKILL_LEVEL,
+    MAX_SKILL_LEVEL,
+    MAX_SKILL_LEVEL,
+    ship
+  );
+}
+
+function dragonfly(difficulty: number): Opponent {
+  const ship = new Ship(ShipModelType.Dragonfly, difficulty);
+  ship.addShieldOfType(AccessoryType.ShieldLightning);
+  ship.addShieldOfType(AccessoryType.ShieldLightning);
+  ship.addShieldOfType(AccessoryType.ShieldLightning);
+  ship.addGadgetOfType(AccessoryType.GadgetAutoRepairSystem);
+  ship.addGadgetOfType(AccessoryType.GadgetTargetingSystem);
+  ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
+  ship.addWeaponOfType(AccessoryType.WeaponPulseLaser);
+  return new Opponent(
+    OpponentType.Dragonfly,
+    6 + difficulty,
+    4 + difficulty,
+    6 + difficulty,
+    1,
+    ship
+  );
+}
+
+function scarab(difficulty: number): Opponent {
+  const ship = new Ship(ShipModelType.Scarab, difficulty);
+  ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
+  ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
+  return new Opponent(OpponentType.Scarab, 6 + difficulty, 5 + difficulty, 6 + difficulty, 1, ship);
+}
+
+function monster(game: Game, difficulty: number): Opponent {
+  const ship = new Ship(ShipModelType.SpaceMonster, difficulty);
+  const currentHull = ship.hull;
+  ship.damageHullByAmount(currentHull - game.monsterHull);
+  ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
+  ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
+  ship.addWeaponOfType(AccessoryType.WeaponMilitaryLaser);
+  return new Opponent(
+    OpponentType.Monster,
+    1 + difficulty,
+    8 + difficulty,
+    8 + difficulty,
+    1,
+    ship
+  );
+}
+
+function bottle(game: Game): Opponent {
+  const ship = new Ship(ShipModelType.Bottle, game.difficulty);
+  return new Opponent(OpponentType.Bottle, 0, 0, 0, 0, ship);
 }
 
 // A trader, a pirate, the police or a Mantis: a ship picked by chance, fitted out by chance.
