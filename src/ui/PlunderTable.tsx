@@ -1,6 +1,7 @@
 import type { Plunder, PlunderRow } from '../game/Plunder.ts';
 import { Icon } from './Icon.tsx';
 import { LoggedButton } from './Logged.tsx';
+import shared from './shared.module.css';
 
 type RowProps = { plunder: Plunder; row: PlunderRow };
 
@@ -17,7 +18,7 @@ function Amounts({ plunder, row }: RowProps) {
   );
   return (
     <td>
-      <div className="button-group">
+      <div className={shared.buttonGroup}>
         {button(1, '1', `${verb} 1`)}
         {button(5, '5', '5')}
         {button('all', 'All', 'All')}
@@ -30,15 +31,15 @@ function Amounts({ plunder, row }: RowProps) {
 export function PlunderTable({ plunder }: { plunder: Plunder }) {
   return (
     <>
-      <table className="tight-table">
+      <table className={shared.tightTable}>
         <tbody>
           {plunder.rows().map(row => (
             <tr key={row.type}>
-              <td className="left-aligned-cell">
-                <Icon name={row.name} className="table-row-icon" />
+              <td className={shared.left}>
+                <Icon name={row.name} className={shared.rowIcon} />
                 <span>{row.name}</span>
               </td>
-              <td className="right-aligned-cell">{row.quantity}</td>
+              <td className={shared.right}>{row.quantity}</td>
               <Amounts plunder={plunder} row={row} />
             </tr>
           ))}

@@ -7,6 +7,7 @@ import { GalaxyMap } from './GalaxyMap.tsx';
 import { Lines } from './Lines.tsx';
 import { LoggedButton } from './Logged.tsx';
 import { useSession } from './useStore.ts';
+import shared from './shared.module.css';
 
 type Props = { game: Game; onSingularity: (system: SolarSystem) => void };
 // The button ids carry the number of rows in their table, as they always have.
@@ -45,7 +46,7 @@ function SystemTable({
   onSingularity,
 }: Props & { systems: SolarSystem[]; heading: string }) {
   return (
-    <table className="tight-table">
+    <table className={shared.tightTable}>
       <tbody>
         <tr>
           <th colSpan={2}>{heading}</th>

@@ -9,6 +9,7 @@ import { LoggedButton } from './Logged.tsx';
 import { PlunderTable } from './PlunderTable.tsx';
 import { useLogged } from './useLogged.ts';
 import { useStore } from './useStore.ts';
+import shared from './shared.module.css';
 
 type AlertProps = { alert: AlertViewController };
 
@@ -41,7 +42,7 @@ function Content({ alert }: AlertProps) {
   if (content?.kind === 'slider') return <Slider alert={alert} content={content} />;
   if (content?.kind !== 'plunder') return null;
   return (
-    <div id={alert.elementId('alertvc-customView')} className="centered-div">
+    <div id={alert.elementId('alertvc-customView')} className={shared.centredBlock}>
       <PlunderTable plunder={content.plunder} />
     </div>
   );

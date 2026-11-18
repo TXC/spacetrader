@@ -13,6 +13,7 @@ import { HallOfFame } from './HallOfFame.tsx';
 import { Lines } from './Lines.tsx';
 import { LoggedButton, LoggedCheckbox } from './Logged.tsx';
 import { useSession } from './useStore.ts';
+import shared from './shared.module.css';
 
 type Props = { game: Game; scores: Scores; onGiveUp: () => void };
 type GameProps = { game: Game };
@@ -45,7 +46,7 @@ function FigureTable({ game }: GameProps) {
         {figures(game).map(figure => (
           <tr key={figure.item}>
             <td>{figure.item}</td>
-            <td className={figure.number ? 'right-aligned-cell' : undefined}>{figure.value}</td>
+            <td className={figure.number ? shared.right : undefined}>{figure.value}</td>
           </tr>
         ))}
       </tbody>
@@ -92,7 +93,7 @@ function Status({
   showHallOfFame,
 }: GameProps & { onGiveUp: () => void; showHallOfFame: () => void }) {
   return (
-    <div className="centered">
+    <div className={shared.centredText}>
       <h1>{game.commander.name}</h1>
       <SkillTable game={game} />
       <br />

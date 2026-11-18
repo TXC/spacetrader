@@ -1,0 +1,136 @@
+/* Pieces several screens use. A screen's module takes one with `composes`; a component
+   that needs nothing more uses it as it is. */
+
+/* ---- Icons ----------------------------------------------------------------------- */
+
+/* A pixel-art icon beside a text. Each use sets its size, the gap to the text, and how far
+   it is lifted to sit centred on the text by eye. */
+.icon {
+  width: var(--icon-size, var(--space-20));
+  height: var(--icon-size, var(--space-20));
+  object-fit: contain;
+  margin-right: var(--icon-gap, var(--space-2));
+  vertical-align: middle;
+  padding-bottom: var(--icon-lift, 0);
+}
+
+.buttonIcon {
+  composes: icon;
+  --icon-lift: var(--space-2);
+}
+
+.rowIcon {
+  composes: icon;
+  --icon-gap: 0.267rem;
+  --icon-lift: var(--space-2);
+}
+
+/* ---- Tables ---------------------------------------------------------------------- */
+
+.cells {
+  width: 100%;
+}
+
+.cells td {
+  padding: var(--space-1);
+  background-color: var(--cell);
+}
+
+/* An item's name and icon stay on one line; the buttons beside them do the wrapping. */
+.cells td:has(> .rowIcon) {
+  white-space: nowrap;
+}
+
+.tightTable {
+  composes: cells;
+  border-collapse: separate;
+  border-spacing: var(--table-gap);
+}
+
+.joinedTable {
+  composes: cells;
+  border-collapse: collapse;
+}
+
+/* The title of a group of rows. */
+.sectionTitle {
+  padding: var(--space-1);
+  text-align: left;
+}
+
+.left {
+  text-align: left;
+}
+
+.right {
+  text-align: right;
+}
+
+/* ---- Centring -------------------------------------------------------------------- */
+
+.centredText {
+  text-align: center;
+}
+
+.centredBlock {
+  margin: auto;
+  width: fit-content;
+}
+
+/* ---- Buttons that belong together ------------------------------------------------ */
+
+.headerWithButtons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buttonRow {
+  display: flex;
+}
+
+/* Side by side, wrapping when there is no room. */
+.buttonGroup {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+/* In a table cell: less air, so they stay on one line. */
+.buttonGroup button {
+  margin: 0.1rem;
+  padding: 0 0.6rem;
+}
+
+/* ---- Health and shield bars ------------------------------------------------------ */
+
+.bar {
+  width: 6.667rem;
+  height: var(--space-3);
+  margin-top: var(--space-3);
+  padding: 0;
+  border-radius: var(--radius-small);
+  background-color: var(--bar-track);
+  overflow: hidden;
+}
+
+.barFill {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---- Where a canvas is drawn ----------------------------------------------------- */
+
+.canvasHost {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.canvas {
+  border-radius: var(--radius-small);
+}

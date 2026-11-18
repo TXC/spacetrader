@@ -60,12 +60,6 @@
   color: var(--button-danger);
 }
 
-/* Several buttons side by side in a table cell: less air, so they stay on one line. */
-:global(.button-group) .button {
-  margin: 0.1rem;
-  padding: 0 0.6rem;
-}
-
 /* The encounter's buttons fill the row, icon first. */
 :global(.battleButtons) .button {
   flex: 1;

@@ -44,15 +44,6 @@
   margin: auto;
 }
 
-.table-row-icon {
-  width: 1.333rem;
-  height: 1.333rem;
-  object-fit: contain;
-  margin-right: 0.267rem;
-  vertical-align: middle;
-  padding-bottom: 0.133rem; /* Achieve visual centering relative to text with this manual adjustment */
-}
-
 .crew-skill-table {
   margin-left: 1.333rem;
 }
@@ -73,15 +64,6 @@
   margin-right: 0.133rem;
   vertical-align: middle;
   padding-bottom: 0.2rem; /* Achieve visual centering relative to text with this manual adjustment */
-}
-
-.button-icon {
-  width: 1.333rem;
-  height: 1.333rem;
-  object-fit: contain;
-  margin-right: 0.133rem;
-  vertical-align: middle;
-  padding-bottom: 0.133rem; /* Achieve visual centering relative to text with this manual adjustment */
 }
 
 .button-icon-chart {
@@ -284,38 +266,8 @@ nav {
   word-wrap: break-word;
 }
 
-table tr.section-label td {
-  background-color: transparent;
-  font-weight: bold;
-}
-
 .preserve-whitespace {
   white-space: pre-line;
-}
-
-.tight-table {
-  border-collapse: separate;
-  border-spacing: 2px;
-  width: 100%;
-}
-
-.tight-table-collapse {
-  border-collapse: collapse;
-  border-spacing: 2px;
-  width: 100%;
-}
-
-.tight-table td {
-  padding-top: 0.067rem;
-  padding-bottom: 0.067rem;
-  padding-left: 0.067rem;
-  padding-right: 0.067rem;
-  background-color: #f9f9f9;
-}
-
-.tight-table-collapse td {
-  padding: 0.067rem;
-  background-color: #f9f9f9;
 }
 
 .skill-table {
@@ -354,27 +306,6 @@ table tr.section-label td {
   margin: auto;
 }
 
-.left-aligned-cell {
-  text-align: left;
-}
-
-.right-aligned-cell {
-  text-align: right;
-}
-
-.centered-cell {
-  text-align: center;
-}
-
-.centered {
-  text-align: center;
-}
-
-.centered-div {
-  margin: auto;
-  width: fit-content;
-}
-
 #newsStrDiv {
   border: 1px solid black; /* Black border */
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Drop shadow */
@@ -388,17 +319,6 @@ table tr.section-label td {
   width: 100%;
   max-width: 20rem;
   margin: auto;
-}
-
-.header-with-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.button-row {
-  display: flex;
 }
 
 .bays-credits {
@@ -512,14 +432,6 @@ table tr.section-label td {
 }
 
 @media (prefers-color-scheme: dark) {
-  .tight-table td {
-    background-color: #2e2e2e;
-  }
-
-  .tight-table-collapse td {
-    background-color: #2e2e2e;
-  }
-
   #newsStrDiv {
     border: 1px solid white;
     box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.4); /* Drop shadow */
@@ -542,7 +454,8 @@ table tr.section-label td {
 }
 
 /* The new-commander form: one centred column. */
-#newCommanderDiv > .centered {
+#newCommanderDiv > div {
+  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -552,18 +465,4 @@ table tr.section-label td {
 .battleButtons {
   display: flex;
   flex-direction: column;
-}
-
-/* Buttons that belong together sit side by side and wrap when there is no room. */
-.button-group {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.133rem;
-}
-
-/* An item's name and icon stay on one line; the buttons beside them do the wrapping. */
-.tight-table td:has(> .table-row-icon),
-.tight-table-collapse td:has(> .table-row-icon) {
-  white-space: nowrap;
 }

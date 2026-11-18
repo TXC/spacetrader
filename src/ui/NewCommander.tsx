@@ -14,6 +14,7 @@ import type { Session } from '../game/session.ts';
 import { Difficulty, difficultyName, DIFFICULTY_COUNT } from '../game/SolarSystem.types.ts';
 import { LoggedButton } from './Logged.tsx';
 import { useLogged } from './useLogged.ts';
+import shared from './shared.module.css';
 
 const LABELS: Record<SkillName, string> = {
   engineer: 'Engineer',
@@ -89,9 +90,9 @@ export function NewCommander({ session }: { session: Session }) {
     setPoints(spendPoints({ ...points.skills, [skill]: value }, skill));
   return (
     <div id="newCommanderDiv">
-      <div className="centered">
+      <div className={shared.centredText}>
         <img className="landing-page-icon" alt="" src={titleImage} />
-        <h1 className="centered-div main-title">Space Trader</h1>
+        <h1 className={`${shared.centredBlock} main-title`}>Space Trader</h1>
         <h1 className="new-commander-title">New Commander</h1>
         <div>
           <label htmlFor="nameInput">Name: </label>

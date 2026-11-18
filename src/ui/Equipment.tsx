@@ -5,13 +5,14 @@ import { BaysCredits } from './BaysCredits.tsx';
 import { Icon } from './Icon.tsx';
 import { LoggedButton } from './Logged.tsx';
 import { useSession } from './useStore.ts';
+import shared from './shared.module.css';
 
 type GameProps = { game: Game };
 
 function Named({ name }: { name: string }) {
   return (
     <>
-      <Icon name={name} className="table-row-icon" />
+      <Icon name={name} className={shared.rowIcon} />
       <span>{name}</span>
     </>
   );
@@ -38,7 +39,7 @@ function InstalledRow({ game, item }: GameProps & { item: Installed }) {
       {item.value === 0 ? (
         <td />
       ) : (
-        <td className="centered-cell">
+        <td className={shared.centredText}>
           <LoggedButton id={'sell_' + item.name} label={`Sell for $${item.value}`} onPress={sell} />
         </td>
       )}
@@ -49,8 +50,10 @@ function InstalledRow({ game, item }: GameProps & { item: Installed }) {
 function Section({ game, section }: GameProps & { section: SlotSection }) {
   return (
     <>
-      <tr className="section-label">
-        <td colSpan={2}>{section.title}</td>
+      <tr>
+        <th colSpan={2} className={shared.sectionTitle}>
+          {section.title}
+        </th>
       </tr>
       {section.slots === 0 && <PlaceholderRow label="No slots" />}
       {section.slots > 0 &&
@@ -72,10 +75,10 @@ function OfferRow({ game, offer }: GameProps & { offer: Offer }) {
       <td>
         <Named name={offer.name} />
       </td>
-      <td className={available ? 'right-aligned-cell' : 'centered-cell'}>
+      <td className={available ? shared.right : shared.centredText}>
         {available ? `$${offer.price}` : 'unavailable'}
       </td>
-      <td className="centered-cell">
+      <td className={shared.centredText}>
         <LoggedButton
           id={'buy_' + offer.name}
           label="Buy"
@@ -92,7 +95,7 @@ export function Equipment({ game }: GameProps) {
   return (
     <>
       <h4>Ship Equipment Slots</h4>
-      <table className="tight-table-collapse">
+      <table className={shared.joinedTable}>
         <tbody>
           {slotSections(game).map(section => (
             <Section key={section.title} game={game} section={section} />
@@ -102,7 +105,7 @@ export function Equipment({ game }: GameProps) {
       <BaysCredits game={game} />
       <br />
       <h4>Buy Equipment</h4>
-      <table className="tight-table">
+      <table className={shared.tightTable}>
         <tbody>
           {offers(game).map(offer => (
             <OfferRow key={offer.type} game={game} offer={offer} />
