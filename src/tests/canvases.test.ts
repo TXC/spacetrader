@@ -69,3 +69,27 @@ test('a target given to the strip before its first frame starts the slide at tha
   expect(view.progressAnimationStartTime).toBe(1000);
   view.dispose();
 });
+
+const listener = () => runtime.actionLog._namedEvents['selectPlanet'];
+
+test('a map that is taken away no longer receives replayed map clicks', () => {
+  const view = map();
+  expect(listener()).toBe(view);
+  view.dispose();
+  expect(listener()).toBeUndefined();
+});
+
+test('taking an old map away leaves the newer map listening', () => {
+  const old = map();
+  const newer = map();
+  old.dispose();
+  expect(listener()).toBe(newer);
+  newer.dispose();
+});
+
+test('a replayed click on a system that does not exist changes nothing', () => {
+  const view = map();
+  view.handleNamedEvent('selectPlanet', 'Nowhere');
+  expect(view.selectedSystem).toBe(game.commander.currentSystem);
+  view.dispose();
+});

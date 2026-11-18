@@ -59,6 +59,7 @@ export class GalaxyView {
     this.disposed = true;
     window.removeEventListener('resize', this.onResize);
     this.canvas.removeEventListener('mouseup', this.onMouseUp);
+    runtime.actionLog.unregisterNamedEventListener(this, this.selectEventName());
   }
 
   constructor(
@@ -165,22 +166,28 @@ export class GalaxyView {
     return this.zoomed ? 'Zoomed' : '';
   }
 
+  private selectEventName() {
+    return 'selectPlanet' + this.eventHandlerName();
+  }
+
   initEvents() {
     this.canvas.addEventListener('mouseup', this.onMouseUp);
 
-    runtime.actionLog.registerNamedEventListener(this, 'selectPlanet' + this.eventHandlerName());
+    runtime.actionLog.registerNamedEventListener(this, this.selectEventName());
 
     window.addEventListener('resize', this.onResize);
   }
 
   handleNamedEvent(eventName: string, eventContext: string) {
-    if (eventName === 'selectPlanet' + this.eventHandlerName()) {
+    if (eventName === this.selectEventName()) {
       const splitContext = eventContext.split('~');
       const systemName = splitContext[0];
       const isWormhole = splitContext.length > 1;
 
       const s = this.game.solarSystems.find(s => s.name === systemName);
-      this.selectSystem(s!, isWormhole);
+      if (s) {
+        this.selectSystem(s, isWormhole);
+      }
     }
   }
 
@@ -201,7 +208,7 @@ export class GalaxyView {
       this.selectSystem(s, isWormhole);
 
       runtime.actionLog.logNamedEvent(
-        'selectPlanet' + this.eventHandlerName(),
+        this.selectEventName(),
         s.name + (isWormhole ? '~wormhole' : '')
       );
     }
