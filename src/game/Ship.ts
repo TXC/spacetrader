@@ -435,55 +435,135 @@ export function shipModelForType(type: number): ShipModel {
   return MODELS[type as ShipModelType];
 }
 
-export class Ship {
-  declare type: ShipModelType;
-  declare _difficulty: number;
-  declare _fuel: number;
-  declare _hull: number;
-  declare _upgradedHull: boolean;
-  declare _currentShieldPower: number;
-  declare _cargoBuyingPrice: Map<number, number>;
-  declare _cargo: Map<number, number>;
-  declare weapons: Weapon[];
-  declare shields: Shield[];
-  declare gadgets: Gadget[];
-  declare _crew: CrewMember[];
-  declare tribbles: number;
+// Everything a ship is made of.
+type ShipFields = {
+  type: ShipModelType;
+  difficulty: number;
+  fuel: number;
+  hull: number;
+  upgradedHull: boolean;
+  currentShieldPower: number;
+  cargoBuyingPrice: Map<number, number>;
+  cargo: Map<number, number>;
+  weapons: Weapon[];
+  shields: Shield[];
+  gadgets: Gadget[];
+  crew: CrewMember[];
+  tribbles: number;
+};
 
-  constructor(type: number, difficulty?: number) {
-    if (type >= SHIP_MODEL_COUNT) {
-      return;
-    }
-    this.type = type as ShipModelType;
-    this._difficulty = difficulty!;
-    this._fuel = shipModelForType(type).fuelTanks;
-    this._hull = this._hullStrength();
-    this._upgradedHull = false;
-    this._currentShieldPower = 0;
-    this._cargoBuyingPrice = new Map();
-    this._cargo = new Map();
-    this.weapons = [];
-    this.shields = [];
-    this.gadgets = [];
-    this._crew = [];
-    this.tribbles = 0;
+// A map saved as two lists: its keys, and its values in the same order.
+function savedMap(keys: number[], values: number[]): Map<number, number> {
+  const map = new Map<number, number>();
+  keys.forEach((key, idx) => {
+    ensureInteger(key);
+    ensureInteger(idx);
+    map.set(key, values[idx]);
+  });
+  return map;
+}
+
+export class Ship {
+  readonly type: ShipModelType;
+  private readonly _difficulty: number;
+  private _fuel: number;
+  private _hull: number;
+  private _upgradedHull: boolean;
+  private _currentShieldPower: number;
+  private readonly _cargoBuyingPrice: Map<number, number>;
+  private readonly _cargo: Map<number, number>;
+  readonly weapons: Weapon[];
+  readonly shields: Shield[];
+  readonly gadgets: Gadget[];
+  private _crew: CrewMember[];
+  tribbles: number;
+
+  private constructor(fields: ShipFields) {
+    this.type = fields.type;
+    this._difficulty = fields.difficulty;
+    this._fuel = fields.fuel;
+    this._hull = fields.hull;
+    this._upgradedHull = fields.upgradedHull;
+    this._currentShieldPower = fields.currentShieldPower;
+    this._cargoBuyingPrice = fields.cargoBuyingPrice;
+    this._cargo = fields.cargo;
+    this.weapons = fields.weapons;
+    this.shields = fields.shields;
+    this.gadgets = fields.gadgets;
+    this._crew = fields.crew;
+    this.tribbles = fields.tribbles;
   }
 
   // A new ship of this model: full tanks, a whole hull, and nothing on board.
   static create(model: ShipModelType, difficulty: number): Ship {
-    return new Ship(model, difficulty);
+    const { fuelTanks, hullStrength } = shipModelForType(model);
+    return new Ship({
+      type: model,
+      difficulty,
+      fuel: fuelTanks,
+      hull: hullStrength,
+      upgradedHull: false,
+      currentShieldPower: 0,
+      cargoBuyingPrice: new Map(),
+      cargo: new Map(),
+      weapons: [],
+      shields: [],
+      gadgets: [],
+      crew: [],
+      tribbles: 0,
+    });
   }
 
   // A ship from a saved game, as parseSavedGame checked it. A crew member who is also a
   // system's mercenary is that same mercenary.
   static load(state: ShipState, solarSystems: SolarSystem[]): Ship {
-    return Ship.fromSerializedState(state, solarSystems);
+    const ship = new Ship({
+      type: state.type as ShipModelType,
+      difficulty: state.difficulty,
+      fuel: state.fuel,
+      hull: state.hull,
+      upgradedHull: state.upgradedHull,
+      currentShieldPower: 0,
+      cargoBuyingPrice: savedMap(state.cargoBuyingPriceKeys, state.cargoBuyingPriceValues),
+      cargo: savedMap(state.cargoKeys, state.cargoValues),
+      weapons: [],
+      shields: [],
+      gadgets: [],
+      crew: [],
+      tribbles: state.tribbles,
+    });
+    ship.addSavedCrew(state.crewMap, solarSystems);
+    ship.addSavedAccessories(state.weaponTypes);
+    ship.addSavedAccessories(state.shieldTypes);
+    // Set this after adding shields to correct the current shield power
+    ship._currentShieldPower = state.currentShieldPower;
+    ship.addSavedAccessories(state.gadgetTypes);
+    return ship;
+  }
+
+  private addSavedCrew(crewMap: ShipState['crewMap'], solarSystems: SolarSystem[]) {
+    if (!crewMap) return;
+    for (const crewName in crewMap) {
+      const mercenary = Ship.crewMemberForName(crewName, solarSystems);
+      if (mercenary) {
+        this.addCrewMember(mercenary);
+      } else {
+        this.addCrewMember(CrewMember.load(crewMap[crewName]));
+      }
+    }
+  }
+
+  private addSavedAccessories(types: number[] | undefined) {
+    types?.forEach(type => {
+      ensureInteger(type);
+      this.addAccessoryOfType(type as AccessoryType);
+    });
   }
 
   static bestShipWithDifficulty(difficulty: number) {
     ensureInteger(difficulty);
 
-    const ship = new Ship(ShipModelType.Best, difficulty);
+    const ship = Ship.create(ShipModelType.Best, difficulty);
 
     while (ship.addShieldOfType(AccessoryType.ShieldLastBuyable)) {
       /* until every slot is full */
@@ -499,7 +579,7 @@ export class Ship {
   }
 
   static createFromPreviousShip(type: ShipModelType, previousShip: Ship) {
-    const ship = new Ship(type, previousShip._difficulty);
+    const ship = Ship.create(type, previousShip._difficulty);
 
     if (previousShip) {
       for (const accessory of previousShip.weapons) {
@@ -532,77 +612,6 @@ export class Ship {
           }
         }
       }
-    }
-
-    return ship;
-  }
-
-  static fromSerializedState(serializedState: ShipState, solarSystems: SolarSystem[]) {
-    const ship = new Ship(SHIP_MODEL_COUNT);
-
-    ship._upgradedHull = serializedState.upgradedHull;
-    ship.type = serializedState.type as ShipModelType;
-    ship._difficulty = serializedState.difficulty;
-    ship._fuel = serializedState.fuel;
-    ship._hull = serializedState.hull;
-    ship.tribbles = serializedState.tribbles;
-
-    ship._crew = [];
-    if (serializedState.crewMap) {
-      for (const crewName in serializedState.crewMap) {
-        const mercenary = Ship.crewMemberForName(crewName, solarSystems);
-        if (mercenary) {
-          ship.addCrewMember(mercenary);
-        } else {
-          const crewMember = CrewMember.load(serializedState.crewMap[crewName]);
-          ship.addCrewMember(crewMember);
-        }
-      }
-    }
-
-    ship._cargo = new Map();
-    if (serializedState.cargoKeys && serializedState.cargoValues) {
-      serializedState.cargoKeys.forEach((key, idx) => {
-        ensureInteger(key);
-        ensureInteger(idx);
-        ship._cargo.set(key, serializedState.cargoValues[idx]);
-      });
-    }
-
-    ship._cargoBuyingPrice = new Map();
-    if (serializedState.cargoBuyingPriceKeys && serializedState.cargoBuyingPriceValues) {
-      serializedState.cargoBuyingPriceKeys.forEach((key, idx) => {
-        ensureInteger(key);
-        ensureInteger(idx);
-        ship._cargoBuyingPrice.set(key, serializedState.cargoBuyingPriceValues[idx]);
-      });
-    }
-
-    ship.weapons = [];
-    if (serializedState.weaponTypes) {
-      serializedState.weaponTypes.forEach(accessoryType => {
-        ensureInteger(accessoryType);
-        ship.addAccessoryOfType(accessoryType as AccessoryType);
-      });
-    }
-
-    ship.shields = [];
-    if (serializedState.shieldTypes) {
-      serializedState.shieldTypes.forEach(accessoryType => {
-        ensureInteger(accessoryType);
-        ship.addAccessoryOfType(accessoryType as AccessoryType);
-      });
-    }
-
-    // Set this after adding shields to correct the current shield power
-    ship._currentShieldPower = serializedState.currentShieldPower;
-
-    ship.gadgets = [];
-    if (serializedState.gadgetTypes) {
-      serializedState.gadgetTypes.forEach(accessoryType => {
-        ensureInteger(accessoryType);
-        ship.addAccessoryOfType(accessoryType as AccessoryType);
-      });
     }
 
     return ship;
