@@ -6,7 +6,9 @@ import { TravelProgressView } from './canvas/TravelProgressView.ts';
 import { Icon } from './Icon.tsx';
 import { Lines } from './Lines.tsx';
 import { LoggedLink } from './Logged.tsx';
+import shared from './shared.module.css';
 import { ShipView } from './ShipView.tsx';
+import styles from './Travel.module.css';
 import { useStore } from './useStore.ts';
 
 type Props = { travel: Travel };
@@ -21,7 +23,8 @@ function TravelProgress({ travel }: Props) {
       travel.game,
       travel.origin,
       travel.destination,
-      travel.wasVisited
+      travel.wasVisited,
+      { host: styles.strip, canvas: shared.canvas }
     );
     view.setProgress(travel.progress);
     const stopWatching = travel.watchProgress(progress => view.setProgress(progress));
@@ -31,7 +34,7 @@ function TravelProgress({ travel }: Props) {
       view.canvasContainer.remove();
     };
   }, [travel]);
-  return <div id="travelProgressView" ref={host} />;
+  return <div id="travelProgressView" className={styles.progress} ref={host} />;
 }
 
 // A number that stays the same for the same ship, to tell ships apart.
@@ -92,7 +95,7 @@ export function Opponents({ ship }: { ship: Ship | null }) {
   const { current, leaving } = useOpponents(ship);
   const ships = current ? [...leaving, current] : leaving;
   return (
-    <div className="crossfade-container">
+    <div className={styles.side}>
       {ships.map(each => (
         <ShipView key={keyFor(each)} ship={each} enemy fade leaving={each !== current} animate />
       ))}
@@ -102,14 +105,14 @@ export function Opponents({ ship }: { ship: Ship | null }) {
 
 function ActionButtons({ travel, titles }: Props & { titles: string[] }) {
   return (
-    <ul className="battleButtons">
+    <ul className={styles.actions}>
       {titles.map(title => (
-        <li key={title} className="battle-button-item">
+        <li key={title} className={styles.action}>
           <LoggedLink
             id={sanitizedElementID('ecButton_' + title)}
             onPress={() => travel.perform(title)}
           >
-            <Icon name={title} className="battle-button-icon" />
+            <Icon name={title} className={styles.actionIcon} />
             <span>{title}</span>
           </LoggedLink>
         </li>
@@ -122,13 +125,13 @@ function Encounter({ travel }: Props) {
   const encounter = travel.encounter;
   return (
     <div id="encounterDiv">
-      <div id="battleViewsContainer">
-        <div className="crossfade-container">
+      <div id="battleViewsContainer" className={styles.ships}>
+        <div className={styles.side}>
           <ShipView ship={travel.game.commander.ship} enemy={false} fade animate />
         </div>
         <Opponents ship={encounter ? encounter.opponent.ship : null} />
       </div>
-      <div id="eVC_dialog">
+      <div id="eVC_dialog" className={styles.report}>
         <Lines text={encounter ? encounter.encounterText() : ''} />
       </div>
       <div id="buttonsDiv">
