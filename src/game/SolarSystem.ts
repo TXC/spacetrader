@@ -268,12 +268,12 @@ export class SolarSystem {
 
   // A system from a saved game, as parseSavedGame checked it. Its wormhole is linked once
   // every system is loaded.
-  static load(state: SolarSystemState): SolarSystem {
+  static load(state: SolarSystemState, difficulty: number): SolarSystem {
     return new SolarSystem({
       name: state.name,
       x: state.x,
       y: state.y,
-      difficulty: state.difficulty,
+      difficulty,
       mercenary: state.mercenary ? CrewMember.load(state.mercenary) : null,
       wormhole: null,
       specialEvent: state.specialEvent as SpecialEvent,
@@ -513,9 +513,6 @@ export class SolarSystem {
 
     ensureInteger(this.specialEvent);
     state.specialEvent = this.specialEvent;
-
-    ensureInteger(this._difficulty);
-    state.difficulty = this._difficulty;
 
     ensureInteger(this.politics.type);
     state.politicsType = this.politics.type;

@@ -516,10 +516,10 @@ export class Ship {
 
   // A ship from a saved game, as parseSavedGame checked it. A crew member who is also a
   // system's mercenary is that same mercenary.
-  static load(state: ShipState, solarSystems: SolarSystem[]): Ship {
+  static load(state: ShipState, solarSystems: SolarSystem[], difficulty: number): Ship {
     const ship = new Ship({
       type: state.type as ShipModelType,
-      difficulty: state.difficulty,
+      difficulty,
       fuel: state.fuel,
       hull: state.hull,
       upgradedHull: state.upgradedHull,
@@ -1204,9 +1204,6 @@ export class Ship {
     // char
     ensureInteger(this.type);
     state.type = this.type;
-
-    ensureInteger(this._difficulty);
-    state.difficulty = this._difficulty;
 
     ensureInteger(this._fuel);
     state.fuel = this._fuel;
