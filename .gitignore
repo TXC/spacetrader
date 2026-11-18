@@ -27,3 +27,6 @@ dist-ssr
 .vitest
 .eslintcache
 old/
+
+# Code coverage report (pnpm coverage)
+coverage/
