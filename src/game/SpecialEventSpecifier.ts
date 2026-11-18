@@ -39,7 +39,7 @@ export function clearCurrentSpecial(game: Game) {
 
 // A special event a system can offer: what it says, what it costs and what it does.
 export type SpecialEventSpecifier = {
-  type: number;
+  type: SpecialEvent;
   name: string;
   prompt: string;
   price: number;
@@ -854,11 +854,11 @@ const EVENTS: SpecialEventSpecifier[] = SPECS.map(spec => ({
 const BY_TYPE = new Map(EVENTS.map(event => [event.type, event]));
 
 // The event with this number, or undefined for "no event".
-export function specialEventForType(type: number): SpecialEventSpecifier | undefined {
+export function specialEventForType(type: SpecialEvent): SpecialEventSpecifier | undefined {
   return BY_TYPE.get(type);
 }
 
 // Each randomly placed event's number, once per system that should get it.
-export function randomOccurrenceEventTypes(): number[] {
-  return EVENTS.flatMap(event => Array<number>(event.randomOccurrence).fill(event.type));
+export function randomOccurrenceEventTypes(): SpecialEvent[] {
+  return EVENTS.flatMap(event => Array<SpecialEvent>(event.randomOccurrence).fill(event.type));
 }

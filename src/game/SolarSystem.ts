@@ -1,12 +1,18 @@
 import { CrewMember } from './CrewMember.ts';
 import { occurrenceStr, politicsForType, randomPoliticsForTechLevel } from './Politics.ts';
 import type { Politics } from './Politics.ts';
-import { SpecialEvent, systemSizeName, SYSTEM_SIZE_COUNT } from './SolarSystem.types.ts';
+import {
+  SpecialEvent,
+  SystemSize,
+  systemSizeName,
+  SYSTEM_SIZE_COUNT,
+} from './SolarSystem.types.ts';
 import { tradeItemForType } from './TradeItem.ts';
 import {
   resourceName,
   Resource,
   Status,
+  TechLevel,
   TradeItemType,
   statusDescription,
   techLevelName,
@@ -35,13 +41,13 @@ export class SolarSystem {
   declare _difficulty: number;
   declare _mercenary: CrewMember | null;
   declare _wormhole: SolarSystem | null;
-  declare _specialEvent: number;
+  declare _specialEvent: SpecialEvent;
   declare _visited: boolean;
-  declare _techLevel: number;
+  declare _techLevel: TechLevel;
   declare _politics: Politics;
-  declare _specialResource: number;
-  declare _size: number;
-  declare _status: number;
+  declare _specialResource: Resource;
+  declare _size: SystemSize;
+  declare _status: Status;
   declare _inventoryReplenishCountdown: number;
   declare _tradeItemInventory: number[];
 
@@ -65,16 +71,16 @@ export class SolarSystem {
     this._visited = false;
 
     // Randomize the other properties
-    this._techLevel = runtime.gameRand.randomIntBelow(TECH_LEVEL_COUNT);
+    this._techLevel = runtime.gameRand.randomIntBelow(TECH_LEVEL_COUNT) as TechLevel;
     this._politics = randomPoliticsForTechLevel(this._techLevel);
 
     if (runtime.gameRand.randomIntBelow(5) >= 3) {
-      this._specialResource = 1 + runtime.gameRand.randomIntBelow(RESOURCE_COUNT - 1);
+      this._specialResource = (1 + runtime.gameRand.randomIntBelow(RESOURCE_COUNT - 1)) as Resource;
     } else {
       this._specialResource = Resource.None;
     }
 
-    this._size = runtime.gameRand.randomIntBelow(SYSTEM_SIZE_COUNT);
+    this._size = runtime.gameRand.randomIntBelow(SYSTEM_SIZE_COUNT) as SystemSize;
 
     this._status = Status.Uneventful;
     this.randomizeStatus();
@@ -239,11 +245,11 @@ export class SolarSystem {
   static fromSerializedState(serializedState: SolarSystemState) {
     const solarSystem = new SolarSystem();
     solarSystem._name = serializedState.name;
-    solarSystem._techLevel = serializedState.techLevel;
-    solarSystem._status = serializedState.status;
-    solarSystem._specialResource = serializedState.specialResource;
-    solarSystem._size = serializedState.size;
-    solarSystem._specialEvent = serializedState.specialEvent;
+    solarSystem._techLevel = serializedState.techLevel as TechLevel;
+    solarSystem._status = serializedState.status as Status;
+    solarSystem._specialResource = serializedState.specialResource as Resource;
+    solarSystem._size = serializedState.size as SystemSize;
+    solarSystem._specialEvent = serializedState.specialEvent as SpecialEvent;
     solarSystem._difficulty = serializedState.difficulty;
     solarSystem._politics = politicsForType(serializedState.politicsType);
 
@@ -300,7 +306,7 @@ export class SolarSystem {
     return this._techLevel;
   }
 
-  set techLevel(t: number) {
+  set techLevel(t: TechLevel) {
     if (ensureInteger(t)) {
       this._techLevel = t;
     }
@@ -348,7 +354,7 @@ export class SolarSystem {
     return this._status;
   }
 
-  setSpecialEvent(sE: number) {
+  setSpecialEvent(sE: SpecialEvent) {
     if (ensureInteger(sE)) {
       this._specialEvent = sE;
     }
@@ -362,7 +368,7 @@ export class SolarSystem {
     return this._specialEvent;
   }
 
-  set specialEvent(sE: number) {
+  set specialEvent(sE: SpecialEvent) {
     this.setSpecialEvent(sE);
   }
 
@@ -576,7 +582,7 @@ export class SolarSystem {
     if (runtime.gameRand.randomIntBelow(100) < 15) {
       this._status = hasStatus
         ? Status.Uneventful
-        : 1 + runtime.gameRand.randomIntBelow(STATUS_COUNT - 1);
+        : ((1 + runtime.gameRand.randomIntBelow(STATUS_COUNT - 1)) as Status);
     }
   }
 

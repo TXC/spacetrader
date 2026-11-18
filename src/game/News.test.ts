@@ -26,7 +26,7 @@ function headlines(game: Game): string[] {
 }
 
 // A paper in a system with this special event.
-function paperWith(event: number, setUp: (game: Game) => void): string[] {
+function paperWith(event: SpecialEvent, setUp: (game: Game) => void): string[] {
   const game = newGame();
   game.commander.currentSystem.specialEvent = event;
   setUp(game);
@@ -47,7 +47,7 @@ const quest = {
   none: () => {},
 };
 
-const specialHeadlines: [string, number, (game: Game) => void][] = [
+const specialHeadlines: [string, SpecialEvent, (game: Game) => void][] = [
   ['Editorial: We Must Help Japori!', E.JaporiDisease, quest.japori(JaporiQuestStatus.Open)],
   [
     'Disease Antidotes Arrive! Health Officials Optimistic.',
