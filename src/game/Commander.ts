@@ -208,7 +208,7 @@ export class Commander extends CrewMember {
     )!;
     ensureType(this._currentSystem, 'object');
 
-    this.ship = Ship.fromSerializedState(serializedState.ship, solarSystems!);
+    this.ship = Ship.load(serializedState.ship, solarSystems!);
 
     // Base prices
     if (serializedState.basePrices) {
