@@ -118,6 +118,11 @@ test.each([
     (state: Record<string, unknown>) =>
       ((state.commander as Record<string, unknown>).credits = 1000.5),
   ],
+  ['an end status that does not exist', (state: Record<string, unknown>) => (state.endStatus = 9)],
+  [
+    'a rare event that does not exist',
+    (state: Record<string, unknown>) => (state.remainingRareEvents = [6]),
+  ],
   [
     'a damaged ship',
     (state: Record<string, unknown>) =>

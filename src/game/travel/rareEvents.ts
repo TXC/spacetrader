@@ -1,7 +1,7 @@
 import { AccessoryType } from '../Accessory.ts';
 import { MAX_SKILL_LEVEL, PoliceRecordScore } from '../Commander.ts';
 import { EncounterType } from '../encounter/types.ts';
-import { RareEvent, RARE_EVENT_COUNT } from '../Game.types.ts';
+import { RareEvent } from '../Game.types.ts';
 import { Opponent, OpponentType } from '../opponent/Opponent.ts';
 import type { Game } from '../Game.ts';
 import { pLog } from '../probes.ts';
@@ -26,14 +26,13 @@ export function rareEventMeeting(game: Game): Meeting {
     (game.commander.days > 10 && runtime.gameRand.randomIntBelow(1000) < 5)
   ) {
     const rareEvents = game.remainingRareEvents;
-
-    const index = rareEvents.length > 0 ? runtime.gameRand.randomIntBelow(rareEvents.length) : -1;
-    const rareEvent = index !== -1 ? rareEvents[index] : RARE_EVENT_COUNT;
-
-    ({ encounterType, opponent } = meetingFor(rareEvent, game));
-
-    if (encounterType !== EncounterType.None) {
-      game.removeRemainingRareEvent(rareEvent);
+    // With none left, nothing happens.
+    if (rareEvents.length > 0) {
+      const rareEvent = rareEvents[runtime.gameRand.randomIntBelow(rareEvents.length)];
+      ({ encounterType, opponent } = meetingFor(rareEvent, game));
+      if (encounterType !== EncounterType.None) {
+        game.removeRemainingRareEvent(rareEvent);
+      }
     }
   }
 
@@ -42,7 +41,7 @@ export function rareEventMeeting(game: Game): Meeting {
 
 // A captain is met only when the commander has what the captain wants and something left
 // to learn; otherwise nothing happens and the event stays for another day.
-function meetingFor(rareEvent: number, game: Game): Meeting {
+function meetingFor(rareEvent: RareEvent, game: Game): Meeting {
   let encounterType: EncounterType = EncounterType.None;
   let opponent: Opponent | null = null;
 
@@ -99,9 +98,6 @@ function meetingFor(rareEvent: number, game: Game): Meeting {
       pLog.log(100);
       encounterType = EncounterType.BottleGood;
       opponent = Opponent.generateOpponentWithType(OpponentType.Bottle, game);
-      break;
-
-    default:
       break;
   }
 

@@ -3,6 +3,7 @@
 // description, so the check and the types cannot drift apart.
 import * as v from 'valibot';
 import { AccessoryType } from './Accessory.ts';
+import { GameEndStatus, RareEvent } from './Game.types.ts';
 import { PoliticsType } from './Politics.ts';
 import { ShipModelType } from './Ship.ts';
 import {
@@ -140,7 +141,7 @@ const gameEntries = {
   // Only the first and the last day of the reactor's countdown are named.
   reactorStatus: between(ReactorQuestStatus.Open, ReactorQuestStatus.ClosedSaved),
   difficulty,
-  endStatus: num,
+  endStatus: oneOf(GameEndStatus),
   monsterHull: whole,
   score: num,
   remindLoans: bool,
@@ -159,7 +160,7 @@ const gameEntries = {
   warpSystemName: v.optional(text),
   trackedSystemName: v.optional(text),
   uniqueID: text,
-  remainingRareEvents: numbers,
+  remainingRareEvents: v.array(oneOf(RareEvent)),
   solarSystems: v.array(SolarSystemSchema),
   // A date while the game is in memory, text once it has been through storage.
   lastSave: v.union([text, v.date()]),
