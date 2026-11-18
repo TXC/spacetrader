@@ -3,7 +3,6 @@ import { AlertActionType, AlertViewController } from '../alerts.ts';
 import {
   CAUGHT_WITH_WILD_SCORE,
   MAX_SKILL_LEVEL,
-  policeRecordMultiplier,
   PoliceRecordScore,
   ReputationScore,
 } from '../Commander.ts';
@@ -11,18 +10,12 @@ import { Encounter } from '../encounter/Encounter.ts';
 import { EncounterType } from '../encounter/types.ts';
 import type { ActionName, EncounterListener } from '../encounter/types.ts';
 import { GameEndStatus, RareEvent, RARE_EVENT_COUNT } from '../Game.ts';
-import { Opponent, OpponentType, OPPONENT_TYPE_COUNT } from '../Opponent.ts';
+import { Opponent, OpponentType } from '../Opponent.ts';
 import { MAX_TRIBBLES, Ship, ShipModelType } from '../Ship.ts';
 import {
-  Difficulty,
-  DragonflyQuestStatus,
-  InvasionQuestStatus,
   JaporiQuestStatus,
   JarekQuestStatus,
-  MonsterQuestStatus,
   ReactorQuestStatus,
-  ScarabQuestStatus,
-  SpecialEvent,
   WildQuestStatus,
 } from '../SolarSystem.types.ts';
 import { TradeItemType } from '../TradeItem.types.ts';
@@ -32,6 +25,7 @@ import type { Game, GameEndedStatus } from '../Game.ts';
 import { ensureArrayOrNull, ensureInteger } from '../ensure.ts';
 import { pLog } from '../probes.ts';
 import { runtime } from '../runtime.ts';
+import { whoIsMet } from './whoIsMet.ts';
 
 export const CHANCE_OF_TRADE_IN_ORBIT = 100;
 
@@ -144,93 +138,7 @@ export class Travel extends Store implements EncounterListener {
       repairAmount = this._game.commander.ship.repairHullByAmount(repairAmount);
       this._game.commander.ship.rechargeShieldPowerByAmount(2 * repairAmount); // Shields are easier to recharge
 
-      let opponentType: number = OPPONENT_TYPE_COUNT;
-
-      if (currentClicks === 1 && this._needPostMarieCustomsPolice) {
-        opponentType = OpponentType.Police;
-      } else if (
-        currentClicks === 1 &&
-        this._destination.name === 'Acamar' &&
-        this._game.monsterStatus === MonsterQuestStatus.MonsterExists
-      ) {
-        opponentType = OpponentType.Monster;
-      } else if (
-        currentClicks === 1 &&
-        this._destination.name === 'Zalkon' &&
-        this._game.dragonflyStatus === DragonflyQuestStatus.GoToZalkon
-      ) {
-        opponentType = OpponentType.Dragonfly;
-      } else if (
-        currentClicks === 20 &&
-        this._destination.specialEvent === SpecialEvent.ScarabDestroyed &&
-        this._game.scarabStatus === ScarabQuestStatus.ScarabExists &&
-        this._game.commander.arrivedViaWormhole
-      ) {
-        opponentType = OpponentType.Scarab;
-        pLog.log(169);
-      } else if (
-        this._destination.name === 'Gemulon' &&
-        this._game.invasionStatus === InvasionQuestStatus.ClosedTooLate
-      ) {
-        if (runtime.gameRand.randomIntBelow(10) > 4) {
-          opponentType = OpponentType.Mantis;
-        }
-      } else {
-        let encounterTest = runtime.gameRand.randomIntBelow(44 - 2 * this._game.difficulty);
-
-        // Fleas have half as many encounters
-        if (this._game.commander.ship.type === ShipModelType.Flea) {
-          encounterTest *= 2;
-        }
-
-        ensureInteger(encounterTest);
-
-        if (
-          encounterTest < this._destination.politics.occurrencePirates &&
-          !this._game.commander.raided
-        ) {
-          opponentType = OpponentType.Pirate;
-        } else if (
-          encounterTest <
-          this._destination.politics.occurrencePirates +
-            this._destination.politics.occurrencePolice *
-              policeRecordMultiplier(this._game.commander.policeRecordScore)
-        ) {
-          opponentType = OpponentType.Police;
-        } else if (
-          encounterTest <
-          this._destination.politics.occurrencePirates +
-            this._destination.politics.occurrencePolice *
-              policeRecordMultiplier(this._game.commander.policeRecordScore) +
-            this._destination.politics.occurrenceTraders
-        ) {
-          opponentType = OpponentType.Trader;
-        } else {
-          // Welcome to Kravat, outlaw!
-          if (
-            this._game.wildStatus === WildQuestStatus.OnBoard &&
-            this._destination.name === 'Kravat'
-          ) {
-            const diceRoll = runtime.gameRand.randomIntBelow(100);
-            if (
-              (this._game.difficulty <= Difficulty.Easy && diceRoll < 25) ||
-              (this._game.difficulty === Difficulty.Normal && diceRoll < 33) ||
-              (this._game.difficulty > Difficulty.Normal && diceRoll < 50)
-            ) {
-              pLog.log(125);
-              opponentType = OpponentType.Police;
-            }
-          }
-        }
-
-        ensureInteger(opponentType);
-
-        if (opponentType >= OPPONENT_TYPE_COUNT) {
-          if (this._game.commander.artifactOnBoard && runtime.gameRand.randomIntBelow(20) <= 3) {
-            opponentType = OpponentType.Mantis;
-          }
-        }
-      }
+      const opponentType = whoIsMet(this, currentClicks);
 
       let opponent = null;
 
