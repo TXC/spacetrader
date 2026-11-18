@@ -8,7 +8,6 @@ import { TradeItemType } from '../../game/TradeItem.types.ts';
 import { runtime } from '../../game/runtime.ts';
 import { AlertViewController } from '../../game/alerts.ts';
 import type { GalaxyView } from '../../ui/canvas/GalaxyView.ts';
-import './setup.ts';
 import {
   assertEqual,
   assertEqualGames,

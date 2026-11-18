@@ -3,7 +3,6 @@ import { expect, test } from 'vitest';
 import { News as NewsRules } from '../game/News.ts';
 import { runtime } from '../game/runtime.ts';
 import { News } from '../ui/News.tsx';
-import './flows/setup.ts';
 import { runReplayLog } from './flows/harness.ts';
 import { render } from './support/render.tsx';
 

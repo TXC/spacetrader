@@ -42,6 +42,7 @@ export default defineConfig({
         test: {
           name: 'browser',
           include: ['src/tests/**/*.test.{ts,tsx}'],
+          setupFiles: ['src/tests/flows/setup.ts'],
           // The recorded suite drives the real page and checks canvas pixels, so it needs a real browser.
           browser: {
             enabled: true,

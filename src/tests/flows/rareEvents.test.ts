@@ -11,7 +11,6 @@ import {
 import { RareEvent } from '../../game/Game.ts';
 import { TradeItemType } from '../../game/TradeItem.types.ts';
 import { AlertViewController } from '../../game/alerts.ts';
-import './setup.ts';
 import {
   assertEqual,
   assertEqualArrays,

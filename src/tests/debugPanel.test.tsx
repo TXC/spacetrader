@@ -2,7 +2,6 @@ import { expect, onTestFinished, test, vi } from 'vitest';
 import { DebugMode } from '../game/Utilities.ts';
 import { debugModeFor } from '../startSession.ts';
 import { DebugPanel } from '../ui/DebugPanel.tsx';
-import './flows/setup.ts';
 import { runReplayLog } from './flows/harness.ts';
 import { render } from './support/render.tsx';
 

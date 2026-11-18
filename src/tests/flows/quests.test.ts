@@ -26,7 +26,6 @@ import {
   FAKE_QUEST_CARGO_REACTOR,
 } from '../../game/TradeItem.types.ts';
 import { AlertViewController } from '../../game/alerts.ts';
-import './setup.ts';
 import {
   assertEqual,
   assertEqualArrays,
