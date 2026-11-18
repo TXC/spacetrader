@@ -1,6 +1,7 @@
 import { AlertActionType, AlertViewController } from '../alerts.ts';
 import { GameEndStatus } from '../Game.ts';
 import { MAX_TRIBBLES } from '../Ship.ts';
+import type { Game } from '../Game.ts';
 import { ReactorQuestStatus } from '../SolarSystem.types.ts';
 import { TradeItemType } from '../TradeItem.types.ts';
 import { ensureInteger } from '../ensure.ts';
@@ -25,17 +26,38 @@ export function arrive(travel: Travel, eventLoopInitialClicks: number): void {
       : 'You arrive at your destination.'
   );
 
-  if (travel._game.commander.debt >= 75000) {
+  alertStrings.push(...debtWarning(travel._game));
+
+  const reactorAlerts = reactorOnArrival(travel);
+  if (!reactorAlerts) return;
+  alertStrings.push(...reactorAlerts);
+
+  alertStrings.push(...tribblesOnArrival(travel._game));
+  repairOnArrival(travel._game);
+  const failString = purchasesOnArrival(travel._game);
+
+  showArrival(travel, alertStrings, failString);
+}
+
+function debtWarning(game: Game): string[] {
+  const alertStrings: string[] = [];
+
+  if (game.commander.debt >= 75000) {
     alertStrings.push(
       'Your debt is getting too large. Reduce it quickly or your ship will be put on a chain!'
     );
-  } else if (
-    travel._game.commander.debt > 0 &&
-    travel._game.remindLoans &&
-    travel._game.commander.days % 5 === 0
-  ) {
-    alertStrings.push(`You have a debt of $${travel._game.commander.debt}.`);
+  } else if (game.commander.debt > 0 && game.remindLoans && game.commander.days % 5 === 0) {
+    alertStrings.push(`You have a debt of $${game.commander.debt}.`);
   }
+
+  return alertStrings;
+}
+
+// The reactor's warnings as its fuel runs out. Returns null when it has exploded: then the
+// trip ends with the escape pod or the commander's death, and the rest of the arrival is
+// skipped.
+function reactorOnArrival(travel: Travel): string[] | null {
+  const alertStrings: string[] = [];
 
   switch (travel._game.reactorStatus) {
     case 2:
@@ -57,39 +79,50 @@ export function arrive(travel: Travel, eventLoopInitialClicks: number): void {
       pLog.log(154);
       break;
     case ReactorQuestStatus.DaysRemaining._1: {
-      travel._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
+      reactorExplodes(travel);
 
-      const alerts = [];
-
-      alerts.push(
-        'Just as you approach the docking bay, the reactor explodes into a huge radioactive fireball!'
-      );
-      if (!travel._game.commander.hasEscapePod) {
-        alerts.push('You are destroyed along with your ship as a result of the explosion.');
-      }
-
-      travel._promptForStrings(alerts, () => {
-        if (travel._game.commander.hasEscapePod) {
-          podEscape(travel);
-          pLog.log(155);
-        } else {
-          travel._done(GameEndStatus.Killed);
-          pLog.log(156);
-        }
-      });
-
-      return;
+      return null;
     }
   }
 
+  return alertStrings;
+}
+
+function reactorExplodes(travel: Travel): void {
+  travel._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
+
+  const alerts = [];
+
+  alerts.push(
+    'Just as you approach the docking bay, the reactor explodes into a huge radioactive fireball!'
+  );
+  if (!travel._game.commander.hasEscapePod) {
+    alerts.push('You are destroyed along with your ship as a result of the explosion.');
+  }
+
+  travel._promptForStrings(alerts, () => {
+    if (travel._game.commander.hasEscapePod) {
+      podEscape(travel);
+      pLog.log(155);
+    } else {
+      travel._done(GameEndStatus.Killed);
+      pLog.log(156);
+    }
+  });
+}
+
+// Tribbles die of the reactor's radiation, or eat narcotics or food, and then they breed.
+function tribblesOnArrival(game: Game): string[] {
+  const alertStrings: string[] = [];
+
   let foodOnBoard = false;
-  let currentTribbles = travel._game.commander.ship.tribbles;
+  let currentTribbles = game.commander.ship.tribbles;
   ensureInteger(currentTribbles);
 
   const previousTribbles = currentTribbles;
   const reactorStatus =
-    travel._game.reactorStatus > ReactorQuestStatus.Open &&
-    travel._game.reactorStatus < ReactorQuestStatus.ClosedTooLate;
+    game.reactorStatus > ReactorQuestStatus.Open &&
+    game.reactorStatus < ReactorQuestStatus.ClosedTooLate;
 
   if (currentTribbles > 0 && reactorStatus) {
     currentTribbles = Math.floor(currentTribbles / 2);
@@ -106,27 +139,25 @@ export function arrive(travel: Travel, eventLoopInitialClicks: number): void {
     pLog.log(157);
   } else if (
     currentTribbles > 0 &&
-    travel._game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics) > 0
+    game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics) > 0
   ) {
     currentTribbles = 1 + runtime.gameRand.randomIntBelow(3);
-    const amountNarcotics = travel._game.commander.ship.tradeItemQuantityForType(
-      TradeItemType.Narcotics
-    );
+    const amountNarcotics = game.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics);
     const consumedNarcotics = Math.min(1 + runtime.gameRand.randomIntBelow(3), amountNarcotics);
-    travel._game.commander.ship.soldQuantity(consumedNarcotics, TradeItemType.Narcotics);
-    travel._game.commander.ship.boughtQuantity(consumedNarcotics, TradeItemType.Furs, 0);
+    game.commander.ship.soldQuantity(consumedNarcotics, TradeItemType.Narcotics);
+    game.commander.ship.boughtQuantity(consumedNarcotics, TradeItemType.Furs, 0);
     alertStrings.push(
       'You find that, instead of narcotics, some of your cargo bays contain only dead tribbles!'
     );
     pLog.log(158);
   } else if (
     currentTribbles > 0 &&
-    travel._game.commander.ship.tradeItemQuantityForType(TradeItemType.Food) > 0
+    game.commander.ship.tradeItemQuantityForType(TradeItemType.Food) > 0
   ) {
-    const amountFood = travel._game.commander.ship.tradeItemQuantityForType(TradeItemType.Food);
+    const amountFood = game.commander.ship.tradeItemQuantityForType(TradeItemType.Food);
     currentTribbles += 100 + runtime.gameRand.randomIntBelow(amountFood * 100);
     const foodConsumed = runtime.gameRand.randomIntBelow(amountFood);
-    travel._game.commander.ship.soldQuantity(foodConsumed, TradeItemType.Food);
+    game.commander.ship.soldQuantity(foodConsumed, TradeItemType.Food);
     foodOnBoard = true;
     alertStrings.push(
       'You find that, instead of food, some of your cargo bays contain only tribbles!'
@@ -141,7 +172,7 @@ export function arrive(travel: Travel, eventLoopInitialClicks: number): void {
 
   currentTribbles = Math.min(currentTribbles, MAX_TRIBBLES);
   ensureInteger(currentTribbles);
-  travel._game.commander.ship.tribbles = currentTribbles;
+  game.commander.ship.tribbles = currentTribbles;
 
   if (
     (previousTribbles < 100 && currentTribbles >= 100) ||
@@ -154,33 +185,41 @@ export function arrive(travel: Travel, eventLoopInitialClicks: number): void {
     );
   }
 
-  travel._game.tribbleMessage = false;
+  game.tribbleMessage = false;
 
-  const engineerSkill = travel._game.commander.ship.crewEngineerSkillIncludingCommander(
-    travel._game.commander
-  );
+  return alertStrings;
+}
+
+function repairOnArrival(game: Game): void {
+  const engineerSkill = game.commander.ship.crewEngineerSkillIncludingCommander(game.commander);
   const repairAmount = runtime.gameRand.randomIntBelow(engineerSkill);
-  travel._game.commander.ship.repairHullByAmount(repairAmount);
+  game.commander.ship.repairHullByAmount(repairAmount);
+}
 
+// Buys fuel and repairs if the commander's options ask for it. Returns what could not be
+// paid for, as words for a message, or '' when nothing is missing.
+function purchasesOnArrival(game: Game): string {
   let failString = '';
-  if (travel._game.autoFuel) {
+  if (game.autoFuel) {
     pLog.log(37);
-    travel._game.commander.attemptPurchaseOfFuel(travel._game.commander.ship.fuelTankCapacity());
-    if (travel._game.commander.ship.fuelTankCapacity() !== travel._game.commander.ship.fuel) {
+    game.commander.attemptPurchaseOfFuel(game.commander.ship.fuelTankCapacity());
+    if (game.commander.ship.fuelTankCapacity() !== game.commander.ship.fuel) {
       failString += 'full tanks';
     }
   }
 
-  if (travel._game.autoRepairs) {
+  if (game.autoRepairs) {
     pLog.log(38);
-    travel._game.commander.attemptPurchaseOfRepairs(
-      travel._game.commander.ship.maximumHullStrength()
-    );
-    if (travel._game.commander.ship.maximumHullStrength() !== travel._game.commander.ship.hull) {
+    game.commander.attemptPurchaseOfRepairs(game.commander.ship.maximumHullStrength());
+    if (game.commander.ship.maximumHullStrength() !== game.commander.ship.hull) {
       failString += `${failString.length > 0 ? ' or ' : ''}full hull repairs`;
     }
   }
 
+  return failString;
+}
+
+function showArrival(travel: Travel, alertStrings: string[], failString: string): void {
   travel._promptForStrings(alertStrings, () => {
     travel._done('arrived');
 
