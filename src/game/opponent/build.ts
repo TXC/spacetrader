@@ -458,7 +458,7 @@ function addMercenaries(ship: Ship, model: ShipModel, game: Game): void {
   ensureInteger(numMercenaries);
 
   for (let i = 0; i < numMercenaries; ++i) {
-    const mercenary = new CrewMember(CrewMember.mercenaryNames()[i]);
+    const mercenary = CrewMember.create(CrewMember.mercenaryNames()[i]);
     mercenary.randomizeAttributes();
     ship.addCrewMember(mercenary);
   }

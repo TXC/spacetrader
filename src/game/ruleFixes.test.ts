@@ -248,7 +248,7 @@ test('G9: an escape pod is not sold when the cash is gone before the confirmatio
 test('G9: a mercenary hired twice joins the crew once', () => {
   const game = newGame();
   game.commander.ship = new Ship(ShipModelType.Beetle, 2); // two mercenary quarters
-  const mercenary = new CrewMember('Hired Hand', 4, 4, 4, 4);
+  const mercenary = CrewMember.create('Hired Hand', 4, 4, 4, 4);
 
   hire(game, mercenary);
   hire(game, mercenary);
@@ -261,7 +261,7 @@ test('G9: with the quarters full nobody is hired and nothing is saved', () => {
   const onSave = vi.fn();
   game.setOnSave(onSave);
   const quarters = game.commander.ship.model.mercenaryQuarters();
-  for (let i = 0; i <= quarters; i++) hire(game, new CrewMember(`Hand ${i}`, 4, 4, 4, 4));
+  for (let i = 0; i <= quarters; i++) hire(game, CrewMember.create(`Hand ${i}`, 4, 4, 4, 4));
 
   expect(game.commander.ship.crewCount()).toBe(quarters);
   expect(onSave).toHaveBeenCalledTimes(quarters);

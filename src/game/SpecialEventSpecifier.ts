@@ -449,7 +449,7 @@ const SPECS: Spec[] = [
     action: game => {
       let alertString;
       if (game.commander.ship.crewCount() < game.commander.ship.model.mercenaryQuarters()) {
-        const jarek = new CrewMember('Ambassador Jarek');
+        const jarek = CrewMember.create('Ambassador Jarek');
         jarek.forQuest = true;
         game.commander.ship.addCrewMember(jarek);
         game.jarekStatus = JarekQuestStatus.OnBoard;
@@ -575,7 +575,7 @@ const SPECS: Spec[] = [
 
       if (!alertString) {
         pLog.log(124);
-        const wild = new CrewMember('Jonathan Wild');
+        const wild = CrewMember.create('Jonathan Wild');
         wild.forQuest = true;
         game.commander.ship.addCrewMember(wild);
         game.wildStatus = WildQuestStatus.OnBoard;
@@ -828,7 +828,7 @@ const SPECS: Spec[] = [
 
       // Zeethibal has a 10 in the player's biggest weakness, 8 in the second biggest weakness, 5 for the others
       const zeethSkill = (index: number) => (index === 0 ? 10 : index === 1 ? 8 : 5);
-      const zeeth = new CrewMember(
+      const zeeth = CrewMember.create(
         'Zeethibal',
         zeethSkill(game.commander.engineerSkillIndex()),
         zeethSkill(game.commander.pilotSkillIndex()),
