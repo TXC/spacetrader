@@ -19,7 +19,7 @@ import {
   TradeItemType,
   isIllegalTradeItem,
   FAKE_QUEST_CARGO_REACTOR,
-  FAKE_QUEST_CARGO_START,
+  isTradeItem,
   NO_TRADE_ITEM,
   NOT_FOR_SALE,
   TRADE_ITEM_COUNT,
@@ -1116,7 +1116,7 @@ export class Ship {
         continue;
       }
 
-      if (tradeItem >= FAKE_QUEST_CARGO_START) {
+      if (!isTradeItem(tradeItem)) {
         continue;
       }
 

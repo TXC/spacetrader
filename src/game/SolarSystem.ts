@@ -21,6 +21,7 @@ import {
   STATUS_COUNT,
   TECH_LEVEL_COUNT,
   TRADE_ITEM_COUNT,
+  TRADE_ITEM_TYPES,
 } from './TradeItem.types.ts';
 import {
   ensureArrayOrNull,
@@ -315,7 +316,7 @@ export class SolarSystem {
 
   _initializeInventories(difficulty: Difficulty) {
     this._tradeItemInventory = Array<number>(TRADE_ITEM_COUNT).fill(0);
-    for (let itemType = 0; itemType < TRADE_ITEM_COUNT; ++itemType) {
+    for (const itemType of TRADE_ITEM_TYPES) {
       const item = tradeItemForType(itemType);
 
       if (!this._canProduceItem(itemType)) {
@@ -381,7 +382,7 @@ export class SolarSystem {
     return Math.floor((this.x - x) ** 2 + (this.y - y) ** 2);
   }
 
-  standardPriceForItem(itemType: number) {
+  standardPriceForItem(itemType: TradeItemType) {
     if (
       (itemType === TradeItemType.Narcotics && !this.politics.drugsTradeable) ||
       (itemType === TradeItemType.Firearms && !this.politics.firearmsTradeable)
@@ -419,18 +420,18 @@ export class SolarSystem {
     return Math.max(price, 0);
   }
 
-  tradeItemQuantityForType(type: number) {
+  tradeItemQuantityForType(type: TradeItemType) {
     ensureInteger(type);
     return this._tradeItemInventory[type];
   }
 
-  boughtQuantity(quantity: number, type: number) {
+  boughtQuantity(quantity: number, type: TradeItemType) {
     if (ensureInteger(quantity) && ensureInteger(type)) {
       this._tradeItemInventory[type] -= Math.min(quantity, this._tradeItemInventory[type]);
     }
   }
 
-  _canProduceItem(itemType: number) {
+  _canProduceItem(itemType: TradeItemType) {
     const item = tradeItemForType(itemType);
 
     const cantProduceItem =
@@ -448,7 +449,7 @@ export class SolarSystem {
       if (this._inventoryReplenishCountdown <= 0) {
         this._initializeInventories(difficulty);
       } else {
-        for (let itemType = 0; itemType < TRADE_ITEM_COUNT; ++itemType) {
+        for (const itemType of TRADE_ITEM_TYPES) {
           if (!this._canProduceItem(itemType)) {
             this._tradeItemInventory[itemType] = 0;
             continue;
@@ -463,7 +464,7 @@ export class SolarSystem {
         }
       }
     } else {
-      for (let itemType = 0; itemType < TRADE_ITEM_COUNT; ++itemType) {
+      for (const itemType of TRADE_ITEM_TYPES) {
         if (!this._canProduceItem(itemType)) {
           this._tradeItemInventory[itemType] = 0;
           continue;

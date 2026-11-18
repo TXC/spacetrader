@@ -7,7 +7,8 @@ import type { ShipModel } from './Ship.ts';
 import { SolarSystem } from './SolarSystem.ts';
 import { MOON_PRICE, Difficulty } from './SolarSystem.types.ts';
 import { tradeItemForType } from './TradeItem.ts';
-import { Status, TRADE_ITEM_COUNT } from './TradeItem.types.ts';
+import { Status, TRADE_ITEM_COUNT, TRADE_ITEM_TYPES } from './TradeItem.types.ts';
+import type { TradeItemType } from './TradeItem.types.ts';
 import { ensureArrayOrNull, ensureBool, ensureInteger, ensureType } from './ensure.ts';
 import { runtime } from './runtime.ts';
 
@@ -338,7 +339,7 @@ export class Commander extends CrewMember {
     this._currentSystem.visited = true;
 
     const basePrices = [];
-    for (let item = 0; item < TRADE_ITEM_COUNT; ++item) {
+    for (const item of TRADE_ITEM_TYPES) {
       basePrices.push(this._calculateBasePriceForItem(item));
     }
     this._basePrices = basePrices;
@@ -348,7 +349,7 @@ export class Commander extends CrewMember {
     return this._currentSystem;
   }
 
-  _calculateBasePriceForItem(itemType: number) {
+  _calculateBasePriceForItem(itemType: TradeItemType) {
     let price = this._currentSystem.standardPriceForItem(itemType);
     if (price <= 0) return 0;
 
@@ -521,7 +522,7 @@ export class Commander extends CrewMember {
     }
   }
 
-  attemptPurchaseOfItem(itemType: number, quantity: number, difficulty: Difficulty) {
+  attemptPurchaseOfItem(itemType: TradeItemType, quantity: number, difficulty: Difficulty) {
     if (ensureInteger(itemType) && ensureInteger(quantity)) {
       let actualBuyAmount = Math.min(
         quantity,
