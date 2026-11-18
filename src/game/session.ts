@@ -5,7 +5,7 @@ import { present as presentChart } from './Chart.ts';
 import { Commander } from './Commander.ts';
 import type { CrewMember } from './CrewMember.ts';
 import { Game, GameEndStatus } from './Game.ts';
-import type { GameState } from './Game.ts';
+import type { GameEndedStatus, GameState } from './Game.ts';
 import { News } from './News.ts';
 import { runtime } from './runtime.ts';
 import { parseSavedGame } from './savedGame.ts';
@@ -35,10 +35,11 @@ const ROWS = [
   'Roster',
   'Commander',
   'Chart',
-];
+] as const;
+export type Row = (typeof ROWS)[number];
 
 // The coverage probes the old landing screen logged for each link.
-const ROW_PROBES: Record<string, number> = {
+const ROW_PROBES: Partial<Record<Row, number>> = {
   Chart: 0,
   Buy: 1,
   Sell: 2,
@@ -52,7 +53,7 @@ const ROW_PROBES: Record<string, number> = {
   Commander: 13,
 };
 
-export type NavRow = { row: string; icon: string };
+export type NavRow = { row: Row; icon: string };
 export type Skills = { engineer: number; pilot: number; fighter: number; trader: number };
 type SavedGames = Record<string, GameState>;
 
@@ -73,11 +74,11 @@ export class Session extends Store {
   private warnedAboutSaving = false;
 
   // The landing screen.
-  row: string | null = null; // the sub-screen that is open; none shows the welcome
+  row: Row | null = null; // the sub-screen that is open; none shows the welcome
   // The navigation links as last built. Like the old screen, they are rebuilt when the
   // landing screen is shown and when the local mercenary is fired, not on every change.
   navRows: NavRow[] = [];
-  activeRow: string | null = null; // the highlighted navigation link
+  activeRow: Row | null = null; // the highlighted navigation link
   opened = 0; // goes up each time a sub-screen is opened afresh
   presented = 0; // goes up each time the landing screen is rebuilt
   selection: { system: SolarSystem | null; wormhole: boolean } = { system: null, wormhole: false };
@@ -120,7 +121,7 @@ export class Session extends Store {
     this.start();
   };
 
-  endGame = (status: number): void => {
+  endGame = (status: GameEndedStatus): void => {
     pLog.log(21);
     pLog.log(70);
     const game = this.game!;
@@ -260,10 +261,10 @@ export class Session extends Store {
   }
 
   // The navigation links on offer in the current system.
-  rows = (): string[] => {
+  rows = (): Row[] => {
     const game = this.game!;
     const system = game.commander.getCurrentSystem();
-    const hidden = new Set<string>();
+    const hidden = new Set<Row>();
     const crew = game.commander.ship.crew;
     if (!system.mercenary || (crew && crew.includes(system.mercenary))) {
       pLog.log(27);
@@ -278,17 +279,18 @@ export class Session extends Store {
   };
 
   // A click on a navigation link.
-  clickRow = (row: string): void => {
+  clickRow = (row: Row): void => {
     this.activeRow = row === 'Special' ? null : row;
     this.openRow(row);
   };
 
   // Opens a sub-screen afresh, doing first whatever that screen used to do when it drew.
-  openRow = (row: string): void => {
+  openRow = (row: Row): void => {
     const game = this.game!;
     this.row = row;
     this.opened++;
-    if (row in ROW_PROBES) pLog.log(ROW_PROBES[row]);
+    const probe = ROW_PROBES[row];
+    if (probe !== undefined) pLog.log(probe);
     if (row === 'Chart') presentChart(game);
     if (row === 'Ship Yard') presentShipYard(game);
     if (row === 'News') (this.news ??= new News(game)).present();
