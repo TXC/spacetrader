@@ -21,7 +21,8 @@ import {
   TRADE_ITEM_COUNT,
   TradeItemType,
 } from './TradeItem.types.ts';
-import { hiddenByOptions, Travel } from './travel/Travel.ts';
+import { Travel } from './travel/Travel.ts';
+import { hiddenByOptions } from './travel/traders.ts';
 import { warp } from './Warp.ts';
 
 const { Water, Furs } = TradeItemType;
