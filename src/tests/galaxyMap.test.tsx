@@ -1,11 +1,11 @@
 import { flushSync } from 'react-dom';
-import { createRoot } from 'react-dom/client';
 import { expect, test, vi } from 'vitest';
 import type { Game } from '../game/Game.ts';
 import type { GalaxyView } from '../ui/canvas/GalaxyView.ts';
 import { GalaxyMap } from '../ui/GalaxyMap.tsx';
 import './flows/setup.ts';
 import { runReplayLog } from './flows/harness.ts';
+import { render } from './support/render.tsx';
 
 const nextFrame = () => new Promise(resolve => requestAnimationFrame(resolve));
 
@@ -14,13 +14,11 @@ const nextFrame = () => new Promise(resolve => requestAnimationFrame(resolve));
 function mount() {
   const log = '{"idLog":["createCommander"],"eventNameLog":["click"],"gameRandSeed":1733543535142}';
   const game = runReplayLog(log).session.game!;
-  const host = document.body.appendChild(document.createElement('div'));
-  const root = createRoot(host);
   let view: GalaxyView | null = null;
   const keep = (v: GalaxyView | null) => (view = v ?? view);
-  const render = () => flushSync(() => root.render(map(game, keep)));
-  render();
-  return { host, root, render, view: view! as GalaxyView };
+  const { host, root } = render(map(game, keep));
+  const redraw = () => flushSync(() => root.render(map(game, keep)));
+  return { host, root, redraw, view: view! as GalaxyView };
 }
 
 function map(game: Game, viewRef: (view: GalaxyView | null) => void) {
@@ -57,15 +55,12 @@ test('a map that leaves the page stops drawing and stops listening', async () =>
   expect(draw).not.toHaveBeenCalled();
   expect(resize).not.toHaveBeenCalled();
   expect(host.querySelector('canvas')).toBeNull();
-  host.remove();
 });
 
 // A map at rest cannot see the game change, for instance when fuel is bought.
 test('a map is asked to draw whenever the screen around it is drawn again', () => {
-  const { host, root, render, view } = mount();
+  const { redraw, view } = mount();
   const asked = vi.spyOn(view, 'requestDraw');
-  render();
+  redraw();
   expect(asked).toHaveBeenCalled();
-  flushSync(() => root.unmount());
-  host.remove();
 });

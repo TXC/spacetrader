@@ -1,6 +1,6 @@
 import { StrictMode, act } from 'react';
 import { createRoot } from 'react-dom/client';
-import { expect, test } from 'vitest';
+import { expect, onTestFinished, test } from 'vitest';
 import App from '../App.tsx';
 import { startSession } from '../startSession.ts';
 
@@ -11,6 +11,11 @@ test('App starts one game under StrictMode, and it responds', async () => {
   const host = document.createElement('div');
   document.body.appendChild(host);
   const root = createRoot(host);
+  onTestFinished(() => {
+    root.unmount();
+    host.remove();
+    localStorage.clear();
+  });
   const session = startSession();
   await act(async () => {
     root.render(
@@ -27,7 +32,4 @@ test('App starts one game under StrictMode, and it responds', async () => {
   expect(document.querySelectorAll('#systemLandingDiv').length).toBe(1);
   expect(document.getElementById('system-info-welcome')!.textContent).toMatch(/^Welcome to /);
   expect(Object.keys(JSON.parse(localStorage.getItem('games')!)).length).toBe(1);
-  root.unmount();
-  host.remove();
-  localStorage.clear();
 });
