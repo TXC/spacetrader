@@ -1,23 +1,10 @@
 import { AlertActionType, AlertViewController } from './alerts.ts';
 import { PoliceRecordScore } from './Commander.ts';
 import { Plunder } from './Plunder.ts';
-import { Ship, ShipModelType } from './Ship.ts';
-import {
-  REACTOR_BAY_COUNT,
-  REACTOR_MAX_FUEL,
-  Difficulty,
-  JaporiQuestStatus,
-  JarekQuestStatus,
-  ReactorQuestStatus,
-  WildQuestStatus,
-} from './SolarSystem.types.ts';
+import { ShipModelType } from './Ship.ts';
+import { Difficulty, ReactorQuestStatus, WildQuestStatus } from './SolarSystem.types.ts';
 import { tradeItemForType } from './TradeItem.ts';
-import {
-  TradeItemType,
-  FAKE_QUEST_CARGO,
-  FAKE_QUEST_CARGO_REACTOR,
-  TRADE_ITEM_COUNT,
-} from './TradeItem.types.ts';
+import { TradeItemType, TRADE_ITEM_COUNT } from './TradeItem.types.ts';
 import { ensureBool, ensureInteger, ensureType } from './ensure.ts';
 import { pLog } from './probes.ts';
 import type { Game } from './Game.ts';
@@ -371,134 +358,6 @@ export class EncounterController {
     }
 
     completion();
-  }
-
-  _processArrest() {
-    let fine =
-      (1 +
-        Math.floor(
-          (this._game.commander.netWorth() *
-            // A good record counts as zero, which leaves the smallest fine.
-            Math.max(0, Math.min(80, -this._game.commander.policeRecordScore))) /
-            100 /
-            500
-        )) *
-      500;
-    ensureInteger(fine);
-
-    if (this._game.wildStatus === WildQuestStatus.OnBoard) {
-      fine = Math.floor(fine * 1.05);
-    }
-
-    const imprisonment = Math.max(30, -this._game.commander.policeRecordScore);
-    ensureInteger(imprisonment);
-
-    let alertString = `You are arrested and taken to the space station where you are brought before a court of law.\nYou are sentenced to ${imprisonment} days in prison and a fine of $${fine}.`;
-
-    const numNarcotics = this._game.commander.ship.tradeItemQuantityForType(
-      TradeItemType.Narcotics
-    );
-    const numFirearms = this._game.commander.ship.tradeItemQuantityForType(TradeItemType.Firearms);
-    if (numFirearms > 0 || numNarcotics > 0) {
-      alertString += '\nThe police impounded all of the illegal goods you had on board.';
-      this._game.commander.ship.soldQuantity(numNarcotics, TradeItemType.Narcotics);
-      this._game.commander.ship.soldQuantity(numFirearms, TradeItemType.Firearms);
-    }
-
-    if (this._game.commander.hasInsurance) {
-      alertString +=
-        "\nSince you can't pay your insurance while you're in prison, your insurance contract has been voided.";
-      this._game.commander.hasInsurance = false;
-      this._game.commander.noClaim = 0;
-    }
-
-    if (this._game.commander.ship.crewCount() > 0) {
-      if (this._game.commander.ship.crew.filter(x => !x.forQuest).length > 0) {
-        alertString += '\nYour hired mercenaries have left.';
-        pLog.log(141);
-      }
-      this._game.commander.ship.removeAllCrewMembers();
-    }
-
-    if (this._game.japoriQuestStatus === JaporiQuestStatus.HasMedicine) {
-      alertString +=
-        '\nThe Space Corps removed the antidote for Japori from your ship and delivered it, fulfilling your assignment.';
-      this._game.japoriQuestStatus = JaporiQuestStatus.Closed;
-      this._game.commander.ship.soldQuantity(10, FAKE_QUEST_CARGO);
-    }
-
-    if (
-      this._game.reactorStatus > ReactorQuestStatus.Open &&
-      this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate
-    ) {
-      alertString +=
-        "\nThe police confiscated the Ion Reactor as evidence of your dealings with unsavory characters. The bad news is that you've lost the Ion Reactor. The good news is that you no longer have to worry about managing its depleting fuel store.";
-      this._game.reactorStatus = ReactorQuestStatus.ClosedTooLate;
-      this._game.commander.ship.soldQuantity(
-        REACTOR_BAY_COUNT + REACTOR_MAX_FUEL,
-        FAKE_QUEST_CARGO_REACTOR
-      );
-      pLog.log(164);
-    }
-
-    if (this._game.jarekStatus === JarekQuestStatus.OnBoard) {
-      alertString += '\nThe Space Corps decides to give Ambassador Jarek a lift home to Devidia.';
-      this._game.jarekStatus = JarekQuestStatus.Closed;
-      pLog.log(140);
-    }
-
-    if (this._game.wildStatus === WildQuestStatus.OnBoard) {
-      alertString += '\nJonathan Wild is arrested and taken away to stand trial.';
-      this._game.wildStatus = WildQuestStatus.Closed;
-      this._game.addBreakingNewsItem('Notorious Criminal Jonathan Wild Arrested!');
-      pLog.log(127);
-    }
-
-    this._game.handleArrival();
-    this._game.timePassed(imprisonment);
-
-    let credits = this._game.commander.credits;
-    if (credits >= fine) {
-      credits = credits - fine;
-    } else {
-      pLog.log(42);
-      credits += this._game.commander.cargoAndShipValuationForInsurance(true);
-      credits = Math.max(credits - fine, 0);
-
-      alertString +=
-        '\nTo pay your fine, your ship had to be sold at auction. The police have given you a second-hand Flea so you can continue your travels.';
-
-      const ship = Ship.createFromPreviousShip(ShipModelType.Flea, this._game.commander.ship);
-      this._game.commander.ship = ship;
-    }
-
-    this._game.commander.policeRecordScore = PoliceRecordScore.Dubious;
-
-    let debt = this._game.commander.debt;
-    if (debt > 0) {
-      if (credits >= debt) {
-        credits -= debt;
-        debt = 0;
-      } else {
-        debt -= credits;
-        credits = 0;
-      }
-    }
-
-    this._game.commander.credits = credits;
-    this._game.commander.debt = debt;
-
-    for (let i = 0; i < imprisonment; i++) {
-      this._game.commander.payInterest();
-    }
-
-    const aC = new AlertViewController(alertString);
-
-    aC.addAction('Dismiss', AlertActionType.Default, () => {
-      this.listener.arrested();
-    });
-
-    this._presentAlertController(aC);
   }
 
   // #pragma mark - PlunderViewControllerDelegate

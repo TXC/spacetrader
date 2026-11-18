@@ -5,6 +5,7 @@ import { AccessoryType } from './Accessory.ts';
 import { alertStore } from './alerts.ts';
 import { EncounterController } from './EncounterController.ts';
 import { performTradeWithAmount } from './encounter/actions/trade.ts';
+import { arrest } from './encounter/arrest.ts';
 import { EncounterType } from './encounter/types.ts';
 import type { EncounterListener } from './encounter/types.ts';
 import { GameRand } from './GameRand.ts';
@@ -111,7 +112,7 @@ test('B5: an arrest with a good police record still costs the smallest fine', ()
   commander.policeRecordScore = 10;
   const police = Opponent.generateOpponentWithType(OpponentType.Police, game);
 
-  encounter(game, EncounterType.PoliceInspection, police)._processArrest();
+  arrest(encounter(game, EncounterType.PoliceInspection, police));
 
   expect(topAlert().title).toContain('a fine of $500.');
 });
