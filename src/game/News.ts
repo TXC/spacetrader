@@ -123,7 +123,7 @@ export class News {
     let headlines = '';
     let comma = '';
 
-    const breakingNews = this.game.getBreakingNews() || [];
+    const breakingNews = this.game.breakingNews || [];
     for (const item of breakingNews) {
       headlines += comma + item;
       comma = '\n';
