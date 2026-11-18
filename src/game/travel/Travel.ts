@@ -113,8 +113,8 @@ export class Travel extends Store implements EncounterListener {
       const { encounterType, opponent } = meeting(this, opponentType, currentClicks);
 
       if (encounterType !== EncounterType.None && opponent) {
-        const encounterController = new Encounter(encounterType, this._game, opponent, this);
-        this.setEncounter(encounterController);
+        const encounter = new Encounter(encounterType, this._game, opponent, this);
+        this.setEncounter(encounter);
         return;
       }
 
@@ -141,13 +141,13 @@ export class Travel extends Store implements EncounterListener {
     }
   }
 
-  setEncounter(eC: Encounter | null) {
-    if (eC !== this._encounter) {
+  setEncounter(encounter: Encounter | null) {
+    if (encounter !== this._encounter) {
       if (this._encounter) {
         this._encounter.invalidate();
       }
 
-      this._encounter = eC;
+      this._encounter = encounter;
     }
 
     this.changed();
