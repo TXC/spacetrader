@@ -191,8 +191,7 @@ export function performStressTest(
       shouldFilter = shouldFilter || eID === 'giveup';
 
       // If an alert is shown, require that the user acts on it
-      const alertEls = document.getElementsByClassName('alert-backdrop');
-      const alertElement = alertEls ? alertEls[0] : null;
+      const alertElement = document.querySelector('dialog');
       if (alertElement) {
         const thisEl = document.getElementById(eID);
         shouldFilter = shouldFilter || !alertElement.contains(thisEl);

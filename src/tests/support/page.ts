@@ -82,9 +82,9 @@ export const openQuests = part('#questListDiv');
 export const highScores = part('#highscores');
 export const difficulty = () => document.querySelector('select');
 // The topmost alert, and its title.
-export const alertBox = () =>
-  [...document.querySelectorAll<HTMLElement>('.alert-backdrop')].at(-1) ?? null;
-export const alertTitle = () => alertBox()?.querySelector<HTMLElement>('.alert-title') ?? null;
+export const alertBox = () => [...document.querySelectorAll('dialog')].at(-1) ?? null;
+export const alertTitle = () =>
+  document.getElementById(alertBox()?.getAttribute('aria-labelledby') ?? '');
 // The hull bar of the player's ship ('self') or the opponent's ('enemy'), and the frame
 // around the hull bar of the ship with this name.
 type Side = 'self' | 'enemy';
