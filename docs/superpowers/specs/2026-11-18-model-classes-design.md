@@ -178,10 +178,7 @@ callers, then removes the old way.
 - Which values have a rule and which become plain fields, where the
   code is not clear; the rule wins when in doubt.
 
-## Decisions made by Claude, not yet confirmed by the owner
+## Approved
 
-- Approach A: private constructors with `create` and `load`.
-- The saved game becomes version 2, and version 1 still loads.
-- `serializedState()` is renamed `toState()`.
-- Eight stacked pull requests, in the order above.
-- The session's page state is part of this work.
+The owner approved this design on 2026-11-18, with approach A and every
+other proposal in it.
