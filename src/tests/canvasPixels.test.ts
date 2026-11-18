@@ -89,7 +89,7 @@ afterEach(() => {
 });
 
 const classes = { host: 'pinned', canvas: '', info: '' };
-const FONTS = ['10px Helvetica, Arial, san-serif'];
+const FONTS = ['10px Helvetica, Arial, sans-serif'];
 
 // Draws the map half-way through a pulse of the rings, when they are at their largest.
 async function mapPicture(view: GalaxyView) {
