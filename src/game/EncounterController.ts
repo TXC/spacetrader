@@ -43,6 +43,7 @@ import { autoFlee, flee } from './encounter/actions/flee.ts';
 import { ignore } from './encounter/actions/ignore.ts';
 import { trade } from './encounter/actions/trade.ts';
 import { surrender } from './encounter/actions/surrender.ts';
+import { bribe } from './encounter/actions/bribe.ts';
 import { captainFor } from './encounter/captains.ts';
 import {
   EncounterMode,
@@ -410,82 +411,7 @@ export class EncounterController {
     } else if (action === 'Surrender' || action === 'Yield') {
       if (!surrender(this)) return;
     } else if (action === 'Bribe') {
-      let cantBribeAlertString = null;
-      if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
-        cantBribeAlertString =
-          "We'd love to take your money, but Space Command already knows you've got illegal goods onboard.";
-      } else if (this._game.commander.currentSystem.politics.bribeWillingness <= 0) {
-        cantBribeAlertString = `The incorruptible police of ${this._game.commander.currentSystem.name} cannot be bribed.`;
-      }
-
-      if (cantBribeAlertString) {
-        const aC = new AlertViewController(cantBribeAlertString);
-        aC.addAction('Dismiss', AlertActionType.Default, null);
-
-        this._presentAlertController(aC);
-        return;
-      }
-
-      const bribeBlock = () => {
-        let bribe =
-          this._game.commander.netWorth() /
-          ((10 + 5 * (Difficulty.Absurd - this._game.difficulty)) *
-            this._game.commander.currentSystem.politics.bribeWillingness);
-
-        bribe = Math.ceil(bribe / 100) * 100; // round up to the next 100
-        ensureInteger(bribe);
-
-        if (
-          this._game.wildStatus === WildQuestStatus.OnBoard ||
-          (this._game.reactorStatus > ReactorQuestStatus.Open &&
-            this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate)
-        ) {
-          pLog.log(126);
-          bribe *= this._game.difficulty <= Difficulty.Normal ? 2 : 3;
-        }
-
-        bribe = Math.max(100, Math.min(bribe, 10000));
-        ensureInteger(bribe);
-
-        if (this._game.commander.credits < bribe) {
-          const alertString = "You don't have enough cash for a bribe.";
-
-          const aC = new AlertViewController(alertString);
-          aC.addAction('Dismiss', AlertActionType.Default, null);
-
-          this._presentAlertController(aC);
-        } else {
-          const alertString = `These police officers are willing to forego inspection for $${bribe}.`;
-
-          const aC = new AlertViewController(alertString);
-
-          aC.addAction('Offer bribe', AlertActionType.Default, () => {
-            this._game.commander.setCredits(this._game.commander.credits - bribe);
-            this.listener.continues(false);
-          });
-
-          aC.addAction('Forget it', AlertActionType.Cancel, null);
-
-          this._presentAlertController(aC);
-        }
-      };
-
-      if (this._safeToSubmit()) {
-        const alertString =
-          'Are you sure you want to bribe the police? You are not carrying illegal goods, so you have nothing to fear!';
-
-        const aC = new AlertViewController(alertString);
-
-        aC.addAction('Yes, I still want to', AlertActionType.Destructive, () => {
-          bribeBlock();
-        });
-
-        aC.addAction("Ok, I won't", AlertActionType.Cancel, null);
-
-        this._presentAlertController(aC);
-      } else {
-        bribeBlock();
-      }
+      if (!bribe(this)) return;
     } else if (action === 'Submit') {
       const submitBlock = () => this._submitToSearch();
 
