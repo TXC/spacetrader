@@ -11,7 +11,7 @@ import { runtime } from '../runtime.ts';
 import { Opponent, OpponentType } from './Opponent.ts';
 
 // Builds the opponent met on a trip: its ship, what the ship carries, and its crew.
-export function buildOpponent(type: number, game: Game): Opponent {
+export function buildOpponent(type: OpponentType, game: Game): Opponent {
   ensureInteger(type);
   ensureType(game, 'object');
 
@@ -36,7 +36,7 @@ export function buildOpponent(type: number, game: Game): Opponent {
   return opponent;
 }
 
-function famousCaptain(type: number, difficulty: number): Opponent {
+function famousCaptain(type: OpponentType, difficulty: number): Opponent {
   const ship = Ship.bestShipWithDifficulty(difficulty);
   return new Opponent(
     type,
@@ -97,7 +97,7 @@ function bottle(game: Game): Opponent {
 }
 
 // A trader, a pirate, the police or a Mantis: a ship picked by chance, fitted out by chance.
-function ordinaryOpponent(type: number, game: Game): Opponent {
+function ordinaryOpponent(type: OpponentType, game: Game): Opponent {
   let allNarcotics = false;
   if (type === OpponentType.MarieCeleste) {
     type = OpponentType.Trader;
@@ -465,7 +465,7 @@ function addMercenaries(ship: Ship, model: ShipModel, game: Game): void {
 }
 
 // The captain's own skills are rolled last.
-function opponentWithSkills(type: number, game: Game, ship: Ship): Opponent {
+function opponentWithSkills(type: OpponentType, game: Game, ship: Ship): Opponent {
   const pilot = 1 + runtime.gameRand.randomIntBelow(MAX_SKILL_LEVEL);
   const fighter = 1 + runtime.gameRand.randomIntBelow(MAX_SKILL_LEVEL);
   const trader = 1 + runtime.gameRand.randomIntBelow(MAX_SKILL_LEVEL);

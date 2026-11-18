@@ -22,11 +22,11 @@ export type OpponentType = ValueOf<typeof OpponentType>;
 export const OPPONENT_TYPE_COUNT = countOf(OpponentType);
 
 export class Opponent extends CrewMember {
-  declare type: number;
+  declare type: OpponentType;
   declare ship: Ship;
 
   constructor(
-    type: number,
+    type: OpponentType,
     engineer: number,
     pilot: number,
     fighter: number,
@@ -54,6 +54,7 @@ export class Opponent extends CrewMember {
   }
 
   static generateOpponentWithType(type: number, game: Game) {
-    return buildOpponent(type, game);
+    // shortcut: the trip's dice still give a plain number; drop the cast once they give an OpponentType.
+    return buildOpponent(type as OpponentType, game);
   }
 }

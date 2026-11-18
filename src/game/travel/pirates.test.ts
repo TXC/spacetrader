@@ -21,7 +21,7 @@ function pirateReaction(
   game: Game,
   model: number,
   fitting = {},
-  type: number = OpponentType.Pirate
+  type: OpponentType = OpponentType.Pirate
 ) {
   nextOpponentIs(opponentIn(game, type, model, fitting));
   return pirateMeeting(game, type).encounterType;
