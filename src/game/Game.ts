@@ -78,7 +78,10 @@ const SPECIAL_SQR_DISTANCE = 70 * 70;
 
 // The nearest system without a special event that is at least SPECIAL_SQR_DISTANCE away; of
 // several equally near, the first in `candidates`.
-function nearestFreeSystem(origin: SolarSystem, candidates: SolarSystem[]) {
+function nearestFreeSystem(
+  origin: SolarSystem,
+  candidates: SolarSystem[]
+): SolarSystem | undefined {
   return candidates
     .filter(other => other.getSpecialEvent() === SpecialEvent.None)
     .map(other => ({ other, distance: origin.squaredDistanceTo(other) }))

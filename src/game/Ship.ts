@@ -554,7 +554,7 @@ export class Ship {
       serializedState.cargoKeys.forEach((key, idx) => {
         ensureInteger(key);
         ensureInteger(idx);
-        ship._cargo.set(key, serializedState.cargoValues![idx]);
+        ship._cargo.set(key, serializedState.cargoValues[idx]);
       });
     }
 
@@ -563,7 +563,7 @@ export class Ship {
       serializedState.cargoBuyingPriceKeys.forEach((key, idx) => {
         ensureInteger(key);
         ensureInteger(idx);
-        ship._cargoBuyingPrice.set(key, serializedState.cargoBuyingPriceValues![idx]);
+        ship._cargoBuyingPrice.set(key, serializedState.cargoBuyingPriceValues[idx]);
       });
     }
 

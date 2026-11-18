@@ -43,7 +43,7 @@ export function ensureNumber(n: unknown) {
 
 export function ensureType(b: unknown, typeStr: string) {
   if (b === null || typeof b !== typeStr) {
-    handleFatalError(`ensureType ${typeStr} failed. Got this instead: ${b}`);
+    handleFatalError(`ensureType ${typeStr} failed. Got this instead: ${String(b)}`);
     return false;
   }
   return true;

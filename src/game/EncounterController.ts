@@ -1061,7 +1061,7 @@ export class EncounterController {
           surrenderBlock();
         }
       } else {
-        const aC = new AlertViewController(surrenderPrompt!);
+        const aC = new AlertViewController(surrenderPrompt);
 
         aC.addAction('Dismiss', AlertActionType.Default, null);
 
@@ -1330,7 +1330,7 @@ export class EncounterController {
     this._autoEncounterSession++;
     this._encounterMode = EncounterMode.Manual;
     if (this.delegate) {
-      this.delegate!.encounterControllerHasUpdatedButtons();
+      this.delegate.encounterControllerHasUpdatedButtons();
     }
   }
 
