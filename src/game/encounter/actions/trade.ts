@@ -102,7 +102,7 @@ function offerToSell(encounter: Encounter, onlyIllegal: boolean): Offer {
   );
 
   if (itemType !== NO_TRADE_ITEM) {
-    tradePrice = encounter._game.commander.buyPriceForItem(itemType);
+    tradePrice = encounter._game.commander.buyPriceForItem(itemType, encounter._game.difficulty);
 
     if (onlyIllegal) {
       tradePrice *= runtime.gameRand.randomIntBelow(100) <= 45 ? 1.1 : 0.8;

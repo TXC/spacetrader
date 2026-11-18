@@ -54,11 +54,12 @@ function encounter(game: ReturnType<typeof newGame>, type: EncounterType, oppone
 }
 
 test('B1: dumping more than the fee allows dumps only what is paid for', () => {
-  const { commander } = newGame();
+  const game = newGame();
+  const { commander } = game;
   commander.ship.boughtQuantity(5, Water, 10);
   commander.credits = 20; // the fee is 15 a unit at this difficulty
 
-  commander.attemptSaleOfItem(Water, 5, true);
+  commander.attemptSaleOfItem(Water, 5, true, game.difficulty);
 
   expect(commander.ship.tradeItemQuantityForType(Water)).toBe(4);
   expect(commander.credits).toBe(5);

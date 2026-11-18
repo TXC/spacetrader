@@ -96,7 +96,7 @@ export function buyEscapePod(game: Game): void {
 
 export function priceForModel(game: Game, model: ShipModel): number {
   const price =
-    game.commander.buyPriceForShipModel(model) -
+    game.commander.buyPriceForShipModel(model, game.difficulty) -
     game.commander.cargoAndShipValuationForInsurance(false);
   return price === 0 ? 1 : price;
 }

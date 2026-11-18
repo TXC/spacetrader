@@ -38,7 +38,7 @@ function alreadyOwned(game: Game, type: AccessoryType, accessory: Accessory): bo
 function offer(game: Game, type: AccessoryType, accessory: Accessory): Offer {
   const { commander } = game;
   const owned = alreadyOwned(game, type, accessory);
-  const price = commander.buyPriceForAccessory(type);
+  const price = commander.buyPriceForAccessory(type, game.difficulty);
   return {
     type,
     name: accessory.name,
