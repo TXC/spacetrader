@@ -158,7 +158,7 @@ export function warp(
   }
   startTravelling(game, viaSingularity);
   const wasVisited = destination.visited;
-  game.commander.setCurrentSystem(destination);
+  game.commander.moveTo(destination);
   if (!rip) return begin(origin, destination, wasVisited);
   const alert = new AlertViewController(rip);
   alert.addAction('Dismiss', AlertActionType.Default, () => begin(origin, destination, wasVisited));
