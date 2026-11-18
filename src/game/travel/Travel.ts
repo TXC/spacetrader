@@ -1,11 +1,6 @@
 import { AccessoryType } from '../Accessory.ts';
 import { AlertActionType, AlertViewController } from '../alerts.ts';
-import {
-  CAUGHT_WITH_WILD_SCORE,
-  MAX_SKILL_LEVEL,
-  PoliceRecordScore,
-  ReputationScore,
-} from '../Commander.ts';
+import { CAUGHT_WITH_WILD_SCORE, MAX_SKILL_LEVEL, PoliceRecordScore } from '../Commander.ts';
 import { Encounter } from '../encounter/Encounter.ts';
 import { EncounterType } from '../encounter/types.ts';
 import type { ActionName, EncounterListener } from '../encounter/types.ts';
@@ -27,18 +22,8 @@ import { pLog } from '../probes.ts';
 import { runtime } from '../runtime.ts';
 import { pirateMeeting } from './pirates.ts';
 import { policeMeeting } from './police.ts';
+import { traderMeeting } from './traders.ts';
 import { whoIsMet } from './whoIsMet.ts';
-
-export const CHANCE_OF_TRADE_IN_ORBIT = 100;
-
-// Whether the commander's options hide this meeting with a trader: "ignore traders" hides
-// those that flee or ignore, "ignore trade in orbit" hides offers to buy or sell.
-export function hiddenByOptions(encounterType: number, game: Game): boolean {
-  const { TraderFlee, TraderIgnore, TraderSell, TraderBuy } = EncounterType;
-  const passesBy = encounterType === TraderFlee || encounterType === TraderIgnore;
-  const offersTrade = encounterType === TraderSell || encounterType === TraderBuy;
-  return (passesBy && game.alwaysIgnoreTraders) || (offersTrade && game.alwaysIgnoreTradeInOrbit);
-}
 
 // How a trip ended: the commander arrived, or the game is over.
 export type TravelResult = 'arrived' | GameEndedStatus;
@@ -149,59 +134,7 @@ export class Travel extends Store implements EncounterListener {
       } else if (opponentType === OpponentType.Pirate || opponentType === OpponentType.Mantis) {
         ({ encounterType, opponent } = pirateMeeting(this._game, opponentType));
       } else if (opponentType === OpponentType.Trader) {
-        opponent = Opponent.generateOpponentWithType(opponentType, this._game);
-        encounterType = EncounterType.TraderIgnore;
-
-        if (
-          this._game.commander.ship.shipOwnedByCommanderIsCloakedToOpponent(
-            this._game.commander,
-            opponent
-          )
-        ) {
-          encounterType = EncounterType.TraderIgnore;
-        } else if (this._game.commander.policeRecordScore <= PoliceRecordScore.Criminal) {
-          // Traders flee from sketchy commanders
-          if (
-            runtime.gameRand.randomIntBelow(ReputationScore.Elite) <=
-            Math.floor((this._game.commander.reputationScore * 10) / (1 + opponent.ship.type))
-          ) {
-            if (
-              opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, this._game.commander)
-            ) {
-              encounterType = EncounterType.TraderIgnore;
-            } else {
-              encounterType = EncounterType.TraderFlee;
-            }
-          }
-        }
-
-        if (
-          encounterType === EncounterType.TraderIgnore &&
-          runtime.gameRand.randomIntBelow(1000) < CHANCE_OF_TRADE_IN_ORBIT
-        ) {
-          if (
-            this._game.commander.ship.freeCargoBays() > 0 &&
-            opponent.ship.hasTradeableItemsForSystem(
-              this._game.commander.currentSystem,
-              this._game.commander.policeRecordScore < PoliceRecordScore.Dubious
-            )
-          ) {
-            encounterType = EncounterType.TraderSell;
-          } else if (
-            this._game.commander.ship.hasTradeableItemsForSystem(
-              this._game.commander.currentSystem,
-              this._game.commander.policeRecordScore < PoliceRecordScore.Dubious
-            )
-          ) {
-            encounterType = EncounterType.TraderBuy;
-          }
-        }
-
-        if (opponent.ship.shipOwnedByCommanderIsCloakedToOpponent(opponent, this._game.commander)) {
-          encounterType = EncounterType.None;
-        } else if (hiddenByOptions(encounterType, this._game)) {
-          encounterType = EncounterType.None;
-        }
+        ({ encounterType, opponent } = traderMeeting(this._game, opponentType));
       } else if (opponentType === OpponentType.Scarab) {
         opponent = Opponent.generateOpponentWithType(opponentType, this._game);
         encounterType = EncounterType.ScarabAttack;
