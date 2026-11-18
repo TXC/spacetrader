@@ -674,10 +674,6 @@ export class Game {
     return closest;
   }
 
-  getBreakingNews() {
-    return this._breakingNews;
-  }
-
   get breakingNews() {
     return this._breakingNews;
   }
