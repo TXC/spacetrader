@@ -2,7 +2,7 @@
 import { ReputationScore } from './Commander.ts';
 import { sanitizedElementID } from './elementId.ts';
 import type { Game } from './Game.ts';
-import { RARE_EVENT_COUNT } from './Game.ts';
+import { RARE_EVENT_COUNT } from './Game.types.ts';
 
 export type Cheat = { id: string; label: string; apply: (game: Game) => void };
 

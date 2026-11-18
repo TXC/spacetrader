@@ -1,5 +1,5 @@
 import { AlertActionType, AlertViewController } from '../alerts.ts';
-import { GameEndStatus } from '../Game.ts';
+import { GameEndStatus } from '../Game.types.ts';
 import { MAX_TRIBBLES } from '../Ship.ts';
 import type { Game } from '../Game.ts';
 import { ReactorQuestStatus, reactorAboard } from '../SolarSystem.types.ts';

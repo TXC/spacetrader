@@ -1,5 +1,4 @@
-import { countOf } from './texts.ts';
-import type { ValueOf } from './texts.ts';
+import { GameEndStatus, RareEvent, RARE_EVENT_COUNT } from './Game.types.ts';
 import { Commander } from './Commander.ts';
 import type { Recruit } from './Commander.ts';
 import { CrewMember } from './CrewMember.ts';
@@ -37,27 +36,6 @@ export const GALAXY_WIDTH = 150;
 export const GALAXY_HEIGHT = 110;
 
 export const STARTING_CREDITS = 1000;
-
-export const GameEndStatus = {
-  None: 0,
-  Retired: 1,
-  Killed: 2,
-  Moon: 3,
-} as const;
-export type GameEndStatus = (typeof GameEndStatus)[keyof typeof GameEndStatus];
-// How a game that is over ended.
-export type GameEndedStatus = Exclude<GameEndStatus, typeof GameEndStatus.None>;
-
-export const RareEvent = {
-  MarieCeleste: 0,
-  CaptainAhab: 1,
-  CaptainConrad: 2,
-  CaptainHuie: 3,
-  BottleOld: 4,
-  BottleGood: 5,
-} as const;
-export type RareEvent = ValueOf<typeof RareEvent>;
-export const RARE_EVENT_COUNT = countOf(RareEvent);
 
 export const MIN_DISTANCE = 6;
 

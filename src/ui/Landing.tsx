@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import type { Game } from '../game/Game.ts';
-import { GameEndStatus } from '../game/Game.ts';
+import { GameEndStatus } from '../game/Game.types.ts';
 import type { NavRow } from '../game/session.ts';
 import { Bank } from './Bank.tsx';
 import { BuySellCargo } from './BuySellCargo.tsx';

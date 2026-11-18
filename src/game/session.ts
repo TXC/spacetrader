@@ -3,8 +3,10 @@
 import { AlertActionType, AlertViewController } from './alerts.ts';
 import { present as presentChart } from './Chart.ts';
 import type { CrewMember } from './CrewMember.ts';
-import { Game, GameEndStatus } from './Game.ts';
-import type { GameEndedStatus, GameState } from './Game.ts';
+import { Game } from './Game.ts';
+import { GameEndStatus } from './Game.types.ts';
+import type { GameState } from './Game.ts';
+import type { GameEndedStatus } from './Game.types.ts';
 import { MAX_HIGH_SCORES } from './HallOfFame.ts';
 import type { Skills } from './NewCommander.ts';
 import { News } from './News.ts';

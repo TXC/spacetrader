@@ -8,7 +8,7 @@ import {
   ATTACK_TRADER_SCORE,
   PoliceRecordScore,
 } from '../../game/Commander.ts';
-import { RareEvent } from '../../game/Game.ts';
+import { RareEvent } from '../../game/Game.types.ts';
 import type { Ship } from '../../game/Ship.ts';
 import { TradeItemType } from '../../game/TradeItem.types.ts';
 import { AlertViewController } from '../../game/alerts.ts';

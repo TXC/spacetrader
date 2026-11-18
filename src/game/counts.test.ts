@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { RARE_EVENT_COUNT } from './Game.ts';
+import { RARE_EVENT_COUNT } from './Game.types.ts';
 import { OPPONENT_TYPE_COUNT } from './opponent/Opponent.ts';
 import { POLITICS_COUNT } from './Politics.ts';
 import { SHIP_MODEL_COUNT, ShipModelType } from './Ship.ts';
