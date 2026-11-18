@@ -1,11 +1,18 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { alertStore, AlertViewController } from './alerts.ts';
+import { borrow, payBack, setRemindLoans, toggleInsurance } from './Bank.ts';
+import { buyCargo, sellCargo } from './Cargo.ts';
+import { toggleTracking } from './Chart.ts';
+import { setIgnore, setReserveMoney } from './CommanderStatus.ts';
 import { CrewMember } from './CrewMember.ts';
 import { Game, GameEndStatus } from './Game.ts';
 import { GameRand } from './GameRand.ts';
 import { startingSkills } from './NewCommander.ts';
+import { News } from './News.ts';
+import { fire } from './Roster.ts';
 import { runtime } from './runtime.ts';
 import { CANNOT_SAVE, SAVE_REMOVED, Session } from './session.ts';
+import { setAutoFuel } from './ShipYard.ts';
 import { MockLocalStorage } from '../tests/support/MockLocalStorage.ts';
 import { DebugMode } from './ensure.ts';
 
@@ -191,4 +198,70 @@ test('a damaged high-score record is left out and removed', () => {
 
   expect(session.highScores(6).map(state => state.commander.name)).toEqual(['Tester']);
   expect(saved('highScoringGames')).toEqual(Object.keys(scores));
+});
+
+// ---- a rule tells the game, and the game tells its session ----
+
+const RULES: [string, (game: Game) => unknown][] = [
+  ['borrowing', game => borrow(game, 100)],
+  ['paying back', game => payBack(game, 100)],
+  ['the loan reminder', game => setRemindLoans(game, false)],
+  ['buying cargo', game => buyCargo(game, 0, 1)],
+  ['selling cargo', game => sellCargo(game, 0, 1)],
+  ['tracking a system', game => toggleTracking(game, game.solarSystems[0])],
+  ['an option to ignore', game => setIgnore(game, 'alwaysIgnorePolice', true)],
+  ['reserving money', game => setReserveMoney(game, false)],
+  ['automatic fuel', game => setAutoFuel(game, true)],
+  ['firing', game => fire(game, new CrewMember('Hired Hand', 4, 4, 4, 4))],
+  ['automatic news', game => new News(game).setAuto(true)],
+];
+
+test.each(RULES)('%s tells whoever is watching the session, once', (_name, rule) => {
+  session.createCommander('Tester', 2, startingSkills());
+  const listener = vi.fn();
+  session.subscribe(listener);
+
+  rule(session.game!);
+
+  expect(listener).toHaveBeenCalledTimes(1);
+});
+
+test('a loaded game tells the session that loaded it', () => {
+  session.createCommander('Tester', 2, startingSkills());
+  const next = nextSession();
+  const first = vi.fn();
+  const second = vi.fn();
+  session.subscribe(first);
+  next.subscribe(second);
+
+  next.game!.changed();
+
+  expect(first).not.toHaveBeenCalled();
+  expect(second).toHaveBeenCalledTimes(1);
+});
+
+test('insurance refused for want of an escape pod changes nothing', () => {
+  session.createCommander('Tester', 2, startingSkills());
+  const listener = vi.fn();
+  session.subscribe(listener);
+
+  expect(toggleInsurance(session.game!)).toBe('needsEscapePod');
+
+  expect(listener).not.toHaveBeenCalled();
+});
+
+test('clearing the high scores tells whoever is watching', () => {
+  const listener = vi.fn();
+  session.subscribe(listener);
+
+  session.clearHighScores();
+
+  expect(listener).toHaveBeenCalledTimes(1);
+});
+
+test('a game nobody watches can be changed all the same', () => {
+  session.createCommander('Tester', 2, startingSkills());
+  const game = Game.fromSerializedState(session.game!.serializedState());
+
+  expect(() => game.changed()).not.toThrow();
 });

@@ -8,7 +8,6 @@ import {
 } from '../game/Bank.ts';
 import { MAX_SAFE_PILOT_INSURANCE_DISCOUNT } from '../game/Commander.ts';
 import type { Game } from '../game/Game.ts';
-import { session } from '../game/session.ts';
 import { AlertViewController } from '../game/alerts.ts';
 import styles from './Bank.module.css';
 import { BaysCredits } from './BaysCredits.tsx';
@@ -39,10 +38,7 @@ type StepsProps = {
 
 function StepButtons({ verb, prefix, max, apply }: StepsProps) {
   const { tiny, medium } = steps(max);
-  const act = (amount: number) => () => {
-    apply(amount);
-    session.changed();
-  };
+  const act = (amount: number) => () => apply(amount);
   return (
     <tr>
       <td>
@@ -78,10 +74,7 @@ function Loans({ game }: GameProps) {
 }
 
 function RemindLoans({ game }: GameProps) {
-  const toggle = (checked: boolean) => {
-    setRemindLoans(game, checked);
-    session.changed();
-  };
+  const toggle = (checked: boolean) => setRemindLoans(game, checked);
   return (
     <LoggedCheckbox id="remindLoansCheckbox" checked={game.remindLoans} onToggle={toggle}>
       Remind about loans
@@ -94,7 +87,6 @@ function InsuranceButton({ game }: GameProps) {
   const press = () => {
     if (toggleInsurance(game) === 'needsEscapePod')
       AlertViewController.presentAlertWithDismiss(NO_POD);
-    session.changed();
   };
   // The key gives the button a fresh identity when its id changes with the label.
   return <LoggedButton key={label} label={label} onPress={press} />;

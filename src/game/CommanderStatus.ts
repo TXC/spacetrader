@@ -2,7 +2,6 @@
 import { AlertActionType, AlertViewController } from './alerts.ts';
 import { policeRecordName, reputationName } from './Commander.ts';
 import type { Game } from './Game.ts';
-import { session } from './session.ts';
 import { difficultyName } from './SolarSystem.types.ts';
 import { pLog } from './probes.ts';
 
@@ -58,13 +57,13 @@ export type IgnoreOption =
 export function setIgnore(game: Game, option: IgnoreOption, on: boolean): void {
   game[option] = on;
   game.save();
-  session.changed();
+  game.changed();
 }
 
 export function setReserveMoney(game: Game, on: boolean): void {
   game.commander.setReserveMoney(on);
   game.save();
-  session.changed();
+  game.changed();
 }
 
 export function askToGiveUp(giveUp: () => void): void {

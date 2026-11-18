@@ -1,9 +1,9 @@
 // The new-commander form: sharing skill points between the four skills.
 import { MAX_SKILL_LEVEL } from './Commander.ts';
-import type { Skills } from './session.ts';
 
 export const SKILL_NAMES = ['engineer', 'pilot', 'fighter', 'trader'] as const;
 export type SkillName = (typeof SKILL_NAMES)[number];
+export type Skills = Record<SkillName, number>;
 export const MAX_POINTS = MAX_SKILL_LEVEL * 2;
 export const SKILL_MINIMUM = 1;
 

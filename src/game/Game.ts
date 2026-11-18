@@ -93,6 +93,7 @@ export class Game {
   // `new Game()` with no commander returns an empty shell that fromSerializedState() fills in.
   // `_remainingRareEvents` is typed as always set, but is unset until the game is set up.
   declare _onSave: ((game: Game) => void) | null;
+  declare _onChange: (() => void) | null;
   declare _uniqueID: string;
   declare _endStatus: number;
   declare _trackedSystem: SolarSystem | null;
@@ -131,6 +132,7 @@ export class Game {
 
   constructor(difficulty?: number, commander?: Commander) {
     this._onSave = null;
+    this._onChange = null;
 
     if (commander) {
       this._uniqueID = this._generateUniqueID();
@@ -402,6 +404,15 @@ export class Game {
     if (this._onSave) {
       this._onSave(this);
     }
+  }
+
+  setOnChange(onChange: (() => void) | null) {
+    this._onChange = onChange;
+  }
+
+  // A rule calls this after changing the game, so whoever shows the game can draw it again.
+  changed() {
+    this._onChange?.();
   }
 
   score() {

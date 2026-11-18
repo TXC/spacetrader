@@ -2,12 +2,13 @@
 import { AlertActionType, AlertViewController } from './alerts.ts';
 import { Game, GameEndStatus } from './Game.ts';
 import type { GameState } from './Game.ts';
-import { MAX_HIGH_SCORES, session } from './session.ts';
 import { difficultyName } from './SolarSystem.types.ts';
 import { named } from './texts.ts';
 import { pLog } from './probes.ts';
 
-// Where the high scores are kept: the session.
+export const MAX_HIGH_SCORES = 6;
+
+// Where the high scores are kept: the session. Clearing them redraws the page.
 export type Scores = {
   highScores(count: number): GameState[];
   clearHighScores(): void;
@@ -67,7 +68,6 @@ export function askToClear(scores: Scores): void {
   alert.addAction('Clear all', AlertActionType.Destructive, () => {
     pLog.log(93);
     scores.clearHighScores();
-    session.changed();
   });
   alert.addAction('Cancel', AlertActionType.Cancel, null);
   alert.presentView();

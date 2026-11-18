@@ -344,8 +344,8 @@ export function assertEqualDeep(actual: unknown, expected: unknown) {
   expect(equal, difference).toBe(true);
 }
 
-// Fields a saved game does not keep: the save hook and the cheats' switches.
-const UNSAVED = ['_onSave', 'showSpecialSystems', 'forceRareEvent'] as const;
+// Fields a saved game does not keep: the session's two hooks and the cheats' switches.
+const UNSAVED = ['_onSave', '_onChange', 'showSpecialSystems', 'forceRareEvent'] as const;
 
 // Compares two games with their unsaved fields set aside, and puts those back after.
 export function assertEqualGames(game1: Game, game2: Game) {

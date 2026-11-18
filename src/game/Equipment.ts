@@ -3,7 +3,6 @@ import { accessoryForType, AccessoryType, Gadget } from './Accessory.ts';
 import type { Accessory } from './Accessory.ts';
 import { AlertActionType, AlertViewController } from './alerts.ts';
 import type { Game } from './Game.ts';
-import { session } from './session.ts';
 
 export type Installed = { type: number; name: string; value: number };
 export type SlotSection = { title: string; slots: number; installed: Installed[]; empty: number };
@@ -89,7 +88,7 @@ export function buyEquipment(game: Game, type: number, price: number): void {
     game.commander.ship.addAccessoryOfType(type);
     game.commander.setCredits(game.commander.credits - price);
     game.save();
-    session.changed();
+    game.changed();
   });
 }
 
@@ -104,6 +103,6 @@ export function sellEquipment(game: Game, type: number, price: number): void {
     game.commander.ship.removeAccessoryOfType(type);
     game.commander.setCredits(game.commander.credits + price);
     game.save();
-    session.changed();
+    game.changed();
   });
 }
