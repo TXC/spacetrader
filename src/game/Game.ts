@@ -241,7 +241,7 @@ export class Game {
     const uniqueID = generateUniqueID();
     const solarSystems = Game._populateSolarSystems(difficulty);
     Game._setupEventsAndMercenaries(solarSystems);
-    const commander = Game._setupCommander(recruit, difficulty, solarSystems);
+    const commander = Game._setupCommander(recruit, solarSystems);
     const remainingRareEvents = [
       ...Array.from({ length: RARE_EVENT_COUNT }, (_, rareEvent) => rareEvent),
       // Some extra skill enhancements
@@ -283,7 +283,7 @@ export class Game {
       solarSystems,
       warpSystem: find(state.warpSystemName),
       trackedSystem: find(state.trackedSystemName),
-      commander: Commander.restore(state.commander, solarSystems, state.difficulty),
+      commander: Commander.restore(state.commander, solarSystems),
       uniqueID: state.uniqueID || generateUniqueID(),
     });
   }
@@ -654,13 +654,8 @@ export class Game {
     mercenarySystem.mercenary = mercenary;
   }
 
-  private static _setupCommander(
-    recruit: Recruit,
-    difficulty: number,
-    solarSystems: SolarSystem[]
-  ): Commander {
+  private static _setupCommander(recruit: Recruit, solarSystems: SolarSystem[]): Commander {
     const commander = Commander.enlist(recruit, {
-      difficulty,
       credits: STARTING_CREDITS,
       ship: Ship.create(ShipModelType.Gnat),
       system: solarSystems[solarSystems.length - 1],
