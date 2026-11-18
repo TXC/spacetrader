@@ -1,0 +1,7 @@
+/* One column, as wide as the window up to a comfortable maximum. */
+.game {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 60rem);
+  margin: auto;
+}

@@ -77,7 +77,7 @@ page they find by role and text, through `src/tests/support/page.ts`.
 1. **Done:** the same game in TypeScript.
 2. **Done:** every screen is a React component.
 3. **Done:** a layout that follows the window. One number sets the size
-   of everything: the `font-size` on `html` in `src/ui/style.css`.
+   of everything: the `font-size` on `html` in `src/ui/styles/base.css`.
 4. **Done:** the recorded tests are ordinary test files.
 5. **Done:** the debug panel.
 6. **Done:** offline use.
