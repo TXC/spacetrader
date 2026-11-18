@@ -33,7 +33,7 @@ export class Opponent extends CrewMember {
     trader: number,
     ship: Ship
   ) {
-    super('opponent', engineer, pilot, fighter, trader);
+    super(CrewMember.newFields('opponent', engineer, pilot, fighter, trader));
     ensureInteger(type);
     this.type = type;
     ensureType(ship, 'object');

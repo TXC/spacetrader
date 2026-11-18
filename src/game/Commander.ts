@@ -138,8 +138,8 @@ export class Commander extends CrewMember {
   declare _currentSystem: SolarSystem;
   declare ship: Ship;
 
-  constructor(name: string | null, engineer = 0, pilot = 0, fighter = 0, trader = 0) {
-    super(name, engineer, pilot, fighter, trader);
+  constructor(name: string, engineer = 0, pilot = 0, fighter = 0, trader = 0) {
+    super(CrewMember.newFields(name, engineer, pilot, fighter, trader));
 
     this._basePrices = null;
     this.days = 0;
@@ -161,26 +161,20 @@ export class Commander extends CrewMember {
     this._hasInsurance = false;
   }
 
-  static override fromSerializedState(
-    serializedState: CommanderState,
-    solarSystems?: SolarSystem[]
-  ) {
+  static fromSerializedState(serializedState: CommanderState, solarSystems?: SolarSystem[]) {
     const commander = new Commander(serializedState.name);
     commander.updateWithSerializedState(serializedState, solarSystems);
     return commander;
   }
 
-  override updateWithSerializedState(
-    serializedState: CommanderState,
-    solarSystems?: SolarSystem[]
-  ) {
+  updateWithSerializedState(serializedState: CommanderState, solarSystems?: SolarSystem[]) {
     this.name = serializedState.name || null;
     this.engineer = serializedState.engineer;
     this.pilot = serializedState.pilot;
     this.fighter = serializedState.fighter;
     this.trader = serializedState.trader;
 
-    this._forQuest = serializedState.forQuest;
+    this.forQuest = serializedState.forQuest;
     this.carriesMaxTraderBoost = serializedState.carriesMaxTraderBoost;
     this.freeMercenaryCost = serializedState.freeMercenaryCost;
 

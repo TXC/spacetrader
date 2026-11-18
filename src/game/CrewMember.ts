@@ -1,19 +1,31 @@
-import { ensureArrayOrNull, ensureBool, ensureInteger, ensureType } from './ensure.ts';
+import { ensureBool, ensureInteger, ensureType } from './ensure.ts';
 import { runtime } from './runtime.ts';
 
 import type { CrewMemberState } from './savedGame.ts';
 export type { CrewMemberState };
 
+// Everything a crew member is made of.
+type CrewMemberFields = {
+  name: string | null;
+  engineer: number;
+  pilot: number;
+  fighter: number;
+  trader: number;
+  forQuest: boolean;
+  carriesMaxTraderBoost: boolean;
+  freeMercenaryCost: boolean;
+};
+
 export class CrewMember {
-  declare static _sNames: string[] | undefined;
-  declare name: string | null;
-  declare engineer: number;
-  declare pilot: number;
-  declare fighter: number;
-  declare trader: number;
-  declare _forQuest: boolean;
-  declare carriesMaxTraderBoost: boolean;
-  declare freeMercenaryCost: boolean;
+  private static _sNames: string[] | undefined;
+  name: string | null;
+  engineer: number;
+  pilot: number;
+  fighter: number;
+  trader: number;
+  forQuest: boolean;
+  carriesMaxTraderBoost: boolean;
+  freeMercenaryCost: boolean;
 
   static mercenaryNames() {
     if (!this._sNames) {
@@ -53,53 +65,53 @@ export class CrewMember {
     return this._sNames;
   }
 
-  constructor(
-    name: string | null,
-    engineer: number = 0,
-    pilot: number = 0,
-    fighter: number = 0,
-    trader: number = 0
-  ) {
-    ensureType(name, 'string');
-    this.name = name || null;
-
-    ensureArrayOrNull([engineer, pilot, fighter, trader], 'number');
-
-    this.engineer = engineer;
-    this.pilot = pilot;
-    this.fighter = fighter;
-    this.trader = trader;
-    this._forQuest = false;
-    this.carriesMaxTraderBoost = false;
-    this.freeMercenaryCost = false;
+  protected constructor(fields: CrewMemberFields) {
+    this.name = fields.name;
+    this.engineer = fields.engineer;
+    this.pilot = fields.pilot;
+    this.fighter = fields.fighter;
+    this.trader = fields.trader;
+    this.forQuest = fields.forQuest;
+    this.carriesMaxTraderBoost = fields.carriesMaxTraderBoost;
+    this.freeMercenaryCost = fields.freeMercenaryCost;
   }
 
-  updateWithSerializedState(serializedState: CrewMemberState) {
-    this.name = serializedState.name || null;
-    this.engineer = serializedState.engineer;
-    this.pilot = serializedState.pilot;
-    this.fighter = serializedState.fighter;
-    this.trader = serializedState.trader;
-
-    this._forQuest = serializedState.forQuest;
-    this.carriesMaxTraderBoost = serializedState.carriesMaxTraderBoost;
-    this.freeMercenaryCost = serializedState.freeMercenaryCost;
+  // A new crew member's fields: the given skills, no quest and no bonuses.
+  protected static newFields(
+    name: string,
+    engineer: number,
+    pilot: number,
+    fighter: number,
+    trader: number
+  ): CrewMemberFields {
+    return {
+      name: name || null,
+      engineer,
+      pilot,
+      fighter,
+      trader,
+      forQuest: false,
+      carriesMaxTraderBoost: false,
+      freeMercenaryCost: false,
+    };
   }
 
-  // A new crew member, with no quest and no bonuses.
   static create(name: string, engineer = 0, pilot = 0, fighter = 0, trader = 0): CrewMember {
-    return new CrewMember(name, engineer, pilot, fighter, trader);
+    return new CrewMember(CrewMember.newFields(name, engineer, pilot, fighter, trader));
   }
 
   // A crew member from a saved game, as parseSavedGame checked it.
   static load(state: CrewMemberState): CrewMember {
-    return CrewMember.fromSerializedState(state);
-  }
-
-  static fromSerializedState(serializedState: CrewMemberState) {
-    const crewMember = new CrewMember(serializedState.name);
-    crewMember.updateWithSerializedState(serializedState);
-    return crewMember;
+    return new CrewMember({
+      name: state.name || null,
+      engineer: state.engineer,
+      pilot: state.pilot,
+      fighter: state.fighter,
+      trader: state.trader,
+      forQuest: state.forQuest,
+      carriesMaxTraderBoost: state.carriesMaxTraderBoost,
+      freeMercenaryCost: state.freeMercenaryCost,
+    });
   }
 
   randomizeAttributes(rand = runtime.gameRand) {
@@ -108,16 +120,6 @@ export class CrewMember {
     this.fighter = randomSkill();
     this.trader = randomSkill();
     this.engineer = randomSkill();
-  }
-
-  get forQuest() {
-    return this._forQuest;
-  }
-
-  set forQuest(f: boolean) {
-    if (ensureBool(f)) {
-      this._forQuest = f;
-    }
   }
 
   hirePrice() {
@@ -166,7 +168,7 @@ export class CrewMember {
     ensureInteger(this.fighter);
     ensureInteger(this.trader);
     ensureInteger(this.engineer);
-    ensureBool(this._forQuest);
+    ensureBool(this.forQuest);
     ensureBool(this.carriesMaxTraderBoost);
     ensureBool(this.freeMercenaryCost);
     return {
@@ -175,7 +177,7 @@ export class CrewMember {
       fighter: this.fighter,
       trader: this.trader,
       engineer: this.engineer,
-      forQuest: this._forQuest,
+      forQuest: this.forQuest,
       carriesMaxTraderBoost: this.carriesMaxTraderBoost,
       freeMercenaryCost: this.freeMercenaryCost,
     };
