@@ -1,7 +1,7 @@
 // Flow tests: each replays a recorded play session by clicking the recorded elements, then
 // checks what the player sees and what the game holds. Converted from the original
 // project's UnitTests.js; the recordings and expected values are unchanged.
-import { test } from 'vitest';
+import { expect, test } from 'vitest';
 import { GameRand } from '../../game/GameRand.ts';
 import { ActionLogger } from '../../game/ActionLogger.ts';
 import { Game, GameEndStatus } from '../../game/Game.ts';
@@ -265,7 +265,7 @@ test('auto_attack_interrupt', () => {
   closure!();
 
   assertEqual(button('Interrupt'), null);
-  assertEqual(button('Attack') !== null, true);
+  expect(button('Attack')).not.toBeNull();
 });
 
 test('auto_attack_flee', () => {
@@ -290,7 +290,7 @@ test('auto_attack_flee', () => {
   closure!();
 
   assertEqual(button('Interrupt'), null);
-  assertEqual(button('Attack') !== null, true);
+  expect(button('Attack')).not.toBeNull();
 });
 
 test('auto_attack_surrender', () => {
@@ -315,7 +315,7 @@ test('auto_attack_surrender', () => {
   closure!();
 
   assertEqual(button('Interrupt'), null);
-  assertEqual(button('Attack') !== null, true);
+  expect(button('Attack')).not.toBeNull();
 });
 
 test('auto_attack_auto_flee', () => {
@@ -339,8 +339,8 @@ test('auto_attack_auto_flee', () => {
   assertEqual(runtime.actionLog.asyncClosureQueue!.length, 1);
   closure!();
 
-  assertEqual(button('Interrupt') !== null, true);
-  assertEqual(button('Attack') !== null, true);
+  expect(button('Interrupt')).not.toBeNull();
+  expect(button('Attack')).not.toBeNull();
 
   closure = runtime.actionLog.asyncClosureQueue!.shift();
   assertEqual(runtime.actionLog.asyncClosureQueue!.length, 0);
@@ -370,8 +370,8 @@ test('auto_flee_interrupt', () => {
   assertEqual(runtime.actionLog.asyncClosureQueue!.length, 1);
   closure!();
 
-  assertEqual(button('Interrupt') !== null, true);
-  assertEqual(button('Attack') !== null, true);
+  expect(button('Interrupt')).not.toBeNull();
+  expect(button('Attack')).not.toBeNull();
 
   replay.replayEvent('ecButton_Interrupt');
 
@@ -382,7 +382,7 @@ test('auto_flee_interrupt', () => {
   closure!();
 
   assertEqual(button('Interrupt'), null);
-  assertEqual(button('Flee') !== null, true);
+  expect(button('Flee')).not.toBeNull();
 
   replay.replayEvent('ecButton_Auto_Flee');
   assertEqual(AlertViewController.currentAlertTitle(), "You've managed to escape your opponent.");

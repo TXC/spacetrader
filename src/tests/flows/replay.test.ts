@@ -1,7 +1,7 @@
 // Flow tests: each replays a recorded play session by clicking the recorded elements, then
 // checks what the player sees and what the game holds. Converted from the original
 // project's UnitTests.js; the recordings and expected values are unchanged.
-import { test } from 'vitest';
+import { expect, test } from 'vitest';
 import { KILL_PIRATE_SCORE, PoliceRecordScore } from '../../game/Commander.ts';
 import { shipModelForType, ShipModelType } from '../../game/Ship.ts';
 import { TradeItemType } from '../../game/TradeItem.types.ts';
@@ -73,7 +73,7 @@ test('giveUp', () => {
   const session = replay.session;
 
   const endMessage = textOf(scoreMessage());
-  assertEqual(endMessage.startsWith('You achieved a score'), true);
+  expect(endMessage).toMatch(/^You achieved a score/);
   assertTrue(button('End Game and Start Over') !== null, 'end game button shows');
 
   replay.replayEvent('endgame', 'click');
@@ -94,7 +94,7 @@ test('dieStartOver', () => {
   const session = replay.session;
 
   const endMessage = textOf(scoreMessage());
-  assertEqual(endMessage.startsWith('You achieved a score'), true);
+  expect(endMessage).toMatch(/^You achieved a score/);
   assertTrue(button('End Game and Start Over') !== null, 'end game button shows');
 
   replay.replayEvent('endgame', 'click');
@@ -1208,7 +1208,7 @@ test('systemLanding_showForHire', () => {
   const session = replay.session;
 
   const tableRows = session.rows();
-  assertEqual(tableRows.includes('For Hire'), true);
+  expect(tableRows).toContain('For Hire');
 });
 
 test('systemLanding_hideForHire', () => {
@@ -1224,7 +1224,7 @@ test('systemLanding_hideForHire', () => {
   replaySkipEncounters(replay);
 
   const tableRows = session.rows();
-  assertEqual(tableRows.includes('For Hire'), false);
+  expect(tableRows).not.toContain('For Hire');
 });
 
 test('galaxyView_selectWarpTarget', () => {
