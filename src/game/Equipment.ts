@@ -20,9 +20,9 @@ function section(game: Game, title: string, accessories: Accessory[], slots: num
 export function slotSections(game: Game): SlotSection[] {
   const ship = game.commander.ship;
   return [
-    section(game, 'Gadgets', ship.gadgets, ship.gadgetSlots),
-    section(game, 'Weapons', ship.weapons, ship.weaponSlots),
-    section(game, 'Shields', ship.shields, ship.shieldSlots),
+    section(game, 'Gadgets', ship.gadgets, ship.model.gadgetSlots),
+    section(game, 'Weapons', ship.weapons, ship.model.weaponSlots),
+    section(game, 'Shields', ship.shields, ship.model.shieldSlots),
   ];
 }
 
