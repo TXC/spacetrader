@@ -11,7 +11,6 @@ import {
   ReputationScore,
   TRAFFICKING_SCORE,
 } from './Commander.ts';
-import { OpponentType } from './Opponent.ts';
 import { Plunder } from './Plunder.ts';
 import { Ship, ShipModelType } from './Ship.ts';
 import {
@@ -31,7 +30,6 @@ import {
   TradeItemType,
   FAKE_QUEST_CARGO,
   FAKE_QUEST_CARGO_REACTOR,
-  NO_TRADE_ITEM,
   TRADE_ITEM_COUNT,
 } from './TradeItem.types.ts';
 import { ensureBool, ensureInteger, ensureNumber, ensureType } from './ensure.ts';
@@ -44,6 +42,7 @@ import { attack, autoAttack } from './encounter/actions/attack.ts';
 import { autoFlee, flee } from './encounter/actions/flee.ts';
 import { ignore } from './encounter/actions/ignore.ts';
 import { trade } from './encounter/actions/trade.ts';
+import { surrender } from './encounter/actions/surrender.ts';
 import { captainFor } from './encounter/captains.ts';
 import {
   EncounterMode,
@@ -409,224 +408,7 @@ export class EncounterController {
     } else if (action === 'Trade') {
       if (!trade(this)) return;
     } else if (action === 'Surrender' || action === 'Yield') {
-      let surrenderAllowed: boolean;
-      let surrenderPrompt = null;
-      let surrenderBlock = null;
-
-      if (this._opponent.type === OpponentType.Mantis) {
-        if (this._game.commander.artifactOnBoard) {
-          surrenderAllowed = true;
-          surrenderPrompt =
-            'If you surrender to the aliens, they will steal the artifact. Are you sure you wish to do that?';
-          surrenderBlock = () => {
-            pLog.log(55);
-            this._game.commander.artifactOnBoard = false;
-
-            const artifactStolenString =
-              "The aliens have taken the artifact from you. Well, it's rightfully theirs, so you probably shouldn't complain. You won't receive any reward from Professor Berger, though.";
-
-            const aC = new AlertViewController(artifactStolenString);
-            aC.addAction('Dismiss', AlertActionType.Default, () => {
-              this.listener.continues(false);
-            });
-
-            this._presentAlertController(aC);
-          };
-        } else {
-          surrenderAllowed = false;
-          surrenderPrompt = 'Surrender? Ha! We want your HEAD!';
-        }
-      } else if (
-        isEncounterWith(this._type, 'Police') ||
-        this._type === EncounterType.PostMarieCelestePoliceEncounter
-      ) {
-        if (
-          this._type !== EncounterType.PostMarieCelestePoliceEncounter &&
-          this._game.commander.policeRecordScore <= PoliceRecordScore.Psycho
-        ) {
-          pLog.log(56);
-          surrenderAllowed = false;
-          surrenderPrompt = 'Surrender? Ha! We want your HEAD!';
-        } else {
-          surrenderAllowed = true;
-
-          const hasReactor =
-            this._game.reactorStatus > ReactorQuestStatus.Open &&
-            this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate;
-          const hasWild = this._game.wildStatus === WildQuestStatus.OnBoard;
-          if (
-            this._type !== EncounterType.PostMarieCelestePoliceEncounter ||
-            hasReactor ||
-            hasWild
-          ) {
-            let extraString = hasReactor
-              ? ' Additionally, the police will destroy the Ion Reactor.'
-              : '';
-            if (hasWild) {
-              extraString += ' Wild will be arrested, too.';
-            }
-
-            surrenderPrompt = `If you surrender, you will spend some time in prison and will have to pay a hefty fine.${extraString} Are you sure you want to do that?`;
-            surrenderBlock = () => {
-              pLog.log(57);
-              this._processArrest();
-            };
-          } else {
-            surrenderBlock = () => {
-              pLog.log(58);
-              const numNarcotics = this._game.commander.ship.tradeItemQuantityForType(
-                TradeItemType.Narcotics
-              );
-              const numFirearms = this._game.commander.ship.tradeItemQuantityForType(
-                TradeItemType.Firearms
-              );
-
-              let yieldAlertString =
-                'The Customs Police find nothing illegal in your cargo holds and apologize for the inconvenience.';
-
-              if (numNarcotics + numFirearms > 0) {
-                pLog.log(102);
-                this._game.commander.policeRecordScore = Math.min(
-                  this._game.commander.policeRecordScore,
-                  PoliceRecordScore.Dubious
-                );
-
-                this._game.commander.ship.soldQuantity(numNarcotics, TradeItemType.Narcotics);
-                this._game.commander.ship.soldQuantity(numFirearms, TradeItemType.Firearms);
-
-                yieldAlertString =
-                  'The Customs Police confiscated all of your illegal cargo. For being cooperative, you avoided stronger fines or penalties.';
-              }
-
-              const aC = new AlertViewController(yieldAlertString);
-
-              aC.addAction('Dismiss', AlertActionType.Default, () => {
-                this.listener.continues(false);
-              });
-
-              this._presentAlertController(aC);
-            };
-          }
-        }
-      } else {
-        surrenderAllowed = true;
-
-        surrenderBlock = () => {
-          let wildString = null;
-          if (this._game.wildStatus === WildQuestStatus.OnBoard) {
-            if (this._opponent.ship.model.mercenaryQuarters() > 0) {
-              this._game.wildStatus = WildQuestStatus.Closed;
-              this._game.commander.ship.removeCrewMemberWithName('Jonathan Wild');
-              wildString =
-                ' The pirate captain turns out to be an old associate of Jonathan Wild. He invites Wild to go to Kravat aboard the pirate ship. Wild accepts the offer and thanks you for the ride.';
-            } else {
-              wildString =
-                ' The pirate captain turns out to be an old associate of Jonathan Wild. They talk about old times, and you get the feeling that Wild would switch ships if the Pirates had any quarters available.';
-            }
-          }
-
-          let questString = '';
-          if (
-            this._game.reactorStatus > ReactorQuestStatus.Open &&
-            this._game.reactorStatus < ReactorQuestStatus.ClosedTooLate
-          ) {
-            questString =
-              " They also poke around the Ion Reactor while trying to figure out if it's valuable. They finally conclude that the reactor is worthless, not to mention dangerous, and leave it on your ship.";
-          }
-
-          this._game.commander.raided = true;
-
-          const totalCargo =
-            this._game.commander.ship.totalCargoBays() - this._game.commander.ship.freeCargoBays();
-
-          ensureInteger(totalCargo);
-
-          if (totalCargo <= 0) {
-            const blackmail = Math.min(
-              25000,
-              Math.max(500, Math.floor(this._game.commander.netWorth() / 20))
-            );
-            ensureInteger(blackmail);
-
-            let credits = this._game.commander.credits;
-            let debt = this._game.commander.debt;
-            if (credits >= blackmail) {
-              credits -= blackmail;
-            } else {
-              debt += blackmail - credits;
-              credits = 0;
-            }
-            pLog.log(59);
-            this._game.commander.setCredits(credits);
-            this._game.commander.debt = debt;
-
-            const alertString = `The pirates are upset that they found no cargo on your ship. To save yourself, you have no choice but to pay them 5% of your current net worth.${questString}${wildString || ''}`;
-
-            const aC = new AlertViewController(alertString);
-
-            aC.addAction('Dismiss', AlertActionType.Default, () => {
-              this.listener.continues(false);
-            });
-
-            this._presentAlertController(aC);
-          } else {
-            let freePirateBays = this._opponent.ship.freeCargoBays();
-            ensureInteger(freePirateBays);
-
-            while (freePirateBays > 0) {
-              const itemType = this._game.commander.ship.randomTradeableItem();
-              if (itemType === NO_TRADE_ITEM) {
-                break;
-              }
-
-              this._game.commander.ship.soldQuantity(1, itemType);
-              freePirateBays--;
-            }
-
-            pLog.log(60);
-
-            const alertString = `The pirates board your ship and transfer as much of your cargo to their own ship as their cargo bays can hold.${questString}${wildString || ''}`;
-
-            const aC = new AlertViewController(alertString);
-
-            aC.addAction('Dismiss', AlertActionType.Default, () => {
-              this.listener.continues(false);
-            });
-
-            this._presentAlertController(aC);
-          }
-        };
-      }
-
-      ensureBool(surrenderAllowed);
-
-      if (surrenderAllowed) {
-        if (surrenderPrompt) {
-          const aC = new AlertViewController(surrenderPrompt);
-
-          aC.addAction('Surrender', AlertActionType.Destructive, () => {
-            if (surrenderBlock) {
-              surrenderBlock();
-            }
-          });
-
-          aC.addAction('Cancel', AlertActionType.Cancel, null);
-
-          this._presentAlertController(aC);
-        } else if (surrenderBlock) {
-          surrenderBlock();
-        }
-      } else {
-        // The rule misreads a variable that starts as a bare null; the compiler needs the `!`.
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-        const aC = new AlertViewController(surrenderPrompt!);
-
-        aC.addAction('Dismiss', AlertActionType.Default, null);
-
-        this._presentAlertController(aC);
-
-        return;
-      }
+      if (!surrender(this)) return;
     } else if (action === 'Bribe') {
       let cantBribeAlertString = null;
       if (this._type === EncounterType.PostMarieCelestePoliceEncounter) {
