@@ -66,7 +66,7 @@ test('"For Hire" is offered only while a mercenary here is not in the crew', () 
   system.mercenary = mercenary;
   expect(session.rows()).toContain('For Hire');
 
-  game.commander.ship._crew.push(mercenary);
+  game.commander.ship.crew.push(mercenary);
   expect(session.rows()).not.toContain('For Hire');
 });
 
@@ -105,7 +105,7 @@ test('the navigation links are those of the last time the landing screen was sho
   session.start();
   expect(session.navRows.map(link => link.row)).toContain('For Hire');
 
-  game.commander.ship._crew.push(mercenary);
+  game.commander.ship.crew.push(mercenary);
   session.changed();
   expect(session.navRows.map(link => link.row)).toContain('For Hire');
 
@@ -118,11 +118,11 @@ test('firing the local mercenary puts "For Hire" back at once', () => {
   const game = session.game!;
   const mercenary = CrewMember.create('Hired Hand', 4, 4, 4, 4);
   game.commander.currentSystem.mercenary = mercenary;
-  game.commander.ship._crew.push(mercenary);
+  game.commander.ship.crew.push(mercenary);
   session.start();
   expect(session.navRows.map(link => link.row)).not.toContain('For Hire');
 
-  game.commander.ship._crew.pop();
+  game.commander.ship.crew.pop();
   session.rosterFired(mercenary);
 
   expect(session.navRows.map(link => link.row)).toContain('For Hire');

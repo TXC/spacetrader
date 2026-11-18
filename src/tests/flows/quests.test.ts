@@ -2119,8 +2119,8 @@ test('jarek', () => {
 
   replay.replayEvent('alertButton_Dismiss', 'click');
 
-  assertEqual(game.commander.ship._crew[0].name, 'Ambassador Jarek');
-  assertEqual(game.commander.ship._crew[0].forQuest, true);
+  assertEqual(game.commander.ship.crew[0].name, 'Ambassador Jarek');
+  assertEqual(game.commander.ship.crew[0].forQuest, true);
   assertEqual(game.jarekStatus, JarekQuestStatus.OnBoard);
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
 
@@ -2162,7 +2162,7 @@ test('jarek', () => {
 
   assertEqual(game.jarekStatus, JarekQuestStatus.Closed);
   assertEqual(game.commander.carriesMaxTraderBoost, true);
-  assertEqual(game.commander.ship._crew.length, 0);
+  assertEqual(game.commander.ship.crew.length, 0);
   assertEqual(
     game.commander.ship.crewTraderSkillIncludingCommander(game.commander),
     traderSkillBefore + 1
@@ -2212,8 +2212,8 @@ test('jarek_arrested', () => {
 
   replay.replayEvent('alertButton_Dismiss', 'click');
 
-  assertEqual(game.commander.ship._crew[0].name, 'Ambassador Jarek');
-  assertEqual(game.commander.ship._crew[0].forQuest, true);
+  assertEqual(game.commander.ship.crew[0].name, 'Ambassador Jarek');
+  assertEqual(game.commander.ship.crew[0].forQuest, true);
   assertEqual(game.jarekStatus, JarekQuestStatus.OnBoard);
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
 
@@ -3228,10 +3228,9 @@ test('cargoForSale', () => {
 
   replay.replayEvent('alertButton_No', 'click');
 
-  let cargoQuantity = [...game.commander.ship._cargo.values()].reduce(
-    (acc, value) => acc + value,
-    0
-  );
+  let cargoQuantity = game.commander.ship
+    .toState()
+    .cargoValues.reduce((acc, value) => acc + value, 0);
   assertEqual(cargoQuantity, 0);
 
   replay.replayEvent('Special', 'click');
@@ -3241,14 +3240,14 @@ test('cargoForSale', () => {
 
   replay.replayEvent('alertButton_Dismiss', 'click');
 
-  cargoQuantity = [...game.commander.ship._cargo.values()].reduce((acc, value) => acc + value, 0);
+  cargoQuantity = game.commander.ship.toState().cargoValues.reduce((acc, value) => acc + value, 0);
   assertEqual(cargoQuantity, 3);
   assertEqual(game.commander.ship.tradeItemQuantityForType(TradeItemType.Medicine), 3);
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
 
   const game2 = assertSurvivesSave(game);
-  cargoQuantity = [...game2.commander.ship._cargo.values()].reduce((acc, value) => acc + value, 0);
+  cargoQuantity = game2.commander.ship.toState().cargoValues.reduce((acc, value) => acc + value, 0);
   assertEqual(cargoQuantity, 3);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Medicine), 3);
 

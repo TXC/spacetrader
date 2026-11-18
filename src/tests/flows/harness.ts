@@ -321,12 +321,13 @@ function assertUniqueIds() {
 function assertSaneGame(game: Game) {
   const { commander } = game;
   const { ship } = commander;
-  const cargo = [...ship._cargo.values()].reduce((sum, quantity) => sum + quantity, 0);
+  const saved = ship.toState();
+  const cargo = saved.cargoValues.reduce((sum, quantity) => sum + quantity, 0);
   assertWholeWithin('credits', commander.credits, Number.MAX_SAFE_INTEGER);
   assertWholeWithin('debt', commander.debt, Number.MAX_SAFE_INTEGER);
   assertWholeWithin('hull', ship.hull, ship.maximumHullStrength());
   assertWholeWithin('cargo', cargo, ship.totalCargoBays());
-  assertWholeWithin('fuel', ship._fuel, ship.fuelTankCapacity());
+  assertWholeWithin('fuel', saved.fuel, ship.fuelTankCapacity());
 }
 
 // ---- checks -----------------------------------------------------------------------------
