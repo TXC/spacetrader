@@ -615,7 +615,7 @@ export class Commander extends CrewMember {
 
   wormholeTaxToWarpToSystem(destination: SolarSystem) {
     ensureType(destination, 'object');
-    return this._currentSystem.wormhole === destination ? this.ship.costOfFuel() * 25 : 0;
+    return this._currentSystem.wormhole === destination ? this.ship.model.costOfFuel * 25 : 0;
   }
 
   increaseSkillRandomly() {
