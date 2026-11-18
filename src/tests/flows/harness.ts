@@ -157,7 +157,7 @@ export function performStressTest(
   numActionsToPerform: number,
   avoidGalacticChart?: boolean,
   prioritizeBlastOff?: boolean
-) {
+): string {
   // Use a deterministic random number generator that is not the one used by the game (so I can take a log that hit an issue and replay it in index.html)
   const testRand = new GameRand(randSeed);
 
@@ -285,6 +285,22 @@ export function performStressTest(
   } finally {
     window.removeEventListener('error', keepError);
   }
+  return fingerprint(replay.session.game);
+}
+
+// A short hash of everything a walk leaves behind: the whole game, where the game's
+// random numbers stand, and every step taken. One random number drawn in another place
+// changes it. A walk can end with no game, when the commander died and no new game was
+// started; then the game's part is just null.
+function fingerprint(game: Game | null): string {
+  // Left out: lastSave is the time of day, and uniqueID is random without a seed.
+  const state = game && { ...game.serializedState(), lastSave: undefined, uniqueID: undefined };
+  const { randHigh, randLow, _numInvocations } = runtime.gameRand;
+  const steps = runtime.actionLog.serializedString();
+  const text = JSON.stringify([state, randHigh, randLow, _numInvocations, steps]);
+  let hash = 0x811c9dc5; // FNV-1a
+  for (let i = 0; i < text.length; i++) hash = Math.imul(hash ^ text.charCodeAt(i), 0x01000193);
+  return `${game ? '' : 'no game:'}${(hash >>> 0).toString(16).padStart(8, '0')}`;
 }
 
 function assertWholeWithin(name: string, value: number, max: number) {
