@@ -44,6 +44,7 @@ import { submit } from './encounter/actions/submit.ts';
 import { plunder } from './encounter/actions/plunder.ts';
 import { meet } from './encounter/actions/meet.ts';
 import { drink } from './encounter/actions/drink.ts';
+import { interrupt } from './encounter/actions/interrupt.ts';
 import { captainFor } from './encounter/captains.ts';
 import {
   EncounterMode,
@@ -357,9 +358,7 @@ export class EncounterController {
     } else if (action === 'Drink') {
       if (!drink(this)) return;
     } else if (action === 'Interrupt') {
-      pLog.log(52);
-      this._endAutoEncounters();
-      this.listener.continues(true);
+      if (!interrupt(this)) return;
     }
 
     if (isAutoMode(this._encounterMode)) {
