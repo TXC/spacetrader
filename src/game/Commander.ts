@@ -13,6 +13,8 @@ import { runtime } from './runtime.ts';
 
 export const MAX_SAFE_PILOT_INSURANCE_DISCOUNT = 90;
 export const MAX_SKILL_LEVEL = 10;
+// In the original's order, which its random draws follow.
+const SKILLS = ['pilot', 'fighter', 'trader', 'engineer'] as const;
 
 export const CAUGHT_WITH_WILD_SCORE = -4;
 export const PLUNDER_PIRATE_SCORE = -1;
@@ -487,25 +489,62 @@ export class Commander extends CrewMember {
     return this._currentSystem.wormhole === destination ? this.ship.model.costOfFuel * 25 : 0;
   }
 
-  increaseSkillRandomly() {
-    return this._tweakSkillRandomly(true);
-  }
-
-  decreaseSkillRandomly() {
-    this._tweakSkillRandomly(false);
-  }
-
   // The name of the skill that changed, or null when none of them could.
-  _tweakSkillRandomly(increase: boolean) {
-    const canChange = (x: number) => (increase ? x < MAX_SKILL_LEVEL : x > 0);
-    const skills = (['pilot', 'fighter', 'trader', 'engineer'] as const).filter(skill =>
-      canChange(this[skill])
-    );
+  increaseSkillRandomly() {
+    const skills = SKILLS.filter(skill => this[skill] < MAX_SKILL_LEVEL);
     if (skills.length === 0) return null;
 
     const skill = skills[runtime.gameRand.randomIntBelow(skills.length)];
-    this[skill] += increase ? 1 : -1;
+    this[skill] += 1;
     return skill;
+  }
+
+  // The out-of-date skill tonic (TonicTweakRandomSkill, Skill.c:246-275).
+  drinkOldTonic(difficulty: Difficulty) {
+    if (difficulty >= Difficulty.Hard) {
+      this._raiseDrawnSkill();
+      this._raiseDrawnSkill();
+      this._lowerDrawnSkill(3);
+      return;
+    }
+    // The original never stops here.
+    if (this._allSkillsAtTop()) return;
+    const before = this._skillLevels();
+    while (this._skillLevels() === before) {
+      this._raiseDrawnSkill();
+      this._lowerDrawnSkill(1);
+    }
+  }
+
+  _skillLevels() {
+    return SKILLS.map(skill => this[skill]).join();
+  }
+
+  _allSkillsAtTop() {
+    return SKILLS.every(skill => this[skill] >= MAX_SKILL_LEVEL);
+  }
+
+  // IncreaseRandomSkill (Skill.c:170-202).
+  _raiseDrawnSkill() {
+    const skill = this._drawSkill(level => level < MAX_SKILL_LEVEL);
+    if (skill) this[skill] += 1;
+  }
+
+  // DecreaseRandomSkill (Skill.c:207-238), which also gives up when every skill is at its top.
+  _lowerDrawnSkill(amount: number) {
+    if (this._allSkillsAtTop()) return;
+    const skill = this._drawSkill(level => level > amount);
+    if (skill) this[skill] -= amount;
+  }
+
+  // Draws one of the four skills until it is one that may change, as the original does.
+  // None when no skill may: there the original would draw for ever.
+  _drawSkill(mayChange: (level: number) => boolean) {
+    if (!SKILLS.some(skill => mayChange(this[skill]))) return null;
+    for (;;) {
+      const skill = SKILLS[runtime.gameRand.randomIntBelow(SKILLS.length)];
+      if (mayChange(this[skill])) return skill;
+    }
   }
 
   payInterest() {
