@@ -150,3 +150,50 @@ test.for(['map', 'strip'] as const)('the %s does not measure the page to draw a 
   expect(measure).not.toHaveBeenCalled();
   view.dispose();
 });
+
+test('the strip asks for frames only while the ship is moving', () => {
+  const view = strip();
+  view.setProgress(0.5);
+  frame(1000);
+  frame(1100);
+  expect(frames).toHaveLength(1);
+  frame(1300);
+  expect(frames).toHaveLength(0);
+
+  view.setProgress(0.8);
+  expect(frames).toHaveLength(1);
+  view.dispose();
+});
+
+test('a target given to a resting strip starts the slide at the next frame', () => {
+  const view = strip();
+  view.setProgress(0.5);
+  [1000, 1300, 1316].forEach(frame);
+  view.setProgress(0.8);
+  frame(9000);
+  expect(view.progressAnimationStartTime).toBe(9000);
+  view.dispose();
+});
+
+test('the strip reads no styles to draw a frame', () => {
+  const view = strip();
+  view.setProgress(0.5);
+  frame(1000);
+  const styles = vi.spyOn(window, 'getComputedStyle');
+  [1016, 1032, 1048].forEach(frame);
+  expect(styles).not.toHaveBeenCalled();
+  view.dispose();
+});
+
+test('the strip draws its ship as one picture, not pixel by pixel', () => {
+  const view = strip();
+  view.setProgress(0.5);
+  frame(1000);
+  const rectangles = vi.spyOn(CanvasRenderingContext2D.prototype, 'fillRect');
+  const pictures = vi.spyOn(CanvasRenderingContext2D.prototype, 'drawImage');
+  frame(1016);
+  // The one rectangle is the background.
+  expect(rectangles).toHaveBeenCalledTimes(1);
+  expect(pictures).toHaveBeenCalledTimes(1);
+  view.dispose();
+});

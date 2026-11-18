@@ -180,9 +180,11 @@ test('the travel strip, with a new target after the ship has stopped', async () 
   view.setProgress(0.25);
   [1000, 1016, 1300, 1316].forEach(frame);
   view.setProgress(0.75);
+  // The slide starts with the first frame after the rest, at 1332; this is its half-way
+  // point. (When the strip drew all the time it counted from the frame before, 1316.)
   [1332, 1348].forEach(frame);
   labels = [];
-  frame(1416);
+  frame(1432);
   expect(await picture()).toEqual({
     size: '720x100',
     pixels: '61b98b5f39c5cd75',
