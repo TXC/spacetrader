@@ -20,6 +20,7 @@ import {
   runReplayLog,
   serializeAndDeserialize,
   show,
+  unmountAll,
 } from './harness.ts';
 import { button } from '../support/page.ts';
 
@@ -55,7 +56,7 @@ test('saveLoad', () => {
   assertEqual(sg.endStatus, GameEndStatus.None);
 
   // Clear out the old instance
-  document.getElementById('game')!.innerHTML = '';
+  unmountAll();
 
   // Create a new VC and see that it loads the game
   vc = new Session();
