@@ -346,8 +346,6 @@ function opponentReconsiders(
       pirateReconsiders(encounter, opponentHull, commanderHull);
     } else if (isEncounterWith(encounter._type, 'Trader')) {
       traderReconsiders(encounter, opponentHull, commanderHull);
-    } else if (encounter._type === EncounterType.PostMarieCelestePoliceEncounter) {
-      encounter._type = EncounterType.PoliceAttack;
     }
   }
 }
