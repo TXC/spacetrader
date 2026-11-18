@@ -134,19 +134,19 @@ export class Commander extends CrewMember {
   declare _debt: number;
   declare _reputationScore: number;
   declare _travelClicksRemaining: number;
-  declare _arrivedViaWormhole: boolean;
+  declare arrivedViaWormhole: boolean;
   declare artifactOnBoard: boolean;
-  declare _litterWarning: boolean;
-  declare _inspected: boolean;
-  declare _raided: boolean;
-  declare _boughtMoon: boolean;
-  declare _hasEscapePod: boolean;
-  declare _hasInsurance: boolean;
+  declare litterWarning: boolean;
+  declare inspected: boolean;
+  declare raided: boolean;
+  declare boughtMoon: boolean;
+  declare hasEscapePod: boolean;
+  declare hasInsurance: boolean;
   // The next five are not set by the constructor. They are unset until Game sets the
   // commander up or a saved game is loaded; the types say 'always set' to match how the rules use them.
   declare _credits: number;
   declare _difficulty: number;
-  declare _reserveMoney: boolean;
+  declare reserveMoney: boolean;
   declare _currentSystem: SolarSystem;
   declare ship: Ship;
 
@@ -163,14 +163,14 @@ export class Commander extends CrewMember {
     this._debt = 0;
     this._reputationScore = DEFAULT_REPUTATION_SCORE;
     this._travelClicksRemaining = 0;
-    this._arrivedViaWormhole = false;
+    this.arrivedViaWormhole = false;
     this.artifactOnBoard = false;
-    this._litterWarning = false;
-    this._inspected = false;
-    this._raided = false;
-    this._boughtMoon = false;
-    this._hasEscapePod = false;
-    this._hasInsurance = false;
+    this.litterWarning = false;
+    this.inspected = false;
+    this.raided = false;
+    this.boughtMoon = false;
+    this.hasEscapePod = false;
+    this.hasInsurance = false;
   }
 
   // A new commander, arriving at their first system, whose prices are drawn. Not called
@@ -220,15 +220,15 @@ export class Commander extends CrewMember {
     this._difficulty = serializedState.difficulty;
 
     // Boolean properties
-    this._boughtMoon = Boolean(serializedState.boughtMoon);
-    this._hasEscapePod = Boolean(serializedState.hasEscapePod);
-    this._hasInsurance = Boolean(serializedState.hasInsurance);
-    this._raided = Boolean(serializedState.raided);
-    this._inspected = Boolean(serializedState.inspected);
-    this._litterWarning = Boolean(serializedState.litterWarning);
+    this.boughtMoon = Boolean(serializedState.boughtMoon);
+    this.hasEscapePod = Boolean(serializedState.hasEscapePod);
+    this.hasInsurance = Boolean(serializedState.hasInsurance);
+    this.raided = Boolean(serializedState.raided);
+    this.inspected = Boolean(serializedState.inspected);
+    this.litterWarning = Boolean(serializedState.litterWarning);
     this.artifactOnBoard = Boolean(serializedState.artifactOnBoard);
-    this._arrivedViaWormhole = Boolean(serializedState.arrivedViaWormhole);
-    this._reserveMoney = Boolean(serializedState.reserveMoney);
+    this.arrivedViaWormhole = Boolean(serializedState.arrivedViaWormhole);
+    this.reserveMoney = Boolean(serializedState.reserveMoney);
 
     // Set current system and ship
     this._currentSystem = SolarSystem.solarSystemForName(
@@ -252,24 +252,14 @@ export class Commander extends CrewMember {
     return this.policeRecordScore <= PoliceRecordScore.Dubious;
   }
 
-  get boughtMoon() {
-    return this._boughtMoon;
-  }
-
-  set boughtMoon(b) {
-    if (ensureBool(b)) {
-      this._boughtMoon = b;
-    }
-  }
-
   setReserveMoney(rM: boolean) {
     if (ensureBool(rM)) {
-      this._reserveMoney = rM;
+      this.reserveMoney = rM;
     }
   }
 
   getReserveMoney() {
-    return this._reserveMoney;
+    return this.reserveMoney;
   }
 
   _checkCreditsAmount(c: number) {
@@ -294,26 +284,6 @@ export class Commander extends CrewMember {
     this.setCredits(c);
   }
 
-  get hasEscapePod() {
-    return this._hasEscapePod;
-  }
-
-  set hasEscapePod(h) {
-    if (ensureBool(h)) {
-      this._hasEscapePod = h;
-    }
-  }
-
-  get hasInsurance() {
-    return this._hasInsurance;
-  }
-
-  set hasInsurance(h) {
-    if (ensureBool(h)) {
-      this._hasInsurance = h;
-    }
-  }
-
   get noClaim() {
     return this._noClaim;
   }
@@ -334,36 +304,6 @@ export class Commander extends CrewMember {
     }
   }
 
-  get raided() {
-    return this._raided;
-  }
-
-  set raided(r) {
-    if (ensureBool(r)) {
-      this._raided = r;
-    }
-  }
-
-  get inspected() {
-    return this._inspected;
-  }
-
-  set inspected(i) {
-    if (ensureBool(i)) {
-      this._inspected = i;
-    }
-  }
-
-  get litterWarning() {
-    return this._litterWarning;
-  }
-
-  set litterWarning(l) {
-    if (ensureBool(l)) {
-      this._litterWarning = l;
-    }
-  }
-
   getDebt() {
     return this._debt;
   }
@@ -375,16 +315,6 @@ export class Commander extends CrewMember {
   set debt(d: number) {
     if (this._checkCreditsAmount(d)) {
       this._debt = d;
-    }
-  }
-
-  get arrivedViaWormhole() {
-    return this._arrivedViaWormhole;
-  }
-
-  set arrivedViaWormhole(v) {
-    if (ensureBool(v)) {
-      this._arrivedViaWormhole = v;
     }
   }
 
@@ -520,7 +450,7 @@ export class Commander extends CrewMember {
   }
 
   spendingMoney() {
-    const result = this._reserveMoney
+    const result = this.reserveMoney
       ? Math.max(0, this._credits - this.ship.mercenaryPricePerDay() - this.currentInsuranceCost())
       : this._credits;
     ensureInteger(result);
@@ -528,7 +458,7 @@ export class Commander extends CrewMember {
   }
 
   currentInsuranceCost() {
-    return this._hasInsurance ? this.insurancePrice() : 0;
+    return this.hasInsurance ? this.insurancePrice() : 0;
   }
 
   insurancePrice() {
@@ -549,7 +479,7 @@ export class Commander extends CrewMember {
       this.cargoAndShipValuationForInsurance(false) +
       this._credits -
       this.debt +
-      (this._boughtMoon ? MOON_PRICE : 0);
+      (this.boughtMoon ? MOON_PRICE : 0);
     ensureInteger(result);
     return result;
   }
@@ -689,7 +619,7 @@ export class Commander extends CrewMember {
     }
 
     this.days += days;
-    if (this._hasInsurance) {
+    if (this.hasInsurance) {
       this._noClaim += days;
     }
 
@@ -743,32 +673,32 @@ export class Commander extends CrewMember {
     state.difficulty = this._difficulty;
 
     // Boolean properties
-    ensureBool(this._boughtMoon);
-    state.boughtMoon = this._boughtMoon;
+    ensureBool(this.boughtMoon);
+    state.boughtMoon = this.boughtMoon;
 
-    ensureBool(this._hasEscapePod);
-    state.hasEscapePod = this._hasEscapePod;
+    ensureBool(this.hasEscapePod);
+    state.hasEscapePod = this.hasEscapePod;
 
-    ensureBool(this._hasInsurance);
-    state.hasInsurance = this._hasInsurance;
+    ensureBool(this.hasInsurance);
+    state.hasInsurance = this.hasInsurance;
 
-    ensureBool(this._raided);
-    state.raided = this._raided;
+    ensureBool(this.raided);
+    state.raided = this.raided;
 
-    ensureBool(this._inspected);
-    state.inspected = this._inspected;
+    ensureBool(this.inspected);
+    state.inspected = this.inspected;
 
-    ensureBool(this._litterWarning);
-    state.litterWarning = this._litterWarning;
+    ensureBool(this.litterWarning);
+    state.litterWarning = this.litterWarning;
 
     ensureBool(this.artifactOnBoard);
     state.artifactOnBoard = this.artifactOnBoard;
 
-    ensureBool(this._arrivedViaWormhole);
-    state.arrivedViaWormhole = this._arrivedViaWormhole;
+    ensureBool(this.arrivedViaWormhole);
+    state.arrivedViaWormhole = this.arrivedViaWormhole;
 
-    ensureBool(this._reserveMoney);
-    state.reserveMoney = this._reserveMoney;
+    ensureBool(this.reserveMoney);
+    state.reserveMoney = this.reserveMoney;
 
     // Current system and ship
     ensureType(this._currentSystem.name, 'string');
