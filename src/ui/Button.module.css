@@ -1,5 +1,5 @@
 /* The one look every button and button-like link shares. Its colours, corners and shadow
-   come from the --button-* variables in style.css, so a theme only has to change those. */
+   come from the --button-* variables in styles/tokens.css, so a theme only has to change those. */
 .button {
   box-sizing: border-box;
   display: inline-flex;

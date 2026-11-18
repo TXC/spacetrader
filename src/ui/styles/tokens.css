@@ -1,0 +1,66 @@
+/* Every colour, corner and common spacing, named once. Dark mode is this file's business
+   alone: the modules only use the names. */
+:root {
+  /* The browser's own controls and scroll bars follow light and dark too. */
+  color-scheme: light dark;
+
+  --page: white;
+  --text: black;
+  --cell: #f9f9f9;
+  --frame: black;
+  --frame-shadow: rgba(0, 0, 0, 0.3);
+  --alert-shadow: rgba(0, 0, 0, 0.2);
+  --dim: rgba(0, 0, 0, 0.5);
+  --bar-track: #ccc;
+  --hull: green;
+  --shield: #ffd829;
+  --map-text: #d8f0ff;
+  --map-text-edge: black;
+
+  /* What a button looks like. Button.module.css draws every button from these, so a theme
+     is a block that gives them other values. */
+  --button-fill: transparent;
+  --button-text: #1b2330;
+  --button-line: #b9c1cd;
+  --button-border-width: 1.5px;
+  --button-radius: 0.5rem;
+  --button-shadow: none;
+  --button-accent: #1f6feb;
+  --button-accent-text: #ffffff;
+  --button-accent-soft: #dce9ff;
+  --button-accent-soft-text: #0f3f8f;
+  --button-danger: #b3261e;
+
+  --radius-small: 3px;
+  --radius-large: 10px;
+
+  --space-1: 0.067rem;
+  --space-2: 0.133rem;
+  --space-3: 0.2rem;
+  --space-5: 0.333rem;
+  --space-10: 0.667rem;
+  --space-20: 1.333rem;
+  /* As tall as one line of the text around it: the room an empty line takes. */
+  --space-line: 1lh;
+  --table-gap: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #1c1c1c;
+    --text: #f0f0f0;
+    --cell: #2e2e2e;
+    --frame: white;
+    --frame-shadow: rgba(255, 255, 255, 0.4);
+
+    /* Filled, not outlined: the icons are drawn for a light background. */
+    --button-fill: #8492a6;
+    --button-text: #0b1220;
+    --button-line: #475569;
+    --button-accent: #5b9dff;
+    --button-accent-text: #06142b;
+    --button-accent-soft: #c3d2e8;
+    --button-accent-soft-text: #0b1220;
+    --button-danger: #4a0906;
+  }
+}
