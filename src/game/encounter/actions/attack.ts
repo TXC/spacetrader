@@ -8,6 +8,7 @@ import {
 import { ensureBool, ensureInteger } from '../../ensure.ts';
 import { pLog } from '../../probes.ts';
 import { runtime } from '../../runtime.ts';
+import { fightRound } from '../fight.ts';
 import { captainFor } from '../captains.ts';
 import {
   EncounterMode,
@@ -201,7 +202,7 @@ function fightCaptain(encounter: EncounterController): void {
 function fight(encounter: EncounterController): void {
   ensureInteger(encounter._type);
 
-  encounter._executeAction(false, fightContinues => {
+  fightRound(encounter, false, fightContinues => {
     ensureBool(fightContinues);
     fightContinues = fightContinues && encounter._game.commander.ship.hull > 0;
     encounter.listener.continues(fightContinues);
