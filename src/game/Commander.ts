@@ -154,14 +154,14 @@ type CommanderFields = CrewMemberFields & {
 export class Commander extends CrewMember {
   private _basePrices: number[] | null;
   days: number;
-  private _noClaim: number;
+  noClaim: number;
   policeKills: number;
   traderKills: number;
   pirateKills: number;
   policeRecordScore: number;
-  private _debt: number;
-  private _reputationScore: number;
-  private _travelClicksRemaining: number;
+  debt: number;
+  reputationScore: number;
+  travelClicksRemaining: number;
   arrivedViaWormhole: boolean;
   artifactOnBoard: boolean;
   litterWarning: boolean;
@@ -170,7 +170,7 @@ export class Commander extends CrewMember {
   boughtMoon: boolean;
   hasEscapePod: boolean;
   hasInsurance: boolean;
-  private _credits: number;
+  credits: number;
   reserveMoney: boolean;
   private _currentSystem: SolarSystem;
   ship: Ship;
@@ -179,14 +179,14 @@ export class Commander extends CrewMember {
     super(fields);
     this._basePrices = fields.basePrices;
     this.days = fields.days;
-    this._noClaim = fields.noClaim;
+    this.noClaim = fields.noClaim;
     this.policeKills = fields.policeKills;
     this.traderKills = fields.traderKills;
     this.pirateKills = fields.pirateKills;
     this.policeRecordScore = fields.policeRecordScore;
-    this._debt = fields.debt;
-    this._reputationScore = fields.reputationScore;
-    this._travelClicksRemaining = fields.travelClicksRemaining;
+    this.debt = fields.debt;
+    this.reputationScore = fields.reputationScore;
+    this.travelClicksRemaining = fields.travelClicksRemaining;
     this.arrivedViaWormhole = fields.arrivedViaWormhole;
     this.artifactOnBoard = fields.artifactOnBoard;
     this.litterWarning = fields.litterWarning;
@@ -195,7 +195,7 @@ export class Commander extends CrewMember {
     this.boughtMoon = fields.boughtMoon;
     this.hasEscapePod = fields.hasEscapePod;
     this.hasInsurance = fields.hasInsurance;
-    this._credits = fields.credits;
+    this.credits = fields.credits;
     this.reserveMoney = fields.reserveMoney;
     this._currentSystem = fields.currentSystem;
     this.ship = fields.ship;
@@ -267,46 +267,6 @@ export class Commander extends CrewMember {
 
   _hasDubiousPoliceRecord() {
     return this.policeRecordScore <= PoliceRecordScore.Dubious;
-  }
-
-  get credits() {
-    return this._credits;
-  }
-
-  set credits(c: number) {
-    this._credits = c;
-  }
-
-  get noClaim() {
-    return this._noClaim;
-  }
-
-  set noClaim(n: number) {
-    this._noClaim = n;
-  }
-
-  get reputationScore() {
-    return this._reputationScore;
-  }
-
-  set reputationScore(r: number) {
-    this._reputationScore = r;
-  }
-
-  get debt() {
-    return this._debt;
-  }
-
-  set debt(d: number) {
-    this._debt = d;
-  }
-
-  get travelClicksRemaining() {
-    return this._travelClicksRemaining;
-  }
-
-  set travelClicksRemaining(t: number) {
-    this._travelClicksRemaining = t;
   }
 
   moveTo(currentSystem: SolarSystem) {
@@ -415,8 +375,8 @@ export class Commander extends CrewMember {
 
   spendingMoney() {
     const result = this.reserveMoney
-      ? Math.max(0, this._credits - this.ship.mercenaryPricePerDay() - this.currentInsuranceCost())
-      : this._credits;
+      ? Math.max(0, this.credits - this.ship.mercenaryPricePerDay() - this.currentInsuranceCost())
+      : this.credits;
     return result;
   }
 
@@ -429,7 +389,7 @@ export class Commander extends CrewMember {
       1,
       Math.floor(
         (Math.floor((this.ship.shipValuationForInsurance(true) * 5) / 2000) *
-          (100 - Math.min(this._noClaim, MAX_SAFE_PILOT_INSURANCE_DISCOUNT))) /
+          (100 - Math.min(this.noClaim, MAX_SAFE_PILOT_INSURANCE_DISCOUNT))) /
           100
       )
     );
@@ -439,7 +399,7 @@ export class Commander extends CrewMember {
   netWorth() {
     const result =
       this.cargoAndShipValuationForInsurance(false) +
-      this._credits -
+      this.credits -
       this.debt +
       (this.boughtMoon ? MOON_PRICE : 0);
     return result;
@@ -470,14 +430,14 @@ export class Commander extends CrewMember {
 
   attemptPurchaseOfFuel(amount: number) {
     let realAmount = Math.min(this.ship.fuelTankCapacity() - this.ship.fuel, amount);
-    realAmount = Math.min(realAmount, Math.floor(this._credits / this.ship.model.costOfFuel));
+    realAmount = Math.min(realAmount, Math.floor(this.credits / this.ship.model.costOfFuel));
     this.ship.fillFuelByAmount(realAmount);
     this.credits -= realAmount * this.ship.model.costOfFuel;
   }
 
   attemptPurchaseOfRepairs(amount: number) {
     let realAmount = Math.min(this.ship.maximumHullStrength() - this.ship.hull, amount);
-    realAmount = Math.floor(Math.min(realAmount, this._credits / this.ship.model.repairCosts));
+    realAmount = Math.floor(Math.min(realAmount, this.credits / this.ship.model.repairCosts));
     this.ship.repairHullByAmount(realAmount);
     this.credits -= realAmount * this.ship.model.repairCosts;
   }
@@ -563,7 +523,7 @@ export class Commander extends CrewMember {
   timePassed(days: number, difficulty: Difficulty) {
     this.days += days;
     if (this.hasInsurance) {
-      this._noClaim += days;
+      this.noClaim += days;
     }
 
     if (this.policeRecordScore > PoliceRecordScore.Clean) {
@@ -582,16 +542,16 @@ export class Commander extends CrewMember {
     const state = super.toState() as CommanderState;
 
     // Integer properties
-    state.credits = this._credits;
-    state.debt = this._debt;
+    state.credits = this.credits;
+    state.debt = this.debt;
     state.days = this.days;
     state.policeKills = this.policeKills;
     state.traderKills = this.traderKills;
     state.pirateKills = this.pirateKills;
     state.policeRecordScore = this.policeRecordScore;
-    state.reputationScore = this._reputationScore;
-    state.noClaim = this._noClaim;
-    state.travelClicksRemaining = this._travelClicksRemaining;
+    state.reputationScore = this.reputationScore;
+    state.noClaim = this.noClaim;
+    state.travelClicksRemaining = this.travelClicksRemaining;
 
     // Boolean properties
     state.boughtMoon = this.boughtMoon;
