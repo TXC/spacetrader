@@ -13,11 +13,11 @@ import {
   assertEqual,
   assertSurvivesSave,
   assertTrue,
-  mapOf,
   recording,
   replaySkipEncounters,
   runReplayLog,
 } from './harness.ts';
+import { landingMap } from '../support/landingMap.ts';
 import {
   alertBox,
   alertTitle,
@@ -1257,7 +1257,7 @@ test('galaxyView_systemLanding_selectWarpTarget', () => {
 
   const session = replay.session;
   assertEqual(session.selection.system!.name, 'Acamar');
-  assertEqual(mapOf(session).selectedSystem!.name, 'Acamar');
+  assertEqual(landingMap().selectedSystem!.name, 'Acamar');
   assertTrue(isCurrent(button('Warp')));
 });
 
@@ -1372,7 +1372,6 @@ test('galaxyView_systemLanding_showsSystemInfo_warpTab_lowFuel_buyFromShipYard',
   const replayLog = recording('galaxyView_systemLanding_lowFuel');
 
   const replay = runReplayLog(replayLog);
-  const session = replay.session;
 
   replay.replayEvent('Warp', 'click');
 
@@ -1382,7 +1381,7 @@ test('galaxyView_systemLanding_showsSystemInfo_warpTab_lowFuel_buyFromShipYard',
   const systemInfoEl = systemInfo();
   assertTrue(!systemInfoEl, 'system info el disappeared');
 
-  assertEqual(mapOf(session).selectedSystem!.name, 'Castor');
+  assertEqual(landingMap().selectedSystem!.name, 'Castor');
 
   replay.replayEvent('Ship Yard', 'click');
 
@@ -1390,7 +1389,7 @@ test('galaxyView_systemLanding_showsSystemInfo_warpTab_lowFuel_buyFromShipYard',
 
   replay.replayEvent('Warp', 'click');
 
-  assertEqual(mapOf(session).selectedSystem!.name, 'Cestus');
+  assertEqual(landingMap().selectedSystem!.name, 'Cestus');
 });
 
 test('galaxyView_systemLanding_selectSecondWarpTarget', () => {
@@ -1403,7 +1402,7 @@ test('galaxyView_systemLanding_selectSecondWarpTarget', () => {
 
   const session = replay.session;
   assertEqual(session.selection.system!.name, 'Acamar');
-  assertEqual(mapOf(session).selectedSystem!.name, 'Acamar');
+  assertEqual(landingMap().selectedSystem!.name, 'Acamar');
   assertTrue(isCurrent(button('Warp')));
 });
 
@@ -1420,12 +1419,12 @@ test('galaxyView_systemLanding_cycleAllWarpSystems_includingWormhole_next', () =
   assertEqual(textOf(warpButton), 'Blast Off to Mordan');
   assertEqual(session.selection.system!.name, 'Styris');
   assertEqual(session.selection.wormhole, true);
-  assertEqual(mapOf(session).selectedSystem!.name, 'Styris');
-  assertEqual(mapOf(session).selectedWormhole, true);
+  assertEqual(landingMap().selectedSystem!.name, 'Styris');
+  assertEqual(landingMap().selectedWormhole, true);
   // Force initialization of all the planets
-  mapOf(session).drawGalaxy(0);
-  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, 'Mordan');
-  assertEqual(mapOf(session).selectedPlanet!.isWormhole, true);
+  landingMap().drawGalaxy(0);
+  assertEqual(landingMap().selectedPlanet!.solarSystem.name, 'Mordan');
+  assertEqual(landingMap().selectedPlanet!.isWormhole, true);
 
   replay.replayEvent('warpNext', 'click');
 
@@ -1433,12 +1432,12 @@ test('galaxyView_systemLanding_cycleAllWarpSystems_includingWormhole_next', () =
   assertEqual(textOf(warpButton), 'Blast Off to Campor');
   assertEqual(session.selection.system!.name, 'Campor');
   assertEqual(session.selection.wormhole, false);
-  assertEqual(mapOf(session).selectedSystem!.name, 'Campor');
-  assertEqual(mapOf(session).selectedWormhole, false);
+  assertEqual(landingMap().selectedSystem!.name, 'Campor');
+  assertEqual(landingMap().selectedWormhole, false);
   // Force initialization of all the planets
-  mapOf(session).drawGalaxy(0);
-  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, 'Campor');
-  assertEqual(mapOf(session).selectedPlanet!.isWormhole, false);
+  landingMap().drawGalaxy(0);
+  assertEqual(landingMap().selectedPlanet!.solarSystem.name, 'Campor');
+  assertEqual(landingMap().selectedPlanet!.isWormhole, false);
 
   replay.replayEvent('warpNext', 'click');
 
@@ -1446,12 +1445,12 @@ test('galaxyView_systemLanding_cycleAllWarpSystems_includingWormhole_next', () =
   assertEqual(textOf(warpButton), 'Blast Off to Hulst');
   assertEqual(session.selection.system!.name, 'Hulst');
   assertEqual(session.selection.wormhole, false);
-  assertEqual(mapOf(session).selectedSystem!.name, 'Hulst');
-  assertEqual(mapOf(session).selectedWormhole, false);
+  assertEqual(landingMap().selectedSystem!.name, 'Hulst');
+  assertEqual(landingMap().selectedWormhole, false);
   // Force initialization of all the planets
-  mapOf(session).drawGalaxy(0);
-  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, 'Hulst');
-  assertEqual(mapOf(session).selectedPlanet!.isWormhole, false);
+  landingMap().drawGalaxy(0);
+  assertEqual(landingMap().selectedPlanet!.solarSystem.name, 'Hulst');
+  assertEqual(landingMap().selectedPlanet!.isWormhole, false);
 
   replay.replayEvent('warpNext', 'click');
 
@@ -1459,12 +1458,12 @@ test('galaxyView_systemLanding_cycleAllWarpSystems_includingWormhole_next', () =
   assertEqual(textOf(warpButton), 'Blast Off to Melina');
   assertEqual(session.selection.system!.name, 'Melina');
   assertEqual(session.selection.wormhole, false);
-  assertEqual(mapOf(session).selectedSystem!.name, 'Melina');
-  assertEqual(mapOf(session).selectedWormhole, false);
+  assertEqual(landingMap().selectedSystem!.name, 'Melina');
+  assertEqual(landingMap().selectedWormhole, false);
   // Force initialization of all the planets
-  mapOf(session).drawGalaxy(0);
-  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, 'Melina');
-  assertEqual(mapOf(session).selectedPlanet!.isWormhole, false);
+  landingMap().drawGalaxy(0);
+  assertEqual(landingMap().selectedPlanet!.solarSystem.name, 'Melina');
+  assertEqual(landingMap().selectedPlanet!.isWormhole, false);
 
   replay.replayEvent('warpNext', 'click');
 
@@ -1472,12 +1471,12 @@ test('galaxyView_systemLanding_cycleAllWarpSystems_includingWormhole_next', () =
   assertEqual(textOf(warpButton), 'Blast Off to Rhymus');
   assertEqual(session.selection.system!.name, 'Rhymus');
   assertEqual(session.selection.wormhole, false);
-  assertEqual(mapOf(session).selectedSystem!.name, 'Rhymus');
-  assertEqual(mapOf(session).selectedWormhole, false);
+  assertEqual(landingMap().selectedSystem!.name, 'Rhymus');
+  assertEqual(landingMap().selectedWormhole, false);
   // Force initialization of all the planets
-  mapOf(session).drawGalaxy(0);
-  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, 'Rhymus');
-  assertEqual(mapOf(session).selectedPlanet!.isWormhole, false);
+  landingMap().drawGalaxy(0);
+  assertEqual(landingMap().selectedPlanet!.solarSystem.name, 'Rhymus');
+  assertEqual(landingMap().selectedPlanet!.isWormhole, false);
 
   replay.replayEvent('warpNext', 'click');
 
@@ -1485,12 +1484,12 @@ test('galaxyView_systemLanding_cycleAllWarpSystems_includingWormhole_next', () =
   assertEqual(textOf(warpButton), 'Blast Off to Sigma');
   assertEqual(session.selection.system!.name, 'Sigma');
   assertEqual(session.selection.wormhole, false);
-  assertEqual(mapOf(session).selectedSystem!.name, 'Sigma');
-  assertEqual(mapOf(session).selectedWormhole, false);
+  assertEqual(landingMap().selectedSystem!.name, 'Sigma');
+  assertEqual(landingMap().selectedWormhole, false);
   // Force initialization of all the planets
-  mapOf(session).drawGalaxy(0);
-  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, 'Sigma');
-  assertEqual(mapOf(session).selectedPlanet!.isWormhole, false);
+  landingMap().drawGalaxy(0);
+  assertEqual(landingMap().selectedPlanet!.solarSystem.name, 'Sigma');
+  assertEqual(landingMap().selectedPlanet!.isWormhole, false);
 
   replay.replayEvent('warpNext', 'click');
 
@@ -1498,12 +1497,12 @@ test('galaxyView_systemLanding_cycleAllWarpSystems_includingWormhole_next', () =
   assertEqual(textOf(warpButton), 'Blast Off to Thera');
   assertEqual(session.selection.system!.name, 'Thera');
   assertEqual(session.selection.wormhole, false);
-  assertEqual(mapOf(session).selectedSystem!.name, 'Thera');
-  assertEqual(mapOf(session).selectedWormhole, false);
+  assertEqual(landingMap().selectedSystem!.name, 'Thera');
+  assertEqual(landingMap().selectedWormhole, false);
   // Force initialization of all the planets
-  mapOf(session).drawGalaxy(0);
-  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, 'Thera');
-  assertEqual(mapOf(session).selectedPlanet!.isWormhole, false);
+  landingMap().drawGalaxy(0);
+  assertEqual(landingMap().selectedPlanet!.solarSystem.name, 'Thera');
+  assertEqual(landingMap().selectedPlanet!.isWormhole, false);
 
   replay.replayEvent('warpNext', 'click');
 
@@ -1511,12 +1510,12 @@ test('galaxyView_systemLanding_cycleAllWarpSystems_includingWormhole_next', () =
   assertEqual(textOf(warpButton), 'Blast Off to Mordan');
   assertEqual(session.selection.system!.name, 'Styris');
   assertEqual(session.selection.wormhole, true);
-  assertEqual(mapOf(session).selectedSystem!.name, 'Styris');
-  assertEqual(mapOf(session).selectedWormhole, true);
+  assertEqual(landingMap().selectedSystem!.name, 'Styris');
+  assertEqual(landingMap().selectedWormhole, true);
   // Force initialization of all the planets
-  mapOf(session).drawGalaxy(0);
-  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, 'Mordan');
-  assertEqual(mapOf(session).selectedPlanet!.isWormhole, true);
+  landingMap().drawGalaxy(0);
+  assertEqual(landingMap().selectedPlanet!.solarSystem.name, 'Mordan');
+  assertEqual(landingMap().selectedPlanet!.isWormhole, true);
 });
 
 test('galaxyView_systemLanding_cycleAllWarpSystems_next', () => {
@@ -1530,42 +1529,42 @@ test('galaxyView_systemLanding_cycleAllWarpSystems_next', () => {
   assertEqual(textOf(warpButton), 'Blast Off to Vadera');
 
   assertEqual(session.selection.system!.name, 'Vadera');
-  assertEqual(mapOf(session).selectedSystem!.name, 'Vadera');
+  assertEqual(landingMap().selectedSystem!.name, 'Vadera');
 
   replay.replayEvent('warpNext', 'click');
 
   warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Courteney');
   assertEqual(session.selection.system!.name, 'Courteney');
-  assertEqual(mapOf(session).selectedSystem!.name, 'Courteney');
+  assertEqual(landingMap().selectedSystem!.name, 'Courteney');
 
   replay.replayEvent('warpNext', 'click');
 
   warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Hulst');
   assertEqual(session.selection.system!.name, 'Hulst');
-  assertEqual(mapOf(session).selectedSystem!.name, 'Hulst');
+  assertEqual(landingMap().selectedSystem!.name, 'Hulst');
 
   replay.replayEvent('warpNext', 'click');
 
   warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Vadera');
   assertEqual(session.selection.system!.name, 'Vadera');
-  assertEqual(mapOf(session).selectedSystem!.name, 'Vadera');
+  assertEqual(landingMap().selectedSystem!.name, 'Vadera');
 
   replay.replayEvent('warpNext', 'click');
 
   warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Courteney');
   assertEqual(session.selection.system!.name, 'Courteney');
-  assertEqual(mapOf(session).selectedSystem!.name, 'Courteney');
+  assertEqual(landingMap().selectedSystem!.name, 'Courteney');
 
   replay.replayEvent('warpPrev', 'click');
 
   warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Vadera');
   assertEqual(session.selection.system!.name, 'Vadera');
-  assertEqual(mapOf(session).selectedSystem!.name, 'Vadera');
+  assertEqual(landingMap().selectedSystem!.name, 'Vadera');
 });
 
 test('galaxyView_systemLanding_cycleAllWarpSystems_prev', () => {
@@ -1579,42 +1578,42 @@ test('galaxyView_systemLanding_cycleAllWarpSystems_prev', () => {
   assertEqual(textOf(warpButton), 'Blast Off to Vadera');
 
   assertEqual(session.selection.system!.name, 'Vadera');
-  assertEqual(mapOf(session).selectedSystem!.name, 'Vadera');
+  assertEqual(landingMap().selectedSystem!.name, 'Vadera');
 
   replay.replayEvent('warpPrev', 'click');
 
   warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Hulst');
   assertEqual(session.selection.system!.name, 'Hulst');
-  assertEqual(mapOf(session).selectedSystem!.name, 'Hulst');
+  assertEqual(landingMap().selectedSystem!.name, 'Hulst');
 
   replay.replayEvent('warpPrev', 'click');
 
   warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Courteney');
   assertEqual(session.selection.system!.name, 'Courteney');
-  assertEqual(mapOf(session).selectedSystem!.name, 'Courteney');
+  assertEqual(landingMap().selectedSystem!.name, 'Courteney');
 
   replay.replayEvent('warpPrev', 'click');
 
   warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Vadera');
   assertEqual(session.selection.system!.name, 'Vadera');
-  assertEqual(mapOf(session).selectedSystem!.name, 'Vadera');
+  assertEqual(landingMap().selectedSystem!.name, 'Vadera');
 
   replay.replayEvent('warpPrev', 'click');
 
   warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Hulst');
   assertEqual(session.selection.system!.name, 'Hulst');
-  assertEqual(mapOf(session).selectedSystem!.name, 'Hulst');
+  assertEqual(landingMap().selectedSystem!.name, 'Hulst');
 
   replay.replayEvent('warpNext', 'click');
 
   warpButton = button(/^Blast Off to /);
   assertEqual(textOf(warpButton), 'Blast Off to Vadera');
   assertEqual(session.selection.system!.name, 'Vadera');
-  assertEqual(mapOf(session).selectedSystem!.name, 'Vadera');
+  assertEqual(landingMap().selectedSystem!.name, 'Vadera');
 });
 
 test('galaxyView_systemLanding_selectWarpTarget_outOfRange', () => {
@@ -1627,7 +1626,7 @@ test('galaxyView_systemLanding_selectWarpTarget_outOfRange', () => {
 
   const session = replay.session;
   assertEqual(session.selection.system!.name, 'Tantalos');
-  assertEqual(mapOf(session).selectedSystem!.name, 'Tantalos');
+  assertEqual(landingMap().selectedSystem!.name, 'Tantalos');
   assertTrue(isCurrent(button('Warp')), 'warp is active');
   assertEqual(textOf(warpMessage()), 'Out of range.');
 });
@@ -1643,15 +1642,15 @@ test('galaxyView_systemLanding_selectWarpTarget_wormhole_outOfRange', () => {
   const session = replay.session;
   assertEqual(session.selection.system!.name, 'Styris');
   assertEqual(session.selection.wormhole, true);
-  assertEqual(mapOf(session).selectedSystem!.name, 'Styris');
-  assertEqual(mapOf(session).selectedWormhole, true);
+  assertEqual(landingMap().selectedSystem!.name, 'Styris');
+  assertEqual(landingMap().selectedWormhole, true);
   assertTrue(isCurrent(button('Warp')), 'warp is active');
   assertEqual(textOf(warpMessage()), 'Out of range.');
 
   // Force initialization of all the planets
-  mapOf(session).drawGalaxy(0);
-  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, 'Mordan');
-  assertEqual(mapOf(session).selectedPlanet!.isWormhole, true);
+  landingMap().drawGalaxy(0);
+  assertEqual(landingMap().selectedPlanet!.solarSystem.name, 'Mordan');
+  assertEqual(landingMap().selectedPlanet!.isWormhole, true);
 });
 
 test('galaxyView_systemLanding_selectWarpTarget_wormholeParent_inRange', () => {
@@ -1664,14 +1663,14 @@ test('galaxyView_systemLanding_selectWarpTarget_wormholeParent_inRange', () => {
   const session = replay.session;
   assertEqual(session.selection.system!.name, 'Styris');
   assertEqual(session.selection.wormhole, false);
-  assertEqual(mapOf(session).selectedSystem!.name, 'Styris');
-  assertEqual(mapOf(session).selectedWormhole, false);
+  assertEqual(landingMap().selectedSystem!.name, 'Styris');
+  assertEqual(landingMap().selectedWormhole, false);
   assertTrue(isCurrent(button('Warp')), 'warp is active');
 
   // Force initialization of all the planets
-  mapOf(session).drawGalaxy(0);
-  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, 'Styris');
-  assertEqual(mapOf(session).selectedPlanet!.isWormhole, false);
+  landingMap().drawGalaxy(0);
+  assertEqual(landingMap().selectedPlanet!.solarSystem.name, 'Styris');
+  assertEqual(landingMap().selectedPlanet!.isWormhole, false);
 });
 
 test('galaxyView_systemLanding_selectWarpTarget_noSystemsInRange_buyFuel', () => {
@@ -1686,7 +1685,7 @@ test('galaxyView_systemLanding_selectWarpTarget_noSystemsInRange_buyFuel', () =>
 
   const session = replay.session;
   assertEqual(session.selection.system, null);
-  assertEqual(mapOf(session).selectedSystem!.name, 'Castor');
+  assertEqual(landingMap().selectedSystem!.name, 'Castor');
   assertTrue(isCurrent(button('Warp')), 'warp is active');
   assertEqual(textOf(warpMessage()), 'No systems within range Fill tank for $14');
 
@@ -1698,7 +1697,7 @@ test('galaxyView_systemLanding_selectWarpTarget_noSystemsInRange_buyFuel', () =>
   assertEqual(textOf(warpButton), 'Blast Off to Cestus');
 
   assertEqual(session.selection.system!.name, 'Cestus');
-  assertEqual(mapOf(session).selectedSystem!.name, 'Cestus');
+  assertEqual(landingMap().selectedSystem!.name, 'Cestus');
 });
 
 test('galaxyView_systemLanding_chart_selectingInEitherWorks', () => {
@@ -1722,7 +1721,7 @@ test('galaxyView_systemLanding_chart_selectingInEitherWorks', () => {
   assertEqual(textOf(warpButton), 'Blast Off to Kira');
 
   assertEqual(session.selection.system!.name, 'Kira');
-  assertEqual(mapOf(session).selectedSystem!.name, 'Kira');
+  assertEqual(landingMap().selectedSystem!.name, 'Kira');
 });
 
 test('galaxyView_systemLanding_chart_selectingWormhole', () => {
@@ -1751,13 +1750,13 @@ test('galaxyView_systemLanding_nonwormhole', () => {
 
   assertEqual(session.selection.system!.name, 'Kira');
   assertEqual(session.selection.wormhole, false);
-  assertEqual(mapOf(session).selectedSystem!.name, 'Kira');
-  assertEqual(mapOf(session).selectedWormhole, false);
+  assertEqual(landingMap().selectedSystem!.name, 'Kira');
+  assertEqual(landingMap().selectedWormhole, false);
 
   // Force initialization of all the planets
-  mapOf(session).drawGalaxy(0);
-  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, 'Kira');
-  assertEqual(mapOf(session).selectedPlanet!.isWormhole, false);
+  landingMap().drawGalaxy(0);
+  assertEqual(landingMap().selectedPlanet!.solarSystem.name, 'Kira');
+  assertEqual(landingMap().selectedPlanet!.isWormhole, false);
 });
 
 test('galaxyView_systemLanding_wormhole_kira', () => {
@@ -1769,13 +1768,13 @@ test('galaxyView_systemLanding_wormhole_kira', () => {
 
   assertEqual(session.selection.system!.name, 'Yew');
   assertEqual(session.selection.wormhole, true);
-  assertEqual(mapOf(session).selectedSystem!.name, 'Yew');
-  assertEqual(mapOf(session).selectedWormhole, true);
+  assertEqual(landingMap().selectedSystem!.name, 'Yew');
+  assertEqual(landingMap().selectedWormhole, true);
 
   // Force initialization of all the planets
-  mapOf(session).drawGalaxy(0);
-  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, 'Kira');
-  assertEqual(mapOf(session).selectedPlanet!.isWormhole, true);
+  landingMap().drawGalaxy(0);
+  assertEqual(landingMap().selectedPlanet!.solarSystem.name, 'Kira');
+  assertEqual(landingMap().selectedPlanet!.isWormhole, true);
 });
 
 test('galaxyView_systemLanding_wormhole', () => {
@@ -1787,13 +1786,13 @@ test('galaxyView_systemLanding_wormhole', () => {
 
   assertEqual(session.selection.system!.name, 'Kira');
   assertEqual(session.selection.wormhole, true);
-  assertEqual(mapOf(session).selectedSystem!.name, 'Kira');
-  assertEqual(mapOf(session).selectedWormhole, true);
+  assertEqual(landingMap().selectedSystem!.name, 'Kira');
+  assertEqual(landingMap().selectedWormhole, true);
 
   // Force initialization of all the planets
-  mapOf(session).drawGalaxy(0);
-  assertEqual(mapOf(session).selectedPlanet!.solarSystem.name, 'Lave');
-  assertEqual(mapOf(session).selectedPlanet!.isWormhole, true);
+  landingMap().drawGalaxy(0);
+  assertEqual(landingMap().selectedPlanet!.solarSystem.name, 'Lave');
+  assertEqual(landingMap().selectedPlanet!.isWormhole, true);
 });
 
 test('useSingularity', () => {
