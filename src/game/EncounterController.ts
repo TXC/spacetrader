@@ -4,7 +4,6 @@ import {
   KILL_PIRATE_SCORE,
   KILL_POLICE_SCORE,
   KILL_TRADER_SCORE,
-  MAX_SKILL_LEVEL,
   PoliceRecordScore,
   ReputationScore,
 } from './Commander.ts';
@@ -43,6 +42,7 @@ import { surrender } from './encounter/actions/surrender.ts';
 import { bribe } from './encounter/actions/bribe.ts';
 import { submit } from './encounter/actions/submit.ts';
 import { plunder } from './encounter/actions/plunder.ts';
+import { meet } from './encounter/actions/meet.ts';
 import { captainFor } from './encounter/captains.ts';
 import {
   EncounterMode,
@@ -352,47 +352,7 @@ export class EncounterController {
     } else if (action === 'Plunder' || action === 'Board') {
       if (!plunder(this)) return;
     } else if (action === 'Meet') {
-      const alertString = captainFor(this._type).prompt;
-
-      const aC = new AlertViewController(alertString);
-
-      aC.addAction('Yes, trade!', AlertActionType.Default, () => {
-        if (this._type === EncounterType.FamousCaptainAhabEncounter) {
-          this._game.commander.ship.removeAccessoryOfType(AccessoryType.ShieldReflective);
-          this._game.commander.pilot = Math.min(
-            MAX_SKILL_LEVEL,
-            this._game.commander.pilot + (this._game.difficulty < Difficulty.Hard ? 2 : 1)
-          );
-        } else if (this._type === EncounterType.FamousCaptainConradEncounter) {
-          this._game.commander.ship.removeAccessoryOfType(AccessoryType.WeaponMilitaryLaser);
-          this._game.commander.engineer = Math.min(
-            MAX_SKILL_LEVEL,
-            this._game.commander.engineer + (this._game.difficulty < Difficulty.Hard ? 2 : 1)
-          );
-        } else if (this._type === EncounterType.FamousCaptainHuieEncounter) {
-          this._game.commander.ship.removeAccessoryOfType(AccessoryType.WeaponMilitaryLaser);
-          this._game.commander.trader = Math.min(
-            MAX_SKILL_LEVEL,
-            this._game.commander.trader + (this._game.difficulty < Difficulty.Hard ? 2 : 1)
-          );
-        }
-
-        const trainStr =
-          'After a few hours of training with a top expert, you feel your abilities have improved significantly.';
-        const aC2 = new AlertViewController(trainStr);
-
-        aC2.addAction('Dismiss', AlertActionType.Default, () => {
-          this.listener.continues(false);
-        });
-
-        this._presentAlertController(aC2);
-      });
-
-      aC.addAction('No thanks!', AlertActionType.Cancel, () => {
-        this.listener.continues(false);
-      });
-
-      this._presentAlertController(aC);
+      if (!meet(this)) return;
     } else if (action === 'Drink') {
       let alertString: string;
       let consumedString = null;
