@@ -10,13 +10,12 @@ import { AlertViewController } from '../../game/alerts.ts';
 import type { GalaxyView } from '../../ui/canvas/GalaxyView.ts';
 import {
   assertEqual,
-  assertEqualGames,
+  assertSurvivesSave,
   assertTrue,
   mapOf,
   recording,
   replaySkipEncounters,
   runReplayLog,
-  serializeAndDeserialize,
 } from './harness.ts';
 import {
   alertBox,
@@ -586,8 +585,7 @@ test('mercenary_arrest', () => {
 
   assertEqual(commander.ship.crew.length, 0);
 
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  const game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.crew.length, 0);
 });
 
@@ -1102,9 +1100,7 @@ test('surrender_police', () => {
 
   assertEqual(game.commander.hasInsurance, true);
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.hasInsurance, true);
+  assertSurvivesSave(game);
 
   const creditsBefore = game.commander.credits;
   replay.replayEvent('ecButton_Surrender', 'click');
@@ -1120,10 +1116,7 @@ test('surrender_police', () => {
   assertEqual(game.commander.credits, creditsBefore - 332000);
   assertEqual(game.commander.hasInsurance, false);
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.credits, creditsBefore - 332000);
-  assertEqual(game2.commander.hasInsurance, false);
+  assertSurvivesSave(game);
 
   const systemInfoHeader = welcome();
   assertEqual(textOf(systemInfoHeader), 'Welcome to Rutia');

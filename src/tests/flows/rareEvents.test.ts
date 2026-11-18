@@ -14,11 +14,10 @@ import { AlertViewController } from '../../game/alerts.ts';
 import {
   assertEqual,
   assertEqualArrays,
-  assertEqualGames,
+  assertSurvivesSave,
   assertTrue,
   recording,
   runReplayLog,
-  serializeAndDeserialize,
 } from './harness.ts';
 import {
   button,
@@ -58,13 +57,7 @@ test('BottleGood_Ignore', () => {
   assertEqual(game.commander.fighter, 5);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.pilot, 5);
-  assertEqual(game2.commander.trader, 5);
-  assertEqual(game2.commander.engineer, 5);
-  assertEqual(game2.commander.fighter, 5);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  assertSurvivesSave(game);
 });
 
 test('BottleGood_Pass', () => {
@@ -102,13 +95,7 @@ test('BottleGood_Pass', () => {
   assertEqual(game.commander.fighter, 5);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.pilot, 5);
-  assertEqual(game2.commander.trader, 5);
-  assertEqual(game2.commander.engineer, 5);
-  assertEqual(game2.commander.fighter, 5);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  assertSurvivesSave(game);
 });
 
 test('BottleGood_Drink', () => {
@@ -159,13 +146,7 @@ test('BottleGood_Drink', () => {
   assertEqual(game.commander.fighter, 6);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.pilot, 5);
-  assertEqual(game2.commander.trader, 5);
-  assertEqual(game2.commander.engineer, 6);
-  assertEqual(game2.commander.fighter, 6);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  assertSurvivesSave(game);
 });
 
 test('BottleOld_Ignore', () => {
@@ -196,13 +177,7 @@ test('BottleOld_Ignore', () => {
   assertEqual(game.commander.fighter, 5);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.pilot, 5);
-  assertEqual(game2.commander.trader, 5);
-  assertEqual(game2.commander.engineer, 5);
-  assertEqual(game2.commander.fighter, 5);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  assertSurvivesSave(game);
 });
 
 test('BottleOld_Pass', () => {
@@ -240,13 +215,7 @@ test('BottleOld_Pass', () => {
   assertEqual(game.commander.fighter, 5);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.pilot, 5);
-  assertEqual(game2.commander.trader, 5);
-  assertEqual(game2.commander.engineer, 5);
-  assertEqual(game2.commander.fighter, 5);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  assertSurvivesSave(game);
 });
 
 test('BottleOld_Drink', () => {
@@ -297,13 +266,7 @@ test('BottleOld_Drink', () => {
   assertEqual(game.commander.fighter, 4);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.pilot, 5);
-  assertEqual(game2.commander.trader, 5);
-  assertEqual(game2.commander.engineer, 6);
-  assertEqual(game2.commander.fighter, 4);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  assertSurvivesSave(game);
 });
 
 test('Ahab_notEligible', () => {
@@ -321,9 +284,7 @@ test('Ahab_notEligible', () => {
   );
 
   assertEqualArrays(game._remainingRareEvents, [RareEvent.CaptainAhab]);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, [RareEvent.CaptainAhab]);
+  assertSurvivesSave(game);
 });
 
 test('Ahab_accept', () => {
@@ -365,9 +326,7 @@ test('Ahab_accept', () => {
   assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), false);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  const game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), false);
   const pilotAfter2 = game2.commander.pilot;
   assertEqual(pilotAfter2, pilotBefore + 2);
@@ -411,9 +370,7 @@ test('Ahab_noThanks', () => {
   assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  const game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true);
   const pilotAfter2 = game2.commander.pilot;
   assertEqual(pilotAfter2, pilotBefore);
@@ -450,9 +407,7 @@ test('Ahab_ignore', () => {
   assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  const game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true);
   const pilotAfter2 = game2.commander.pilot;
   assertEqual(pilotAfter2, pilotBefore);
@@ -548,9 +503,7 @@ test('Ahab_attack', () => {
   assertEqual(game.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  const game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasShieldOfType(AccessoryType.ShieldReflective), true);
   const pilotAfter2 = game2.commander.pilot;
   assertEqual(pilotAfter2, pilotBefore);
@@ -572,9 +525,7 @@ test('Conrad_notEligible', () => {
   );
 
   assertEqualArrays(game._remainingRareEvents, [RareEvent.CaptainConrad]);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, [RareEvent.CaptainConrad]);
+  assertSurvivesSave(game);
 });
 
 test('Conrad_accept', () => {
@@ -617,9 +568,7 @@ test('Conrad_accept', () => {
   assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), false);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  const game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), false);
   const engAfter2 = game2.commander.engineer;
   assertEqual(engAfter2, engBefore + 2);
@@ -663,9 +612,7 @@ test('Conrad_noThanks', () => {
   assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  const game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
   const engAfter2 = game2.commander.engineer;
   assertEqual(engAfter2, engBefore);
@@ -702,9 +649,7 @@ test('Conrad_ignore', () => {
   assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  const game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
   const engAfter2 = game2.commander.engineer;
   assertEqual(engAfter2, engBefore);
@@ -800,9 +745,7 @@ test('Conrad_attack', () => {
   assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  const game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
   const engAfter2 = game2.commander.engineer;
   assertEqual(engAfter2, engBefore);
@@ -824,9 +767,7 @@ test('Huie_notEligible', () => {
   );
 
   assertEqualArrays(game._remainingRareEvents, [RareEvent.CaptainHuie]);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, [RareEvent.CaptainHuie]);
+  assertSurvivesSave(game);
 });
 
 test('Huie_accept', () => {
@@ -869,9 +810,7 @@ test('Huie_accept', () => {
   assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), false);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  const game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), false);
   const tradAfter2 = game2.commander.trader;
   assertEqual(tradAfter2, tradBefore + 2);
@@ -915,9 +854,7 @@ test('Huie_noThanks', () => {
   assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  const game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
   const tradAfter2 = game2.commander.trader;
   assertEqual(tradAfter2, tradBefore);
@@ -954,9 +891,7 @@ test('Huie_ignore', () => {
   assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  const game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
   const tradAfter2 = game2.commander.trader;
   assertEqual(tradAfter2, tradBefore);
@@ -1052,9 +987,7 @@ test('Huie_attack', () => {
   assertEqual(game.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  const game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMilitaryLaser), true);
   const tradAfter2 = game2.commander.trader;
   assertEqual(tradAfter2, tradBefore);
@@ -1080,9 +1013,7 @@ test('MarieCeleste_ignore', () => {
   assertEqual(textOf(systemInfoHeader), 'Welcome to Jason');
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  assertSurvivesSave(game);
 });
 
 test('MarieCeleste_boardLeave', () => {
@@ -1107,9 +1038,7 @@ test('MarieCeleste_boardLeave', () => {
   assertEqual(textOf(systemInfoHeader), 'Welcome to Jason');
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  assertSurvivesSave(game);
 });
 
 test('MarieCeleste_boardDontTake', () => {
@@ -1137,9 +1066,7 @@ test('MarieCeleste_boardDontTake', () => {
   assertEqual(textOf(systemInfoHeader), 'Welcome to Jason');
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  assertSurvivesSave(game);
 });
 
 test('MarieCeleste_boardTakeDumpYield', () => {
@@ -1187,9 +1114,7 @@ test('MarieCeleste_boardTakeDumpYield', () => {
   assertEqual(game.commander.reputationScore, reputationBefore);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  assertSurvivesSave(game);
 });
 
 test('MarieCeleste_boardTakeYield', () => {
@@ -1232,9 +1157,7 @@ test('MarieCeleste_boardTakeYield', () => {
   assertEqual(game.commander.reputationScore, reputationBefore);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  assertSurvivesSave(game);
 });
 
 test('MarieCeleste_boardTakeBribe', () => {
@@ -1264,9 +1187,7 @@ test('MarieCeleste_boardTakeBribe', () => {
   assertTrue(button('Yield') != null, 'yield option available');
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  assertSurvivesSave(game);
 });
 
 test('MarieCeleste_boardTakeFlee', () => {
@@ -1311,9 +1232,7 @@ test('MarieCeleste_boardTakeFlee', () => {
   assertEqual(game.commander.reputationScore, reputationBefore);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  assertSurvivesSave(game);
 });
 
 test('MarieCeleste_boardTakeAttack', () => {
@@ -1360,7 +1279,5 @@ test('MarieCeleste_boardTakeAttack', () => {
   assertEqual(game.commander.reputationScore, reputationBefore);
 
   assertEqualArrays(game._remainingRareEvents, []);
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqualArrays(game2._remainingRareEvents, []);
+  assertSurvivesSave(game);
 });

@@ -141,6 +141,14 @@ export function serializeAndDeserialize(game: Game) {
   return game2;
 }
 
+// Saves the game and loads it again, checks that the two are equal, and returns the loaded
+// one. Checks made on the game before this call hold for the loaded game too.
+export function assertSurvivesSave(game: Game): Game {
+  const loaded = serializeAndDeserialize(game);
+  assertEqualGames(game, loaded);
+  return loaded;
+}
+
 export function performStressTest(
   testName: string,
   randSeed: number,

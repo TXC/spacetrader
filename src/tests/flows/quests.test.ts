@@ -29,12 +29,11 @@ import { AlertViewController } from '../../game/alerts.ts';
 import {
   assertEqual,
   assertEqualArrays,
-  assertEqualGames,
+  assertSurvivesSave,
   assertTrue,
   recording,
   replaySkipEncounters,
   runReplayLog,
-  serializeAndDeserialize,
 } from './harness.ts';
 import {
   button,
@@ -106,8 +105,7 @@ test('scarab', () => {
     'Find and destroy the Scarab (which is hiding near a wormhole).'
   );
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'A Portable Singularity.');
   assertEqual(
     game2.questListDescription(),
@@ -177,11 +175,7 @@ test('scarab', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Get your hull upgraded at Khefka.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.GetHullUpgraded);
-  assertEqual(game2.commander.ship.upgradedHull, false);
-  assertEqual(game2.scarabStatus, ScarabQuestStatus.ScarabDestroyed);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Get your hull upgraded at Khefka.');
 
@@ -227,11 +221,7 @@ test('scarab', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(game2.commander.ship.upgradedHull, true);
-  assertEqual(game2.scarabStatus, ScarabQuestStatus.Closed);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
 
@@ -287,8 +277,7 @@ test('scarab_militaryBeamDontWork', () => {
     'Find and destroy the Scarab (which is hiding near a wormhole).'
   );
 
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  const game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'A Portable Singularity.');
   assertEqual(
     game2.questListDescription(),
@@ -394,11 +383,8 @@ test('ionReactor', () => {
   );
   assertEqual(game.questListDescription(), 'Deliver the unstable reactor to Nix for Henry Morgan.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
-  assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
   assertEqual(
     game2.specialCargoDescription(),
     'An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.'
@@ -452,8 +438,7 @@ test('ionReactor', () => {
       'Deliver the unstable reactor to Nix before it consumes all of its fuel.'
     );
 
-    game2 = serializeAndDeserialize(game);
-    assertEqualGames(game, game2);
+    game2 = assertSurvivesSave(game);
     assertEqual(game2.reactorStatus, prevReactorStatus + 1);
     assertEqual(
       game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR),
@@ -499,10 +484,7 @@ test('ionReactor', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), `Get your special laser at Nix.`);
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.GetSpecialLaser);
-  assertEqual(game2.reactorStatus, ReactorQuestStatus.ClosedSaved);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 0);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), `Get your special laser at Nix.`);
@@ -539,9 +521,7 @@ test('ionReactor', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMorgansLaser), true);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
@@ -589,11 +569,8 @@ test('ionReactor_tooLate', () => {
   );
   assertEqual(game.questListDescription(), 'Deliver the unstable reactor to Nix for Henry Morgan.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
-  assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
   assertEqual(
     game2.specialCargoDescription(),
     'An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.'
@@ -647,8 +624,7 @@ test('ionReactor_tooLate', () => {
       'Deliver the unstable reactor to Nix before it consumes all of its fuel.'
     );
 
-    game2 = serializeAndDeserialize(game);
-    assertEqualGames(game, game2);
+    game2 = assertSurvivesSave(game);
     assertEqual(game2.reactorStatus, prevReactorStatus + 1);
     assertEqual(
       game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR),
@@ -694,10 +670,8 @@ test('ionReactor_tooLate', () => {
   expect(button('End Game and Start Over')).not.toBeNull();
   assertEqual(game.endStatus, GameEndStatus.Killed);
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.reactorStatus, ReactorQuestStatus.ClosedTooLate);
-  assertEqual(game2.endStatus, GameEndStatus.Killed);
 });
 
 test('ionReactor_tooLate_escapePod', () => {
@@ -736,11 +710,8 @@ test('ionReactor_tooLate_escapePod', () => {
   );
   assertEqual(game.questListDescription(), 'Deliver the unstable reactor to Nix for Henry Morgan.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
-  assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
   assertEqual(
     game2.specialCargoDescription(),
     'An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.'
@@ -794,8 +765,7 @@ test('ionReactor_tooLate_escapePod', () => {
       'Deliver the unstable reactor to Nix before it consumes all of its fuel.'
     );
 
-    game2 = serializeAndDeserialize(game);
-    assertEqualGames(game, game2);
+    game2 = assertSurvivesSave(game);
     assertEqual(game2.reactorStatus, prevReactorStatus + 1);
     assertEqual(
       game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR),
@@ -854,10 +824,8 @@ test('ionReactor_tooLate_escapePod', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 0);
-  assertEqual(game2.reactorStatus, ReactorQuestStatus.ClosedTooLate);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
 });
@@ -898,11 +866,8 @@ test('ionReactor_surrenderToPolice', () => {
   );
   assertEqual(game.questListDescription(), 'Deliver the unstable reactor to Nix for Henry Morgan.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
-  assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
   assertEqual(
     game2.specialCargoDescription(),
     'An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.'
@@ -961,10 +926,8 @@ test('ionReactor_surrenderToPolice', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 0);
-  assertEqual(game2.reactorStatus, ReactorQuestStatus.ClosedTooLate);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
 });
@@ -995,8 +958,7 @@ test('ionReactor_tribble', () => {
   );
   assertEqual(game.commander.ship.tribbles, 1);
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  let game2 = assertSurvivesSave(game);
   assertEqual(
     game2.specialCargoDescription(),
     '1 cute, furry tribble.\nAn unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.'
@@ -1005,7 +967,6 @@ test('ionReactor_tribble', () => {
     game2.questListDescription(),
     'Get rid of those pesky tribbles.\nDeliver the unstable reactor to Nix for Henry Morgan.'
   );
-  assertEqual(game2.commander.ship.tribbles, 1);
 
   replay.replayEvent('Warp', 'click');
   replay.replayEvent('warpBlastOff', 'click');
@@ -1034,9 +995,7 @@ test('ionReactor_tribble', () => {
   );
   assertEqual(game.commander.ship.tribbles, 0);
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.ship.tribbles, 0);
+  game2 = assertSurvivesSave(game);
   assertEqual(
     game2.specialCargoDescription(),
     'An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.'
@@ -1083,11 +1042,8 @@ test('ionReactor_early', () => {
   );
   assertEqual(game.questListDescription(), 'Deliver the unstable reactor to Nix for Henry Morgan.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
-  assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
   assertEqual(
     game2.specialCargoDescription(),
     'An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.'
@@ -1141,8 +1097,7 @@ test('ionReactor_early', () => {
       'Deliver the unstable reactor to Nix before it consumes all of its fuel.'
     );
 
-    game2 = serializeAndDeserialize(game);
-    assertEqualGames(game, game2);
+    game2 = assertSurvivesSave(game);
     assertEqual(game2.reactorStatus, prevReactorStatus + 1);
     assertEqual(
       game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR),
@@ -1188,10 +1143,7 @@ test('ionReactor_early', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), `Get your special laser at Nix.`);
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.GetSpecialLaser);
-  assertEqual(game2.reactorStatus, ReactorQuestStatus.ClosedSaved);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 0);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), `Get your special laser at Nix.`);
@@ -1228,9 +1180,7 @@ test('ionReactor_early', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasWeaponOfType(AccessoryType.WeaponMorgansLaser), true);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
@@ -1284,11 +1234,8 @@ test('ionReactor_notEnoughBays', () => {
   );
   assertEqual(game.questListDescription(), 'Deliver the unstable reactor to Nix for Henry Morgan.');
 
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
+  const game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
-  assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
   assertEqual(
     game2.specialCargoDescription(),
     'An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.'
@@ -1326,11 +1273,8 @@ test('ionReactor_cantBuyShip', () => {
   );
   assertEqual(game.questListDescription(), 'Deliver the unstable reactor to Nix for Henry Morgan.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
-  assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
   assertEqual(
     game2.specialCargoDescription(),
     'An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.'
@@ -1367,9 +1311,7 @@ test('ionReactor_cantBuyShip', () => {
     'Deliver the unstable reactor to Nix before it consumes all of its fuel.'
   );
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.ship.type, ShipModelType.Wasp);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
   assertEqual(
     game2.specialCargoDescription(),
@@ -1408,11 +1350,8 @@ test('ionReactor_destroyedInBattle', () => {
   );
   assertEqual(game.questListDescription(), 'Deliver the unstable reactor to Nix for Henry Morgan.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 15);
-  assertEqual(game2.reactorStatus, ReactorQuestStatus.DaysRemaining._20);
   assertEqual(
     game2.specialCargoDescription(),
     'An unstable reactor taking up 5 bays.\nEnriched reactor fuel taking up 10 bays.'
@@ -1463,11 +1402,8 @@ test('ionReactor_destroyedInBattle', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.ship.type, ShipModelType.Flea);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO_REACTOR), 0);
-  assertEqual(game2.reactorStatus, ReactorQuestStatus.ClosedTooLate);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
 });
@@ -1498,10 +1434,7 @@ test('experiment_early', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 10 days.");
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._10);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(
     game2.questListDescription(),
@@ -1520,9 +1453,7 @@ test('experiment_early', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 9 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._9);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 9 days.");
 
@@ -1535,9 +1466,7 @@ test('experiment_early', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 8 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._8);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 8 days.");
 
@@ -1556,9 +1485,7 @@ test('experiment_early', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 7 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._7);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 7 days.");
 
@@ -1571,9 +1498,7 @@ test('experiment_early', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 6 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._6);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 6 days.");
 
@@ -1592,11 +1517,7 @@ test('experiment_early', () => {
   assertEqual(game.specialCargoDescription(), 'A Portable Singularity.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(game2.canSuperWarp, true);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.ClosedSaved);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'A Portable Singularity.');
   assertEqual(game2.questListDescription(), 'No open quests.');
 });
@@ -1627,10 +1548,7 @@ test('experiment_last_day', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 10 days.");
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._10);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(
     game2.questListDescription(),
@@ -1649,9 +1567,7 @@ test('experiment_last_day', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 9 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._9);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 9 days.");
 
@@ -1664,9 +1580,7 @@ test('experiment_last_day', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 8 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._8);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 8 days.");
 
@@ -1685,9 +1599,7 @@ test('experiment_last_day', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 7 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._7);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 7 days.");
 
@@ -1700,9 +1612,7 @@ test('experiment_last_day', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 6 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._6);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 6 days.");
 
@@ -1715,9 +1625,7 @@ test('experiment_last_day', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 5 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._5);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 5 days.");
 
@@ -1730,9 +1638,7 @@ test('experiment_last_day', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 4 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._4);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 4 days.");
 
@@ -1745,9 +1651,7 @@ test('experiment_last_day', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 3 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._3);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 3 days.");
 
@@ -1763,9 +1667,7 @@ test('experiment_last_day', () => {
     "Stop Dr. Fehler's experiment at Daled by end of tomorrow."
   );
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(
     game2.questListDescription(),
@@ -1781,9 +1683,7 @@ test('experiment_last_day', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled today.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._1);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled today.");
 
@@ -1798,9 +1698,7 @@ test('experiment_last_day', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled today.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._1);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled today.");
 
@@ -1819,11 +1717,7 @@ test('experiment_last_day', () => {
   assertEqual(game.specialCargoDescription(), 'A Portable Singularity.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(game2.canSuperWarp, true);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.ClosedSaved);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'A Portable Singularity.');
   assertEqual(game2.questListDescription(), 'No open quests.');
 });
@@ -1854,10 +1748,7 @@ test('experiment_fail', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 10 days.");
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._10);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(
     game2.questListDescription(),
@@ -1876,9 +1767,7 @@ test('experiment_fail', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 9 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._9);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 9 days.");
 
@@ -1891,9 +1780,7 @@ test('experiment_fail', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 8 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._8);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 8 days.");
 
@@ -1912,9 +1799,7 @@ test('experiment_fail', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 7 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._7);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 7 days.");
 
@@ -1927,9 +1812,7 @@ test('experiment_fail', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 6 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._6);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 6 days.");
 
@@ -1942,9 +1825,7 @@ test('experiment_fail', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 5 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._5);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 5 days.");
 
@@ -1957,9 +1838,7 @@ test('experiment_fail', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 4 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._4);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 4 days.");
 
@@ -1972,9 +1851,7 @@ test('experiment_fail', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 3 days.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._3);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled within 3 days.");
 
@@ -1990,9 +1867,7 @@ test('experiment_fail', () => {
     "Stop Dr. Fehler's experiment at Daled by end of tomorrow."
   );
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(
     game2.questListDescription(),
@@ -2008,9 +1883,7 @@ test('experiment_fail', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), "Stop Dr. Fehler's experiment at Daled today.");
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.DaysRemaining._1);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), "Stop Dr. Fehler's experiment at Daled today.");
 
@@ -2024,10 +1897,7 @@ test('experiment_fail', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.experimentStatus, ExperimentQuestStatus.ClosedTooLate);
-  assertEqual(game2.fabricRipProbability, FABRIC_RIP_PROBABILITY_INITIAL);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
 
@@ -2054,10 +1924,7 @@ test('experiment_fail', () => {
     assertEqual(game.specialCargoDescription(), 'No special items.');
     assertEqual(game.questListDescription(), 'No open quests.');
 
-    game2 = serializeAndDeserialize(game);
-    assertEqualGames(game, game2);
-    assertEqual(game2.experimentStatus, ExperimentQuestStatus.ClosedTooLate);
-    assertEqual(game2.fabricRipProbability, FABRIC_RIP_PROBABILITY_INITIAL - 2 - loopCycles);
+    game2 = assertSurvivesSave(game);
     assertEqual(game2.specialCargoDescription(), 'No special items.');
     assertEqual(game2.questListDescription(), 'No open quests.');
   }
@@ -2090,10 +1957,7 @@ test('monster', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Kill the space monster at Acamar.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(game2.monsterStatus, MonsterQuestStatus.MonsterExists);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Kill the space monster at Acamar.');
 
@@ -2134,8 +1998,7 @@ test('monster', () => {
   const specialEl = button('Special');
   assertEqual(specialEl, null);
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.monsterHull, 299);
   assertEqual(game2.monsterStatus, MonsterQuestStatus.MonsterExists);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
@@ -2174,10 +2037,7 @@ test('monster', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Kill the space monster at Acamar.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.monsterHull, 196);
-  assertEqual(game2.monsterStatus, MonsterQuestStatus.MonsterExists);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Kill the space monster at Acamar.');
 
@@ -2220,11 +2080,7 @@ test('monster', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.credits, creditsBefore + 15000);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
-  assertEqual(game2.monsterStatus, MonsterQuestStatus.ClosedMonsterDestroyed);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
 });
@@ -2266,12 +2122,7 @@ test('jarek', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Bring Ambassador Jarek to Devidia.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.ship._crew[0].name, 'Ambassador Jarek');
-  assertEqual(game2.commander.ship._crew[0].forQuest, true);
-  assertEqual(game2.jarekStatus, JarekQuestStatus.OnBoard);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
+  let game2 = assertSurvivesSave(game);
 
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Bring Ambassador Jarek to Devidia.');
@@ -2317,17 +2168,11 @@ test('jarek', () => {
   assertEqual(game.specialCargoDescription(), 'A haggling computer.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.jarekStatus, JarekQuestStatus.Closed);
-  assertEqual(game2.commander.carriesMaxTraderBoost, true);
-  assertEqual(game2.commander.ship._crew.length, 0);
+  game2 = assertSurvivesSave(game);
   assertEqual(
     game2.commander.ship.crewTraderSkillIncludingCommander(game.commander),
     traderSkillBefore + 1
   );
-
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
 
   assertEqual(game2.specialCargoDescription(), 'A haggling computer.');
   assertEqual(game2.questListDescription(), 'No open quests.');
@@ -2370,12 +2215,7 @@ test('jarek_arrested', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Bring Ambassador Jarek to Devidia.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.ship._crew[0].name, 'Ambassador Jarek');
-  assertEqual(game2.commander.ship._crew[0].forQuest, true);
-  assertEqual(game2.jarekStatus, JarekQuestStatus.OnBoard);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
+  let game2 = assertSurvivesSave(game);
 
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Bring Ambassador Jarek to Devidia.');
@@ -2413,10 +2253,7 @@ test('jarek_arrested', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.jarekStatus, JarekQuestStatus.Closed);
-  assertEqual(game2.commander.ship.crew.length, 0);
+  game2 = assertSurvivesSave(game);
 
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
@@ -2484,9 +2321,7 @@ test('alienArtifact', () => {
     'Deliver the alien artifact to Professor Berger at some hi-tech system.'
   );
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.artifactOnBoard, true);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'An alien artifact.');
   assertEqual(
     game2.questListDescription(),
@@ -2523,12 +2358,9 @@ test('alienArtifact', () => {
   assertEqual(game.commander.artifactOnBoard, false);
   assertEqual(game.commander.credits, creditsBefore + 20000);
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
-  assertEqual(game2.commander.artifactOnBoard, false);
-  assertEqual(game2.commander.credits, creditsBefore + 20000);
 });
 
 test('alienArtifact_surrender', () => {
@@ -2560,9 +2392,7 @@ test('alienArtifact_surrender', () => {
     'Deliver the alien artifact to Professor Berger at some hi-tech system.'
   );
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.artifactOnBoard, true);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'An alien artifact.');
   assertEqual(
     game2.questListDescription(),
@@ -2601,11 +2431,9 @@ test('alienArtifact_surrender', () => {
   assertEqual(game.questListDescription(), 'No open quests.');
   assertEqual(game.commander.artifactOnBoard, false);
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
-  assertEqual(game2.commander.artifactOnBoard, false);
 });
 
 test('gemulon_alienInvasion_fail', () => {
@@ -2628,8 +2456,7 @@ test('gemulon_alienInvasion_fail', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 7 days.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 7 days.');
 
@@ -2642,8 +2469,7 @@ test('gemulon_alienInvasion_fail', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 6 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 6 days.');
 
@@ -2660,8 +2486,7 @@ test('gemulon_alienInvasion_fail', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 5 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 5 days.');
 
@@ -2673,8 +2498,7 @@ test('gemulon_alienInvasion_fail', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 4 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 4 days.');
 
@@ -2687,8 +2511,7 @@ test('gemulon_alienInvasion_fail', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 3 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 3 days.');
 
@@ -2704,8 +2527,7 @@ test('gemulon_alienInvasion_fail', () => {
     'Inform Gemulon about alien invasion by end of tomorrow.'
   );
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(
     game2.questListDescription(),
@@ -2721,8 +2543,7 @@ test('gemulon_alienInvasion_fail', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion today.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion today.');
 
@@ -2740,8 +2561,7 @@ test('gemulon_alienInvasion_fail', () => {
   assertEqual(gemulon.techLevel, TechLevel.PreAgricultural);
   assertEqual(gemulon.politics.type, PoliticsType.Anarchy);
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
 
@@ -2790,8 +2610,7 @@ test('gemulon_alienInvasion_oneDayLate', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 7 days.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 7 days.');
 
@@ -2804,8 +2623,7 @@ test('gemulon_alienInvasion_oneDayLate', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 6 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 6 days.');
 
@@ -2822,8 +2640,7 @@ test('gemulon_alienInvasion_oneDayLate', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 5 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 5 days.');
 
@@ -2835,8 +2652,7 @@ test('gemulon_alienInvasion_oneDayLate', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 4 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 4 days.');
 
@@ -2849,8 +2665,7 @@ test('gemulon_alienInvasion_oneDayLate', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 3 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 3 days.');
 
@@ -2866,8 +2681,7 @@ test('gemulon_alienInvasion_oneDayLate', () => {
     'Inform Gemulon about alien invasion by end of tomorrow.'
   );
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(
     game2.questListDescription(),
@@ -2883,8 +2697,7 @@ test('gemulon_alienInvasion_oneDayLate', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion today.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion today.');
 
@@ -2902,8 +2715,7 @@ test('gemulon_alienInvasion_oneDayLate', () => {
   assertEqual(gemulon.techLevel, TechLevel.PreAgricultural);
   assertEqual(gemulon.politics.type, PoliticsType.Anarchy);
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
 
@@ -2949,8 +2761,7 @@ test('gemulon_alienInvasion_arriveLastDay', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 7 days.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 7 days.');
 
@@ -2963,8 +2774,7 @@ test('gemulon_alienInvasion_arriveLastDay', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 6 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 6 days.');
 
@@ -2981,8 +2791,7 @@ test('gemulon_alienInvasion_arriveLastDay', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 5 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 5 days.');
 
@@ -2994,8 +2803,7 @@ test('gemulon_alienInvasion_arriveLastDay', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 4 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 4 days.');
 
@@ -3008,8 +2816,7 @@ test('gemulon_alienInvasion_arriveLastDay', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 3 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 3 days.');
 
@@ -3025,8 +2832,7 @@ test('gemulon_alienInvasion_arriveLastDay', () => {
     'Inform Gemulon about alien invasion by end of tomorrow.'
   );
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(
     game2.questListDescription(),
@@ -3042,8 +2848,7 @@ test('gemulon_alienInvasion_arriveLastDay', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion today.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion today.');
 
@@ -3060,8 +2865,7 @@ test('gemulon_alienInvasion_arriveLastDay', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion today.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion today.');
 
@@ -3079,12 +2883,9 @@ test('gemulon_alienInvasion_arriveLastDay', () => {
   assertEqual(game.invasionStatus, InvasionQuestStatus.ClosedSaved);
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.GetFuelCompactor);
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Get your fuel compactor at Gemulon.');
-  assertEqual(game2.invasionStatus, InvasionQuestStatus.ClosedSaved);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.GetFuelCompactor);
 
   replay.replayEvent('Special', 'click');
   assertEqual(
@@ -3110,8 +2911,7 @@ test('gemulon_alienInvasion_arriveLastDay', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasGadgetOfType(AccessoryType.GadgetFuelCompactor), true);
   assertEqual(game2.commander.ship.fuelTankCapacity(), 18);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
@@ -3138,8 +2938,7 @@ test('gemulon_alienInvasion_arriveEarly', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 7 days.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 7 days.');
 
@@ -3152,8 +2951,7 @@ test('gemulon_alienInvasion_arriveEarly', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 6 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 6 days.');
 
@@ -3170,8 +2968,7 @@ test('gemulon_alienInvasion_arriveEarly', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 5 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 5 days.');
 
@@ -3183,8 +2980,7 @@ test('gemulon_alienInvasion_arriveEarly', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 4 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 4 days.');
 
@@ -3198,8 +2994,7 @@ test('gemulon_alienInvasion_arriveEarly', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 4 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 4 days.');
 
@@ -3217,12 +3012,9 @@ test('gemulon_alienInvasion_arriveEarly', () => {
   assertEqual(game.invasionStatus, InvasionQuestStatus.ClosedSaved);
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.GetFuelCompactor);
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Get your fuel compactor at Gemulon.');
-  assertEqual(game2.invasionStatus, InvasionQuestStatus.ClosedSaved);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.GetFuelCompactor);
 
   replay.replayEvent('Special', 'click');
   assertEqual(
@@ -3248,8 +3040,7 @@ test('gemulon_alienInvasion_arriveEarly', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasGadgetOfType(AccessoryType.GadgetFuelCompactor), true);
   assertEqual(game2.commander.ship.fuelTankCapacity(), 18);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
@@ -3276,8 +3067,7 @@ test('gemulon_alienInvasion_arriveEarly_noSlots', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 7 days.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 7 days.');
 
@@ -3290,8 +3080,7 @@ test('gemulon_alienInvasion_arriveEarly_noSlots', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 6 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 6 days.');
 
@@ -3308,8 +3097,7 @@ test('gemulon_alienInvasion_arriveEarly_noSlots', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 5 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 5 days.');
 
@@ -3321,8 +3109,7 @@ test('gemulon_alienInvasion_arriveEarly_noSlots', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 4 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 4 days.');
 
@@ -3336,8 +3123,7 @@ test('gemulon_alienInvasion_arriveEarly_noSlots', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Inform Gemulon about alien invasion within 4 days.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Inform Gemulon about alien invasion within 4 days.');
 
@@ -3355,12 +3141,9 @@ test('gemulon_alienInvasion_arriveEarly_noSlots', () => {
   assertEqual(game.invasionStatus, InvasionQuestStatus.ClosedSaved);
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.GetFuelCompactor);
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Get your fuel compactor at Gemulon.');
-  assertEqual(game2.invasionStatus, InvasionQuestStatus.ClosedSaved);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.GetFuelCompactor);
 
   replay.replayEvent('Equipment', 'click');
   replay.replayEvent('buy_5_extra_cargo_bays', 'click');
@@ -3390,12 +3173,9 @@ test('gemulon_alienInvasion_arriveEarly_noSlots', () => {
   assertEqual(game.invasionStatus, InvasionQuestStatus.ClosedSaved);
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.GetFuelCompactor);
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Get your fuel compactor at Gemulon.');
-  assertEqual(game2.invasionStatus, InvasionQuestStatus.ClosedSaved);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.GetFuelCompactor);
 
   replay.replayEvent('Equipment', 'click');
   replay.replayEvent('sell_5_extra_cargo_bays', 'click');
@@ -3419,8 +3199,7 @@ test('gemulon_alienInvasion_arriveEarly_noSlots', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasGadgetOfType(AccessoryType.GadgetFuelCompactor), true);
   assertEqual(game2.commander.ship.fuelTankCapacity(), 18);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
@@ -3463,8 +3242,7 @@ test('cargoForSale', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
 
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  const game2 = assertSurvivesSave(game);
   cargoQuantity = [...game2.commander.ship._cargo.values()].reduce((acc, value) => acc + value, 0);
   assertEqual(cargoQuantity, 3);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Medicine), 3);
@@ -3575,12 +3353,7 @@ test('wild_onBoard', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Smuggle Jonathan Wild to Kravat.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.wildStatus, WildQuestStatus.OnBoard);
-  assertEqual(game2.commander.ship.crew.length, 1);
-  assertEqual(game2.commander.ship.crew[0].name, 'Jonathan Wild');
-  assertEqual(game2.commander.ship.crew[0].forQuest, true);
+  let game2 = assertSurvivesSave(game);
 
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Smuggle Jonathan Wild to Kravat.');
@@ -3657,25 +3430,10 @@ test('wild_onBoard', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-
-  assertEqual(game2.wildStatus, WildQuestStatus.Closed);
-  assertEqual(game2.commander.ship.crew.length, 2);
-  assertEqual(game2.commander.ship.crew[0].name, 'Mercedez');
-  assertEqual(game2.commander.ship.crew[0].forQuest, false);
-  assertEqual(game2.commander.ship.crew[1].name, 'Zeethibal');
-  assertEqual(game2.commander.ship.crew[1].forQuest, false);
-  assertEqual(game2.commander.ship.crew[1].freeMercenaryCost, true);
-  assertEqual(game2.commander.ship.crew[1].pilot, 8);
-  assertEqual(game2.commander.ship.crew[1].fighter, 5);
-  assertEqual(game2.commander.ship.crew[1].trader, 10);
-  assertEqual(game2.commander.ship.crew[1].engineer, 5);
-  assertEqual(game2.commander.policeRecordScore, PoliceRecordScore.Clean);
+  game2 = assertSurvivesSave(game);
 
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
 });
 
 test('wild_surrenderToPirate', () => {
@@ -3698,12 +3456,7 @@ test('wild_surrenderToPirate', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Smuggle Jonathan Wild to Kravat.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.wildStatus, WildQuestStatus.OnBoard);
-  assertEqual(game2.commander.ship.crew.length, 1);
-  assertEqual(game2.commander.ship.crew[0].name, 'Jonathan Wild');
-  assertEqual(game2.commander.ship.crew[0].forQuest, true);
+  let game2 = assertSurvivesSave(game);
 
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Smuggle Jonathan Wild to Kravat.');
@@ -3736,10 +3489,7 @@ test('wild_surrenderToPirate', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.wildStatus, WildQuestStatus.Closed);
-  assertEqual(game2.commander.ship.crew.length, 0);
+  game2 = assertSurvivesSave(game);
 
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
@@ -3765,12 +3515,7 @@ test('wild_surrenderToPolice', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Smuggle Jonathan Wild to Kravat.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.wildStatus, WildQuestStatus.OnBoard);
-  assertEqual(game2.commander.ship.crew.length, 1);
-  assertEqual(game2.commander.ship.crew[0].name, 'Jonathan Wild');
-  assertEqual(game2.commander.ship.crew[0].forQuest, true);
+  let game2 = assertSurvivesSave(game);
 
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Smuggle Jonathan Wild to Kravat.');
@@ -3811,10 +3556,7 @@ test('wild_surrenderToPolice', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.wildStatus, WildQuestStatus.Closed);
-  assertEqual(game2.commander.ship.crew.length, 0);
+  game2 = assertSurvivesSave(game);
 
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
@@ -3842,10 +3584,7 @@ test('wild_podEscape', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.wildStatus, WildQuestStatus.Closed);
-  assertEqual(game2.commander.ship.crew.length, 0);
+  const game2 = assertSurvivesSave(game);
 
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
@@ -3871,12 +3610,7 @@ test('wild_sellWeapons', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Smuggle Jonathan Wild to Kravat.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.wildStatus, WildQuestStatus.OnBoard);
-  assertEqual(game2.commander.ship.crew.length, 1);
-  assertEqual(game2.commander.ship.crew[0].name, 'Jonathan Wild');
-  assertEqual(game2.commander.ship.crew[0].forQuest, true);
+  let game2 = assertSurvivesSave(game);
 
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Smuggle Jonathan Wild to Kravat.');
@@ -3921,10 +3655,7 @@ test('wild_sellWeapons', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.wildStatus, WildQuestStatus.Closed);
-  assertEqual(game2.commander.ship.crew.length, 0);
+  game2 = assertSurvivesSave(game);
 
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
@@ -4011,8 +3742,7 @@ test('dragonfly', () => {
   assertEqual(game.specialCargoDescription(), 'A Portable Singularity.');
   assertEqual(game.questListDescription(), 'Follow the Dragonfly to Zalkon.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'A Portable Singularity.');
   assertEqual(game2.questListDescription(), 'Follow the Dragonfly to Zalkon.');
 
@@ -4042,8 +3772,7 @@ test('dragonfly', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'Get your Lightning shield at Zalkon.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'Get your Lightning shield at Zalkon.');
 
@@ -4085,8 +3814,7 @@ test('dragonfly', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.hasShieldOfType(AccessoryType.ShieldLightning), true);
   assertEqual(game2.specialCargoDescription(), 'No special items.');
   assertEqual(game2.questListDescription(), 'No open quests.');
@@ -4205,14 +3933,12 @@ test('japori_hasMedicine', () => {
   assertEqual(game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO), 10);
   assertEqual(game.japoriQuestStatus, JaporiQuestStatus.HasMedicine);
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  let game2 = assertSurvivesSave(game);
   assertEqual(game2.commander.ship.totalCargoBays(), 15);
   assertEqual(game2.commander.ship.freeCargoBays(), 0);
 
   assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Water), 5);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO), 10);
-  assertEqual(game2.japoriQuestStatus, JaporiQuestStatus.HasMedicine);
 
   replay.replayEvent('Chart', 'click');
   replay.replayEvent('galacticChart_useSingularity_121_Japori', 'click');
@@ -4260,15 +3986,9 @@ test('japori_hasMedicine', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
 
-  assertEqual(game2.japoriQuestStatus, JaporiQuestStatus.Closed);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO), 0);
-  assertEqual(game2.commander.pilot, 5);
-  assertEqual(game2.commander.trader, 6);
-  assertEqual(game2.commander.engineer, 6);
-  assertEqual(game2.commander.fighter, 5);
 
   assertEqual(game2.commander.ship.totalCargoBays(), 15);
   assertEqual(game2.commander.ship.freeCargoBays(), 10);
@@ -4353,11 +4073,7 @@ test('eraseRecord_accept', () => {
   assertEqual(game.commander.policeRecordScore, PoliceRecordScore.Clean);
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
 
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.credits, creditsBefore - 5000);
-  assertEqual(game2.commander.policeRecordScore, PoliceRecordScore.Clean);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
+  assertSurvivesSave(game);
 });
 
 test('eraseRecord_decline', () => {
@@ -4431,11 +4147,7 @@ test('eraseRecord_decline', () => {
   assertEqual(game.commander.policeRecordScore, -33);
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.EraseRecord);
 
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.credits, creditsBefore);
-  assertEqual(game2.commander.policeRecordScore, -33);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.EraseRecord);
+  assertSurvivesSave(game);
 });
 
 test('skillIncrease_incidence', () => {
@@ -4477,15 +4189,7 @@ test('skillIncrease_decline', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.SkillIncrease);
 
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.credits, creditsBefore);
-  assertEqual(game2.commander.pilot, 5);
-  assertEqual(game2.commander.trader, 5);
-  assertEqual(game2.commander.engineer, 5);
-  assertEqual(game2.commander.fighter, 5);
-
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.SkillIncrease);
+  assertSurvivesSave(game);
 });
 
 test('skillIncrease_accept', () => {
@@ -4514,15 +4218,7 @@ test('skillIncrease_accept', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
 
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.credits, creditsBefore - 3000);
-  assertEqual(game2.commander.pilot, 5);
-  assertEqual(game2.commander.trader, 5);
-  assertEqual(game2.commander.engineer, 6);
-  assertEqual(game2.commander.fighter, 5);
-
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
+  assertSurvivesSave(game);
 });
 
 test('lottery_easy', () => {
@@ -4547,10 +4243,7 @@ test('lottery_easy', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
 
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.credits, creditsBefore + 1000);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
+  assertSurvivesSave(game);
 });
 
 test('lottery_beginner', () => {
@@ -4575,10 +4268,7 @@ test('lottery_beginner', () => {
 
   assertEqual(game.commander.currentSystem.specialEvent, SpecialEvent.None);
 
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.credits, creditsBefore + 1000);
-  assertEqual(game2.commander.currentSystem.specialEvent, SpecialEvent.None);
+  assertSurvivesSave(game);
 });
 
 test('lottery_normal_isNotOffered', () => {
@@ -4615,8 +4305,7 @@ test('retire', () => {
 
   assertEqual(game.questListDescription(), 'Claim your moon in Utopia.');
 
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  const game2 = assertSurvivesSave(game);
   assertEqual(game2.questListDescription(), 'Claim your moon in Utopia.');
 
   replay.replayEvent('cheat_freeSingularity');
@@ -4655,8 +4344,7 @@ test('tribble', () => {
   assertEqual(game.specialCargoDescription(), '2 cute, furry tribbles.');
   assertEqual(game.questListDescription(), 'Get rid of those pesky tribbles.');
 
-  let game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  let game2 = assertSurvivesSave(game);
   // Spot check some properties
   assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics), 0);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 3);
@@ -4686,8 +4374,7 @@ test('tribble', () => {
   assertEqual(game.specialCargoDescription(), 'No special items.');
   assertEqual(game.questListDescription(), 'No open quests.');
 
-  game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
   // Spot check some properties
   assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Narcotics), 0);
   assertEqual(game2.commander.ship.tradeItemQuantityForType(TradeItemType.Furs), 3);
@@ -4710,7 +4397,5 @@ test('tribble_notEnoughMoney', () => {
   );
   assertEqual(game.commander.ship.tribbles, 0);
 
-  const game2 = serializeAndDeserialize(game);
-  assertEqualGames(game, game2);
-  assertEqual(game2.commander.ship.tribbles, 0);
+  assertSurvivesSave(game);
 });

@@ -15,10 +15,9 @@ import { Session } from '../../game/session.ts';
 import {
   ActionLogReplay,
   assertEqual,
-  assertEqualGames,
+  assertSurvivesSave,
   recording,
   runReplayLog,
-  serializeAndDeserialize,
   show,
   unmountAll,
 } from './harness.ts';
@@ -92,9 +91,7 @@ test('serializationDeserialization_newGame', () => {
 
   const game = session.game!;
 
-  let game2 = serializeAndDeserialize(game);
-
-  assertEqualGames(game, game2);
+  let game2 = assertSurvivesSave(game);
 
   // Spot check some properties
   assertEqual(game2.difficulty, Difficulty.Normal);
@@ -116,9 +113,7 @@ test('serializationDeserialization_newGame', () => {
   const crystal = kira.mercenary!;
   game.commander.ship.addCrewMember(crystal);
 
-  game2 = serializeAndDeserialize(game);
-
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
 
   const kira2b = game2.solarSystems.find(x => x.name === 'Kira')!;
   const crystal2b = kira2b.mercenary!;
@@ -134,16 +129,14 @@ test('serializationDeserialization_newGame', () => {
 
   game.jarekStatus = JarekQuestStatus.OnBoard;
 
-  game2 = serializeAndDeserialize(game);
+  game2 = assertSurvivesSave(game);
 
-  assertEqualGames(game, game2);
   assertEqual(game2.questListDescription(), `Bring Ambassador Jarek to Devidia.`);
 
   game.wildStatus = WildQuestStatus.OnBoard;
 
-  game2 = serializeAndDeserialize(game);
+  game2 = assertSurvivesSave(game);
 
-  assertEqualGames(game, game2);
   assertEqual(
     game2.questListDescription(),
     `Bring Ambassador Jarek to Devidia.\nSmuggle Jonathan Wild to Kravat.`
@@ -151,9 +144,8 @@ test('serializationDeserialization_newGame', () => {
 
   game.commander.boughtMoon = true;
 
-  game2 = serializeAndDeserialize(game);
+  game2 = assertSurvivesSave(game);
 
-  assertEqualGames(game, game2);
   assertEqual(
     game2.questListDescription(),
     `Bring Ambassador Jarek to Devidia.\nSmuggle Jonathan Wild to Kravat.\nClaim your moon in Utopia.`
@@ -168,9 +160,7 @@ test('serializationDeserialization', () => {
 
   const game = session.game!;
 
-  let game2 = serializeAndDeserialize(game);
-
-  assertEqualGames(game, game2);
+  let game2 = assertSurvivesSave(game);
 
   // Spot check some properties
   assertEqual(game2.difficulty, Difficulty.Normal);
@@ -198,9 +188,7 @@ test('serializationDeserialization', () => {
   const draco = klaatu.mercenary!;
   game.commander.ship.addCrewMember(draco);
 
-  game2 = serializeAndDeserialize(game);
-
-  assertEqualGames(game, game2);
+  game2 = assertSurvivesSave(game);
 
   const klaatu2b = game2.solarSystems.find(x => x.name === 'Klaatu')!;
   const draco2b = klaatu2b.mercenary!;
@@ -218,16 +206,14 @@ test('serializationDeserialization', () => {
 
   game.jarekStatus = JarekQuestStatus.OnBoard;
 
-  game2 = serializeAndDeserialize(game);
+  game2 = assertSurvivesSave(game);
 
-  assertEqualGames(game, game2);
   assertEqual(game2.questListDescription(), `Bring Ambassador Jarek to Devidia.`);
 
   game.wildStatus = WildQuestStatus.OnBoard;
 
-  game2 = serializeAndDeserialize(game);
+  game2 = assertSurvivesSave(game);
 
-  assertEqualGames(game, game2);
   assertEqual(
     game2.questListDescription(),
     `Bring Ambassador Jarek to Devidia.\nSmuggle Jonathan Wild to Kravat.`
@@ -235,9 +221,8 @@ test('serializationDeserialization', () => {
 
   game.commander.boughtMoon = true;
 
-  game2 = serializeAndDeserialize(game);
+  game2 = assertSurvivesSave(game);
 
-  assertEqualGames(game, game2);
   assertEqual(
     game2.questListDescription(),
     `Bring Ambassador Jarek to Devidia.\nSmuggle Jonathan Wild to Kravat.\nClaim your moon in Utopia.`
