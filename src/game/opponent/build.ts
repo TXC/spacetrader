@@ -5,19 +5,14 @@ import { Ship, shipModelForType, ShipModelType } from '../Ship.ts';
 import type { ShipModel } from '../Ship.ts';
 import { Difficulty, WildQuestStatus } from '../SolarSystem.types.ts';
 import { TradeItemType, TRADE_ITEM_COUNT } from '../TradeItem.types.ts';
-import { ensureInteger, ensureType } from '../ensure.ts';
 import type { Game } from '../Game.ts';
 import { runtime } from '../runtime.ts';
 import { Opponent, OpponentType } from './Opponent.ts';
 
 // Builds the opponent met on a trip: its ship, what the ship carries, and its crew.
 export function buildOpponent(type: OpponentType, game: Game): Opponent {
-  ensureInteger(type);
-  ensureType(game, 'object');
-
   let opponent: Opponent;
   const difficulty = game.difficulty;
-  ensureInteger(difficulty);
 
   if (type === OpponentType.FamousCaptain) {
     opponent = famousCaptain(type);
@@ -113,9 +108,6 @@ function ordinaryOpponent(type: OpponentType, game: Game): Opponent {
 
   const chosenShipType = chooseShipType(type, game);
 
-  ensureInteger(chosenShipType);
-  ensureInteger(game.difficulty);
-
   const ship = Ship.create(chosenShipType);
   const model = shipModelForType(chosenShipType);
 
@@ -160,8 +152,6 @@ function chooseShipType(type: OpponentType, game: Game): ShipModelType {
   } else if (type === OpponentType.Mantis) {
     return ShipModelType.Mantis;
   }
-
-  ensureInteger(tries);
 
   return randomShipType(type, game, tries);
 }
@@ -240,8 +230,6 @@ function equipmentTries(type: OpponentType, game: Game): number {
     );
   }
 
-  ensureInteger(tries);
-
   return tries;
 }
 
@@ -262,7 +250,6 @@ function addGadgets(ship: Ship, model: ShipModel, game: Game, tries: number): vo
     ) {
       const gadget = gadgetForType(gadgetType)!;
       gadgetFreqSum += gadget.occurrence;
-      ensureInteger(gadgetFreqSum);
       if (gadgetFreqSum >= gadgetRoll) {
         if (!ship.hasGadgetOfType(gadgetType)) {
           ship.addGadgetOfType(gadgetType);
@@ -294,14 +281,11 @@ function gadgetCount(model: ShipModel, game: Game, tries: number): number {
     }
   }
 
-  ensureInteger(gadgetSlots);
-
   return gadgetSlots;
 }
 
 function addCargo(ship: Ship, type: OpponentType, game: Game, allNarcotics: boolean): void {
   const totalCargoBays = ship.totalCargoBays();
-  ensureInteger(totalCargoBays);
 
   if (allNarcotics) {
     ship.boughtQuantity(Math.min(totalCargoBays, 5), TradeItemType.Narcotics, 0);
@@ -309,7 +293,6 @@ function addCargo(ship: Ship, type: OpponentType, game: Game, allNarcotics: bool
     const amountCargo = cargoAmount(type, game, totalCargoBays);
 
     let cargoToDistribute = amountCargo;
-    ensureInteger(cargoToDistribute);
 
     while (cargoToDistribute > 0) {
       const itemType = runtime.gameRand.randomIntBelow(TRADE_ITEM_COUNT);
@@ -347,7 +330,6 @@ function addWeapons(ship: Ship, model: ShipModel, game: Game, tries: number): vo
 
   for (let i = 0; i < weaponSlots; ++i) {
     const weaponRoll = bestRoll(tries, 100);
-    ensureInteger(weaponRoll);
 
     let weaponFreqSum = 0;
     for (
@@ -357,7 +339,6 @@ function addWeapons(ship: Ship, model: ShipModel, game: Game, tries: number): vo
     ) {
       const weapon = weaponForType(weaponType)!;
       weaponFreqSum += weapon.occurrence;
-      ensureInteger(weaponFreqSum);
       if (weaponFreqSum >= weaponRoll) {
         ship.addWeaponOfType(weaponType);
         break;
@@ -379,8 +360,6 @@ function weaponCount(model: ShipModel, game: Game, tries: number): number {
     }
   }
 
-  ensureInteger(weaponSlots);
-
   return weaponSlots;
 }
 
@@ -390,7 +369,6 @@ function addShields(ship: Ship, model: ShipModel, game: Game, tries: number): vo
   let totalShieldPower = 0;
   for (let i = 0; i < shieldSlots; ++i) {
     const shieldRoll = bestRoll(tries, 100);
-    ensureInteger(shieldRoll);
 
     let shieldFreqSum = 0;
     for (
@@ -410,8 +388,6 @@ function addShields(ship: Ship, model: ShipModel, game: Game, tries: number): vo
     }
   }
 
-  ensureInteger(totalShieldPower);
-
   const damage = ship.currentShieldPower - totalShieldPower;
   ship.damageShieldsByAmount(damage);
 }
@@ -428,8 +404,6 @@ function shieldCount(model: ShipModel, game: Game, tries: number): number {
       }
     }
   }
-
-  ensureInteger(shieldSlots);
 
   return shieldSlots;
 }
@@ -454,8 +428,6 @@ function addMercenaries(ship: Ship, model: ShipModel, game: Game): void {
       numMercenaries++;
     }
   }
-
-  ensureInteger(numMercenaries);
 
   for (let i = 0; i < numMercenaries; ++i) {
     const mercenary = CrewMember.create(CrewMember.mercenaryNames()[i]);
