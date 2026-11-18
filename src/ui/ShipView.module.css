@@ -1,0 +1,52 @@
+.ship {
+  /* No text size, so the gaps between the bars take no room. */
+  font-size: 0;
+  text-align: center;
+}
+
+/* In an encounter a ship fades in on top of the one that is leaving. */
+.fading {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.fading[data-shown] {
+  opacity: 1;
+}
+
+.hull {
+  composes: bar from './shared.module.css';
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.shield {
+  composes: bar from './shared.module.css';
+  display: inline-block;
+}
+
+.hullFill {
+  composes: barFill from './shared.module.css';
+  background-color: var(--hull);
+}
+
+.shieldFill {
+  composes: barFill from './shared.module.css';
+  background-color: var(--shield);
+}
+
+.sliding {
+  transition: width 0.2s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fading,
+  .sliding {
+    transition: none;
+  }
+}

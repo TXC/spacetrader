@@ -4,18 +4,6 @@
   margin: auto;
 }
 
-.battle-opponent {
-  font-size: 0; /* Remove extra space for inline-block children  */
-  text-align: center;
-}
-
-.battle-opponent-crossfade {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
 /* System landing buttons */
 
 .systemLandingButtons {
@@ -86,10 +74,6 @@
   margin-top: 0.333rem;
 }
 
-.flipped {
-  transform: scaleX(-1);
-}
-
 #battleViewsContainer {
   position: relative;
   display: flex;
@@ -109,15 +93,6 @@
   text-align: center;
 }
 
-.fade-in {
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
-}
-
-.visible {
-  opacity: 1;
-}
-
 #repairDiv {
   text-align: center;
 }
@@ -126,61 +101,6 @@
   display: block;
   margin-top: 0.533rem;
   text-align: center;
-}
-
-.full-width-img {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.hp-container {
-  display: block;
-  width: 6.667rem;
-  height: 0.2rem;
-  background-color: #ccc;
-  border-radius: 3px;
-  overflow: hidden;
-  margin-top: 0.2rem;
-  margin-bottom: 0;
-  padding: 0;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.hp-bar {
-  height: 100%;
-  background-color: green;
-  width: 100%;
-}
-
-.shield-container {
-  display: inline-block;
-  width: 6.667rem;
-  height: 0.2rem;
-  background-color: #ccc;
-  border-radius: 3px;
-  overflow: hidden;
-  margin-top: 0.2rem;
-  margin-bottom: 0;
-  padding: 0;
-}
-
-.shield-bar {
-  height: 100%;
-  background-color: #ffd829;
-  width: 100%;
-}
-
-.bar-width-transition {
-  transition: width 0.2s ease-in-out;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .fade-in,
-  .bar-width-transition {
-    transition: none;
-  }
 }
 
 .hidden {

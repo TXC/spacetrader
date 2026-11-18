@@ -16,18 +16,18 @@ test('a departing opponent stays on the page, fading, for two seconds', () => {
   const second = new Ship(ShipModelType.Firefly, 2);
   flushSync(() => root.render(<Opponents ship={first} />));
   flushSync(() => vi.advanceTimersByTime(20));
-  const firstView = host.querySelector('.battle-opponent')!;
-  expect(firstView.classList.contains('visible')).toBe(true);
+  const firstView = host.querySelector('[data-ship]')!;
+  expect(firstView.hasAttribute('data-shown')).toBe(true);
 
   flushSync(() => root.render(<Opponents ship={second} />));
 
-  const views = [...host.querySelectorAll('.battle-opponent')];
+  const views = [...host.querySelectorAll('[data-ship]')];
   expect(views.length).toBe(2);
   expect(views[0]).toBe(firstView);
-  expect(firstView.classList.contains('visible')).toBe(false);
+  expect(firstView.hasAttribute('data-shown')).toBe(false);
 
   flushSync(() => vi.advanceTimersByTime(2000));
-  expect(host.querySelectorAll('.battle-opponent').length).toBe(1);
+  expect(host.querySelectorAll('[data-ship]').length).toBe(1);
   expect(host.querySelector('#battle-hpContainer-enemy-Firefly')).not.toBeNull();
   flushSync(() => root.unmount());
   host.remove();
@@ -40,7 +40,7 @@ test('two opponents leaving in quick succession are each removed in their own ti
   const ships = [ShipModelType.Gnat, ShipModelType.Firefly, ShipModelType.Mosquito].map(
     type => new Ship(type, 2)
   );
-  const count = () => host.querySelectorAll('.battle-opponent').length;
+  const count = () => host.querySelectorAll('[data-ship]').length;
   flushSync(() => root.render(<Opponents ship={ships[0]} />));
   flushSync(() => root.render(<Opponents ship={ships[1]} />));
   flushSync(() => vi.advanceTimersByTime(1000));
