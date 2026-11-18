@@ -1,5 +1,4 @@
 import { AlertViewController, alertStore } from '../../game/alerts.ts';
-import { Commander } from '../../game/Commander.ts';
 import { Game } from '../../game/Game.ts';
 import { GameRand } from '../../game/GameRand.ts';
 import { runtime } from '../../game/runtime.ts';
@@ -10,10 +9,15 @@ export function newGame(difficulty = 2): Game {
   runtime.debugMode = DebugMode.Assert;
   runtime.gameRand = new GameRand(1);
   AlertViewController.clearAlerts();
-  const commander = new Commander('Tester', 5, 5, 5, 5);
-  commander.setReserveMoney(false);
-  commander.setDifficulty(difficulty);
-  return new Game(difficulty, commander);
+  const game = new Game(difficulty, {
+    name: 'Tester',
+    engineer: 5,
+    pilot: 5,
+    fighter: 5,
+    trader: 5,
+  });
+  game.commander.setReserveMoney(false);
+  return game;
 }
 
 // The alert on top, and a press of one of its buttons.
