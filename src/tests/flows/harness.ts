@@ -152,105 +152,134 @@ export function performStressTest(
 
   let galacticChartConsecutiveActions = 0;
 
-  let i: number;
-  for (i = 0; i < numActionsToPerform; ++i) {
-    // Look up every known registered element id in the document
-    const liveElementIDs: string[] = [];
-    const liveEventNames: string[] = [];
-    for (let j = 0; j < seenElementIDs.length; ++j) {
-      // Prune the ones that are no longer present
-      if (document.getElementById(seenElementIDs[j])) {
-        liveElementIDs.push(seenElementIDs[j]);
-        liveEventNames.push(seenEventNames[j]);
+  let handlerError: unknown = null;
+  const keepError = (event: ErrorEvent) => (handlerError ??= event.error ?? event.message);
+  window.addEventListener('error', keepError);
+
+  let i = 0;
+  try {
+    for (; i < numActionsToPerform; ++i) {
+      // Look up every known registered element id in the document
+      const liveElementIDs: string[] = [];
+      const liveEventNames: string[] = [];
+      for (let j = 0; j < seenElementIDs.length; ++j) {
+        // Prune the ones that are no longer present
+        if (document.getElementById(seenElementIDs[j])) {
+          liveElementIDs.push(seenElementIDs[j]);
+          liveEventNames.push(seenEventNames[j]);
+        }
       }
-    }
-    seenElementIDs = liveElementIDs;
-    seenEventNames = liveEventNames;
+      seenElementIDs = liveElementIDs;
+      seenEventNames = liveEventNames;
 
-    // Filter element id list down to choose an action to perform: remove cheats, filter everything else if there is an alert shown
-    const eligibleElementIDs: string[] = [];
-    const eligibleEventNames: string[] = [];
+      // Filter element id list down to choose an action to perform: remove cheats, filter everything else if there is an alert shown
+      const eligibleElementIDs: string[] = [];
+      const eligibleEventNames: string[] = [];
 
-    for (let j = 0; j < liveElementIDs.length; ++j) {
-      const eID = liveElementIDs[j];
-      const eName = liveEventNames[j];
+      for (let j = 0; j < liveElementIDs.length; ++j) {
+        const eID = liveElementIDs[j];
+        const eName = liveEventNames[j];
 
-      // Remove cheats
-      let shouldFilter = eID.startsWith('cheat_');
+        // Remove cheats
+        let shouldFilter = eID.startsWith('cheat_');
 
-      // Remove the end game button
-      shouldFilter = shouldFilter || eID === 'giveup';
+        // Remove the end game button
+        shouldFilter = shouldFilter || eID === 'giveup';
 
-      // If an alert is shown, require that the user acts on it
-      const alertElement = document.querySelector('dialog');
-      if (alertElement) {
-        const thisEl = document.getElementById(eID);
-        shouldFilter = shouldFilter || !alertElement.contains(thisEl);
+        // If an alert is shown, require that the user acts on it
+        const alertElement = document.querySelector('dialog');
+        if (alertElement) {
+          const thisEl = document.getElementById(eID);
+          shouldFilter = shouldFilter || !alertElement.contains(thisEl);
+        }
+
+        // Avoid getting stuck on galactic chart
+        if (avoidGalacticChart && galacticChartConsecutiveActions > 2) {
+          shouldFilter = shouldFilter || eID.startsWith('galacticChart');
+        }
+
+        if (!shouldFilter) {
+          eligibleElementIDs.push(eID);
+          eligibleEventNames.push(eName);
+        }
       }
 
-      // Avoid getting stuck on galactic chart
-      if (avoidGalacticChart && galacticChartConsecutiveActions > 2) {
-        shouldFilter = shouldFilter || eID.startsWith('galacticChart');
-      }
-
-      if (!shouldFilter) {
-        eligibleElementIDs.push(eID);
-        eligibleEventNames.push(eName);
-      }
-    }
-
-    // Pick an action, execute it
-    let chosenElementID = 'warpBlastOff';
-    let chosenEventName = 'click';
-    let pickBlastOff =
-      prioritizeBlastOff &&
-      eligibleElementIDs.includes('warpBlastOff') &&
-      testRand.randomIntBelow(2) == 1;
-    if (!pickBlastOff) {
-      chosenElementID = 'Warp';
-      chosenEventName = 'click';
-      pickBlastOff =
+      // Pick an action, execute it
+      let chosenElementID = 'warpBlastOff';
+      let chosenEventName = 'click';
+      let pickBlastOff =
         prioritizeBlastOff &&
-        eligibleElementIDs.includes('Warp') &&
-        testRand.randomIntBelow(10) == 1;
-    }
+        eligibleElementIDs.includes('warpBlastOff') &&
+        testRand.randomIntBelow(2) == 1;
+      if (!pickBlastOff) {
+        chosenElementID = 'Warp';
+        chosenEventName = 'click';
+        pickBlastOff =
+          prioritizeBlastOff &&
+          eligibleElementIDs.includes('Warp') &&
+          testRand.randomIntBelow(10) == 1;
+      }
 
-    if (!pickBlastOff) {
-      const chosenIndex = testRand.randomIntBelow(eligibleElementIDs.length);
-      chosenElementID = eligibleElementIDs[chosenIndex];
-      chosenEventName = eligibleEventNames[chosenIndex];
-    }
+      if (!pickBlastOff) {
+        const chosenIndex = testRand.randomIntBelow(eligibleElementIDs.length);
+        chosenElementID = eligibleElementIDs[chosenIndex];
+        chosenEventName = eligibleEventNames[chosenIndex];
+      }
 
-    // Cash infusion so the test doesn't get stuck with no money for long
-    if (i > 0 && i % 800 === 0) {
-      chosenElementID = 'cheat_freeMoney';
-      chosenEventName = 'click';
-    }
+      // Cash infusion so the test doesn't get stuck with no money for long
+      if (i > 0 && i % 800 === 0) {
+        chosenElementID = 'cheat_freeMoney';
+        chosenEventName = 'click';
+      }
 
-    replay.replayEvent(chosenElementID, chosenEventName);
+      replay.replayEvent(chosenElementID, chosenEventName);
+      if (handlerError) throw handlerError;
 
-    if (chosenElementID.startsWith('galacticChart')) {
-      galacticChartConsecutiveActions++;
-    } else {
-      galacticChartConsecutiveActions = 0;
-    }
+      if (chosenElementID.startsWith('galacticChart')) {
+        galacticChartConsecutiveActions++;
+      } else {
+        galacticChartConsecutiveActions = 0;
+      }
 
-    // Periodically ensure that serializing/deserializing the game results in an identical game
-    if (i > 0 && i % 30 === 0) {
-      const session = replay.session;
-      const game = session.game;
-      if (game) {
-        pLog.log(101);
-        const game2 = serializeAndDeserialize(game);
-        assertEqualGames(game, game2);
+      // Periodically ensure that serializing/deserializing the game results in an identical game
+      if (i > 0 && i % 30 === 0) {
+        const session = replay.session;
+        const game = session.game;
+        if (game) {
+          pLog.log(101);
+          const game2 = serializeAndDeserialize(game);
+          assertEqualGames(game, game2);
+          assertSaneGame(game);
+        }
       }
     }
+  } catch (error) {
+    // The seed and the log replay the failure: paste the log into the debug panel.
+    console.error(
+      `==== Stress test ${testName} failed at action ${i} / ${numActionsToPerform}, seed ${randSeed} ==== \n` +
+        runtime.actionLog.serializedString()
+    );
+    throw error;
+  } finally {
+    window.removeEventListener('error', keepError);
   }
+}
 
-  console.log(
-    `==== Stress test ${testName} completed with ${i} / ${numActionsToPerform} actions ==== \n` +
-      runtime.actionLog.serializedString()
-  );
+function assertWholeWithin(name: string, value: number, max: number) {
+  const ok = Number.isInteger(value) && value >= 0 && value <= max;
+  expect(ok, `${name} is ${value}, allowed is 0 to ${max}`).toBe(true);
+}
+
+// What holds for every game, however it was played.
+function assertSaneGame(game: Game) {
+  const { commander } = game;
+  const { ship } = commander;
+  const cargo = [...ship._cargo.values()].reduce((sum, quantity) => sum + quantity, 0);
+  assertWholeWithin('credits', commander.credits, Number.MAX_SAFE_INTEGER);
+  assertWholeWithin('debt', commander.debt, Number.MAX_SAFE_INTEGER);
+  assertWholeWithin('hull', ship.hull, ship.maximumHullStrength());
+  assertWholeWithin('cargo', cargo, ship.totalCargoBays());
+  assertWholeWithin('fuel', ship._fuel, ship.fuelTankCapacity());
 }
 
 // ---- checks -----------------------------------------------------------------------------

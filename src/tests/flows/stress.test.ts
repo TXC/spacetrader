@@ -4,8 +4,10 @@
 import { test } from 'vitest';
 import { performStressTest } from './harness.ts';
 
+// The seed of the random walk. Set STRESS_SEED to walk other paths.
+const randSeed = Number(import.meta.env.STRESS_SEED) || 1732183570755; // Date.now() when I wrote this line
+
 test('beginnerDifficulty', () => {
-  const randSeed = 1732183570755; // Date.now() when I wrote this line
   let initialLog = `{"idLog":["difficultySelect","createCommander"],"eventNameLog":["select|change|0","click"],"gameRandSeed":1732326941039}`;
 
   performStressTest('Beginner A', randSeed, initialLog, 200, false, false);
@@ -17,7 +19,6 @@ test('beginnerDifficulty', () => {
 });
 
 test('easyDifficulty', () => {
-  const randSeed = 1732183570755; // Date.now() when I wrote this line
   let initialLog = `{"idLog":["difficultySelect","createCommander"],"eventNameLog":["select|change|1","click"],"gameRandSeed":1732326941039}`;
 
   performStressTest('Easy A', randSeed, initialLog, 200, false, false);
@@ -29,7 +30,6 @@ test('easyDifficulty', () => {
 });
 
 test('normalDifficulty', () => {
-  const randSeed = 1732183570755; // Date.now() when I wrote this line
   let initialLog = `{"idLog":["createCommander"],"eventNameLog":["click"],"gameRandSeed":1732183330034}`;
 
   performStressTest('Normal A', randSeed, initialLog, 200, false, false);
@@ -42,7 +42,6 @@ test('normalDifficulty', () => {
 });
 
 test('hardDifficulty', () => {
-  const randSeed = 1732183570755; // Date.now() when I wrote this line
   let initialLog = `{"idLog":["difficultySelect","createCommander"],"eventNameLog":["select|change|3","click"],"gameRandSeed":1732335655620}`;
 
   performStressTest('Hard A', randSeed, initialLog, 200, false, false);
@@ -54,7 +53,6 @@ test('hardDifficulty', () => {
 });
 
 test('absurdDifficulty', () => {
-  const randSeed = 1732183570755; // Date.now() when I wrote this line
   let initialLog = `{"idLog":["difficultySelect","createCommander"],"eventNameLog":["select|change|4","click"],"gameRandSeed":1732336512130}`;
 
   performStressTest('Absurd A', randSeed, initialLog, 200, false, false);
