@@ -1,0 +1,60 @@
+/* The page itself and the plain look of headings, pictures and form fields. Nothing here
+   belongs to one screen. */
+
+/* Everything is sized from this one number: 15px on a phone, growing with the window to
+   20px on a wide screen. Other sizes are in rem or em, so they grow with it. */
+html {
+  font-size: clamp(15px, 13.24px + 0.47vw, 20px);
+}
+
+body {
+  background: var(--page);
+  color: var(--text);
+  font-family: 'Helvetica Neue', Helvetica, sans-serif;
+  font-size: 1rem;
+  margin: var(--space-5) var(--space-10) var(--space-10);
+  padding-top: constant(safe-area-inset-top);
+  padding-top: env(safe-area-inset-top);
+  /* Clear of the home bar on a phone with one, and never without a margin. */
+  margin-bottom: max(var(--space-10), env(safe-area-inset-bottom));
+  touch-action: manipulation;
+}
+
+/* Text can be selected and copied. Buttons and the maps cannot: a long press there is a
+   press, not a selection. */
+button,
+canvas {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+h1 {
+  font-size: 1.3em;
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+h4 {
+  margin: 0;
+}
+
+img {
+  border-radius: var(--radius-small);
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Buttons and form fields follow the page's text size instead of the browser's own. */
+button,
+input,
+select {
+  font-family: inherit;
+  font-size: 0.889rem;
+}
+
+input[type='checkbox'] {
+  margin-right: var(--space-5);
+}

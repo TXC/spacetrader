@@ -3,6 +3,8 @@ import { HallOfFame } from './HallOfFame.tsx';
 import { Landing } from './Landing.tsx';
 import { NewCommander } from './NewCommander.tsx';
 import { useStore } from './useStore.ts';
+import './styles/tokens.css';
+import './styles/base.css';
 import './style.css';
 
 // The whole game: a new commander, the planet hub, or the game-over screen.

@@ -1,63 +1,3 @@
-/* Everything is sized from this one number: 15px on a phone, growing with the window to
-   20px on a wide screen. Other sizes are in rem or em, so they grow with it. */
-html {
-  font-size: clamp(15px, 13.24px + 0.47vw, 20px);
-}
-
-/* What a button looks like. Button.module.css draws every button from these, so a theme
-   is a block that gives them other values. */
-:root {
-  --button-fill: transparent;
-  --button-text: #1b2330;
-  --button-line: #b9c1cd;
-  --button-border-width: 1.5px;
-  --button-radius: 0.5rem;
-  --button-shadow: none;
-  --button-accent: #1f6feb;
-  --button-accent-text: #ffffff;
-  --button-accent-soft: #dce9ff;
-  --button-accent-soft-text: #0f3f8f;
-  --button-danger: #b3261e;
-}
-
-@media (prefers-color-scheme: dark) {
-  /* Filled, not outlined: the icons are drawn for a light background. */
-  :root {
-    --button-fill: #8492a6;
-    --button-text: #0b1220;
-    --button-line: #475569;
-    --button-accent: #5b9dff;
-    --button-accent-text: #06142b;
-    --button-accent-soft: #c3d2e8;
-    --button-accent-soft-text: #0b1220;
-    --button-danger: #4a0906;
-  }
-}
-
-body {
-  background: white;
-  color: black;
-  font-family: 'Helvetica Neue', Helvetica, sans-serif;
-  font-size: 1rem;
-  margin: 0.667rem;
-  margin-top: 0.333rem;
-  padding-top: constant(safe-area-inset-top);
-  padding-top: env(safe-area-inset-top);
-  margin-bottom: 0.667rem;
-  margin-bottom: constant(safe-area-inset-bottom);
-  margin-bottom: env(safe-area-inset-bottom);
-  touch-action: manipulation;
-}
-
-/* Text can be selected and copied. Buttons and the maps cannot: a long press there is a
-   press, not a selection. */
-button,
-canvas {
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-}
-
 /* One column, as wide as the window up to a comfortable maximum. */
 #game {
   width: min(100%, 60rem);
@@ -66,20 +6,6 @@ canvas {
 
 .main-title {
   font-size: 2em;
-}
-
-h1 {
-  font-size: 1.3em;
-  margin-top: 0.2rem;
-  margin-bottom: 0.2rem;
-}
-
-img {
-  border-radius: 3px;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: -webkit-crisp-edges;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
 }
 
 .battle-opponent {
@@ -464,19 +390,6 @@ table tr.section-label td {
   margin: auto;
 }
 
-a {
-  text-decoration: none;
-  color: #007bff;
-}
-
-input[type='checkbox'] {
-  margin-right: 0.333rem;
-}
-
-h4 {
-  margin: 0;
-}
-
 .header-with-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -599,21 +512,6 @@ h4 {
 }
 
 @media (prefers-color-scheme: dark) {
-  body {
-    background: #1c1c1c;
-    color: #f0f0f0;
-  }
-
-  input[type='text'],
-  textarea {
-    background-color: #121212;
-    color: #eee;
-  }
-
-  a {
-    color: #64748b;
-  }
-
   .tight-table td {
     background-color: #2e2e2e;
   }
@@ -668,12 +566,4 @@ h4 {
 .tight-table td:has(> .table-row-icon),
 .tight-table-collapse td:has(> .table-row-icon) {
   white-space: nowrap;
-}
-
-/* Buttons and form fields follow the page's text size instead of the browser's own. */
-button,
-input,
-select {
-  font-family: inherit;
-  font-size: 0.889rem;
 }
