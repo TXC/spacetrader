@@ -98,7 +98,7 @@ function nearestFreeSystem(
 type GameFields = {
   uniqueID: string;
   difficulty: Difficulty;
-  endStatus: number;
+  endStatus: GameEndStatus;
   trackedSystem: SolarSystem | null;
   breakingNews: string[] | null;
   canSuperWarp: boolean;
@@ -112,16 +112,16 @@ type GameFields = {
   alwaysIgnorePolice: boolean;
   alwaysIgnoreTraders: boolean;
   alwaysIgnoreTradeInOrbit: boolean;
-  monsterStatus: number;
-  dragonflyStatus: number;
-  scarabStatus: number;
-  japoriQuestStatus: number;
-  jarekStatus: number;
-  invasionStatus: number;
-  experimentStatus: number;
+  monsterStatus: MonsterQuestStatus;
+  dragonflyStatus: DragonflyQuestStatus;
+  scarabStatus: ScarabQuestStatus;
+  japoriQuestStatus: JaporiQuestStatus;
+  jarekStatus: JarekQuestStatus;
+  invasionStatus: InvasionQuestStatus;
+  experimentStatus: ExperimentQuestStatus;
   fabricRipProbability: number;
-  wildStatus: number;
-  reactorStatus: number;
+  wildStatus: WildQuestStatus;
+  reactorStatus: ReactorQuestStatus;
   commander: Commander;
   monsterHull: number;
   remainingRareEvents: number[];
@@ -169,7 +169,7 @@ export class Game {
   private _onSave: ((game: Game) => void) | null = null;
   private _onChange: (() => void) | null = null;
   readonly uniqueID: string;
-  endStatus: number;
+  endStatus: GameEndStatus;
   trackedSystem: SolarSystem | null;
   private _breakingNews: string[] | null;
   canSuperWarp: boolean;
@@ -183,16 +183,16 @@ export class Game {
   alwaysIgnorePolice: boolean;
   alwaysIgnoreTraders: boolean;
   alwaysIgnoreTradeInOrbit: boolean;
-  monsterStatus: number;
-  dragonflyStatus: number;
-  scarabStatus: number;
-  japoriQuestStatus: number;
-  jarekStatus: number;
-  invasionStatus: number;
-  experimentStatus: number;
+  monsterStatus: MonsterQuestStatus;
+  dragonflyStatus: DragonflyQuestStatus;
+  scarabStatus: ScarabQuestStatus;
+  japoriQuestStatus: JaporiQuestStatus;
+  jarekStatus: JarekQuestStatus;
+  invasionStatus: InvasionQuestStatus;
+  experimentStatus: ExperimentQuestStatus;
   fabricRipProbability: number;
-  wildStatus: number;
-  reactorStatus: number;
+  wildStatus: WildQuestStatus;
+  reactorStatus: ReactorQuestStatus;
   readonly commander: Commander;
   difficulty: Difficulty;
   monsterHull: number;
@@ -303,18 +303,18 @@ export class Game {
   // The values a saved game keeps as they are.
   private static savedValues(state: GameState) {
     return {
-      monsterStatus: state.monsterStatus,
-      dragonflyStatus: state.dragonflyStatus,
-      scarabStatus: state.scarabStatus,
-      japoriQuestStatus: state.japoriQuestStatus,
-      jarekStatus: state.jarekStatus,
-      invasionStatus: state.invasionStatus,
-      experimentStatus: state.experimentStatus,
+      monsterStatus: state.monsterStatus as MonsterQuestStatus,
+      dragonflyStatus: state.dragonflyStatus as DragonflyQuestStatus,
+      scarabStatus: state.scarabStatus as ScarabQuestStatus,
+      japoriQuestStatus: state.japoriQuestStatus as JaporiQuestStatus,
+      jarekStatus: state.jarekStatus as JarekQuestStatus,
+      invasionStatus: state.invasionStatus as InvasionQuestStatus,
+      experimentStatus: state.experimentStatus as ExperimentQuestStatus,
       fabricRipProbability: state.fabricRipProbability,
-      wildStatus: state.wildStatus,
+      wildStatus: state.wildStatus as WildQuestStatus,
       reactorStatus: state.reactorStatus,
       difficulty: state.difficulty,
-      endStatus: state.endStatus,
+      endStatus: state.endStatus as GameEndStatus,
       monsterHull: state.monsterHull,
       remindLoans: state.remindLoans,
       tribbleMessage: state.tribbleMessage,
@@ -773,7 +773,11 @@ export class Game {
     this.commander.timePassed(days, this.difficulty);
 
     if (invasionUnderway(this.invasionStatus)) {
-      this.invasionStatus = Math.min(InvasionQuestStatus.ClosedTooLate, this.invasionStatus + days);
+      // Every day of the countdown, and the day it runs out, is a named status.
+      this.invasionStatus = Math.min(
+        InvasionQuestStatus.ClosedTooLate,
+        this.invasionStatus + days
+      ) as InvasionQuestStatus;
       if (this.invasionStatus === InvasionQuestStatus.ClosedTooLate) {
         const gemulon = this._findSolarSystem('Gemulon')!;
         gemulon.specialEvent = SpecialEvent.GemulonInvaded;
@@ -803,7 +807,7 @@ export class Game {
       this.experimentStatus = Math.min(
         ExperimentQuestStatus.ClosedTooLate,
         this.experimentStatus + days
-      );
+      ) as ExperimentQuestStatus;
       if (this.experimentStatus === ExperimentQuestStatus.ClosedTooLate) {
         this.fabricRipProbability = FABRIC_RIP_PROBABILITY_INITIAL;
 

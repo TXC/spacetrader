@@ -35,14 +35,14 @@ function paperWith(event: SpecialEvent, setUp: (game: Game) => void): string[] {
 
 const E = SpecialEvent;
 const quest = {
-  japori: (s: number) => (game: Game) => (game.japoriQuestStatus = s),
-  scarab: (s: number) => (game: Game) => (game.scarabStatus = s),
-  monster: (s: number) => (game: Game) => (game.monsterStatus = s),
-  dragonfly: (s: number) => (game: Game) => (game.dragonflyStatus = s),
-  invasion: (s: number) => (game: Game) => (game.invasionStatus = s),
-  experiment: (s: number) => (game: Game) => (game.experimentStatus = s),
-  jarek: (s: number) => (game: Game) => (game.jarekStatus = s),
-  wild: (s: number) => (game: Game) => (game.wildStatus = s),
+  japori: (s: JaporiQuestStatus) => (game: Game) => (game.japoriQuestStatus = s),
+  scarab: (s: ScarabQuestStatus) => (game: Game) => (game.scarabStatus = s),
+  monster: (s: MonsterQuestStatus) => (game: Game) => (game.monsterStatus = s),
+  dragonfly: (s: DragonflyQuestStatus) => (game: Game) => (game.dragonflyStatus = s),
+  invasion: (s: InvasionQuestStatus) => (game: Game) => (game.invasionStatus = s),
+  experiment: (s: ExperimentQuestStatus) => (game: Game) => (game.experimentStatus = s),
+  jarek: (s: JarekQuestStatus) => (game: Game) => (game.jarekStatus = s),
+  wild: (s: WildQuestStatus) => (game: Game) => (game.wildStatus = s),
   artifact: (game: Game) => (game.commander.artifactOnBoard = true),
   none: () => {},
 };
