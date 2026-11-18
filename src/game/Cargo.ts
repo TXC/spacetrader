@@ -63,10 +63,12 @@ export function buyCargo(game: Game, type: number, quantity: number): 'ok' | 'de
   if (game.commander.debtIsTooLargeToBuy()) return 'debtTooLarge';
   game.commander.attemptPurchaseOfItem(type, quantity);
   game.save();
+  game.changed();
   return 'ok';
 }
 
 export function sellCargo(game: Game, type: number, quantity: number): void {
   game.commander.attemptSaleOfItem(type, quantity, false);
   game.save();
+  game.changed();
 }

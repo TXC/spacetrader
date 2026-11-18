@@ -4,7 +4,6 @@ import { PoliceRecordScore } from './Commander.ts';
 import type { Game } from './Game.ts';
 import { runtime } from './runtime.ts';
 import { named } from './texts.ts';
-import { session } from './session.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import {
   DragonflyQuestStatus,
@@ -86,7 +85,7 @@ export class News {
     if (this.game.commander.spendingMoney() < this.price()) return;
     this.pay();
     this.headlines();
-    session.changed();
+    this.game.changed();
   }
 
   private pay(): void {
@@ -99,7 +98,7 @@ export class News {
   setAuto(on: boolean): void {
     this.game.autoNews = on;
     this.game.save();
-    session.changed();
+    this.game.changed();
   }
 
   masthead(): string {

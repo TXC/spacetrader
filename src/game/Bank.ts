@@ -19,6 +19,7 @@ export function borrow(game: Game, amount: number): void {
   commander.credits = commander.credits + actual;
   commander.debt = commander.debt + actual;
   game.save();
+  game.changed();
 }
 
 export function payBack(game: Game, amount: number): void {
@@ -27,6 +28,7 @@ export function payBack(game: Game, amount: number): void {
   commander.credits = commander.credits - actual;
   commander.debt = commander.debt - actual;
   game.save();
+  game.changed();
 }
 
 // Buys or cancels insurance. Buying is refused, and nothing saved, without an escape pod.
@@ -36,10 +38,12 @@ export function toggleInsurance(game: Game): 'ok' | 'needsEscapePod' {
   if (commander.hasInsurance) commander.noClaim = 0;
   commander.hasInsurance = !commander.hasInsurance;
   game.save();
+  game.changed();
   return 'ok';
 }
 
 export function setRemindLoans(game: Game, remind: boolean): void {
   game.remindLoans = remind;
   game.save();
+  game.changed();
 }

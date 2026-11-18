@@ -3,7 +3,6 @@ import { AlertViewController } from '../game/alerts.ts';
 import { buyCargo, cargoRows, sellCargo } from '../game/Cargo.ts';
 import type { CargoRow, CargoView } from '../game/Cargo.ts';
 import type { Game } from '../game/Game.ts';
-import { session } from '../game/session.ts';
 import type { SolarSystem } from '../game/SolarSystem.ts';
 import { BaysCredits } from './BaysCredits.tsx';
 import styles from './BuySellCargo.module.css';
@@ -20,9 +19,7 @@ function trade(game: Game, buy: boolean, type: number, quantity: number) {
     AlertViewController.presentAlertWithDismiss(
       'Your debt is too large. Nobody will trade with you.'
     );
-    return;
   }
-  session.changed();
 }
 
 // "Buy 1", "5", "All": only the first button names the action, so three fit on a phone.

@@ -1,7 +1,6 @@
 // The galactic chart: the list of systems, tracking one, and the portable singularity.
 import { AlertActionType, AlertViewController } from './alerts.ts';
 import type { Game } from './Game.ts';
-import { session } from './session.ts';
 import type { SolarSystem } from './SolarSystem.ts';
 import { SpecialEvent, systemSizeName } from './SolarSystem.types.ts';
 import { specialEventForType } from './SpecialEventSpecifier.ts';
@@ -28,7 +27,7 @@ export function describe(game: Game, system: SolarSystem): string {
 export function toggleTracking(game: Game, system: SolarSystem): void {
   game.trackedSystem = game.trackedSystem === system ? null : system;
   game.save();
-  session.changed();
+  game.changed();
 }
 
 export function askSingularity(

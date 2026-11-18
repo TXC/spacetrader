@@ -2,7 +2,6 @@
 import { accessoryForType, AccessoryType } from './Accessory.ts';
 import { AlertActionType, AlertViewController } from './alerts.ts';
 import type { Game } from './Game.ts';
-import { session } from './session.ts';
 import { Ship, shipModelForType, ShipModelType } from './Ship.ts';
 import type { ShipModel } from './Ship.ts';
 import { FAKE_QUEST_CARGO, FAKE_QUEST_CARGO_REACTOR } from './TradeItem.types.ts';
@@ -25,7 +24,7 @@ export function present(game: Game): void {
 function saved(game: Game): void {
   game.save();
   present(game);
-  session.changed();
+  game.changed();
 }
 
 export function fuelLines(game: Game): { text: string; needed: number } {
@@ -67,13 +66,13 @@ export function buyRepairs(game: Game, amount: 1 | 5 | 'full'): void {
 export function setAutoFuel(game: Game, on: boolean): void {
   game.autoFuel = on;
   game.save();
-  session.changed();
+  game.changed();
 }
 
 export function setAutoRepairs(game: Game, on: boolean): void {
   game.autoRepairs = on;
   game.save();
-  session.changed();
+  game.changed();
 }
 
 function confirm(text: string, yes: () => void) {

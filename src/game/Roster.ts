@@ -1,7 +1,6 @@
 // The personnel roster: the commander, the crew, and who is for hire here.
 import type { CrewMember } from './CrewMember.ts';
 import type { Game } from './Game.ts';
-import { session } from './session.ts';
 
 export type RosterKind = 'commander' | 'crew' | 'forHire';
 export type RosterSection = {
@@ -33,12 +32,12 @@ export function fire(game: Game, member: CrewMember, onFired?: (member: CrewMemb
   game.commander.ship.removeCrewMember(member);
   onFired?.(member);
   game.save();
-  session.changed();
+  game.changed();
 }
 
 export function hire(game: Game, member: CrewMember): void {
   if (!canHire(game) || game.commander.ship.crew.includes(member)) return;
   game.commander.ship.addCrewMember(member);
   game.save();
-  session.changed();
+  game.changed();
 }

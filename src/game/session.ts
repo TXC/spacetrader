@@ -6,6 +6,8 @@ import { Commander } from './Commander.ts';
 import type { CrewMember } from './CrewMember.ts';
 import { Game, GameEndStatus } from './Game.ts';
 import type { GameEndedStatus, GameState } from './Game.ts';
+import { MAX_HIGH_SCORES } from './HallOfFame.ts';
+import type { Skills } from './NewCommander.ts';
 import { News } from './News.ts';
 import { runtime } from './runtime.ts';
 import { parseSavedGame } from './savedGame.ts';
@@ -21,7 +23,6 @@ import { Travel } from './travel/Travel.ts';
 import { pLog } from './probes.ts';
 import { systemsWithinRange, warp } from './Warp.ts';
 
-export const MAX_HIGH_SCORES = 6;
 const ROWS = [
   'Special',
   'News',
@@ -54,7 +55,6 @@ const ROW_PROBES: Partial<Record<Row, number>> = {
 };
 
 export type NavRow = { row: Row; icon: string };
-export type Skills = { engineer: number; pilot: number; fighter: number; trader: number };
 type SavedGames = Record<string, GameState>;
 
 export const CANNOT_SAVE =
@@ -116,7 +116,7 @@ export class Session extends Store {
     commander.setReserveMoney(true);
     commander.setDifficulty(difficulty);
     this.game = new Game(difficulty, commander);
-    this.game.setOnSave(this.save);
+    this.watch(this.game);
     this.game.save();
     this.start();
   };
@@ -194,7 +194,7 @@ export class Session extends Store {
     try {
       const game = Game.fromSerializedState(state);
       pLog.log(67);
-      game.setOnSave(this.save);
+      this.watch(game);
       this.game = game;
       return true;
     } catch (error) {
@@ -202,6 +202,14 @@ export class Session extends Store {
       return false;
     }
   }
+
+  // The game saves through the session, and tells it when a rule changed something.
+  private watch(game: Game): void {
+    game.setOnSave(this.save);
+    game.setOnChange(this.gameChanged);
+  }
+
+  private gameChanged = (): void => this.changed();
 
   // A game in progress is kept under "games"; a finished one moves to the high scores.
   private save = (game: Game): void => {
@@ -241,6 +249,7 @@ export class Session extends Store {
   clearHighScores = (): void => {
     pLog.log(94);
     this.write('highScoringGames', {});
+    this.changed();
   };
 
   // ---- the landing screen ------------------------------------------------------------
@@ -417,7 +426,7 @@ export class Session extends Store {
   }
 }
 
-// The session in use. Rules call session.changed() after changing the game.
+// The session the page shows.
 export let session = new Session();
 
 // Makes another session the one in use, for a new game on the page or in a test.
