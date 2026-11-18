@@ -1,0 +1,19 @@
+.heading {
+  composes: centredBlock from './shared.module.css';
+  padding-top: var(--space-10);
+}
+
+/* The newspaper: a framed sheet with an empty line above and below. */
+.paper {
+  width: fit-content;
+  max-width: 90%;
+  margin: var(--space-line) auto;
+  padding: 1rem;
+  border: 1px solid var(--frame);
+  box-shadow: 0px 4px 8px var(--frame-shadow);
+}
+
+/* Each headline, with an empty line above it. */
+.paper p {
+  margin: var(--space-line) 0 0;
+}

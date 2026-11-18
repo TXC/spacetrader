@@ -1,16 +1,16 @@
-import { Fragment } from 'react';
 import type { Game } from '../game/Game.ts';
 import type { News as NewsRules } from '../game/News.ts';
 import { Icon } from './Icon.tsx';
 import { LoggedCheckbox, LoggedLink } from './Logged.tsx';
 import { useSession } from './useStore.ts';
+import styles from './News.module.css';
 import shared from './shared.module.css';
 
 type Props = { game: Game; news: NewsRules };
 
 function PayLink({ news }: { news: NewsRules }) {
   return (
-    <div className="button-item">
+    <div>
       <LoggedLink id="purchaseNews" onPress={() => news.buy()}>
         <Icon name="News" className={shared.buttonIcon} />
         <span>{`Pay $${news.price()} to read news`}</span>
@@ -19,22 +19,13 @@ function PayLink({ news }: { news: NewsRules }) {
   );
 }
 
-// The masthead, then each headline with a blank line between.
+// The masthead, then each headline as a paragraph of its own.
 function Paper({ masthead, text }: { masthead: string; text: string }) {
   return (
     <>
       <h4>{masthead}</h4>
-      <br />
       {text.split('\n').map((line, index) => (
-        <Fragment key={index}>
-          {index > 0 && (
-            <>
-              <br />
-              <br />
-            </>
-          )}
-          {line}
-        </Fragment>
+        <p key={index}>{line}</p>
       ))}
     </>
   );
@@ -45,12 +36,10 @@ export function News({ game, news }: Props) {
   const text = news.text();
   return (
     <>
-      <h1 className={`${shared.centredBlock} news-header`}>News</h1>
-      <br />
-      <div id="newsStrDiv">
+      <h1 className={styles.heading}>News</h1>
+      <div id="newsStrDiv" className={styles.paper}>
         {text === null ? <PayLink news={news} /> : <Paper masthead={news.masthead()} text={text} />}
       </div>
-      <br />
       <div className={shared.centredBlock}>
         <LoggedCheckbox
           id="autoNewsCheckbox"
