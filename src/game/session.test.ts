@@ -20,7 +20,7 @@ let session: Session;
 let storage: MockLocalStorage;
 
 beforeEach(() => {
- runtime.gameRand = new GameRand(1);
+  runtime.gameRand = new GameRand(1);
   AlertViewController.clearAlerts();
   storage = new MockLocalStorage();
   session = new Session();

@@ -7,7 +7,9 @@ import { startSession } from './startSession.ts';
 const session = startSession();
 
 // Only the built game is kept for offline use; in development it would serve stale files.
-if (import.meta.env.PROD) registerOffline().catch(console.warn);
+if (import.meta.env.PROD) {
+  registerOffline().catch(console.warn);
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
