@@ -2,8 +2,6 @@
 // test file.
 import { afterAll, afterEach, beforeAll, expect, type RunnerTestSuite } from 'vitest';
 import { AlertViewController } from '../../game/alerts.ts';
-import { runtime } from '../../game/runtime.ts';
-import { DebugMode } from '../../game/debug.ts';
 import { pLog } from '../../game/probes.ts';
 import { unmountAll } from './harness.ts';
 import knownMissing from './probes.json';
@@ -17,7 +15,6 @@ beforeAll(() => {
     'beforeend',
     '<div id="game"></div><div id="cheats" hidden></div>'
   );
-  runtime.debugMode = DebugMode.Assert;
   window.addEventListener('error', event => {
     handlerError ??= event.error ?? event.message;
   });

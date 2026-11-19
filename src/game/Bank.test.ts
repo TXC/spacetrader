@@ -3,12 +3,10 @@ import { borrow, borrowable, payBack, steps, toggleInsurance } from './Bank.ts';
 import { Game } from './Game.ts';
 import { GameRand } from './GameRand.ts';
 import { runtime } from './runtime.ts';
-import { DebugMode } from './debug.ts';
 
 let game: Game;
 
 beforeEach(() => {
-  runtime.debugMode = DebugMode.Assert;
   runtime.gameRand = new GameRand(1);
   game = Game.create(2, { name: 'Tester', engineer: 5, pilot: 5, fighter: 5, trader: 5 });
   game.commander.reserveMoney = true;
