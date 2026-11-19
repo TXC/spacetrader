@@ -115,6 +115,11 @@ decision on the rules more than they need work.
 | 2026-11-18 | Q7 | Fix, with a generator of his own | Extending the placement loop breaks 117 tests; a separate generator for Yorvick breaks none. The original game does the same for its newspaper. |
 | 2026-11-18 | Q5 | Fix the damage roll, last | Only the damage roll matters: it breaks 19 tests from about eight recordings. The tribble roll breaks none. The repair roll already gives the original's result and is not a bug. |
 | 2026-11-18 | Q11 | Fix | Found during step 15: carrying the reactor multiplies a hit by a factor such as 1.99, and the port dropped the factor's fraction first. Fixed to keep the fraction, as in the original (`Encounter.c:825-833`). |
+| 2026-11-19 | Rare equipment on a new ship | Keep the port's affordability check | It counts the item's own cost, so cash cannot go below zero. The original only counts the ship and the items already chosen. |
+| 2026-11-19 | Picking a skill to raise (good tonic, two special events) | Keep the port's way | One roll among the skills that can rise gives the same odds as the original's rolling until one can; only the number of rolls differs. |
+| 2026-11-19 | A trade in orbit changing the system's prices | Keep the port's way | The original's trade overwrites the system's price list until it is worked out again; the port's price lasts for the trade only. |
+| 2026-11-19 | Crew quarters when buying a ship | Keep the port's order | The port refuses before asking about equipment; the original asks first, for a purchase that cannot happen. |
+| 2026-11-19 | A trader selling when the hold is full | Fix | Show the question with the amount capped at the free bays, as the original does (`Encounter.c:1746-1795`). |
 
 ## 3. Rule bugs
 
