@@ -19,6 +19,7 @@ import { mountAlertHost } from '../support/mountAlertHost.tsx';
 import { mountReact } from '../support/mountReact.ts';
 import { SessionContext } from '../../ui/useStore.ts';
 import { welcome } from '../support/page.ts';
+import { DebugMode } from '../../game/debug.ts';
 
 export { ActionLogReplay };
 
@@ -70,6 +71,7 @@ export function runReplayLog(replayLog: string, registerEventHandler?: RegisterH
   AlertViewController.clearAlerts();
 
   const randSeed = Date.now();
+  runtime.debugMode = DebugMode.Alert;
   runtime.gameRand = new GameRand(randSeed);
   runtime.actionLog = new ActionLogger(randSeed);
   runtime.stLocalStorage = new MockLocalStorage();
