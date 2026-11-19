@@ -1,5 +1,5 @@
 // The ship yard's rules: fuel, repairs, the escape pod and trading in the ship.
-import { accessoryForType, AccessoryType } from './Accessory.ts';
+import { AccessoryType } from './Accessory.ts';
 import { AlertActionType, AlertViewController } from './alerts.ts';
 import type { Game } from './Game.ts';
 import { Ship, shipModelForType, ShipModelType } from './Ship.ts';
@@ -133,68 +133,106 @@ function whyNoTradeIn(game: Game, price: number): string | null {
   return null;
 }
 
-// The three items that can only be had from quests, and what happens to each on a trade-in.
+// The three items that can only be had from quests, with what the original asks to move
+// each to a new ship (BuyShipEvent.c:227-262, 269-318).
 const RARE = [
-  { type: AccessoryType.ShieldLightning, name: 'Lightning shield', kind: 'shield' },
-  { type: AccessoryType.GadgetFuelCompactor, name: 'Fuel Compactor', kind: 'gadget' },
-  { type: AccessoryType.WeaponMorgansLaser, name: "Morgan's Laser", kind: 'weapon' },
+  {
+    type: AccessoryType.ShieldLightning,
+    name: 'Lightning Shield',
+    kind: 'Shield',
+    cost: 30000,
+    offer:
+      "I see you have a lightning shield. I'll transfer it to your new ship for 30000 credits.",
+  },
+  {
+    type: AccessoryType.GadgetFuelCompactor,
+    name: 'Fuel Compactor',
+    kind: 'Gadget',
+    cost: 20000,
+    offer: "I see you have a fuel compactor. I'll transfer it to your new ship for 20000 credits.",
+  },
+  {
+    type: AccessoryType.WeaponMorgansLaser,
+    name: "Morgan's Laser",
+    kind: 'Weapon',
+    cost: 33333,
+    offer:
+      "I see you have a customized laser. I'll transfer it to your new ship for 33333 credits.",
+  },
 ] as const;
+type Rare = (typeof RARE)[number];
 
-function hasRare(ship: Ship, kind: 'shield' | 'gadget' | 'weapon', type: AccessoryType): boolean {
-  if (kind === 'shield') return ship.hasShieldOfType(type);
-  return kind === 'gadget' ? ship.hasGadgetOfType(type) : ship.hasWeaponOfType(type);
+const CANNOT_AFFORD_ALL =
+  "You won't have enough money to buy this ship and pay the cost to transfer all of your unique equipment. You should choose carefully which items you wish to transfer!";
+
+// The ship on offer, and what it costs after the trade-in.
+type Offer = { game: Game; model: ShipModel; price: number };
+
+function hasRare(ship: Ship, { kind, type }: Rare): boolean {
+  if (kind === 'Shield') return ship.hasShieldOfType(type);
+  return kind === 'Gadget' ? ship.hasGadgetOfType(type) : ship.hasWeaponOfType(type);
 }
 
-function slotsFor(model: ShipModel, kind: 'shield' | 'gadget' | 'weapon'): number {
-  if (kind === 'shield') return model.shieldSlots;
-  return kind === 'gadget' ? model.gadgetSlots : model.weaponSlots;
+function slotsFor(model: ShipModel, { kind }: Rare): number {
+  if (kind === 'Shield') return model.shieldSlots;
+  return kind === 'Gadget' ? model.gadgetSlots : model.weaponSlots;
 }
 
-// Which rare items move to the new ship, what that costs, and which are lost.
-function rareEquipment(game: Game, model: ShipModel) {
-  const kept: AccessoryType[] = [];
-  const lost: string[] = [];
-  let extraCost = 0;
-  for (const item of RARE) {
-    if (!hasRare(game.commander.ship, item.kind, item.type)) continue;
-    if (slotsFor(model, item.kind) === 0) {
-      lost.push(`You will lose your ${item.name} due to insufficient ${item.kind} slots.`);
-    } else {
-      kept.push(item.type);
-      extraCost += Math.floor((accessoryForType(item.type)!.price * 2) / 3);
-    }
+const costOf = (items: Rare[]) => items.reduce((sum, item) => sum + item.cost, 0);
+
+// What the original tells before it asks about any item (BuyShipEvent.c:227-266).
+function rareWarnings({ game, model, price }: Offer, held: Rare[]): string[] {
+  const warnings: string[] = held
+    .filter(item => slotsFor(model, item) === 0)
+    .map(
+      item =>
+        `If you trade your ship in for a ${model.name}, you won't be able to transfer your ${item.name} because the new ship has insufficient ${item.kind} slots!`
+    );
+  if (price + costOf(held) > game.commander.spendingMoney()) warnings.push(CANNOT_AFFORD_ALL);
+  return warnings;
+}
+
+// Shows the messages one after the other, then goes on.
+function tell(messages: string[], then: () => void): void {
+  if (messages.length === 0) return then();
+  const alert = new AlertViewController(messages[0]);
+  alert.addAction('Dismiss', AlertActionType.Default, () => tell(messages.slice(1), then));
+  alert.presentView();
+}
+
+// Asks about each item in turn, while the cash lasts, and goes on with the chosen ones
+// (BuyShipEvent.c:267-318). The original does not count the item's own cost here, which
+// would leave the commander with less than no cash.
+function askToMove(offer: Offer, items: Rare[], chosen: Rare[], then: (chosen: Rare[]) => void) {
+  if (items.length === 0) return then(chosen);
+  const [item, ...rest] = items;
+  const next = (moved: Rare[]) => askToMove(offer, rest, moved, then);
+  const spending = offer.game.commander.spendingMoney();
+  if (offer.price + costOf(chosen) + item.cost > spending) {
+    const text = `Unfortunately, if you make this trade, you won't be able to afford to transfer your ${item.name} to the new ship!`;
+    return tell([text], () => next(chosen));
   }
-  return { kept, lost, extraCost };
+  const alert = new AlertViewController(item.offer);
+  alert.addAction('Do it!', AlertActionType.Default, () => next([...chosen, item]));
+  alert.addAction('No thanks', AlertActionType.Cancel, () => next(chosen));
+  alert.presentView();
 }
 
-function tradeInPrompt(
-  game: Game,
-  model: ShipModel,
-  price: number,
-  rare: ReturnType<typeof rareEquipment>
-): string {
+function tradeInPrompt({ game, model, price }: Offer, moved: Rare[]): string {
   const credit = price < 0 ? ' a credit of' : '';
-  let prompt = `Are you sure you want to trade your ${game.commander.ship.model.name} for a ${model.name} for${credit} $${Math.abs(price)}?`;
-  if (rare.kept.length)
-    prompt += ` To keep your rare equipment, you will need to pay an extra $${rare.extraCost}.`;
-  if (rare.lost.length) prompt += ` Please note that:\n${rare.lost.join('\n')}`;
-  return prompt;
+  const end = moved.length ? ', and transfer your unique equipment to the new ship?' : '?';
+  return `Are you sure you want to trade your ${game.commander.ship.model.name} for a ${model.name} for${credit} $${Math.abs(price)}${end}`;
 }
 
-function tradeIn(
-  game: Game,
-  model: ShipModel,
-  price: number,
-  rare: ReturnType<typeof rareEquipment>
-): void {
+function tradeIn({ game, model, price }: Offer, moved: Rare[]): void {
   const ship = Ship.create(model.type);
   game.commander.ship.crew.forEach(crewMember => ship.addCrewMember(crewMember));
-  rare.kept.forEach(type => ship.addAccessoryOfType(type));
+  moved.forEach(item => ship.addAccessoryOfType(item.type));
   // Quest cargo stays with the commander. (The reactor never gets here: it blocks the sale.)
   const antidote = game.commander.ship.tradeItemQuantityForType(FAKE_QUEST_CARGO);
   ship.boughtQuantity(antidote, FAKE_QUEST_CARGO, 0);
   game.commander.ship = ship;
-  game.commander.credits = game.commander.credits - price - rare.extraCost;
+  game.commander.credits = game.commander.credits - price - costOf(moved);
   saved(game);
 }
 
@@ -202,16 +240,17 @@ export function buyShip(game: Game, model: ShipModel): void {
   const price = priceForModel(game, model);
   const refusal = whyNoTradeIn(game, price);
   if (refusal) return AlertViewController.presentAlertWithDismiss(refusal);
-  const rare = rareEquipment(game, model);
-  if (price + rare.extraCost > game.commander.spendingMoney()) {
-    return AlertViewController.presentAlertWithDismiss(
-      `You've got special equipment on board which will cost $${rare.extraCost} to move over. Unfortunately, you can't afford this cost and must sell some equipment or increase your cash to proceed.`
-    );
-  }
   if (model.mercenaryQuarters() < game.commander.ship.crewCount()) {
     return AlertViewController.presentAlertWithDismiss(
       "The new ship you picked doesn't have enough quarters for your crew. You need to fire some mercenaries or pick a more accommodating ship."
     );
   }
-  confirm(tradeInPrompt(game, model, price, rare), () => tradeIn(game, model, price, rare));
+  const offer = { game, model, price };
+  const held = RARE.filter(item => hasRare(game.commander.ship, item));
+  const fitting = held.filter(item => slotsFor(model, item) > 0);
+  tell(rareWarnings(offer, held), () =>
+    askToMove(offer, fitting, [], moved =>
+      confirm(tradeInPrompt(offer, moved), () => tradeIn(offer, moved))
+    )
+  );
 }
