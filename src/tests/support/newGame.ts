@@ -2,12 +2,10 @@ import { AlertViewController, alertStore } from '../../game/alerts.ts';
 import { Game } from '../../game/Game.ts';
 import { GameRand } from '../../game/GameRand.ts';
 import { runtime } from '../../game/runtime.ts';
-import { DebugMode } from '../../game/debug.ts';
 import { Difficulty } from '../../game/SolarSystem.types.ts';
 
 // A fresh game for a rules test: a fixed galaxy, an average commander, no alerts open.
 export function newGame(difficulty: Difficulty = Difficulty.Normal): Game {
-  runtime.debugMode = DebugMode.Assert;
   runtime.gameRand = new GameRand(1);
   AlertViewController.clearAlerts();
   const game = Game.create(difficulty, {
