@@ -14,6 +14,8 @@ type Offer = {
   tradePrice: number;
   maxUnits: number;
   comparisonPrice: number;
+  // Whether the commander can pay for one unit, when the trader sells.
+  canAfford: boolean;
 };
 
 // The commander hears the trader's offer. Returns whether the automatic action may repeat
@@ -26,6 +28,7 @@ export function trade(encounter: Encounter): boolean {
     tradePrice: 0,
     maxUnits: 0,
     comparisonPrice: 0,
+    canAfford: false,
   };
 
   if (encounter._type === EncounterType.TraderBuy) {
@@ -34,17 +37,8 @@ export function trade(encounter: Encounter): boolean {
     offer = offerToSell(encounter, onlyIllegal);
   }
 
-  const { itemType, itemName, tradePrice, maxUnits, comparisonPrice } = offer;
-  if (itemType !== NO_TRADE_ITEM) {
-    presentTradeAlert(
-      encounter,
-      itemName,
-      itemType,
-      tradePrice,
-      maxUnits,
-      comparisonPrice,
-      encounter._type === EncounterType.TraderSell
-    );
+  if (offer.itemType !== NO_TRADE_ITEM) {
+    presentTradeAlert(encounter, offer, encounter._type === EncounterType.TraderSell);
   }
   return true;
 }
@@ -86,7 +80,7 @@ function offerToBuy(encounter: Encounter, onlyIllegal: boolean): Offer {
     comparisonPrice = encounter._game.commander.ship.tradeItemAverageBuyingPriceForType(itemType);
   }
 
-  return { itemType, itemName, tradePrice, maxUnits, comparisonPrice };
+  return { itemType, itemName, tradePrice, maxUnits, comparisonPrice, canAfford: true };
 }
 
 function offerToSell(encounter: Encounter, onlyIllegal: boolean): Offer {
@@ -125,23 +119,14 @@ function offerToSell(encounter: Encounter, onlyIllegal: boolean): Offer {
     );
   }
 
-  return { itemType, itemName, tradePrice, maxUnits, comparisonPrice };
+  const canAfford = tradePrice > 0 && encounter._game.commander.credits >= tradePrice;
+  return { itemType, itemName, tradePrice, maxUnits, comparisonPrice, canAfford };
 }
 
-function presentTradeAlert(
-  encounter: Encounter,
-  itemName: string,
-  itemType: number,
-  tradePrice: number,
-  maxUnits: number,
-  comparisonPrice: number,
-  traderSell: boolean
-) {
+function presentTradeAlert(encounter: Encounter, offer: Offer, traderSell: boolean) {
+  const { itemType, tradePrice, maxUnits } = offer;
   const { text, needsDismiss, needsAll, needsNone, needsSelected } = tradeQuestion(
-    itemName,
-    tradePrice,
-    maxUnits,
-    comparisonPrice,
+    offer,
     traderSell
   );
 
@@ -202,13 +187,8 @@ function presentTradeAlert(
 }
 
 // What the trader asks, and which answers the commander is given.
-function tradeQuestion(
-  itemName: string,
-  tradePrice: number,
-  maxUnits: number,
-  comparisonPrice: number,
-  traderSell: boolean
-) {
+function tradeQuestion(offer: Offer, traderSell: boolean) {
+  const { itemName, tradePrice, maxUnits, comparisonPrice, canAfford } = offer;
   let needsDismiss: boolean;
   let needsAll = false;
   let needsNone = false;
@@ -216,11 +196,11 @@ function tradeQuestion(
 
   let text: string;
   if (traderSell) {
-    const canAfford = maxUnits > 0;
+    // A full hold still gets the question, with nothing to choose, as in the original.
     text = `The trader wants to sell ${itemName} for $${tradePrice} each. ${!canAfford ? "Unfortunately, you can't afford any." : 'How many do you wish to buy?'}`;
 
     needsDismiss = !canAfford;
-    needsAll = canAfford;
+    needsAll = maxUnits > 0;
     needsNone = canAfford;
     needsSelected = canAfford;
   } else {

@@ -35,6 +35,24 @@ test('a trader selling what the commander cannot afford can only be dismissed', 
   expect(game.commander.ship.tradeItemQuantityForType(Water)).toBe(0);
 });
 
+// The original shows the question whenever the commander can pay, and caps the amount at
+// the free bays (Encounter.c:1746-1795).
+test('a trader selling to a commander with a full hold asks how many, capped at none', () => {
+  const game = newGame();
+  game.commander.credits = 100000;
+  const { ship } = game.commander;
+  ship.boughtQuantity(ship.freeCargoBays(), Furs, 0);
+  const { offer, ended } = hearOffer(game, TraderSell, traderWith([[Water, 5]]));
+
+  expect(offer.title).toMatch(/^The trader wants to sell Water for \$\d+ each\. How many/);
+  expect(buttons(offer)).toEqual(['None', 'Selected']);
+  expect(offer.content).toMatchObject({ kind: 'slider', min: 0, max: 0 });
+  press('Selected');
+
+  expect(ended).toHaveBeenCalledWith(false);
+  expect(ship.tradeItemQuantityForType(Water)).toBe(0);
+});
+
 test('buying the selected amount from a trader moves the goods and the money', () => {
   const game = newGame();
   game.commander.credits = 10000;
