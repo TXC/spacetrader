@@ -1,13 +1,14 @@
 import { expect, test } from 'vitest';
+import { dismissAll } from '../tests/support/encounters.ts';
 import { newGame, press, topAlert } from '../tests/support/newGame.ts';
-import { accessoryForType, AccessoryType } from './Accessory.ts';
+import { AccessoryType } from './Accessory.ts';
 import { CrewMember } from './CrewMember.ts';
 import type { Game } from './Game.ts';
 import { Ship, shipModelForType, ShipModelType } from './Ship.ts';
 import { buyShip, priceForModel } from './ShipYard.ts';
 import { TradeItemType } from './TradeItem.types.ts';
 
-const { Flea, Gnat, Firefly, Mosquito, Beetle } = ShipModelType;
+const { Flea, Gnat, Firefly, Mosquito, Beetle, Termite } = ShipModelType;
 const { ShieldLightning, GadgetFuelCompactor, WeaponMorgansLaser } = AccessoryType;
 
 // The commander's Gnat is worth $7,500 in trade; a trader of skill 5 pays 95% of a price.
@@ -70,51 +71,78 @@ function collector(): Game {
   return game;
 }
 
-const twoThirds = (type: number) => Math.floor((accessoryForType(type)!.price * 2) / 3);
-
-test('rare equipment that fits moves to the new ship at two thirds of its price', () => {
+// The original asks about each rare item in turn and charges a fixed sum for each
+// (BuyShipEvent.c:217-371).
+test('rare equipment that fits the new ship is moved if the player asks for it', () => {
   const game = collector();
   const price = priceForModel(game, shipModelForType(Beetle));
-  const extra = twoThirds(ShieldLightning) + twoThirds(GadgetFuelCompactor);
 
   buyShip(game, shipModelForType(Beetle));
-  expect(topAlert().title).toContain(
-    `To keep your rare equipment, you will need to pay an extra $${extra}. Please note that:\nYou will lose your Morgan's Laser due to insufficient weapon slots.`
+  expect(dismissAll()).toEqual([
+    "If you trade your ship in for a Beetle, you won't be able to transfer your Morgan's Laser because the new ship has insufficient Weapon slots!",
+  ]);
+  expect(topAlert().title).toBe(
+    "I see you have a lightning shield. I'll transfer it to your new ship for 30000 credits."
+  );
+  press('Do it!');
+  expect(topAlert().title).toBe(
+    "I see you have a fuel compactor. I'll transfer it to your new ship for 20000 credits."
+  );
+  press('No thanks');
+  expect(topAlert().title).toBe(
+    `Are you sure you want to trade your Mosquito for a Beetle for a credit of $${-price}, and transfer your unique equipment to the new ship?`
   );
   press('Yes');
 
   const { ship } = game.commander;
   expect(ship.hasShieldOfType(ShieldLightning)).toBe(true);
-  expect(ship.hasGadgetOfType(GadgetFuelCompactor)).toBe(true);
+  expect(ship.hasGadgetOfType(GadgetFuelCompactor)).toBe(false);
   expect(ship.hasWeaponOfType(WeaponMorgansLaser)).toBe(false);
-  expect(game.commander.credits).toBe(200_000 - price - extra);
+  expect(game.commander.credits).toBe(200_000 - price - 30_000);
 });
 
 test('rare equipment that has no slot on the new ship is lost, and costs nothing', () => {
   const game = collector();
+  const price = priceForModel(game, shipModelForType(Flea));
 
   buyShip(game, shipModelForType(Flea));
+  expect(dismissAll()).toEqual(
+    [
+      ['Lightning Shield', 'Shield'],
+      ['Fuel Compactor', 'Gadget'],
+      ["Morgan's Laser", 'Weapon'],
+    ].map(
+      ([item, kind]) =>
+        `If you trade your ship in for a Flea, you won't be able to transfer your ${item} because the new ship has insufficient ${kind} slots!`
+    )
+  );
+  expect(topAlert().title).toBe(
+    `Are you sure you want to trade your Mosquito for a Flea for a credit of $${-price}?`
+  );
+  press('Yes');
 
-  expect(topAlert().title).toMatch(/for a credit of \$\d+\? Please note that:\n/);
-  expect(topAlert().title).toContain(
-    'You will lose your Lightning shield due to insufficient shield slots.'
-  );
-  expect(topAlert().title).toContain(
-    'You will lose your Fuel Compactor due to insufficient gadget slots.'
-  );
-  expect(topAlert().title).not.toContain('pay an extra');
+  expect(game.commander.credits).toBe(200_000 - price);
 });
 
-test('rare equipment that cannot be paid for stops the trade', () => {
+test('with too little cash for all rare equipment, only what can be paid for is offered', () => {
   const game = collector();
-  game.commander.credits = priceForModel(game, shipModelForType(Firefly));
+  const price = priceForModel(game, shipModelForType(Termite));
+  game.commander.credits = price + 25_000;
+  const cannotAfford = (item: string) =>
+    `Unfortunately, if you make this trade, you won't be able to afford to transfer your ${item} to the new ship!`;
 
-  buyShip(game, shipModelForType(Firefly));
+  buyShip(game, shipModelForType(Termite));
+  expect(dismissAll()).toEqual([
+    "You won't have enough money to buy this ship and pay the cost to transfer all of your unique equipment. You should choose carefully which items you wish to transfer!",
+    cannotAfford('Lightning Shield'),
+  ]);
+  press('Do it!'); // the fuel compactor, for 20000
+  expect(dismissAll()).toEqual([cannotAfford("Morgan's Laser")]);
+  press('Yes');
 
-  expect(topAlert().title).toMatch(
-    /^You've got special equipment on board which will cost \$\d+ to move over/
-  );
-  expect(game.commander.ship.type).toBe(Mosquito);
+  expect(game.commander.ship.hasGadgetOfType(GadgetFuelCompactor)).toBe(true);
+  expect(game.commander.ship.hasShieldOfType(ShieldLightning)).toBe(false);
+  expect(game.commander.credits).toBe(5_000);
 });
 
 test('a ship without quarters for the crew is not sold', () => {
