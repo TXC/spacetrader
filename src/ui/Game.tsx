@@ -18,6 +18,8 @@ export function Game() {
       />
     );
   }
-  if (session.screen === 'landing') return <Landing game={session.game!} />;
+  if (session.screen === 'landing') {
+    return <Landing game={session.game!} />;
+  }
   return <NewCommander />;
 }

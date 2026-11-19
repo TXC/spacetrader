@@ -15,7 +15,8 @@ export function debugModeFor(search: string): DebugMode {
 // Call once, before anything is drawn.
 export function startSession(): Session {
   const randSeed = Date.now();
-  runtime.debugMode = debugModeFor(location.search);
+  // Development builds always run in debug mode.
+  runtime.debugMode = import.meta.env.DEV ? DebugMode.Alert : debugModeFor(location.search);
   runtime.gameRand = new GameRand(randSeed);
   runtime.actionLog = new ActionLogger(randSeed);
   runtime.stLocalStorage = browserStorage();

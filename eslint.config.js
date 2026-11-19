@@ -20,6 +20,9 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { projectService: true },
     },
+    rules: {
+      "curly": ["error", "all"]
+    },
   },
   {
     files: ['src/tests/**', 'src/**/*.test.{ts,tsx}'],
