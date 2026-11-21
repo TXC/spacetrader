@@ -1,0 +1,9 @@
+.branch,
+.leaf {
+  font-family: monospace;
+}
+
+/* Entries sit under the name of the branch they belong to. */
+.branch > :not(summary) {
+  padding-left: 1rem;
+}
