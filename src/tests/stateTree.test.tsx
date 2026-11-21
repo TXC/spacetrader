@@ -38,3 +38,10 @@ test('keeps an opened branch open', () => {
   expect(branch().open).toBe(true);
   expect(branch().textContent).toContain('y: 2');
 });
+
+test('shows a date as one line', () => {
+  const { host } = render(
+    <StateTree name="game" value={{ lastSave: new Date(Date.UTC(2026, 10, 22)) }} />
+  );
+  expect(host.textContent).toContain('lastSave: "2026-11-22T00:00:00.000Z"');
+});
