@@ -1,13 +1,14 @@
 import styles from './StateTree.module.css';
 
 // A value shown as a tree: objects and lists are branches that open and close, anything
-// else is one line in JSON, so text and numbers look different. The browser keeps which
+// else is one line in JSON, so text and numbers look different. Numbers are written as
+// they are, since JSON would turn NaN into null. The browser keeps which
 // branches are open, so they stay open when the value changes.
 export function StateTree({ name, value }: { name: string; value: unknown }) {
   if (value === null || typeof value !== 'object' || value instanceof Date) {
     return (
       <div className={styles.leaf}>
-        {name}: {JSON.stringify(value) ?? 'undefined'}
+        {name}: {typeof value === 'number' ? String(value) : (JSON.stringify(value) ?? 'undefined')}
       </div>
     );
   }
