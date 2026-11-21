@@ -45,3 +45,9 @@ test('shows a date as one line', () => {
   );
   expect(host.textContent).toContain('lastSave: "2026-11-22T00:00:00.000Z"');
 });
+
+test('shows numbers JSON cannot write as they are', () => {
+  const { host } = render(<StateTree name="game" value={{ credits: NaN, debt: Infinity }} />);
+  expect(host.textContent).toContain('credits: NaN');
+  expect(host.textContent).toContain('debt: Infinity');
+});
