@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { runtime } from '../game/runtime.ts';
 import { Cheats } from './Cheats.tsx';
 import styles from './DebugPanel.module.css';
@@ -34,6 +34,14 @@ function Toggle(props: { id: string; label: string; on: boolean; set: (on: boole
   );
 }
 
+function CheatButtons() {
+  return (
+    <div id="cheats" className={styles.section}>
+      <Cheats />
+    </div>
+  );
+}
+
 // What a save keeps of the game, as a tree.
 function GameState() {
   const { game } = useSession();
@@ -41,6 +49,25 @@ function GameState() {
     <div id="gameState" className={styles.section}>
       {game ? <StateTree name="game" value={game.toState()} /> : 'No game yet.'}
     </div>
+  );
+}
+
+// The ☰ button, and the menu it opens and closes.
+function DebugMenu({ children }: { children: ReactNode }) {
+  return (
+    <>
+      <button
+        id="debugMenuButton"
+        className={styles.menuButton}
+        popoverTarget="debugMenu"
+        aria-label="Debug menu"
+      >
+        ☰
+      </button>
+      <div id="debugMenu" className={styles.menu} popover="auto">
+        {children}
+      </div>
+    </>
   );
 }
 
@@ -52,26 +79,14 @@ export function DebugPanel() {
   const [showGameState, setShowGameState] = useState(false);
   return (
     <div id="debug" className={styles.panel}>
-      <button
-        id="debugMenuButton"
-        className={styles.menuButton}
-        popoverTarget="debugMenu"
-        aria-label="Debug menu"
-      >
-        ☰
-      </button>
-      <div id="debugMenu" className={styles.menu} popover="auto">
+      <DebugMenu>
         <Toggle id="showCheats" label="Cheats" on={showCheats} set={setShowCheats} />
         <Toggle id="showGameState" label="Game state" on={showGameState} set={setShowGameState} />
         <button id="copyActionLog" onClick={() => void navigator.clipboard.writeText(log)}>
           Copy Action Log
         </button>
-      </div>
-      {showCheats && (
-        <div id="cheats" className={styles.section}>
-          <Cheats />
-        </div>
-      )}
+      </DebugMenu>
+      {showCheats && <CheatButtons />}
       {showGameState && <GameState />}
       <div id="debugLog">{log}</div>
     </div>
