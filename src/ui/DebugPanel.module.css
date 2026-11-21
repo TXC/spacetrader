@@ -4,7 +4,25 @@
   word-wrap: break-word;
 }
 
-/* The copy button's line, with an empty line after it. */
-.copy {
+.menuButton {
+  position: fixed;
+  top: 0.5rem;
+  right: 0.5rem;
+}
+
+/* The menu opens under the button, one item per line. */
+.menu {
+  inset: 2.5rem 0.5rem auto auto;
+  margin: 0;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.menu:popover-open {
+  display: flex;
+}
+
+/* The cheats and the game state, each with an empty line after it. */
+.section {
   margin-bottom: var(--space-line);
 }
